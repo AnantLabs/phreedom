@@ -1,0 +1,31 @@
+<?php
+// +-----------------------------------------------------------------+
+// |                   PhreeBooks Open Source ERP                    |
+// +-----------------------------------------------------------------+
+// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | http://www.PhreeSoft.com                                        |
+// +-----------------------------------------------------------------+
+// | This program is free software: you can redistribute it and/or   |
+// | modify it under the terms of the GNU General Public License as  |
+// | published by the Free Software Foundation, either version 3 of  |
+// | the License, or any later version.                              |
+// |                                                                 |
+// | This program is distributed in the hope that it will be useful, |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of  |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
+// | GNU General Public License for more details.                    |
+// +-----------------------------------------------------------------+
+//  Path: /modules/phreehelp/config.php
+//
+
+// Release History
+// 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
+// 3.1 => 2011-04-15 - Bug fixes
+// Module software version information
+define('MODULE_PHREEHELP_VERSION',  '3.1');
+// Menu sort positions
+// Menu security id's
+// New database tables
+define('TABLE_PHREEHELP', DB_PREFIX . 'phreehelp');
+// Set the title menu - N/A this is  special module placed into the heading bar
+?>

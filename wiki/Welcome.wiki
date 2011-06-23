@@ -1,4 +1,4 @@
-
+#summary Welcome page, Links and Information.
 = Introduction =
 
 This wiki is for development of Phreedom only. We have a user wiki that we are working on, more on that later.

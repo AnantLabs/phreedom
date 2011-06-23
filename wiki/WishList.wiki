@@ -1,0 +1,12 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+This page is a list of user wishes that have been granted dev status. You as a user may submit your wish first in the forum [http://www.phreesoft.com/forum/index.php] for comment by other users. If it is a wish that others would like as well then we move to the wish-list discussion group. [http://groups.google.com/group/phreedom-wishlist] Once users and developers in the wish-list discussion group have decided how to move forward with the wish it will be added to this list.
+
+*Note:* If your wish is not added to dev, you can still work to get what you want, after all this is opensource... We will have more on this later.
+
+
+== Development Approved Wish List ==
+
+* coming soon

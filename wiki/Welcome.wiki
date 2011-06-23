@@ -1,0 +1,20 @@
+#The welcome page.
+
+= Introduction =
+
+Add your content here. Yes we plan to do that...
+
+
+= Details =
+
+We will get you some details here shortly...
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
+
+= Links =
+The main site: more on this later, [http://www.phreesoft.com/ phreesoft]
+
+The support forum: When you need phreedom go here [http://www.phreesoft.com/forum/index.php phreedom support]

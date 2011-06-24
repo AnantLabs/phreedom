@@ -1,0 +1,10 @@
+#summary Development Information.
+
+= Introduction =
+
+More on this later
+
+*Comment Access*
+
+Get comment access. 
+Normally you submit a few patches and then the project manager makes the decision to grant you access or not.

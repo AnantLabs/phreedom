@@ -12,34 +12,34 @@ Normally you submit a few patches and then the project manager makes the decisio
 == Current Development List ==
 
 === HIGH PRIORITY ===
-rework import/export beginning balances to handle multi-branch
-lock gl accounts to defaults, users cannot change, hide gl accounts, part of POS?
-Add scanned files and attachments to invoices and forms
-Auto generate SKUs, create sku if field left blank
-Multi-currency gl entry, bills (payments and reciepts)
-Topic 1097, Ability to import payments and receipts (full import)
-Topic 1028, PhreeCRM Additions
-Topic 1044, special class for general journal
-add Print icon for Vendor Credit memos and create sample form
-make import script perform an update as well for external edits and refresh
+*rework import/export beginning balances to handle multi-branch
+*lock gl accounts to defaults, users cannot change, hide gl accounts, *part of POS?
+*Add scanned files and attachments to invoices and forms
+*Auto generate SKUs, create sku if field left blank
+*Multi-currency gl entry, bills (payments and reciepts)
+*Topic 1097, Ability to import payments and receipts (full import)
+*Topic 1028, PhreeCRM Additions
+*Topic 1044, special class for general journal
+*add Print icon for Vendor Credit memos and create sample form
+*make import script perform an update as well for external edits and refresh
 
 === LOW PRIORITY ===
-Banking import support
-Import Inventory (XML style)
-Ability to void payments (banking) versus delete
-Add LCM (lower of cost or market) capability
-Adding interest to receivables (current and late)
-Create archive for old journal entries and contacts. Modify code to use it when necessary. Close fiscal yesr.
-Allow for change of recur terms in recurring entries
-Add price sheets for vendors
-Topic 1299, utility to verify cleared accounts
+*Banking import support
+*Import Inventory (XML style)
+*Ability to void payments (banking) versus delete
+*Add LCM (lower of cost or market) capability
+*Adding interest to receivables (current and late)
+*Create archive for old journal entries and contacts. Modify code to use *it when necessary. Close fiscal yesr.
+*Allow for change of recur terms in recurring entries
+*Add price sheets for vendors
+*Topic 1299, utility to verify cleared accounts
 
 === FUTURE RELEASE IMPROVEMENTS ===
-POS Interface (modified order screen with separate cash accounts) with touch screen monitor
-iPhone interface
-// Control Panel Ideas
-// Improvements
-vTiger Interface
-sugarCRM Interface - commercial
-Ubercart
-google Checkout
+*POS Interface (modified order screen with separate cash accounts) with touch screen monitor
+*iPhone interface
+*// Control Panel Ideas
+*// Improvements
+*vTiger Interface
+*sugarCRM Interface - commercial
+*Ubercart
+*google Checkout

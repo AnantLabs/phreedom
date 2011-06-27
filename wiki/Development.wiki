@@ -11,6 +11,8 @@ Normally you submit a few patches and then the project manager makes the decisio
 
 == Current Development List ==
 
+Upgrade and update by ftp in the next release that can install modules in the proper directories.
+
 === HIGH PRIORITY ===
  * rework import/export beginning balances to handle multi-branch
  * lock gl accounts to defaults, users cannot change, hide gl accounts, part of POS?

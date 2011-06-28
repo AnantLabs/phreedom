@@ -10,11 +10,10 @@ Get comment access.
 Normally you submit a few patches and then the project manager makes the decision to grant you access or not.
 
 == Current Development List ==
-
-Upgrade and update by ftp in the next release that can install modules in the proper directories.
-
+*release 3.2*
+ * Upgrade and update by ftp that can install modules in the proper directories.
  * Add the 0-30 30-60 60-90 age at the bottom of the statement report.
-
+ * Updating TCPDF to the latest version with R3.2 which is suppose to allow a 'streamlined' file without embedded fonts.
 === HIGH PRIORITY ===
  * rework import/export beginning balances to handle multi-branch
  * lock gl accounts to defaults, users cannot change, hide gl accounts, part of POS?

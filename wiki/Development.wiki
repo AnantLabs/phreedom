@@ -14,6 +14,7 @@ Normally you submit a few patches and then the project manager makes the decisio
  * Upgrade and update by ftp that can install modules in the proper directories.
  * Add the 0-30 30-60 60-90 age at the bottom of the statement report.
  * Updating TCPDF to the latest version which is suppose to allow a 'streamlined' file without embedded fonts.
+*Phreebooks Module> Customers> Preferences> Determines whether or not to calculate finance charges on past due invoices. When this is set to yes. Add the code to change/edit the interest rate charged on past due invoices.
 === HIGH PRIORITY ===
  * rework import/export beginning balances to handle multi-branch
  * lock gl accounts to defaults, users cannot change, hide gl accounts, part of POS?

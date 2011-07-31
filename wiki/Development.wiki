@@ -11,7 +11,8 @@ Normally you submit a few patches and then the project manager makes the decisio
 
 == Current Development List ==
 *release 3.2*
- * Upgrade and update by ftp that can install modules in the proper directories. Adding and removing files and db fields based on the xml file with the complete module information.
+* Admin config to allow negative inventory or not. 
+* Upgrade and update by ftp that can install modules in the proper directories. Adding and removing files and db fields based on the xml file with the complete module information.
  * Add the 0-30 30-60 60-90 age at the bottom of the statement report.
  * Updating TCPDF to the latest version which is suppose to allow a 'streamlined' file without embedded fonts.
  * Phreebooks Module> Customers> Preferences> Determines whether or not to calculate finance charges on past due invoices. When this is set to yes. Add the code to change/edit the interest rate charged on past due invoices.

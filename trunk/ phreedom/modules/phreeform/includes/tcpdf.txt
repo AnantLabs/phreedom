@@ -1,0 +1,47 @@
+// +-----------------------------------------------------------------+
+// |                   PhreeBooks Open Source ERP                    |
+// +-----------------------------------------------------------------+
+// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | http://www.PhreeSoft.com                                        |
+// +-----------------------------------------------------------------+
+// | This program is free software: you can redistribute it and/or   |
+// | modify it under the terms of the GNU General Public License as  |
+// | published by the Free Software Foundation, either version 3 of  |
+// | the License, or any later version.                              |
+// |                                                                 |
+// | This program is distributed in the hope that it will be useful, |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of  |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
+// | GNU General Public License for more details.                    |
+// +-----------------------------------------------------------------+
+//  Path: /modules/phreeform/includes/tcpdf.txt
+//
+
+// Changes to the tcpdf standard release version 5.9.100 to work in PhreeBooks:
+
+// The following change is to set the configuration parameters within TCPDF
+File: /modules/phreeform/includes/tcpdf/tcpdf.php, 
+
+Line 141:
+Replace: require_once(dirname(__FILE__).'/config/tcpdf_config.php');
+With:    require_once(DIR_FS_MODULES . 'phreeform/includes/tcpdf/config/tcpdf_config.php');
+
+
+// bug with empty char arrays
+Line 4732: (function GetArrStringWidth)
+From: 		foreach ($sa as $char) {
+To:  		if ($sa) foreach ($sa as $char) {
+
+// bug filling error log with undefined unicode variable
+Line 6719 nd 6725, add @ in from of preg_match:
+	@preg_match($this->unicode->uni_RE_PATTERN_ARABIC, $s) ...
+
+// bug displaying long reports and forms (causes indefinite hang)
+Line 11631:
+Add after:
+		protected function UTF8StringToArray($str) {
+With:
+		  if ($str == '') return;
+
+// the remaining changes are made through constants in /modules/reportwriter/language/en_us/language.php
+// or configuration constants (after Release 1.4)

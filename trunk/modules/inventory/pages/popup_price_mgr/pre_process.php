@@ -21,8 +21,14 @@ $security_level = validate_user(0, true);
 /**************  include page specific files    *********************/
 require_once(DIR_FS_MODULES . 'inventory/defaults.php');
 /**************   page specific initialization  *************************/
-$id     = (int)$_GET['iID'];
-$action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
+$id         = (int)$_GET['iID'];
+$full_price = $_GET['price'];
+$item_cost  = $_GET['cost'];
+$type       = isset($_GET['type'])   ? $_GET['type']   : 'c';
+$action     = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
+// retrieve some item details
+$inventory_details = $db->Execute("select sku, description_short, quantity_on_hand, quantity_on_order,
+	quantity_on_allocation, quantity_on_sales_order from " . TABLE_INVENTORY . " where id = " . $id);
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/popup_price_mgr/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -46,11 +52,11 @@ switch ($action) {
 		$encoded_prices = array();
 		for ($i=0, $j=1; $i < MAX_NUM_PRICE_LEVELS; $i++, $j++) {
 		  $level_data  =       $currencies->clean_value($_POST['price_'   . $tab_id . '_' . $j]);
-		  $level_data .= ':' . db_prepare_input($_POST['qty_'     . $tab_id . '_' . $j]);
-		  $level_data .= ':' . db_prepare_input($_POST['src_'     . $tab_id . '_' . $j]);
-		  $level_data .= ':' . db_prepare_input($_POST['adj_'     . $tab_id . '_' . $j]);
+		  $level_data .= ':' . db_prepare_input        ($_POST['qty_'     . $tab_id . '_' . $j]);
+		  $level_data .= ':' . db_prepare_input        ($_POST['src_'     . $tab_id . '_' . $j]);
+		  $level_data .= ':' . db_prepare_input        ($_POST['adj_'     . $tab_id . '_' . $j]);
 		  $level_data .= ':' . $currencies->clean_value($_POST['adj_val_' . $tab_id . '_' . $j]);
-		  $level_data .= ':' . db_prepare_input($_POST['rnd_'     . $tab_id . '_' . $j]);
+		  $level_data .= ':' . db_prepare_input        ($_POST['rnd_'     . $tab_id . '_' . $j]);
 		  $level_data .= ':' . $currencies->clean_value($_POST['rnd_val_' . $tab_id . '_' . $j]);
 		  $encoded_prices[] = $level_data;
 		}
@@ -61,8 +67,7 @@ switch ($action) {
 		  $db->Execute("insert into " . TABLE_INVENTORY_SPECIAL_PRICES . " 
 			set inventory_id = " . $id . ", price_sheet_id = " . $sheet_id . ", price_levels = '" . $price_levels . "'");
 		} else {
-		  $db->Execute("update " . TABLE_INVENTORY_SPECIAL_PRICES . " 
-			set price_levels = '" . $price_levels . "' 
+		  $db->Execute("update " . TABLE_INVENTORY_SPECIAL_PRICES . " set price_levels = '" . $price_levels . "' 
 			where inventory_id = " . $id . " and price_sheet_id = " . $sheet_id);
 		}
 	  }
@@ -75,16 +80,11 @@ switch ($action) {
 
 /*****************   prepare to display templates  *************************/
 // some preliminary information
-$full_price = $currencies->clean_value($_GET['price']);
-$item_cost  = $currencies->clean_value($_GET['cost']);
 $sql = "select id, sheet_name, revision, default_sheet, default_levels from " . TABLE_PRICE_SHEETS . " 
-	where inactive = '0' and 
-	(expiration_date is null or expiration_date = '0000-00-00' or expiration_date >= '" . date('Y-m-d', time()) . "') 
+	where inactive = '0' and type = '" . $type . "' and 
+	(expiration_date is null or expiration_date = '0000-00-00' or expiration_date >= '" . date('Y-m-d') . "') 
 	order by sheet_name";
 $price_sheets = $db->Execute($sql);
-// retrieve some item details
-$inventory_details = $db->Execute("select sku, description_short, quantity_on_hand, quantity_on_order,
-	quantity_on_allocation, quantity_on_sales_order from " . TABLE_INVENTORY . " where id = " . $id);
 // retrieve special pricing for this inventory item
 $result = $db->Execute("select price_sheet_id, price_levels 
 	from " . TABLE_INVENTORY_SPECIAL_PRICES . " where inventory_id = " . $id);
@@ -98,6 +98,5 @@ $include_footer   = false;
 $include_tabs     = true;
 $include_calendar = false;
 $include_template = 'template_main.php';
-define('PAGE_TITLE', INV_POPUP_PRICE_MGR_WINDOW_TITLE);
-
+define('PAGE_TITLE', $type == 'v' ? BOX_PURCHASE_PRICE_SHEETS : BOX_SALES_PRICE_SHEETS);
 ?>

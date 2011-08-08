@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /install/pages/main/pre_process.php
 //
-
 /**************  include page specific files    *********************/
 define('DB_TYPE','mysql');
 define('DEFAULT_LANGUAGE','en_us');
@@ -36,12 +35,10 @@ require_once('../includes/common_functions.php');
 require_once('../includes/common_classes.php');
 require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
-
 /**************   page specific initialization  *************************/
 $error   = false; 
 $caution = false;
 $action  = $_GET['action'];
-
 $messageStack = new messageStack();
 /***************   act on the action request   *************************/
 switch ($action) {

@@ -17,14 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/users/template_detail.php
 //
-
 // start the form
 echo html_form('users', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo',   '')        . chr(10);
 echo html_hidden_field('rowSeq', $admin_id) . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -35,19 +32,16 @@ if ($security_level > 2) {
 } else {
   $toolbar->icon_list['save']['show']   = false;
 }
-
 // pull in extra toolbar overrides and additions
 if (count($extra_toolbar_buttons) > 0) {
 	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 }
-
 // add the help file index and build the toolbar
 $toolbar->add_help('07.08.07');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo HEADING_TITLE_USER_INFORMATION; ?></div>
+<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
   <fieldset class="formAreaTitle">
   <legend><?php echo TEXT_GENERAL; ?></legend>
   <table border="0" align="center" cellspacing="1" cellpadding="1">
@@ -66,6 +60,9 @@ echo $toolbar->build_toolbar();
     <td><?php echo '&nbsp;'; ?></td>
     <td><?php echo GEN_ACCOUNT_LINK . ' ' . html_pull_down_menu('account_id', gen_get_contact_array_by_type('e'), $uInfo->account_id, ''); ?></td>
   </tr>
+  <tr>
+    <td><?php echo TEXT_SELECT_ROLE . ' ' . html_pull_down_menu('fill_role', $fill_all_roles, '-1', 'onchange="submitToDo(\'fill_role\')"'); ?></td>
+  </tr>
   </table>
   </fieldset>
 
@@ -73,18 +70,18 @@ echo $toolbar->build_toolbar();
   <legend><?php echo TEXT_PROFILE; ?></legend>
   <table border="0" align="center" cellspacing="1" cellpadding="1">
   <tr>
-    <td><?php echo GEN_DEFAULT_STORE . ' ' . html_pull_down_menu('def_store_id',  gen_get_store_ids(), $error ? $_POST['def_store_id'] : $uInfo->prefs['def_store_id'], ''); ?></td>
-    <td><?php echo GEN_DEF_CASH_ACCT . ' ' . html_pull_down_menu('def_cash_acct', gen_coa_pull_down(), $error ? $_POST['def_cash_acct'] : $uInfo->prefs['def_cash_acct'], ''); ?></td>
+    <td><?php echo GEN_DEFAULT_STORE . ' ' . html_pull_down_menu('def_store_id',  gen_get_store_ids(), $error ? $_POST['def_store_id'] : $uInfo->def_store_id, ''); ?></td>
+    <td><?php echo GEN_DEF_CASH_ACCT . ' ' . html_pull_down_menu('def_cash_acct', gen_coa_pull_down(), $error ? $_POST['def_cash_acct'] : $uInfo->def_cash_acct, ''); ?></td>
     <td><?php echo '&nbsp;'; ?></td>
   </tr>
   <tr>
-    <td><?php echo GEN_RESTRICT_STORE . ' ' . html_checkbox_field('restrict_store', '1', (($error && $_POST['restrict_store']) || $uInfo->prefs['restrict_store']) ? true : false); ?></td>
-    <td><?php echo GEN_DEF_AR_ACCT    . ' ' . html_pull_down_menu('def_ar_acct', gen_coa_pull_down(), $error ? $_POST['def_ar_acct'] : $uInfo->prefs['def_ar_acct'], ''); ?></td>
+    <td><?php echo GEN_RESTRICT_STORE . ' ' . html_checkbox_field('restrict_store', '1', (($error && $_POST['restrict_store']) || $uInfo->restrict_store) ? true : false); ?></td>
+    <td><?php echo GEN_DEF_AR_ACCT    . ' ' . html_pull_down_menu('def_ar_acct', gen_coa_pull_down(), $error ? $_POST['def_ar_acct'] : $uInfo->def_ar_acct, ''); ?></td>
     <td><?php echo '&nbsp;'; ?></td>
   </tr>
   <tr>
-    <td><?php echo GEN_RESTRICT_PERIOD . ' ' . html_checkbox_field('restrict_period', '1', (($error && $_POST['restrict_period']) || $uInfo->prefs['restrict_period']) ? true : false); ?></td>
-    <td><?php echo GEN_DEF_AP_ACCT     . ' ' . html_pull_down_menu('def_ap_acct', gen_coa_pull_down(), $error ? $_POST['def_ap_acct'] : $uInfo->prefs['def_ap_acct'], ''); ?></td>
+    <td><?php echo GEN_RESTRICT_PERIOD . ' ' . html_checkbox_field('restrict_period', '1', (($error && $_POST['restrict_period']) || $uInfo->restrict_period) ? true : false); ?></td>
+    <td><?php echo GEN_DEF_AP_ACCT     . ' ' . html_pull_down_menu('def_ap_acct', gen_coa_pull_down(), $error ? $_POST['def_ap_acct'] : $uInfo->def_ap_acct, ''); ?></td>
     <td><?php echo '&nbsp;'; ?></td>
   </tr>
   </table>

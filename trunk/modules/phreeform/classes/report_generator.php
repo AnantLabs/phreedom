@@ -65,7 +65,7 @@ class PDF extends TCPDF {
 		$this->SetFont($report->page->heading->font);
 		$this->SetDrawColor(128, 0, 0);
 		$this->SetLineWidth(0.35); // 1 point
-		$this->AliasNbPages();
+//	    $this->AliasNbPages(); // deprecated
 		$this->AddPage();
 	}
 
@@ -141,13 +141,14 @@ class PDF extends TCPDF {
 	}
 
 	function Footer() {
-		//Position at 1.5 cm from bottom
-		$this->SetY(-8);
-		//Arial italic 8
-		$this->SetFont(PDF_DEFAULT_FONT, '', '8');	// fixed footer font type and size for page numbers
-		$this->SetTextColor(0);
-		//Page number
-		$this->Cell(0, 10, TEXT_PAGE . ' ' . $this->PageNo() . ' / {nb}', 0, 0, 'C');
+	  //Position at 1.5 cm from bottom
+	  $this->SetY(-8);
+	  //Arial italic 8
+	  $this->SetFont(PDF_DEFAULT_FONT, '', '8');	// fixed footer font type and size for page numbers
+	  $this->SetTextColor(0);
+	  //Page number
+	  $total_pages = (PDF_APP == 'TCPDF') ? TCPDF::getAliasNbPages() : '{nb}';
+	  $this->Cell(0, 10, TEXT_PAGE . ' ' . $this->PageNo() . ' / ' . $total_pages, 0, 0, 'C');
 	}
 
 	function ReportTable($Data) {

@@ -380,16 +380,30 @@ function buildIcon(imagePath, alt, params) {
 }
 
 // ***************** START function to set button pressed ******************************************
-function submitToDo(todo) {
-	document.getElementById('todo').value = todo;
-	if (check_form()) document.getElementById('todo').form.submit();
+function showLoading() {
+  $("#please_wait").show();
 }
 
-function submitSeq(rowSeq, todo) {
-	document.getElementById('rowSeq').value = rowSeq;
-	document.getElementById('todo').value   = todo;
-	if (check_form()) document.getElementById('todo').form.submit();
-	return true;
+function hideLoading() {
+  $("#please_wait").hide();
+}
+
+function submitToDo(todo, multi_submit) {
+  if (!multi_submit) var multi_submit = false;  
+  document.getElementById('todo').value = todo;
+  if (!form_submitted && check_form() && !multi_submit) {
+	showLoading();
+	form_submitted = true;
+	document.getElementById('todo').form.submit();
+  } else if (multi_submit) {
+	document.getElementById('todo').form.submit();						 
+  }
+}
+
+function submitSeq(rowSeq, todo, multi_submit) {
+  if (!multi_submit) var multi_submit = false;  
+  document.getElementById('rowSeq').value = rowSeq;
+  submitToDo(todo, multi_submit);
 }
 
 function searchPage(get_params) {

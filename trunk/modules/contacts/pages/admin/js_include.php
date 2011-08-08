@@ -50,6 +50,8 @@ function loadPopUp(action, id) {
     case 'tabs_new':             action = 'new';    subject = 'tabs';           break;
     case 'fields_edit':          action = 'edit';   subject = 'fields';         break;
     case 'tabs_edit':            action = 'edit';   subject = 'tabs';           break;
+    case 'fields_delete':        action = 'delete'; subject = 'fields';         break;
+    case 'tabs_delete':          action = 'delete'; subject = 'tabs';           break;
   }
   window.open("index.php?module=phreedom&page=popup_setup&topic="+module+"&subject="+subject+"&action="+action+"&sID="+id,"popup_setup","width=500,height=550,resizable=1,scrollbars=1,top=150,left=200");
 }

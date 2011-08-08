@@ -106,7 +106,7 @@ switch ($action) {
 	  $order->purchase_invoice_id = $purchase_invoice_id;	// PhreeBooks payment number
 	  $order->shipper_code        = '';
 	  $order->purch_order_id      = $purch_order_id;
-	  $order->description         = constant('GENERAL_JOURNAL_' . JOURNAL_ID . '_V_DESC');
+	  $order->description         = constant('GEN_ADM_TOOLS_J' . JOURNAL_ID);
 	  $order->gl_acct_id          = $gl_acct_id;
 	  $order->gl_disc_acct_id     = $gl_disc_acct_id;
 

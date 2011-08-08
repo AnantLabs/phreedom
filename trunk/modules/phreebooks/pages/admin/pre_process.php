@@ -85,6 +85,9 @@ switch ($action) {
 	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL')); 
 	}
+	// some special values for checkboxes
+	$_POST['ar_use_credit_limit'] = isset($_POST['ar_use_credit_limit']) ? '1' : '0';
+	$_POST['ap_use_credit_limit'] = isset($_POST['ap_use_credit_limit']) ? '1' : '0';
 	// save general tab
 	foreach ($install->keys as $key => $default) {
 	  $field = strtolower($key);
@@ -101,7 +104,14 @@ switch ($action) {
     $subject = $_POST['subject'];
     $id      = $_POST['rowSeq'];
 	if (!$subject || !$id) break;
-    if ($$subject->btn_delete($id)) $close_popup = true;
+    $$subject->btn_delete($id);
+    switch($subject) {
+      case 'chart_of_accounts': $def_tab = 'chart_of_accounts'; break;
+      case 'tax_auths':         $def_tab = 'tax_auths';         break;
+      case 'tax_auths_vend':    $def_tab = 'tax_auths_vend';    break;
+      case 'tax_rates':         $def_tab = 'tax_rates';         break;
+      case 'tax_rates_vend':    $def_tab = 'tax_rates_vend';    break;
+    }
 	break;
   default:
 }

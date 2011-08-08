@@ -105,7 +105,7 @@ class backup {
 	return true;
   }
 
-  function make_zip($type = 'file') {
+  function make_zip($type = 'file', $localname = NULL, $root_folder = '/') {
     global $messageStack;
     $error = false;
 	if (!class_exists('ZipArchive')) return $messageStack->add(GEN_BACKUP_NO_ZIP_CLASS, 'error');
@@ -113,11 +113,23 @@ class backup {
 	$res = $zip->open($this->dest_dir . $this->dest_file, ZipArchive::CREATE);
 	if ($res !== true) return $messageStack->add(GEN_BACKUP_FILE_ERROR . $this->dest_dir, 'error');
 	if ($type == 'file') {
-	  $zip->addFile($this->source_dir . $this->source_file);
+	  $zip->addFile($this->source_dir . $this->source_file, $localname);
 	} else { // compress all
-	  $this->addFolderToZip($this->source_dir, $zip);
+	  $this->addFolderToZip($this->source_dir, $zip, $root_folder);
 	}
 	$zip->close();
+  }
+
+  function addFolderToZip($dir, $zipArchive, $dest_path = NULL) {
+    if (!is_dir($dir)) return;
+	$files = scandir($dir);
+	foreach ($files as $file) {
+	  if (is_file($dir . $file)){
+		$zipArchive->addFile($dir . $file, $dest_path . $file);
+	  } else { // If it's a folder, run the function again!
+	    if ($file <> "." && $file <> "..") $this->addFolderToZip($dir . $file . "/", $zipArchive, $dest_path . $file . "/");
+	  }
+	}
   }
 
   function unzip_file($file, $dest_path = '') {
@@ -148,19 +160,6 @@ class backup {
 	  $error = true;
 	}
 	return $error;
-  }
-
-  function addFolderToZip($dir, $zipArchive) {
-    if (!is_dir($dir)) return;
-	$zipArchive->addEmptyDir($dir);
-	$files = scandir($dir);
-	foreach ($files as $file) {
-	  if (is_file($dir . $file)){
-		$zipArchive->addFile($dir . $file);
-	  } else { // If it's a folder, run the function again!
-	    if ($file <> "." && $file <> "..") $this->addFolderToZip($dir . $file . "/", $zipArchive);
-	  }
-	}
   }
 
   function download($path, $filename, $save_source = false) {

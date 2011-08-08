@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/dashboards/to_do/to_do.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_TO_DO_VERSION','3.2');
 
 class to_do extends ctl_panel {
   function to_do() {

@@ -17,43 +17,42 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/classes/install.php
 //
-
 class inventory_admin {
   function inventory_admin() {
     $this->notes = array();
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.1',
-	  'phreebooks' => '3.1',
+	  'phreedom'   => '3.2',
+	  'phreebooks' => '3.2',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
-	  'INV_STOCK_DEFAULT_SALES'            => '',
-	  'INV_STOCK_DEFAULT_INVENTORY'        => '',
-	  'INV_STOCK_DEFAULT_COS'              => '',
+	  'INV_STOCK_DEFAULT_SALES'            => '4000',
+	  'INV_STOCK_DEFAULT_INVENTORY'        => '1200',
+	  'INV_STOCK_DEFAULT_COS'              => '5000',
 	  'INV_STOCK_DEFAULT_COSTING'          => 'f',
-	  'INV_MASTER_STOCK_DEFAULT_SALES'     => '',
-	  'INV_MASTER_STOCK_DEFAULT_INVENTORY' => '',
-	  'INV_MASTER_STOCK_DEFAULT_COS'       => '',
+	  'INV_MASTER_STOCK_DEFAULT_SALES'     => '4000',
+	  'INV_MASTER_STOCK_DEFAULT_INVENTORY' => '1200',
+	  'INV_MASTER_STOCK_DEFAULT_COS'       => '5000',
 	  'INV_MASTER_STOCK_DEFAULT_COSTING'   => 'f',
-	  'INV_ASSY_DEFAULT_SALES'             => '',
-	  'INV_ASSY_DEFAULT_INVENTORY'         => '',
-	  'INV_ASSY_DEFAULT_COS'               => '',
+	  'INV_ASSY_DEFAULT_SALES'             => '4000',
+	  'INV_ASSY_DEFAULT_INVENTORY'         => '1200',
+	  'INV_ASSY_DEFAULT_COS'               => '5000',
 	  'INV_ASSY_DEFAULT_COSTING'           => 'f',
-	  'INV_SERIALIZE_DEFAULT_SALES'        => '',
-	  'INV_SERIALIZE_DEFAULT_INVENTORY'    => '',
-	  'INV_SERIALIZE_DEFAULT_COS'          => '',
+	  'INV_SERIALIZE_DEFAULT_SALES'        => '4000',
+	  'INV_SERIALIZE_DEFAULT_INVENTORY'    => '1200',
+	  'INV_SERIALIZE_DEFAULT_COS'          => '5000',
 	  'INV_SERIALIZE_DEFAULT_COSTING'      => 'f',
-	  'INV_NON_STOCK_DEFAULT_SALES'        => '',
-	  'INV_NON_STOCK_DEFAULT_INVENTORY'    => '',
-	  'INV_NON_STOCK_DEFAULT_COS'          => '',
-	  'INV_SERVICE_DEFAULT_SALES'          => '',
-	  'INV_SERVICE_DEFAULT_INVENTORY'      => '',
-	  'INV_SERVICE_DEFAULT_COS'            => '',
-	  'INV_LABOR_DEFAULT_SALES'            => '',
-	  'INV_LABOR_DEFAULT_INVENTORY'        => '',
-	  'INV_LABOR_DEFAULT_COS'              => '',
-	  'INV_ACTIVITY_DEFAULT_SALES'         => '',
-	  'INV_CHARGE_DEFAULT_SALES'           => '',
+	  'INV_NON_STOCK_DEFAULT_SALES'        => '4000',
+	  'INV_NON_STOCK_DEFAULT_INVENTORY'    => '1200',
+	  'INV_NON_STOCK_DEFAULT_COS'          => '5000',
+	  'INV_SERVICE_DEFAULT_SALES'          => '4000',
+	  'INV_SERVICE_DEFAULT_INVENTORY'      => '1200',
+	  'INV_SERVICE_DEFAULT_COS'            => '5000',
+	  'INV_LABOR_DEFAULT_SALES'            => '4000',
+	  'INV_LABOR_DEFAULT_INVENTORY'        => '1200',
+	  'INV_LABOR_DEFAULT_COS'              => '5000',
+	  'INV_ACTIVITY_DEFAULT_SALES'         => '4000',
+	  'INV_CHARGE_DEFAULT_SALES'           => '4000',
 	  'INVENTORY_DEFAULT_TAX'              => '0',
 	  'INVENTORY_DEFAULT_PURCH_TAX'        => '0',
 	  'INVENTORY_AUTO_ADD'                 => '0',
@@ -101,17 +100,17 @@ class inventory_admin {
 		  creation_date datetime NOT NULL default '0000-00-00 00:00:00',
 		  last_update datetime NOT NULL default '0000-00-00 00:00:00',
 		  last_journal_date datetime NOT NULL default '0000-00-00 00:00:00',
-		  PRIMARY KEY  (id)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		  PRIMARY KEY (id)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_ASSY_LIST => "CREATE TABLE " . TABLE_INVENTORY_ASSY_LIST . " (
 		  id int(11) NOT NULL auto_increment,
 		  ref_id int(11) NOT NULL default '0',
 		  sku varchar(24) NOT NULL default '',
 		  description varchar(32) NOT NULL default '',
 		  qty float NOT NULL default '0',
-		  PRIMARY KEY  (id),
+		  PRIMARY KEY (id),
 		  KEY ref_id (ref_id)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_COGS_OWED => "CREATE TABLE " . TABLE_INVENTORY_COGS_OWED . " (
 		  id int(11) NOT NULL auto_increment,
 		  journal_main_id int(11) NOT NULL default '0',
@@ -122,7 +121,7 @@ class inventory_admin {
 		  PRIMARY KEY (id),
 		  KEY sku (sku),
 		  INDEX (store_id)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_COGS_USAGE => "CREATE TABLE " . TABLE_INVENTORY_COGS_USAGE . " (
 		  id int(11) NOT NULL auto_increment,
 		  journal_main_id int(11) NOT NULL default '0',
@@ -130,7 +129,7 @@ class inventory_admin {
 		  inventory_history_id int(11) NOT NULL default '0',
 		  PRIMARY KEY (id),
 		  INDEX (journal_main_id, inventory_history_id) 
-		) ENGINE=innodb DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=innodb DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_HISTORY => "CREATE TABLE " . TABLE_INVENTORY_HISTORY . " (
 		  id int(11) NOT NULL auto_increment,
 		  ref_id int(11) NOT NULL default '0',
@@ -148,7 +147,7 @@ class inventory_admin {
 		  KEY remaining (remaining),
 		  INDEX (store_id),
 		  INDEX (journal_id)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_MS_LIST => "CREATE TABLE " . TABLE_INVENTORY_MS_LIST . " (
 		  id int(11) NOT NULL auto_increment,
 		  sku varchar(24) NOT NULL default '',
@@ -157,25 +156,26 @@ class inventory_admin {
 		  attr_0 varchar(255) NULL,
 		  attr_1 varchar(255) NULL, 
 		  PRIMARY KEY (id)
-		) ENGINE = InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;",
 	  TABLE_INVENTORY_SPECIAL_PRICES => "CREATE TABLE " . TABLE_INVENTORY_SPECIAL_PRICES . " (
 		  id int(11) NOT NULL auto_increment,
 		  inventory_id int(11) NOT NULL default '0',
 		  price_sheet_id int(11) NOT NULL default '0',
 		  price_levels varchar(255) NOT NULL default '',
-		  PRIMARY KEY  (id)
-		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		  PRIMARY KEY (id)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_PRICE_SHEETS => "CREATE TABLE " . TABLE_PRICE_SHEETS . " (
 		  id int(11) NOT NULL auto_increment,
 		  sheet_name varchar(32) NOT NULL default '',
+		  type char(1) NOT NULL default 'c',
 		  inactive enum('0','1') NOT NULL default '0',
 		  revision float NOT NULL default '0',
 		  effective_date date NOT NULL default '0000-00-00',
 		  expiration_date date default NULL,
 		  default_sheet enum('0','1') NOT NULL default '0',
 		  default_levels varchar(255) NOT NULL default '',
-		  PRIMARY KEY  (id)
-		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		  PRIMARY KEY (id)
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
     );
   }
 
@@ -220,6 +220,11 @@ class inventory_admin {
 	  $db->Execute("DROP TABLE " . DB_PREFIX . "inventory_fields");
 	  xtra_field_sync_list('inventory', TABLE_INVENTORY);
 	}
+    if (MODULE_INVENTORY_STATUS < '3.2') {
+	  if (!db_field_exists(TABLE_PRICE_SHEETS, 'type')) $db->Execute("ALTER TABLE " . TABLE_PRICE_SHEETS . " ADD type char(1) NOT NULL default 'c' AFTER sheet_name");
+	  if (!db_field_exists(TABLE_INVENTORY, 'price_sheet_v')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD price_sheet_v varchar(32) default NULL AFTER price_sheet");
+	  xtra_field_sync_list('inventory', TABLE_INVENTORY);
+	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');
@@ -251,7 +256,7 @@ class inventory_admin {
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (2, 'ASSY-BB', '0', 'lb', 'Labor - BB Computer Assy', 'Labor Cost - Assemble Bare Bones Computer', 'Labor - BB Computer Assy', '', '4000', '6000', '5000', '1', '0', 25, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (3, 'BOX-TW-322', '0', 'si', 'TW-322 Shipping Box', 'TW-322 Shipping Box - 12 x 12 x 12', 'TW-322 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.35, 'f', '', 0, 0, 0, 0, 0, 0, 15, 25, 0, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (4, 'BOX-TW-553', '0', 'si', 'TW-533 Shipping Box', 'TW-533 Shipping Box - 24 x 12 x 12', 'TW-533 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.75, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
-	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (5, 'CASE-ALIEN', '0', 'si', 'Alien Case - Red', 'Closed Cases - Red Fulll Tower ATX case w/o power supply', 'Alien Case - Red', 'demo/red_alien.jpg', '4000', '1200', '5000', '1', '0', 47, 'f', '', 98.26, 11, 0, 0, 0, 0, 2, 1, 13, 5, '', '0', now(), '', '');");
+	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (5, 'CASE-ALIEN', '0', 'si', 'Alien Case - Red', 'Closed Cases - Red Full Tower ATX case w/o power supply', 'Alien Case - Red', 'demo/red_alien.jpg', '4000', '1200', '5000', '1', '0', 47, 'f', '', 98.26, 11, 0, 0, 0, 0, 2, 1, 13, 5, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (6, 'DESC-WARR', '0', 'ai', 'Warranty Template', 'Warranty Template', 'Warranty Template', '', '1000', '1000', '1000', '1', '0', 0, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (7, 'DVD-RW', '0', 'si', 'DVD RW with Lightscribe', 'DVD RW with Lightscribe - 8x', 'DVD RW with Lightscribe', 'demo/lightscribe.jpg', '4000', '1200', '5000', '1', '0', 23.6, 'f', '', 45, 2, 0, 0, 0, 0, 3, 1, 15, 14, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (8, 'HD-150GB', '0', 'si', '150GB SATA Hard Drive', '150GB SATA Hard Drive - 7200 RPM', '150GB SATA Hard Drive', 'demo/150gb_sata.jpg', '4000', '1200', '5000', '1', '0', 27, 'f', '', 56, 2, 0, 0, 0, 0, 10, 15, 15, 30, '', '0', now(), '', '');");

@@ -20,13 +20,14 @@
 
 class phreebooks_admin {
   function phreebooks_admin() {
-    $this->notes;
+    $this->default_chart = DIR_FS_MODULES . 'phreebooks/language/en_us/charts/USA_Retail.xml';
+	$this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'  => '3.1',
-	  'contacts'  => '3.3',
-	  'inventory' => '3.1',
-	  'payment'   => '3.1',
-	  'phreeform' => '3.1',
+	  'phreedom'  => '3.2',
+	  'contacts'  => '3.4',
+	  'inventory' => '3.2',
+	  'payment'   => '3.2',
+	  'phreeform' => '3.2',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -36,13 +37,14 @@ class phreebooks_admin {
 	  'ENABLE_BAR_CODE_READERS'        => '0',
 	  'SINGLE_LINE_ORDER_SCREEN'       => '1',
 	  'ENABLE_ORDER_DISCOUNT'          => '0',
-	  'AR_DEFAULT_GL_ACCT'             => '',
-	  'AR_DEF_GL_SALES_ACCT'           => '',
-	  'AR_SALES_RECEIPTS_ACCOUNT'      => '',
-	  'AR_DISCOUNT_SALES_ACCOUNT'      => '',
-	  'AR_DEF_FREIGHT_ACCT'            => '',
-	  'AR_DEF_DEPOSIT_ACCT'            => '',
-	  'AR_DEF_DEP_LIAB_ACCT'           => '',
+	  'ALLOW_NEGATIVE_INVENTORY'       => '1',
+	  'AR_DEFAULT_GL_ACCT'             => '1100',
+	  'AR_DEF_GL_SALES_ACCT'           => '4000',
+	  'AR_SALES_RECEIPTS_ACCOUNT'      => '1020',
+	  'AR_DISCOUNT_SALES_ACCOUNT'      => '4900',
+	  'AR_DEF_FREIGHT_ACCT'            => '4300',
+	  'AR_DEF_DEPOSIT_ACCT'            => '1020',
+	  'AR_DEF_DEP_LIAB_ACCT'           => '2400',
 	  'AR_USE_CREDIT_LIMIT'            => '1',
 	  'AR_CREDIT_LIMIT_AMOUNT'         => '2500.00',
 	  'AR_PREPAYMENT_DISCOUNT_PERCENT' => '0',
@@ -61,13 +63,13 @@ class phreebooks_admin {
 	  'AUTO_INC_CUST_ID'               => '0',
 	  'AR_SHOW_CONTACT_STATUS'         => '0',
 	  'AR_TAX_BEFORE_DISCOUNT'         => '1',
-	  'AP_DEFAULT_INVENTORY_ACCOUNT'   => '',
-	  'AP_DEFAULT_PURCHASE_ACCOUNT'    => '',
-	  'AP_PURCHASE_INVOICE_ACCOUNT'    => '',
-	  'AP_DISCOUNT_PURCHASE_ACCOUNT'   => '',
-	  'AP_DEF_FREIGHT_ACCT'            => '',
-	  'AP_DEF_DEPOSIT_ACCT'            => '',
-	  'AP_DEF_DEP_LIAB_ACCT'           => '',
+	  'AP_DEFAULT_INVENTORY_ACCOUNT'   => '1200',
+	  'AP_DEFAULT_PURCHASE_ACCOUNT'    => '2000',
+	  'AP_PURCHASE_INVOICE_ACCOUNT'    => '1020',
+	  'AP_DEF_FREIGHT_ACCT'            => '6800',
+	  'AP_DISCOUNT_PURCHASE_ACCOUNT'   => '2000',
+	  'AP_DEF_DEPOSIT_ACCT'            => '1020',
+	  'AP_DEF_DEP_LIAB_ACCT'           => '2400',
 	  'AP_USE_CREDIT_LIMIT'            => '1',
 	  'AP_CREDIT_LIMIT_AMOUNT'         => '5000.00',
 	  'AP_PREPAYMENT_DISCOUNT_PERCENT' => '0',
@@ -88,6 +90,8 @@ class phreebooks_admin {
 	);
 	// add new directories to store images and data
 	$this->dirlist = array(
+	  'phreebooks',
+	  'phreebooks/orders',
 	);
 	// Load tables
 	$this->tables = array(
@@ -254,7 +258,7 @@ class phreebooks_admin {
   }
 
   function install($module, $demo = false) {
-    global $db;
+    global $db, $messageStack;
 	$error = false;
 	// load some current status values
 	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_po_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_po_num VARCHAR( 16 ) NOT NULL DEFAULT '5000';");
@@ -271,6 +275,27 @@ class phreebooks_admin {
 	$dir_dest   = DIR_FS_MY_FILES . $_SESSION['company'] . '/phreeform/images/';
 	@copy($dir_source . 'phreebooks_logo.jpg', $dir_dest . 'phreebooks_logo.jpg');
 	@copy($dir_source . 'phreebooks_logo.png', $dir_dest . 'phreebooks_logo.png');
+	// load the retail chart as default if the chart of accounts table is empty
+	$result = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " limit 1");
+	$entries_exist = $result->RecordCount() > 0 ? true : false;
+	$result = $db->Execute("select id from " . TABLE_CHART_OF_ACCOUNTS . " limit 1");
+	$chart_exists = $result->RecordCount() > 0 ? true : false;
+	if (!$entries_exist && !$chart_exists) {
+	  $accounts = xml_to_object(file_get_contents($this->default_chart));
+	  if (is_object($accounts->ChartofAccounts)) $accounts = $accounts->ChartofAccounts; // just pull the first one
+	  if (is_object($accounts->account)) $accounts->account = array($accounts->account); // in case of only one chart entry
+	  if (is_array($accounts->account)) foreach ($accounts->account as $account) {
+	    $sql_data_array = array(
+	      'id'              => $account->id,
+		  'description'     => $account->description,
+		  'heading_only'    => $account->heading,
+		  'primary_acct_id' => $account->primary,
+		  'account_type'    => $account->type,
+	    );
+	    db_perform(TABLE_CHART_OF_ACCOUNTS, $sql_data_array, 'insert');
+	  }
+	  build_and_check_account_history_records();
+	}
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_1;
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_2;
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_3;
@@ -305,6 +330,11 @@ class phreebooks_admin {
 	if ($db_version == '3.0') {
 	  $db_version = $this->release_update($module, '3.1', DIR_FS_MODULES . 'phreebooks/updates/R30toR31.php');
 	  if (!$db_version) return true;
+	}
+	if ($db_version == '3.1') {
+	  if (!file_exists($path . $dir)) mkdir(DIR_FS_MY_FILES . $_SESSION['company'] . '/phreebooks/orders/', 0755, true);
+	  write_configure('ALLOW_NEGATIVE_INVENTORY', '1');
+	  $db_version = '3.2';
 	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));

@@ -96,6 +96,7 @@ if (sizeof($order->fields) > 0) {
 	$ship_level = explode(':',$order->fields['shipper_code']);
     $order->fields['ship_carrier'] = $ship_level[0];
     $order->fields['ship_service'] = $ship_level[1];
+	$order->fields['attach_exist'] = file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip') ? 1 : 0;
 	if ($so_po) { // opening a SO/PO for Invoice/Receive
 	  $id                              = 0;
 	  $so_po_ref_id                    = $order->fields['id'];

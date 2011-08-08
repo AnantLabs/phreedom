@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/dashboards/my_notes/my_notes.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_MY_NOTES_VERSION','3.2');
 
 class my_notes extends ctl_panel {
 

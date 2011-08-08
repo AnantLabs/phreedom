@@ -55,7 +55,7 @@ class PDF extends TCPDF {
 	  $this->SetFont(PDF_DEFAULT_FONT);
 	  $this->SetDrawColor(128, 0, 0);
 	  $this->SetLineWidth(0.35); // 1 point
-	  $this->AliasNbPages();
+//	  $this->AliasNbPages(); // deprecated
 	}
 	
 	function Header() { // prints all static information on the page

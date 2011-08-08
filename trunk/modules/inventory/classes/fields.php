@@ -103,6 +103,17 @@ class fields {
 		}
 		$values['entry_type'] = 'char(' . $max_choice_size . ')';
 		break;
+	 case 'multi_check_box':	
+		$params['default'] = db_prepare_input($_POST['radio_default']);
+		$choices = explode(',',$params['default']);
+		$max_choice_size = 0;
+		while ($choice = array_shift($choices)) {
+			$a_choice = explode(':',$choice);
+			if ($a_choice[2] == 1) $values['entry_params'] = " default '" . $a_choice[0] . "'";
+			if (strlen($a_choice[0]) > $max_choice_size) $max_choice_size = strlen($a_choice[0]);
+		}
+		$values['entry_type'] = 'text';
+		break;	
 	  case 'date':
 		$values['entry_type'] = 'date';
 		break;
@@ -225,7 +236,7 @@ class fields {
 	if ($action == 'new') {
 	  $cInfo = new objectInfo();
 	} else {
-	  $result = $db->Execute("select id, entry_type, field_name, description, id, params 
+	  $result = $db->Execute("select id, entry_type, field_name, description, id, params, tab_id 
 	    from " . TABLE_EXTRA_FIELDS . " where id = '" . $id . "'");
 	  $params = unserialize($result->fields['params']);
 	  foreach ($params as $key => $value) $result->fields[$key] = $value;
@@ -291,6 +302,7 @@ class fields {
 	$output .= '  </tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td>';
+	$output .= html_radio_field('entry_type', 'multi_check_box', ($cInfo->entry_type=='multi_check_box' ? true : false),''). '&nbsp;' . INV_LABEL_MULTI_SELECT_FIELD . '<br />';	
 	$output .= html_radio_field('entry_type', 'drop_down', ($cInfo->entry_type=='drop_down' ? true : false),'', $disabled) . '&nbsp;' . INV_LABEL_DROP_DOWN_FIELD . '<br />';
 	$output .= html_radio_field('entry_type', 'radio',     ($cInfo->entry_type=='radio'     ? true : false),'', $disabled) . '&nbsp;' . INV_LABEL_RADIO_FIELD;
 	$output .= '	</td>' . chr(10);

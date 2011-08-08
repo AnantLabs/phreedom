@@ -22,120 +22,135 @@
 ?>
 <div id="SYSTEM" class="tabset_content">
   <h2 class="tabset_label"><?php echo TEXT_GENERAL; ?></h2>
-  <table border="0" cellspacing="0" cellpadding="0"><tr><td>
-    <table border="0" cellspacing="1" cellpadding="1"><tr>
-	  <td class="main"><?php echo TEXT_SKU; ?></td>
-	  <td class="main">
+  <table><tr><td>
+    <table cellspacing="1" cellpadding="1"><tr>
+	  <td align="right"><?php echo TEXT_SKU; ?></td>
+	  <td>
 		<?php echo html_input_field('sku', $cInfo->sku, 'readonly="readonly" size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '"', false); ?>
 		<?php echo TEXT_INACTIVE; ?>
 		<?php echo html_checkbox_field('inactive', '1', $cInfo->inactive); ?>
 	  </td>
-	  <td rowspan="4" class="main" align="center">
+	  <td align="right"><?php echo INV_QTY_ON_HAND; ?></td>
+	  <td><?php echo html_input_field('quantity_on_hand', $cInfo->quantity_on_hand, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td rowspan="5" align="center">
 		<?php if ($cInfo->image_with_path) { // show image if it is defined
 			echo html_image(DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path, $cInfo->image_with_path, '', '100', 'style="cursor:pointer" onclick="ImgPopup(\'' . DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path . '\')" language="javascript"');
 		} else echo '&nbsp;'; ?>
 	  </td>
-	  <td class="main"><?php echo html_checkbox_field('remove_image', '1', $cInfo->remove_image) . ' ' . TEXT_REMOVE . ': ' . $cInfo->image_with_path . '<br />' . INV_ENTRY_SELECT_IMAGE; ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_INVENTORY_DESC_SHORT; ?></td>
-	  <td class="main">
+	  <td align="right"><?php echo INV_ENTRY_INVENTORY_DESC_SHORT; ?></td>
+	  <td>
 	  	<?php echo html_input_field('description_short', $cInfo->description_short, 'size="33" maxlength="32"', false); ?>
 		<?php if ($cInfo->id) echo '&nbsp;' . html_icon('categories/preferences-system.png', TEXT_WHERE_USED, 'small', 'onclick="ajaxWhereUsed()"') . chr(10); ?>
 	  </td>
-	  <td class="main"><?php echo html_file_field('inventory_image'); ?></td>
+	  <td align="right"><?php echo INV_QTY_ON_ORDER; ?></td>
+	  <td><?php echo html_input_field('quantity_on_order', $cInfo->quantity_on_order, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_INVENTORY_TYPE; ?></td>
-	  <td class="main"><?php echo html_hidden_field('inventory_type', $cInfo->inventory_type);
-		echo html_input_field('inv_type_desc', $inventory_types_plus[$cInfo->inventory_type], 'readonly="readonly"', false); ?> </td>
-	  <td class="main"><?php echo INV_ENTRY_IMAGE_PATH; ?></td>
+	  <td align="right"><?php echo INV_ENTRY_ITEM_MINIMUM_STOCK; ?></td>
+	  <td><?php echo html_input_field('minimum_stock_level', $cInfo->minimum_stock_level, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_QTY_ON_ALLOCATION; ?></td>
+	  <td><?php echo html_input_field('quantity_on_allocation', $cInfo->quantity_on_allocation, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_HEADING_UPC_CODE; ?></td>
-	  <td class="main"><?php echo html_input_field('upc_code', $cInfo->upc_code, 'size="16" maxlength="13" style="text-align:right"', false); ?></td>
-	  <td class="main">
-		<?php echo html_hidden_field('image_with_path', $cInfo->image_with_path); 
-		echo html_input_field('inventory_path', substr($cInfo->image_with_path, 0, strrpos($cInfo->image_with_path, '/'))); ?>
+	  <td align="right"><?php echo INV_ENTRY_ITEM_REORDER_QUANTITY; ?></td>
+	  <td><?php echo html_input_field('reorder_quantity', $cInfo->reorder_quantity, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_QTY_ON_SALES_ORDER; ?></td>
+	  <td><?php echo html_input_field('quantity_on_sales_order', $cInfo->quantity_on_sales_order, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	</tr>
+	<tr>
+	  <td align="right"><?php echo INV_HEADING_LEAD_TIME; ?></td>
+	  <td><?php echo html_input_field('lead_time', $cInfo->lead_time, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_ENTRY_ITEM_WEIGHT; ?></td>
+	  <td><?php echo html_input_field('item_weight', $cInfo->item_weight, 'size="11" maxlength="9" style="text-align:right"', false); ?></td>
+	</tr>
+	<th colspan="5"><?php echo TEXT_CUSTOMER_DETAILS; ?></th>
+	<tr>
+	  <td valign="top" align="right"><?php echo INV_ENTRY_INVENTORY_DESC_SALES; ?></td>
+	  <td colspan="5"><?php echo html_textarea_field('description_sales', 75, 2, $cInfo->description_sales, '', $reinsert_value = true); ?></td>
+	</tr>
+	<tr>
+	  <td align="right"><?php echo INV_ENTRY_FULL_PRICE; ?></td>
+	  <td>
+	  	<?php echo html_input_field('full_price', $currencies->precise($cInfo->full_price), 'size="15" maxlength="20" style="text-align:right"', false); 
+			if (ENABLE_MULTI_CURRENCY) echo ' (' . DEFAULT_CURRENCY . ')'; 
+		    echo '&nbsp;' . html_icon('mimetypes/x-office-spreadsheet.png', BOX_SALES_PRICE_SHEETS, 'small', $params = 'onclick="priceMgr(' . $cInfo->id . ', 0, 0, \'c\')"') . chr(10); ?>
 	  </td>
+	  <td align="right"><?php echo INV_ENTRY_ITEM_TAXABLE; ?></td>
+	  <td colspan="2"><?php echo html_pull_down_menu('item_taxable', $tax_rates, $cInfo->item_taxable); ?></td>
 	</tr>
 	<tr>
-	  <td class="main" valign="top"><?php echo INV_ENTRY_INVENTORY_DESC_PURCHASE; ?></td>
-	  <td colspan="3" class="main"><?php echo html_textarea_field('description_purchase', 75, 2, $cInfo->description_purchase, '', $reinsert_value = true); ?></td>
+	  <td align="right"><?php echo TEXT_DEFAULT_PRICE_SHEET; ?></td>
+	  <td><?php echo html_pull_down_menu('price_sheet', get_price_sheet_data('c'), $cInfo->price_sheet); ?></td>
+	  <td>&nbsp;</td>
+	  <td>&nbsp;</td>
+	</tr>
+<?php if ($_SESSION['admin_security'][SECURITY_ID_PURCHASE_INVENTORY] > 0) { ?>
+	<th colspan="5"><?php echo TEXT_VENDOR_DETAILS; ?></th>
+	<tr>
+	  <td valign="top" align="right"><?php echo INV_ENTRY_INVENTORY_DESC_PURCHASE; ?></td>
+	  <td colspan="5"><?php echo html_textarea_field('description_purchase', 75, 2, $cInfo->description_purchase, '', $reinsert_value = true); ?></td>
 	</tr>
 	<tr>
-	  <td class="main" valign="top"><?php echo INV_ENTRY_INVENTORY_DESC_SALES; ?></td>
-	  <td colspan="3" class="main"><?php echo html_textarea_field('description_sales', 75, 2, $cInfo->description_sales, '', $reinsert_value = true); ?></td>
+	  <td align="right"><?php echo INV_ENTRY_INV_ITEM_COST; ?></td>
+	  <td><?php 
+	    echo html_input_field('item_cost', $currencies->precise($cInfo->item_cost), 'size="15" maxlength="20" style="text-align:right"', false);
+		if (ENABLE_MULTI_CURRENCY) echo ' (' . DEFAULT_CURRENCY . ')';
+		echo '&nbsp;' . html_icon('mimetypes/x-office-spreadsheet.png', BOX_PURCHASE_PRICE_SHEETS, 'small', $params = 'onclick="priceMgr(' . $cInfo->id . ', 0, 0, \'v\')"') . chr(10);
+		if (($cInfo->inventory_type == 'as' || $cInfo->inventory_type == 'sa') && $cInfo->id) echo '&nbsp;' . html_icon('apps/accessories-calculator.png', TEXT_CURRENT_COST, 'small', 'onclick="ajaxAssyCost()"') . chr(10); ?>
+	  </td>
+	  <td align="right"><?php echo INV_ENTRY_PURCH_TAX; ?></td>
+	  <td colspan="2"><?php echo html_pull_down_menu('purch_taxable', $purch_tax_rates, $cInfo->purch_taxable); ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_ACCT_SALES; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('account_sales_income', $gl_array_list, $cInfo->account_sales_income); ?></td>
-	  <td class="main" align="right"><?php echo INV_ENTRY_ITEM_WEIGHT; ?></td>
-	  <td class="main"><?php echo html_input_field('item_weight', $cInfo->item_weight, 'size="11" maxlength="9" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo TEXT_DEFAULT_PRICE_SHEET; ?></td>
+	  <td><?php echo html_pull_down_menu('price_sheet_v', get_price_sheet_data('v'), $cInfo->price_sheet_v); ?></td>
+	  <td align="right"><?php echo INV_HEADING_PREFERRED_VENDOR; ?></td>
+	  <td colspan="2"><?php echo html_pull_down_menu('vendor_id', gen_get_contact_array_by_type('v'), $cInfo->vendor_id); ?></td>
+	</tr>
+<?php } ?>
+	<th colspan="5"><?php echo TEXT_ITEM_DETAILS; ?></th>
+	<tr>
+	  <td align="right"><?php echo INV_ENTRY_INVENTORY_TYPE; ?></td>
+	  <td><?php echo html_hidden_field('inventory_type', $cInfo->inventory_type);
+		echo html_input_field('inv_type_desc', $inventory_types_plus[$cInfo->inventory_type], 'readonly="readonly"', false); ?> </td>
+	  <td colspan="2"><?php echo html_checkbox_field('remove_image', '1', $cInfo->remove_image) . ' ' . TEXT_REMOVE . ': ' . $cInfo->image_with_path; ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_ACCT_INV; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('account_inventory_wage', $gl_array_list, $cInfo->account_inventory_wage); ?></td>
-	  <td class="main" align="right"><?php echo INV_ENTRY_ITEM_MINIMUM_STOCK; ?></td>
-	  <td class="main"><?php echo html_input_field('minimum_stock_level', $cInfo->minimum_stock_level, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_HEADING_UPC_CODE; ?></td>
+	  <td><?php echo html_input_field('upc_code', $cInfo->upc_code, 'size="16" maxlength="13" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_ENTRY_SELECT_IMAGE; ?></td>
+	  <td colspan="2"><?php echo html_file_field('inventory_image'); ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_ACCT_COS; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('account_cost_of_sales', $gl_array_list, $cInfo->account_cost_of_sales); ?></td>
-	  <td class="main" align="right"><?php echo INV_ENTRY_ITEM_REORDER_QUANTITY; ?></td>
-	  <td class="main"><?php echo html_input_field('reorder_quantity', $cInfo->reorder_quantity, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
-	</tr>
-	<tr>
-	  <td class="main"><?php echo INV_ENTRY_ITEM_TAXABLE; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('item_taxable', $tax_rates, $cInfo->item_taxable); ?></td>
-	  <td class="main" align="right"><?php echo INV_HEADING_PREFERRED_VENDOR; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('vendor_id', gen_get_contact_array_by_type('v'), $cInfo->vendor_id); ?></td>
-	</tr>
-	<tr>
-	  <td class="main"><?php echo INV_ENTRY_PURCH_TAX; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('purch_taxable', $purch_tax_rates, $cInfo->purch_taxable); ?></td>
-	  <td class="main" align="right"><?php echo INV_HEADING_LEAD_TIME; ?></td>
-	  <td class="main"><?php echo html_input_field('lead_time', $cInfo->lead_time, 'size="6" maxlength="5" style="text-align:right"', false); ?></td>
-	</tr>
-	<tr>
-	  <td class="main"><?php echo INV_ENTRY_INVENTORY_COST_METHOD; ?></td>
-	  <td class="main">
+	  <td align="right"><?php echo INV_ENTRY_INVENTORY_COST_METHOD; ?></td>
+	  <td>
 		<?php foreach ($cost_methods as $key=>$value) $cost_pulldown_array[] = array('id' => $key, 'text' => $value); ?>
 		<?php echo html_pull_down_menu('cost_method', $cost_pulldown_array, $cInfo->cost_method, (is_null($cInfo->last_journal_date) ? '' : 'disabled="disabled"')); ?>
 	    <?php echo ' ' . INV_ENTRY_INVENTORY_SERIALIZE . ' ' . html_checkbox_field('serialize', '1', $cInfo->serialize, '', 'disabled="disabled"'); ?>
 	  </td>
-	  <td class="main" align="right"><?php echo INV_QTY_ON_HAND; ?></td>
-	  <td class="main"><?php echo html_input_field('quantity_on_hand', $cInfo->quantity_on_hand, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
-	</tr>
-	<tr>
-	  <td class="main"><?php echo TEXT_DEFAULT_PRICE_SHEET; ?></td>
-	  <td class="main"><?php echo html_pull_down_menu('price_sheet', get_price_sheet_data(), $cInfo->price_sheet); ?></td>
-	  <td class="main" align="right"><?php echo INV_QTY_ON_ORDER; ?></td>
-	  <td class="main"><?php echo html_input_field('quantity_on_order', $cInfo->quantity_on_order, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
-	</tr>
-	<tr>
-	  <td class="main"><?php echo INV_ENTRY_INV_ITEM_COST; ?></td>
-	  <td class="main">
-	  	<?php echo html_input_field('item_cost', $currencies->precise($cInfo->item_cost), 'size="15" maxlength="20" style="text-align:right"', false); ?>
-		<?php if (ENABLE_MULTI_CURRENCY) echo ' (' . DEFAULT_CURRENCY . ')'; ?>
-		<?php if (($cInfo->inventory_type == 'as' || $cInfo->inventory_type == 'sa') && $cInfo->id) echo '&nbsp;' . html_icon('apps/accessories-calculator.png', TEXT_CURRENT_COST, 'small', 'onclick="ajaxAssyCost()"') . chr(10); ?>
+	  <td align="right"><?php echo INV_ENTRY_IMAGE_PATH; ?></td>
+	  <td colspan="2"><?php echo html_hidden_field('image_with_path', $cInfo->image_with_path); 
+		echo html_input_field('inventory_path', substr($cInfo->image_with_path, 0, strrpos($cInfo->image_with_path, '/'))); ?>
 	  </td>
-	  <td class="main" align="right"><?php echo INV_QTY_ON_ALLOCATION; ?></td>
-	  <td class="main"><?php echo html_input_field('quantity_on_allocation', $cInfo->quantity_on_allocation, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
 	</tr>
 	<tr>
-	  <td class="main"><?php echo INV_ENTRY_FULL_PRICE; ?></td>
-	  <td class="main">
-	  	<?php echo html_input_field('full_price', $currencies->precise($cInfo->full_price), 'size="15" maxlength="20" style="text-align:right"', false); 
-			if (ENABLE_MULTI_CURRENCY) echo ' (' . DEFAULT_CURRENCY . ')'; 
-		    echo '&nbsp;' . html_icon('status/mail-attachment.png', BOX_PRICE_SHEET_MANAGER, 'small', $params = 'onclick="priceMgr(' . $cInfo->id . ', ' . $currencies->clean_value($cInfo->item_cost) . ', ' . $currencies->clean_value($cInfo->full_price) . ')"') . chr(10); ?>
-	  </td>
-	  <td class="main" align="right"><?php echo INV_QTY_ON_SALES_ORDER; ?></td>
-	  <td class="main"><?php echo html_input_field('quantity_on_sales_order', $cInfo->quantity_on_sales_order, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
+	  <td align="right"><?php echo INV_ENTRY_ACCT_SALES; ?></td>
+	  <td><?php echo html_pull_down_menu('account_sales_income', $gl_array_list, $cInfo->account_sales_income); ?></td>
+	</tr>
+	<tr>
+	  <td align="right"><?php echo INV_ENTRY_ACCT_INV; ?></td>
+	  <td><?php echo html_pull_down_menu('account_inventory_wage', $gl_array_list, $cInfo->account_inventory_wage); ?></td>
+	</tr>
+	<tr>
+	  <td align="right"><?php echo INV_ENTRY_ACCT_COS; ?></td>
+	  <td><?php echo html_pull_down_menu('account_cost_of_sales', $gl_array_list, $cInfo->account_cost_of_sales); ?></td>
 	</tr>
 	</table>
 <?php if (ENABLE_MULTI_BRANCH) { ?>
-  </td><td valign="top">
+  </td>
+  <td valign="top">
     <table border="1" cellspacing="1" cellpadding="1">
 	  <tr>
 	    <th><?php echo GEN_STORE_ID; ?></th>
@@ -143,8 +158,8 @@
 	  </tr>
 	    <?php foreach ($store_stock as $stock) {
 	  	  echo '<tr>' . chr(10);
-		  echo '<td class="main">' . $stock['store'] . '</td>' . chr(10);
-		  echo '<td class="main" align="center">' . $stock['qty'] . '</td>' . chr(10);
+		  echo '<td>' . $stock['store'] . '</td>' . chr(10);
+		  echo '<td align="center">' . $stock['qty'] . '</td>' . chr(10);
 	      echo '</tr>' . chr(10);
 		} ?>
     </table>

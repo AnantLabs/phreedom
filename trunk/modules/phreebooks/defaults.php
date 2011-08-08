@@ -17,6 +17,8 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/defaults.php
 //
+// default directory for order attachments
+define('PHREEBOOKS_DIR_MY_ORDERS',  DIR_FS_MY_FILES . $_SESSION['company'] . '/phreebooks/orders/');
 
 /************* DO NOT EDIT BELOW THIS LINE ************************/
 // Chart of accounts types

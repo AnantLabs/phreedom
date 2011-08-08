@@ -59,7 +59,7 @@ if (!$acct_period) $acct_period = CURRENT_ACCOUNTING_PERIOD;
 $period_filter = ($acct_period == 'all') ? '' : (' and period = ' . $acct_period);
 
 $search_text = ($_GET['search_text'] == TEXT_SEARCH) ? '' : db_input($_GET['search_text']);
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('purchase_invoice_id', 'total_amount');
   // hook for inserting new search fields to the query criteria.
   if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);

@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/dashboards/open_inv/open_inv.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_OPEN_INV_VERSION','3.2');
 
 class open_inv extends ctl_panel {
   function open_inv() {
@@ -76,7 +79,7 @@ class open_inv extends ctl_panel {
 	  }
 	}
 	if (!$params['num_rows'] && $result->RecordCount() > 0) {
-	  $contents .= '<div style="float:right">' . $currencies->format_full($total, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
+	  $contents .= '<div style="float:right">' . $currencies->format_full($total, true, DEFAULT_CURRENCY, 1) . '</div>';
 	  $contents .= '<div><b>' . TEXT_TOTAL . '</b></div>' . chr(10);
 	}
 	return $this->build_div(CP_OPEN_INV_TITLE, $contents, $control);

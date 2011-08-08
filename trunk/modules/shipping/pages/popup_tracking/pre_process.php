@@ -24,8 +24,8 @@ require_once(DIR_FS_WORKING . 'functions/shipping.php');
 
 /**************   page specific initialization  *************************/
 $close_popup = false;
-$methods     = load_all_methods('shipping', true);
-$sID         = $_GET['sID']    ? $_GET['sID']    : 0;
+$methods     = load_all_methods('shipping');
+$sID         = $_GET['sID']    ? $_GET['sID']    : '';
 $method      = $_GET['method'] ? $_GET['method'] : '';
 $ship_date   = date('Y-m-d');
 $action      = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
@@ -66,11 +66,21 @@ switch ($action) {
 /*****************   prepare to display templates  *************************/
 $js_methods = build_js_methods($methods);
 
-$sql = "select id, shipment_id, carrier, ref_id, method, ship_date, deliver_date, tracking_id, cost 
+if ($sID) {
+  $sql = "select id, shipment_id, carrier, ref_id, method, ship_date, deliver_date, tracking_id, cost 
 	from " . TABLE_SHIPPING_LOG . " where id = " . (int)$sID;
-$result = $db->Execute($sql);
-if ($result->RecordCount() > 0) {
+  $result = $db->Execute($sql);
   $cInfo = new objectInfo($result->fields);
+  // need to build the methods pull down
+  $carrier_methods = array();
+  foreach ($shipping_defaults['service_levels'] as $key => $value) {
+    if (defined($cInfo->carrier . '_' . $key)) {
+	  $carrier_methods[] = array(
+	    'id'   => $key,
+		'text' => constant($cInfo->carrier . '_' . $key),
+	  );
+	}
+  }
 } else {
   $cInfo = new objectInfo(array(
 	'shipment_id' => $sID, 

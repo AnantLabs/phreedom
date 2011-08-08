@@ -61,13 +61,14 @@ label, span.label { margin: 0; padding: 0; font-weight: bold; }
 .formAreaTitle	  { font-family:Tahoma,Verdana,Arial,sans-serif; font-size:14px; font-weight:bold; }
 
 /*  Divs --------------------------------- */
-div.section { margin: 0; padding: 0; clear: both; }
+div.section   { margin: 0; padding: 0; clear: both; }
 div.section input, div.section select, div.section div.input, div.section textarea { float: right; }
 div.section div.input input { float: none; }
 div#language input, div#language select { margin: 0; padding: 0; }
 
-.draggable { position: relative; height: 16px; }
-iframe     { width:576px; height:250px; border:1px solid #666; }
+.draggable   { position: relative; height: 16px; }
+iframe       { width:576px; height:250px; border:1px solid #666; }
+#please_wait { display:none; position:fixed; left:50%; top:50%; }
 
 /* Miscellaneous --------------------------------- */
 a.nowrap                    { white-space: nowrap; }

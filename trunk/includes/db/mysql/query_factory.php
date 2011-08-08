@@ -33,10 +33,10 @@ class queryFactory {
       if (@mysql_select_db($zf_database, $this->link)) {
         $this->db_connected = true;
 		// set the character set
-		$sql = "SET NAMES utf8"; 
-		mysql_query($sql, $this->link); 
-		$sql = "SET CHARACTER SET utf8"; 
-		mysql_query($sql, $this->link); 
+		mysql_query("SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'", $this->link);
+//		mysql_query("SET NAMES utf8", $this->link); 
+//		mysql_query("SET CHARACTER SET utf8", $this->link); 
+//		mysql_set_charset('utf8', $this->link); 
         return true;
       } else {
         $this->set_error(mysql_errno(), mysql_error(), false);

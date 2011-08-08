@@ -345,7 +345,7 @@ function updateRowTotal(rowCnt) {
 function updateUnitPrice(rowCnt) {
 	var total_line = cleanCurrency(document.getElementById('total_'+rowCnt).value);
 	document.getElementById('total_'+rowCnt).value = formatCurrency(total_line);
-	document.getElementById('dscnt_'+rowCnt).value = '';
+//	document.getElementById('dscnt_'+rowCnt).value = '';
 	document.getElementById('pay_'+rowCnt).checked = true;
 	updateTotalPrices();
 }

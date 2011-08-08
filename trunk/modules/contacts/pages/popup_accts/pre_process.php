@@ -76,7 +76,7 @@ $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 
 // build the list for the page selected
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('c.short_name', 'a.primary_name', 'a.contact', 'a.telephone1', 'a.telephone2', 
   	'a.address1', 'a.address2', 'a.city_town', 'a.postal_code', 'c.account_number');
   // hook for inserting new search fields to the query criteria.

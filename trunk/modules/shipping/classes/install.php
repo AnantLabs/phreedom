@@ -22,8 +22,8 @@ class shipping_admin {
   function shipping_admin() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.1',
-	  'phreebooks' => '3.1',
+	  'phreedom'   => '3.2',
+	  'phreebooks' => '3.2',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(

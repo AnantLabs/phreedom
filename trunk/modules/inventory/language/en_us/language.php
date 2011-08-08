@@ -87,10 +87,8 @@ define('INV_ENTRY_INVENTORY_DESC_SALES','Sales Description');
 define('INV_ASSY_HEADING_TITLE', 'Assemble/Disassemble Inventory');
 define('TEXT_INVENTORY_REVALUATION', 'Inventory Re-valuation');
 define('INV_POPUP_WINDOW_TITLE', 'Inventory Items');
-define('INV_POPUP_PRICE_MGR_WINDOW_TITLE','Inventory Price Manager');
 define('INV_POPUP_ADJ_WINDOW_TITLE','Inventory Adjustments');
 define('INV_ADJUSTMENT_ACCOUNT','Adjustment Account');
-define('INV_POPUP_PRICES_WINDOW_TITLE','SKU Price List');
 define('INV_BULK_SKU_ENTRY_TITLE','Bulk SKU Pricing Entry');
 define('INV_POPUP_XFER_WINDOW_TITLE','Transfer Inventory Between Stores');
 
@@ -152,14 +150,17 @@ define('INV_ENTRY_ITEM_REORDER_QUANTITY', 'Reorder Quantity');
 define('INV_ENTRY_INVENTORY_COST_METHOD', 'Cost Method');
 define('INV_ENTRY_INVENTORY_SERIALIZE', 'Serialize Item');
 define('INV_MASTER_STOCK_ATTRIB_ID','ID (Max 2 Chars)');
+define('TEXT_CUSTOMER_DETAILS','Customer Details');
+define('TEXT_VENDOR_DETAILS','Vendor Details');
+define('TEXT_ITEM_DETAILS','Item Details');
 
-define('TEXT_DISPLAY_NUMBER_OF_ITEMS',TEXT_DISPLAY_NUMBER . 'Items');
+
 define('INV_MSG_COPY_INTRO', 'Please enter a new SKU ID to copy to:');
 define('INV_MSG_RENAME_INTRO', 'Please enter a new SKU ID to rename this SKU to:');
 define('INV_ERROR_DUPLICATE_SKU','The new inventory item cannot be created because the sku is already in use.');
 define('INV_ERROR_CANNOT_DELETE','The inventory item cannot be deleted because there are journal entries in the system matching the sku');
 define('INV_ERROR_BAD_SKU','There was an error with the item assembly list, please validate sku values and check quantities. Failing sku was: ');
-define('INV_ERROR_SKU_INVALID','SKU is invalid. Please check the sku value and inventory account for errors.');
+define('INV_ERROR_SKU_INVALID','SKU is invalid. Please check the sku and default item inventory default gl accounts for missing information or errors.');
 define('INV_ERROR_SKU_BLANK','The SKU field was left blank. Please enter a sku value and retry.');
 define('INV_ERROR_FIELD_BLANK','The field name was left blank. Please enter a field name and retry.');
 define('INV_ERROR_FIELD_DUPLICATE','The field you entered is a duplicate, please change the field name and re-submit.');
@@ -169,7 +170,6 @@ define('TEXT_USE_DEFAULT_PRICE_SHEET','Use Default Price Sheet Settings');
 define('INV_POST_SUCCESS','Succesfully Posted Inventory Adjustment Ref # ');
 define('INV_POST_ASSEMBLY_SUCCESS','Successfully assembled SKU: ');
 define('INV_NO_PRICE_SHEETS','No price sheets have been defined!');
-define('INV_DEFINED_PRICES','Defined Prices for SKU: ');
 define('ORD_INV_STOCK_LOW','Not enough stock on hand of this item.');
 define('ORD_INV_STOCK_BAL','The number of units in stock is: ');
 define('ORD_INV_OPEN_POS','The following open POs are in the system:');
@@ -201,12 +201,12 @@ define('PRICE_SHEETS_LOG','Price Sheet - ');
 define('PRICE_SHEETS_LOG_BULK','Bulk Price Manager - ');
 
 // Price sheets defines
-define('PRICE_SHEET_HEADING_TITLE', 'Price Sheet Manager');
 define('PRICE_SHEET_NEW_TITLE','Create a New Price Sheet');
 define('PRICE_SHEET_EDIT_TITLE','Edit Price Sheet - ');
 define('PRICE_SHEET_NAME','Price Sheet Name');
 define('TEXT_USE_AS_DEFAULT','Use as Default');
 define('TEXT_PRICE_SHEETS','Price Sheets');
+define('TEXT_SALES_PRICE_SHEETS','Sales Price Sheets');
 define('TEXT_SHEET_NAME','Sheet Name');
 define('TEXT_REVISE','New Revision');
 define('TEXT_REVISION','Rev. Level');
@@ -215,5 +215,6 @@ define('TEXT_EXPIRATION_DATE','Expiration Date');
 define('TEXT_BULK_EDIT','Load Item Pricing');
 define('TEXT_SPECIAL_PRICING','Special Pricing');
 define('PRICE_SHEET_MSG_DELETE','Are you sure you want to delete this price sheet?');
+define('PRICE_SHEET_DEFAULT_DELETED','The default price seet as been deleted, please select a new price sheet!');
 
 ?>

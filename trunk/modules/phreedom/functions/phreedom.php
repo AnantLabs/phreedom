@@ -86,6 +86,33 @@ function load_theme_dropdown() {
   return $output;
 }
 
+function convert_cfg($company) {
+  // build the new file
+  $lines  = '<?php' . "\n";
+  $lines .= "/* config.php */" . "\n";
+  $lines .= "define('" . $company . "_TITLE','" . gen_pull_db_config_info($company, 'company_name') . "');" . "\n";
+  $lines .= "define('DB_SERVER','"              . gen_pull_db_config_info($company, 'db_server') . "');" . "\n";
+  $lines .= "define('DB_SERVER_USERNAME','"     . gen_pull_db_config_info($company, 'db_user') . "');" . "\n";
+  $lines .= "define('DB_SERVER_PASSWORD','"     . gen_pull_db_config_info($company, 'db_pw') . "');" . "\n";
+
+  $filename = DIR_FS_ADMIN . 'my_files/' . $company . '/config';
+  if (!$handle = @fopen($filename . '.php', 'w')) die('Cannot open file (' . $filename . '.php) for writing, check your permissions. This directory and file needs access from the web server for upgrading PhreeBooks to the latest version.');
+  if (!fwrite($handle, $lines)) die('Cannot write to file (' . $filename . '.php), check your permissions.');
+  fclose($handle);
+  if (!unlink($filename . '.txt')) die('Cannot delete file (' . $filename . '.txt). This file needs to be deleted for security reasons.');
+}
+
+function gen_pull_db_config_info($database, $key) {
+  $filename = DIR_FS_ADMIN . 'my_files/' . $database . '/config.txt';
+  $lines = file($filename);
+  for ($x = 0; $x < count($lines); $x++) {
+	if (trim(substr($lines[$x], 0, strpos($lines[$x], '='))) == $key) {
+	  return trim(substr($lines[$x], strpos($lines[$x],'=') + 1, strpos($lines[$x],';') - strpos($lines[$x],'=') - 1));
+	}
+  }
+  return false;
+}
+
 /**************************** admin functions ***********************************************/
 function admin_check_versions($module, $prerequisites = NULL) {
   global $messageStack;
@@ -104,7 +131,7 @@ function admin_check_versions($module, $prerequisites = NULL) {
   return $error;
 }
 
-function admin_install_dirs($dirlist, $path) {
+function admin_install_dirs($dirlist, $path = DIR_FS_MY_FILES) {
   global $messageStack;
   $error = false;
   if (is_array($dirlist)) foreach ($dirlist as $dir) {
@@ -115,15 +142,13 @@ function admin_install_dirs($dirlist, $path) {
   return $error;
 }
 
-function admin_remove_dirs($dirlist) {
+function admin_remove_dirs($dirlist, $path = DIR_FS_MY_FILES) {
   global $messageStack;
   $error = false;
   if (is_array($dirlist)) {
     $temp = array_reverse($dirlist);
-	foreach($temp as $directory) {
-	  if (!@rmdir($directory)) {
-	    $error = $messageStack->add(sprintf(ERROR_CANNOT_REMOVE_MODULE_DIR, $directory), 'error');
-	  }
+	foreach($temp as $dir) {
+	  if (!@rmdir($path . $dir)) $error = $messageStack->add(sprintf(ERROR_CANNOT_REMOVE_MODULE_DIR, $path . $dir), 'error');
 	}
   }
   return $error;
@@ -202,17 +227,17 @@ function install_build_co_config_file($company, $key, $value) {
     $found_it = false;
     for ($x = 0; $x < count($lines); $x++) {
 	  if (strpos(substr($lines[$x], 0, strpos($lines[$x], ',')), $key)) {
-	    $lines[$x] = "define('" . $key . "','" . $value . "');" . "\n";
+	    $lines[$x] = "define('" . $key . "','" . addslashes($value) . "');" . "\n";
 	    $found_it = true;
 	    break;
 	  }
     }
-    if (!$found_it) $lines[] = "define('" . $key . "','" . $value . "');" . "\n";
+    if (!$found_it) $lines[] = "define('" . $key . "','" . addslashes($value) . "');" . "\n";
   } else { // create the config file, because it doesn't exist
     $lines = array();
     $lines[] = '<?php' . "\n";
     $lines[] = '/* config.php */' . "\n";
-    $lines[] = "define('" . $key . "','" . $value . "');" . "\n";
+    $lines[] = "define('" . $key . "','" . addslashes($value) . "');" . "\n";
   }
   $line = implode('', $lines);
   if (!$handle = @fopen($filename, 'w')) {
@@ -226,6 +251,7 @@ function install_build_co_config_file($company, $key, $value) {
 
 /***************************** import/export functions ******************************/
 function load_module_xml($module) {
+	global $db;
   $error = false;
   $result = trim(file_get_contents(DIR_FS_MODULES . $module . '/' . $module . '.xml'));
   if (!$output = xml_to_object($result)) return false;
@@ -628,6 +654,7 @@ function csv_explode($str, $delim = ',', $enclose = '"', $preserve = false){
 			$form_array['decimal_display'] = $form_array['display'];
 			$form_array['decimal_default'] = $form_array['default'];
 			break;
+		case 'multi_check_box':
 		case 'drop_down':
 		case 'radio':
 		case 'enum':

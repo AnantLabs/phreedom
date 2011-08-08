@@ -279,7 +279,7 @@ if (!$error) switch ($action) {
 		fwrite($handle, $output['pdf']);
 		fclose($handle);
 		$block = array();
-		if ($cc_address) {
+		if ($cc_email) {
 		  $block['EMAIL_CC_NAME']    = $cc_name;
 		  $block['EMAIL_CC_ADDRESS'] = $cc_email;
 		}

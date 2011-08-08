@@ -24,11 +24,11 @@ $contact_js  = '';
 $js_pmt_array= '';
 $js_actions  = '';
 $criteria    = array();
-$search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$search_text = $_POST['search_text'] ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action      = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
-$type        = (isset($_GET['type']) ? $_GET['type'] : 'c'); // default to customer
+$type        = isset($_GET['type']) ? $_GET['type'] : 'c'; // default to customer
 // load the filters
 $f0 = isset($_POST['todo']) ? (isset($_POST['f0']) ? $_POST['f0'] : '0') : (isset($_GET['f0']) ? $_GET['f0'] : '1'); // show inactive checkbox
 $_GET['f0'] = $f0;
@@ -254,10 +254,14 @@ switch ($action) {
 			where short_name = '" . $i_short_name . "' and type = 'i'";
 	  } else { // $action == update
 		$sql = "select id from " . TABLE_CONTACTS . " 
-			where short_name = '" . $short_name . "' and type = 'i' and id <> " . $i_id;
+			where short_name = '" . $i_short_name . "' and type = 'i' and id <> " . $i_id;
 	  }
 	  $result = $db->Execute($sql);
 	  if ($result->RecordCount() > 0) $error = $messageStack->add(ACT_ERROR_DUPLICATE_CONTACT,'error');
+	  if ($addresses['im']['primary_name'] && !$i_short_name) {
+	    $error = $messageStack->add(ACT_I_TYPE_NAME . ': ' . ACT_JS_SHORT_NAME,'error');
+	  }
+
 	}
 
 	if ($error == false) {
@@ -278,11 +282,21 @@ switch ($action) {
 		'tax_id'          => $tax_id,
 		'last_update'     => 'now()',
 	  );
-	  $xtra_db_fields = $db->Execute("select field_name, entry_type 
+	  $xtra_db_fields = $db->Execute("select field_name, entry_type, params 
 	    from " . TABLE_EXTRA_FIELDS . " where tab_id > 0 and module_id='contacts'");
 	  while (!$xtra_db_fields->EOF) {
 	    $field_name = $xtra_db_fields->fields['field_name'];
-	    if (!isset($_POST[$field_name]) && $xtra_db_fields->fields['entry_type'] == 'check_box') {
+	    if ($xtra_db_fields->fields['entry_type'] == 'multi_check_box') {
+		  $temp ='';
+	      $params = unserialize($xtra_db_fields->fields['params']);
+		  $choices = explode(',',$params['default']);
+	      while ($choice = array_shift($choices)) {
+	        $values = explode(':',$choice);
+		    If(isset($_POST[$field_name.$values[0]])){
+			  $temp.= $_POST[$field_name.$values[0]].',';
+			}}
+		  $sql_data_array[$field_name] = $temp;
+		}elseif (!isset($_POST[$field_name]) && $xtra_db_fields->fields['entry_type'] == 'check_box') {
 		  $sql_data_array[$field_name] = '0'; // special case for unchecked check boxes
 	    } elseif (isset($_POST[$field_name]) && $field_name <> 'id') {
 		  $sql_data_array[$field_name] = db_prepare_input($_POST[$field_name]);
@@ -313,7 +327,7 @@ switch ($action) {
 	  }
 
 	  // contact main record
-	  if ($type <> 'i' && $i_short_name) {
+	  if ($type <> 'i' && $i_short_name) { // is null
 	    $sql_data_array = array(
 		  'type'            => 'i',
 		  'short_name'      => $i_short_name,

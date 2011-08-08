@@ -25,7 +25,7 @@ require_once(DIR_FS_WORKING . 'functions/phreedom.php');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $error  = false;
-$action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
+$action = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/users/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -33,37 +33,50 @@ if (file_exists($custom_path)) { include($custom_path); }
 switch ($action) {
   case 'save':
   case 'fill_all': 
+  case 'fill_role':
 	if ($security_level < 2) {
 	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	  break;
 	}
-	$admin_id = db_prepare_input($_POST['rowSeq']);
-	$fill_all = db_prepare_input($_POST['fill_all']);
-	$prefs = array(
-	  'def_store_id'    => db_prepare_input($_POST['def_store_id']),
-	  'def_cash_acct'   => db_prepare_input($_POST['def_cash_acct']),
-	  'def_ar_acct'     => db_prepare_input($_POST['def_ar_acct']),
-	  'def_ap_acct'     => db_prepare_input($_POST['def_ap_acct']),
-	  'restrict_store'  => isset($_POST['restrict_store'])  ? '1' : '0',
-	  'restrict_period' => isset($_POST['restrict_period']) ? '1' : '0',
-	);
-	// not the most elegent but look for a colon in the second character position
-	$post_keys = array_keys($_POST);
-	$admin_security = '';
-    foreach ($post_keys as $key) {
-	  if (strpos($key, 'sID_') === 0) { // it's a security setting post
-		if ($admin_security) $admin_security .= ',';
-		$admin_security .= substr($key, 4) . ':' . (($fill_all == '-1') ? substr($_POST[$key], 0, 1) : $fill_all);
+	$admin_id  = db_prepare_input($_POST['rowSeq']);
+	$fill_all  = db_prepare_input($_POST['fill_all']);
+	$fill_role = db_prepare_input($_POST['fill_role']);
+	if ($security_level < 3 && $admin_id) $error = $messageStack->add(GEN_ADMIN_CANNOT_CHANGE_ROLES, 'error'); 
+	if ($action == 'fill_role' ) {
+	  $result = $db->Execute("select admin_prefs, admin_security from " . TABLE_USERS . " where admin_id = " . $fill_role);
+	  $admin_prefs    = $result->fields['admin_prefs'];
+	  $admin_security = $result->fields['admin_security'];
+	  $temp = unserialize($result->fields['admin_prefs']);  // fake the input to look like role
+	  foreach ($temp as $key => $value) $_POST[$key] = $value;
+	} else {
+	  $prefs = array(
+	    'def_store_id'    => db_prepare_input($_POST['def_store_id']),
+	    'def_cash_acct'   => db_prepare_input($_POST['def_cash_acct']),
+	    'def_ar_acct'     => db_prepare_input($_POST['def_ar_acct']),
+	    'def_ap_acct'     => db_prepare_input($_POST['def_ap_acct']),
+	    'restrict_store'  => isset($_POST['restrict_store'])  ? '1' : '0',
+	    'restrict_period' => isset($_POST['restrict_period']) ? '1' : '0',
+	  );
+	  $admin_prefs = serialize($prefs);
+	  // not the most elegent but look for a colon in the second character position
+	  $post_keys = array_keys($_POST);
+	  $admin_security = '';
+      foreach ($post_keys as $key) {
+	    if (strpos($key, 'sID_') === 0) { // it's a security setting post
+		  if ($admin_security) $admin_security .= ',';
+		  $admin_security .= substr($key, 4) . ':' . (($fill_all == '-1') ? substr($_POST[$key], 0, 1) : $fill_all);
+	    }
 	  }
 	}
 	$sql_data_array = array(
 	  'admin_name'     => db_prepare_input($_POST['admin_name']),
+	  'is_role'        => '0',
 	  'inactive'       => isset($_POST['inactive']) ? '1' : '0',
 	  'display_name'   => db_prepare_input($_POST['display_name']),
 	  'admin_email'    => db_prepare_input($_POST['admin_email']),
 	  'account_id'     => $_POST['account_id'] ? db_prepare_input($_POST['account_id']) : 0,
-	  'admin_prefs'    => serialize($prefs),
+	  'admin_prefs'    => $admin_prefs,
 	  'admin_security' => $admin_security,
 	);
 	if ($_POST['password_new']) { 
@@ -77,8 +90,7 @@ switch ($action) {
 	  $sql_data_array['admin_pass'] = pw_encrypt_password($password_new);
 	}
 	if (!$admin_id) { // check for duplicate user name
-	  $result = $db->Execute("select admin_id from " . TABLE_USERS . " 
-	    where admin_name = '" . db_prepare_input($_POST['admin_name']) . "'");
+	  $result = $db->Execute("select admin_id from " . TABLE_USERS . " where admin_name = '" . db_prepare_input($_POST['admin_name']) . "'");
 	  if ($result->RecordCount() > 0) {
 		$error = $messageStack->add(ENTRY_DUP_USER_NEW_ERROR, 'error');
 	  }
@@ -114,7 +126,6 @@ switch ($action) {
 	  $messageStack->add(GEN_ERROR_DUPLICATE_ID, 'error');
 	  break;
 	}
-
 	$result   = $db->Execute("select * from " . TABLE_USERS . " where admin_id = " . $admin_id);
 	$old_name = $result->fields['admin_name'];
 	// clean up the fields (especially the system fields, retain the custom fields)
@@ -137,7 +148,6 @@ switch ($action) {
 	db_perform(TABLE_USERS, $output_array, 'insert');
 	$new_id = db_insert_id();
 	$messageStack->add(GEN_MSG_COPY_SUCCESS, 'success');
-
 	// now continue with newly copied item by editing it
 	gen_add_audit_log(sprintf(GEN_LOG_USER, TEXT_COPY), $old_name . ' => ' . $new_name);
 	$_POST['rowSeq'] = $new_id;	// set item pointer to new record
@@ -146,8 +156,10 @@ switch ($action) {
   case 'edit':
 	if (isset($_POST['rowSeq'])) $admin_id = db_prepare_input($_POST['rowSeq']);
 	$result = $db->Execute("select * from " . TABLE_USERS . " where admin_id = " . (int)$admin_id);
-	$result->fields['prefs'] = unserialize($result->fields['admin_prefs']);
+	$temp = unserialize($result->fields['admin_prefs']);
+	unset($result->fields['admin_prefs']);
 	$uInfo = new objectInfo($result->fields);
+	foreach ($temp as $key => $value) $uInfo->$key = $value;
 	break;
 
   case 'delete':
@@ -175,15 +187,6 @@ switch ($action) {
 }
 
 /*****************   prepare to display templates  *************************/
-$fill_all_values = array(
-  array('id' => '-1', 'text' => GEN_HEADING_PLEASE_SELECT),
-  array('id' => '0',  'text' => TEXT_NONE),
-  array('id' => '1',  'text' => TEXT_READ_ONLY),
-  array('id' => '2',  'text' => TEXT_ADD),
-  array('id' => '3',  'text' => TEXT_EDIT),
-  array('id' => '4',  'text' => TEXT_FULL),
-);
-
 $include_header   = true;
 $include_footer   = true;
 $include_tabs     = true;
@@ -193,8 +196,24 @@ switch ($action) {
   case 'new':
   case 'edit':
   case 'fill_all':
+  case 'fill_role':
+	$fill_all_values = array(
+	  array('id' => '-1', 'text' => GEN_HEADING_PLEASE_SELECT),
+	  array('id' => '0',  'text' => TEXT_NONE),
+	  array('id' => '1',  'text' => TEXT_READ_ONLY),
+	  array('id' => '2',  'text' => TEXT_ADD),
+	  array('id' => '3',  'text' => TEXT_EDIT),
+	  array('id' => '4',  'text' => TEXT_FULL),
+	);
+	$fill_all_roles = array(array('id' => '0', 'text' => TEXT_NONE));
+	$result = $db->Execute("select admin_id, admin_name from " . TABLE_USERS . " where is_role = '1'");
+	while (!$result->EOF) {
+	  $fill_all_roles[] = array('id' => $result->fields['admin_id'], 'text' => $result->fields['admin_name']);
+	  $result->MoveNext();
+	}
     $include_template = 'template_detail.php';
-    define('PAGE_TITLE', HEADING_TITLE_USER_INFORMATION);
+	$role_name = isset($uInfo->admin_name) ? (' - ' . $uInfo->admin_name) : '';
+    define('PAGE_TITLE', HEADING_TITLE_USER_INFORMATION . $role_name);
 	break;
   default:
 	// build the list header
@@ -209,18 +228,18 @@ switch ($action) {
 	$disp_order  = $result['disp_order'];
 	// build the list for the page selected
 	$search_text = ($_GET['search_text'] == TEXT_SEARCH) ? '' : db_input($_GET['search_text']);
-	if (isset($search_text) && gen_not_null($search_text)) {
+	if (isset($search_text) && $search_text <> '') {
 	  $search_fields = array('admin_name', 'admin_email', 'display_name');
 	  // hook for inserting new search fields to the query criteria.
 	  if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);
-	  $search = ' where ' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\'';
+	  $search = ' and (' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\')';
 	} else {
 	  $search = '';
 	}
 	$field_list = array('admin_id', 'inactive', 'display_name', 'admin_name', 'admin_email');
 	// hook to add new fields to the query return results
 	if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-	$query_raw    = "select " . implode(', ', $field_list) . " from " . TABLE_USERS . $search . " order by $disp_order";
+	$query_raw    = "select " . implode(', ', $field_list) . " from " . TABLE_USERS . " where is_role = '0'" . $search . " order by $disp_order";
 	$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
 	$query_result = $db->Execute($query_raw);
 	$include_template = 'template_main.php';

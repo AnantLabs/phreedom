@@ -22,13 +22,11 @@ $security_level = validate_ajax_user();
 gen_pull_language('phreebooks');
 require(DIR_FS_MODULES . 'inventory/defaults.php');
 require(DIR_FS_MODULES . 'inventory/functions/inventory.php');
-
 /**************   page specific initialization  *************************/
 // One of the following identifers is required.
 $sku = db_prepare_input($_GET['sku']); // specifies the sku, could be a search field as well
 $UPC = db_prepare_input($_GET['upc']); // specifies the upc code
 $iID = db_prepare_input($_GET['iID']); // specifies the item database id
-
 // optional for more detailed operation
 $bID    = db_prepare_input($_GET['bID']); // specifies the branch ID
 $cID    = db_prepare_input($_GET['cID']); // specifies the contact ID
@@ -36,7 +34,6 @@ $jID    = db_prepare_input($_GET['jID']); // specifies the journal ID
 $rID    = db_prepare_input($_GET['rID']); // specifies the row to update
 $qty    = db_prepare_input($_GET['qty']); // specifes the quantity (for pricing)
 $strict = $_GET['strict'] ? true : false; // specifes strict match of sku value
-
 // some error checking
 if (!$sku && !$UPC && !$iID) {
   echo createXmlHeader() . xmlEntry('error', AJAX_INV_NO_INFO) . createXmlFooter();
@@ -44,7 +41,6 @@ if (!$sku && !$UPC && !$iID) {
 }
 if (!$qty) $qty = 1; // assume that one is required, will set to 1 on the form
 if (!$bID) $bID = 0; // assume only one branch or main branch if not specified
-
 // Load the sku information
 if ($iID) {
   $search = " where id = '" . $iID . "'";
@@ -66,14 +62,11 @@ if ($UPC && $inventory->RecordCount() <> 1) { // for UPC codes submitted only, s
 }
 $iID = $inventory->fields['id']; // set the item id (just in case UPC or sku was the only identifying parameter)
 $sku = $inventory->fields['sku'];
-
 // fix some values for special cases
 $cog_types = explode(',', COG_ITEM_TYPES);
 if (!in_array($inventory->fields['inventory_type'], $cog_types)) $inventory->fields['quantity_on_hand'] = 'NA';
-
 // load branch stock ( must be before BOM loading )
 $inventory->fields['branch_qty_in_stock'] = (strpos(COG_ITEM_TYPES, $inventory->fields['inventory_type']) === false) ? 'NA' : strval(load_store_stock($sku, $bID));
-
 // Load the assembly information
 $assy_cost = 0;
 if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventory_type'] == 'sa') {
@@ -84,7 +77,6 @@ if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventor
 	$sku_cost = $db->Execute($sql);
 	$assy_cost += $result->fields['qty'] * $sku_cost->fields['item_cost'];
 	$branch_qty_in_stock = ($bID) ? strval(load_store_stock($result->fields['sku'], $bID)) : $sku_cost->fields['quantity_on_hand'];
-//echo 'branch stock = ' . $branch_qty_in_stock . '<br />';	
 	$bom[] = array(
 	  'qty'               => $result->fields['qty'],
 	  'sku'               => $result->fields['sku'],
@@ -97,7 +89,6 @@ if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventor
 } else {
   $assy_cost = $inventory->fields['item_cost'];
 }
-
 // load where used
 $result = $db->Execute("select ref_id, qty from " . TABLE_INVENTORY_ASSY_LIST . " where sku = '" . $sku . "'");
 if ($result->RecordCount() == 0) {
@@ -110,8 +101,9 @@ if ($result->RecordCount() == 0) {
     $result->MoveNext();
   }
 }
-// load price
+// load prices
 $sales_price = strval(inv_calculate_sales_price(abs($qty), $iID, $cID));
+//$debug .= ' processing cID = ' . $cID . ' and price = ' . $sales_price . chr(10);
 // load sku stock status and open orders
 $stock_note = array();
 switch($jID) {
@@ -123,7 +115,7 @@ switch($jID) {
   case  '9':
   case '10':
   case '12':
-  case  '19':
+  case '19':
 	// check for stock available for SO, Customer Quote and Sales
 	if ($qty > $inventory->fields['branch_qty_in_stock'] && strpos(COG_ITEM_TYPES, $inventory->fields['inventory_type']) !== false) {
 	  $stock_note   = array(ORD_INV_STOCK_LOW);
@@ -145,8 +137,7 @@ switch($jID) {
 }
 
 //put it all together
-// echo back some submitted values
-$xml .= xmlEntry("qty", $qty);
+          $xml .= xmlEntry("qty", $qty);
 if ($cID) $xml .= xmlEntry("cID", $cID);
 if ($jID) $xml .= xmlEntry("jID", $jID);
 if ($rID) $xml .= xmlEntry("rID", $rID);
@@ -179,7 +170,7 @@ if (sizeof($stock_note) > 0) {
     $xml .= "</stock_note>\n";
   }
 }
-
+if ($debug) $xml .= xmlEntry('debug', $debug);
 echo createXmlHeader() . $xml . createXmlFooter();
 die;
 ?>

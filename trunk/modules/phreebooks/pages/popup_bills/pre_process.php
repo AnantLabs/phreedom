@@ -67,7 +67,7 @@ $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 
 // build the list for the page selected
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('bill_primary_name', 'bill_contact', 'bill_address1', 'bill_address2', 'bill_city_town', 
   	'bill_postal_code', 'purchase_invoice_id', 'total_amount');
   // hook for inserting new search fields to the query criteria.

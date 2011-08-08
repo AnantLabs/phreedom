@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/assemblies/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--

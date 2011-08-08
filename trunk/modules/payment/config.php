@@ -17,24 +17,17 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/config.php
 //
-
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes
+// 3.2 => 2011-08-01 - Bug fixes
 // Module software version information
-define('MODULE_PAYMENT_VERSION', '3.1');
+define('MODULE_PAYMENT_VERSION', '3.2');
 // Menu Sort Positions
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_PAYMENT',       81);
 // New Database Tables
 // Set the title menu
 // Set the menus
-$menu[] = array(
-  'text'        => BOX_PAYMENTS, 
-  'heading'     => MENU_HEADING_SETUP, 
-  'rank'        => 65, 
-  'security_id' => SECURITY_ID_PAYMENT, 
-  'link'        => html_href_link(FILENAME_DEFAULT, 'module=payment&amp;page=main', 'SSL'),
-);
 
 ?>

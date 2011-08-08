@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/main/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
@@ -26,7 +25,6 @@ var image_delete_text = '<?php echo TEXT_DELETE; ?>';
 var image_delete_msg  = '<?php echo INV_MSG_DELETE_INV_ITEM; ?>';
 var text_sku          = '<?php echo TEXT_SKU; ?>';
 var delete_icon_HTML  = '<?php echo substr(html_icon("emblems/emblem-unreadable.png", TEXT_DELETE, "small", "onclick=\"if (confirm(\'" . INV_MSG_DELETE_INV_ITEM . "\')) removeBOMRow("), 0, -2); ?>';
-
 // required function called with every page load
 function init() {
   <?php if ($action <> 'new' && $action <> 'edit') { // set focus for main window
@@ -107,8 +105,10 @@ function ImgPopup(url) {
   window.open('index.php?module=inventory&page=popup_image&img='+url,'popupWindow','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=yes,copyhistory=no,width=400,height=400,screenX=150,screenY=150,top=150,left=150')
 }
 
-function priceMgr(id, cost, price) {
-  window.open('index.php?module=inventory&page=popup_price_mgr&iID='+id+'&cost='+cost+'&price='+price,"price_mgr","width=800,height=400,resizable=1,scrollbars=1,top=150,left=200");
+function priceMgr(id, cost, price, type) {
+  if (!cost)  cost  = document.getElementById('item_cost').value;
+  if (!price) price = document.getElementById('full_price').value;
+  window.open('index.php?module=inventory&page=popup_price_mgr&iID='+id+'&cost='+cost+'&price='+price+'&type='+type,"price_mgr","width=800,height=400,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function InventoryList(rowCnt) {

@@ -86,8 +86,10 @@ switch ($action) {
 	// foreach method if enabled, save info
 	if (sizeof($methods) > 0) foreach ($methods as $shipper) {
 	  require_once($method_dir . $shipper . '/' . $shipper . '.php');
-	  $properties = new $shipper();
-	  if (constant('MODULE_PAYMENT_' . strtoupper($shipper) . '_STATUS')) $properties->update();
+	  if (defined('MODULE_PAYMENT_' . strtoupper($shipper) . '_STATUS')) {
+	    $properties = new $shipper();
+	    $properties->update();
+	  }
 	}
 	// save general tab
 	foreach ($install->keys as $key => $default) {

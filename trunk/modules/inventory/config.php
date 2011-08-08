@@ -20,12 +20,14 @@
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes
+// 3.2 => 2011-08-01 - added vendor price seets, bug fixes
 // Module software version information
-define('MODULE_INVENTORY_VERSION',     '3.1');
+define('MODULE_INVENTORY_VERSION',     '3.2');
 // Menu Sort Positions
 define('MENU_HEADING_INVENTORY_ORDER',    30);
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_PRICE_SHEET_MANAGER', 88);
+define('SECURITY_ID_VEND_PRICE_SHEET_MGR',89);
 define('SECURITY_ID_ADJUST_INVENTORY',   152);
 define('SECURITY_ID_ASSEMBLE_INVENTORY', 153);
 define('SECURITY_ID_MAINTAIN_INVENTORY', 151);
@@ -74,11 +76,18 @@ if (ENABLE_MULTI_BRANCH) $menu[] = array(
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=transfer', 'SSL'),
 );
 $menu[] = array(
-  'text'        => BOX_PRICE_SHEET_MANAGER,
+  'text'        => BOX_SALES_PRICE_SHEETS,
   'heading'     => MENU_HEADING_CUSTOMERS,
   'rank'        => 65, 
   'security_id' => SECURITY_ID_PRICE_SHEET_MANAGER, 
-  'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=price_sheets&amp;list=1', 'SSL'),
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=price_sheets&amp;type=c&amp;list=1', 'SSL'),
+);
+$menu[] = array(
+  'text'        => BOX_PURCHASE_PRICE_SHEETS,
+  'heading'     => MENU_HEADING_VENDORS,
+  'rank'        => 65, 
+  'security_id' => SECURITY_ID_VEND_PRICE_SHEET_MGR, 
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=price_sheets&amp;type=v&amp;list=1', 'SSL'),
 );
 
 ?>

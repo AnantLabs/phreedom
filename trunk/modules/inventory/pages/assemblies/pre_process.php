@@ -27,11 +27,12 @@ require_once(DIR_FS_WORKING . 'functions/inventory.php');
 $error = false;
 define('JOURNAL_ID', 14); // Inventory Assemblies Journal
 define('GL_TYPE', '');
-$glEntry = new journal();
-$glEntry->id = ($_POST['id'] <> '') ? $_POST['id'] : ''; // will be null unless opening an existing gl entry
+$glEntry             = new journal();
+$glEntry->id         = ($_POST['id'] <> '')      ? $_POST['id'] : ''; // will be null unless opening an existing gl entry
 $glEntry->journal_id = JOURNAL_ID;
-$glEntry->store_id = isset($_POST['store_id']) ? $_POST['store_id'] : 0;
-$action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
+$glEntry->store_id   = isset($_POST['store_id']) ? $_POST['store_id'] : 0;
+$glEntry->post_date  = $_POST['post_date']       ? gen_db_date($_POST['post_date']) : date('Y-m-d');
+$action              = (isset($_GET['action'])   ? $_GET['action'] : $_POST['todo']);
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/assemblies/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -45,19 +46,16 @@ switch ($action) {
 	  break;
 	}
 	// retrieve and clean input values
-	$glEntry->post_date           = gen_db_date($_POST['post_date']);
-	$glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
 	$glEntry->admin_id            = $_SESSION['admin_id'];
+	$glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
 	$sku                          = db_prepare_input($_POST['sku_1']);
 	$qty                          = db_prepare_input($_POST['qty_1']);
 	$desc                         = db_prepare_input($_POST['desc_1']);
 	$stock                        = db_prepare_input($_POST['stock_1']);
 	$serial                       = db_prepare_input($_POST['serial_1']);
-
 	// check for errors and prepare extra values
 	$glEntry->period              = gen_calculate_period($glEntry->post_date);
 	if (!$glEntry->period) $error = true;
-
 	// if unbuild, test for stock to go negative
 	$result = $db->Execute("select account_inventory_wage, quantity_on_hand 
 	  from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
@@ -74,13 +72,11 @@ switch ($action) {
 	  $error = true;
 	  $messageStack->add(JS_ASSY_VALUE_ZERO, 'error');
 	}
-
 	// finished checking errors, reload if any errors found
 	if ($error) {
 	  $cInfo = new objectInfo($_POST);
 	  break; // bail if an input error was found.
 	}
-
 	// process the request, build main record
 	$glEntry->closed = '1'; // closes by default
 	$glEntry->journal_main_array = $glEntry->build_journal_main_array();
@@ -117,7 +113,6 @@ switch ($action) {
 	}
 	// Error check to see if we can delete this record
 	// NOTE: Nothing to check at this time
-
 	// process the request
 	if (!$error && $glEntry->id) {
 	  $delAssy = new journal($glEntry->id); // load the posted record based on the id submitted
@@ -156,7 +151,7 @@ $cal_assy = array(
   'form'      => 'inv_assy',
   'fieldname' => 'post_date',
   'imagename' => 'btn_date_1',
-  'default'   => isset($cInfo->post_date) ? gen_locale_date($cInfo->post_date) : date(DATE_FORMAT),
+  'default'   => isset($glEntry->post_date) ? gen_locale_date($glEntry->post_date) : date(DATE_FORMAT),
 );
 
 $include_header   = true;

@@ -22,7 +22,7 @@ define('MENU_HEADING_GL', 'General Ledger');
 define('MENU_HEADING_BANKING','Banking');
 // Menu Titles
 define('ORD_TEXT_0_WINDOW_TITLE', 'Beginning Balances');
-define('ORD_TEXT_2_WINDOW_TITLE', 'General Journal Entries');
+define('ORD_TEXT_2_WINDOW_TITLE', 'General Journal');
 define('ORD_TEXT_3_WINDOW_TITLE', 'Request for Quotes');
 define('ORD_TEXT_4_WINDOW_TITLE', 'Purchase Orders');
 define('ORD_TEXT_6_WINDOW_TITLE', 'Purchase/Receive Inventory');
@@ -46,7 +46,6 @@ define('BOX_BANKING_ACCOUNT_RECONCILIATION', 'Account Reconciliation');
 define('BOX_BANKING_VOID_CHECKS', 'Void Checks');
 define('BOX_GL_BUDGET', 'Budgeting');
 define('BOX_GL_UTILITIES', 'General Journal Utilities');
-define('BOX_PRICE_SHEET_MANAGER','Price Sheet Manager');
 define('BOX_PHREEBOOKS_MODULE_ADM','PhreeBooks Admin');
 define('BOX_STATUS_MGR','%s Manager');
 

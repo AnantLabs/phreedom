@@ -40,9 +40,8 @@ class aged_summary {
 	for ($i = 0; $i < count($this->sql_field_array); $i++) {
 	  $this->sql_field_karray['c' . $i] = substr($this->sql_field_array[$i], 0, strpos($this->sql_field_array[$i], ' '));
 	}
-	$temp_sql = str_replace(' from ', ', ' . TABLE_JOURNAL_MAIN . '.id, journal_id, post_date, total_amount, bill_acct_id from ', $sql);
+	$temp_sql = str_replace(' FROM ', ', ' . TABLE_JOURNAL_MAIN . '.id, journal_id, post_date, total_amount, bill_acct_id FROM ', $sql);
 	$temp_sql = $this->replace_special_fields($temp_sql);
-//echo 'temp sql = ' . $temp_sql . '<br /><br />';
 	$result = $db->Execute($temp_sql);
 	if ($result->RecordCount() == 0) return false; // No data so bail now
 	while (!$result->EOF) {
@@ -119,6 +118,10 @@ class aged_summary {
 	return $OutputArray;
   }
 
+  function build_table_drop_down() {
+	$output = array();
+	return $output;
+  }
   function build_selection_dropdown() {
 	// build user choices for this class with the current and newly established fields
 	$output = array();
@@ -173,6 +176,7 @@ class aged_summary {
 
   function fetch_paid_amounts($id) {
 	global $db;
+	if (!$id) return 0;
 	$result = $db->Execute("select sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
 	  from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
 	  where i.so_po_item_ref_id = " . $id . " and m.journal_id in (18, 20) and i.gl_type in ('pmt', 'chk')");

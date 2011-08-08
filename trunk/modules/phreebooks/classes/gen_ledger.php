@@ -904,6 +904,7 @@ class journal {
 	  }
 	  // see if there is quantity left to account for but nothing left in inventory (less than zero inv balance)
 	  if ($working_qty > 0) {
+	    if (!ALLOW_NEGATIVE_INVENTORY) return $this->fail_message(GL_ERROR_POSTING_NEGATIVE_INV);
 		// for now, estimate the cost based on the unit_price of the item, will be re-posted (corrected) when product arrives
 		$result = $db->Execute("select item_cost from " . TABLE_INVENTORY . " where sku = '" . $item['sku'] . "'");
 		switch ($this->journal_id) {
@@ -1132,10 +1133,12 @@ class journal {
 	  'account_sales_income'   => INV_STOCK_DEFAULT_SALES,
 	  'account_inventory_wage' => INV_STOCK_DEFAULT_INVENTORY,
 	  'account_cost_of_sales'  => INV_STOCK_DEFAULT_COS,
-	  'cost_method'            => INV_STOCK_DEFAULT_COSTING,
+	  'item_taxable'           => INVENTORY_DEFAULT_TAX,
+	  'purch_taxable'          => INVENTORY_DEFAULT_PURCH_TAX,
 	  'item_cost'              => $item_cost,
+	  'cost_method'            => INV_STOCK_DEFAULT_COSTING,
 	  'full_price'             => $full_price,
-	  'creation_date'          => date('Y-m-d h:i:s', time()),
+	  'creation_date'          => date('Y-m-d h:i:s'),
 	);
 	$result = db_perform(TABLE_INVENTORY, $sql_array, 'insert');
 	return db_insert_id();

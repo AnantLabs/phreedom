@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/dashboards/company_links/company_links.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_COMPANY_LINKS_VERSION','3.2');
 
 class company_links extends ctl_panel {
   function company_links() {

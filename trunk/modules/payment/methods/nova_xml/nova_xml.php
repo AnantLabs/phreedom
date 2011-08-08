@@ -17,12 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/methods/nova_xml/nova_xml.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_PAYMENT_NOVA_XML_VERSION','3.2');
 
-/**
- * Nova Network Payment Module (viaKLIX version)
- * You must have SSL active on your server to be compliant with merchant TOS
- *
- */
+// Elevon Payment Module
 class nova_xml {
   var $code;
   function nova_xml() {

@@ -255,6 +255,7 @@ switch ($action) {
 	$order->discount            = $currencies->clean_value(db_prepare_input($_POST['discount']), $order->currencies_code) / $order->currencies_value;
 	$order->disc_percent        = ($order->subtotal) ? (1 - (($order->subtotal - $order->discount) / $order->subtotal)) : 0;
 	$order->ship_gl_acct_id     = db_prepare_input($_POST['ship_gl_acct_id']);
+	$order->rm_attach           = isset($_POST['rm_attach']) ? true : false;
 	$order->sales_tax           = $currencies->clean_value(db_prepare_input($_POST['sales_tax']), $order->currencies_code) / $order->currencies_value;
 	$order->total_amount        = $currencies->clean_value(db_prepare_input($_POST['total']), $order->currencies_code) / $order->currencies_value;
 	// load item row data
@@ -319,9 +320,27 @@ switch ($action) {
 	}
 	// Item row errors
 	if (!$order->item_rows) $error = $messageStack->add(GL_ERROR_NO_ITEMS, 'error');
-	// End of error checking, process the order
+	// End of error checking, check for attachments and process the order
 	if (!$error) { // Post the order
 	  if ($post_success = $order->post_ordr($action)) {	// Post the order class to the db
+		if ($order->rm_attach) @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip');
+		if (is_uploaded_file($_FILES['file_name']['tmp_name'])) { // file uploaded
+		  if ($_FILES['file_name']['error']) { // php error uploading file
+			$messageStack->add(TEXT_IMP_ERMSG5 . $_FILES['file_name']['error'], 'error');
+		  } elseif ($_FILES['file_name']['size'] > 0) { // report contains no data, error
+			require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+		    $backup              = new backup();
+			$backup->source_dir  = $_FILES['file_name']['tmp_name'];
+			$backup->source_file = '';
+			$backup->dest_dir    = PHREEBOOKS_DIR_MY_ORDERS;
+			$backup->dest_file   = 'order_' . $order->id . '.zip';
+			if (file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip')) {
+			  @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip');
+			}
+			if ($backup->make_zip('file', $_FILES['file_name']['name'])) $error = true;
+			@unlink($backup->source_dir . $_FILES['file_name']['tmp_name']);
+		  }
+		}
 		gen_add_audit_log(constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE') . ' - ' . ($_POST['id'] ? TEXT_EDIT : TEXT_ADD), $order->purchase_invoice_id, $order->total_amount);
 		if (DEBUG) $messageStack->write_debug();
 		if ($action == 'save') {
@@ -405,7 +424,14 @@ switch ($action) {
 	  $action = '';
 	}
 	break;
-
+  case 'dn_attach':
+	$oID = db_prepare_input($_POST['id']);
+	if (file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip')) {
+	  require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+	  $backup = new backup();
+	  $backup->download(PHREEBOOKS_DIR_MY_ORDERS, 'order_' . $oID . '.zip', true);
+	}
+	die;
   default:
 }
 

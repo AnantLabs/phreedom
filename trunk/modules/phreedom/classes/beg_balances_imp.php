@@ -194,7 +194,7 @@ class beg_bal_import {
 				'description'  => constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE') . '-' . TEXT_IMPORT,
 				'gl_account'   => $order['inv_gl_acct'],
 				'taxable'      => ($order['taxable']) ? $order['taxable'] : 0,
-				'debit_amount' => $currencies->clean_value($order['total_amount']),
+				$credit_debit  => $currencies->clean_value($order['total_amount']),
 				'post_date'    => $order['post_date']);
 			break;
 		  }
@@ -216,7 +216,7 @@ class beg_bal_import {
 		}
 		$glEntry->journal_rows[] = array(
 		  'gl_type'     => 'ttl',
-		  'description' => constant('ORD_TEXT_' . $this->journal_id . '_WINDOW_TITLE') . '-' . TEXT_TOTAL,
+		  'description' => constant('ORD_TEXT_' . $glEntry->journal_id . '_WINDOW_TITLE') . '-' . TEXT_TOTAL,
 		  'gl_account'  => $order['gl_acct'],
 		  $debit_credit => $total_amount,
 		  'post_date'   => $post_date,

@@ -130,25 +130,26 @@ function fill_paid_invoice_array($id, $account_id, $type = 'c') {
 	global $db, $currencies;
 	$negate = ((JOURNAL_ID == 20 && $type == 'c') || (JOURNAL_ID == 18 && $type == 'v')) ? true : false;
 	// first read all currently open invoices and the payments of interest and put into an array
-	$sql = "select distinct so_po_item_ref_id from " . TABLE_JOURNAL_ITEM . " where ref_id = " . $id;
-	$result = $db->Execute($sql);
 	$paid_indeces = array();
-	while (!$result->EOF) {
-	  if ($result->fields['so_po_item_ref_id']) $paid_indeces[] = $result->fields['so_po_item_ref_id'];
-	  $result->MoveNext();
+	if ($id > 0) { 
+	  $result = $db->Execute("select distinct so_po_item_ref_id from " . TABLE_JOURNAL_ITEM . " where ref_id = " . $id);
+	  while (!$result->EOF) {
+	    if ($result->fields['so_po_item_ref_id']) $paid_indeces[] = $result->fields['so_po_item_ref_id'];
+	    $result->MoveNext();
+	  }
 	}
 	switch ($type) {
 	  case 'c': $search_journal = '(12, 13)'; break;
 	  case 'v': $search_journal = '(6, 7)';   break;
 	  default: return false;
 	}
+	$open_invoices = array();
 	$sql = "select id, journal_id, post_date, terms, purch_order_id, purchase_invoice_id, total_amount, gl_acct_id 
 	  from " . TABLE_JOURNAL_MAIN . " 
 	  where (journal_id in " . $search_journal . " and closed = '0' and bill_acct_id = " . $account_id . ")";
 	if (sizeof($paid_indeces) > 0) $sql .= " or (id in (" . implode(',',$paid_indeces) . ") and closed = '0')";
 	$sql .= " order by post_date";
 	$result = $db->Execute($sql);
-	$open_invoices = array();
 	while (!$result->EOF) {
 	  if ($result->fields['journal_id'] == 7 || $result->fields['journal_id'] == 13) {
 	    $result->fields['total_amount'] = -$result->fields['total_amount'];
@@ -196,7 +197,7 @@ function fill_paid_invoice_array($id, $account_id, $type = 'c') {
 		from " . TABLE_JOURNAL_MAIN . " where id = " . $key;
 	  $result = $db->Execute($sql);
 	  $due_dates = calculate_terms_due_dates($result->fields['post_date'], $result->fields['terms'], ($type == 'v' ? 'AP' : 'AR'));
-	  if ( $negate) {
+	  if ($negate) {
 	    $line_item['total_amount'] = -$line_item['total_amount'];
 	    $line_item['discount']     = -$line_item['discount'];
 	    $line_item['amount_paid']  = -$line_item['amount_paid'];
@@ -208,6 +209,7 @@ function fill_paid_invoice_array($id, $account_id, $type = 'c') {
 		'purchase_invoice_id' => $result->fields['purchase_invoice_id'],
 		'purch_order_id'      => $result->fields['purch_order_id'],
 		'percent'             => $due_dates['discount'],
+		'post_date'           => $result->fields['post_date'],
 		'early_date'          => gen_locale_date($due_dates['early_date']),
 		'net_date'            => gen_locale_date($due_dates['net_date']),
 		'total_amount'        => $currencies->format($line_item['total_amount']),
@@ -221,19 +223,18 @@ function fill_paid_invoice_array($id, $account_id, $type = 'c') {
     return array('balance' => $balance, 'payment_fields' => $payment_fields, 'invoices' => $item_list);
 }
 
-function fetch_partially_paid($id, $journal = JOURNAL_ID) {
-	global $db;
-	$sql = "select sum(i.debit_amount) as debit, sum(i.credit_amount) as credit 
-		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
-		where m.journal_id in (18, 20) and i.so_po_item_ref_id = " . $id . " group by m.journal_id";
-	$result = $db->Execute($sql);
-	if ($result->fields['debit']) {
-		return $result->fields['debit'];
-	} elseif ($result->fields['credit']) {
-		return $result->fields['credit'];
-	} else {
-		return 0;
-	}
+function fetch_partially_paid($id) {
+  global $db;
+  $sql = "select sum(i.debit_amount) as debit, sum(i.credit_amount) as credit 
+	from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
+	where i.so_po_item_ref_id = " . $id . " and m.journal_id in (18, 20) and i.gl_type in ('chk', 'pmt') 
+	group by m.journal_id";
+  $result = $db->Execute($sql);
+  if ($result->fields['debit'] || $result->fields['credit']) {
+    return $result->fields['debit'] + $result->fields['credit'];
+  } else {
+    return 0;
+  }
 }
 
 function calculate_terms_due_dates($post_date, $terms_encoded, $type = 'AR') {

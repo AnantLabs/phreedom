@@ -49,7 +49,7 @@ echo $toolbar->build_toolbar($add_search = true);
 </table>
 </div>
 <div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER_OF_ITEMS); ?></div>
+<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 <table border="0" width="100%" cellspacing="0" cellpadding="1">
   <tr class="dataTableHeadingRow"><?php  echo $list_header; ?></tr>
 <?php
@@ -80,7 +80,7 @@ echo $toolbar->build_toolbar($add_search = true);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('apps/accessories-text-editor.png', TEXT_RENAME, 'small', 'onclick="renameItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) deleteItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 1 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('actions/edit-copy.png', TEXT_COPY_TO, 'small', 'onclick="copyItem(' . $query_result->fields['id'] . ')"') . chr(10);
-	  if ($security_level > 2) echo html_icon('status/mail-attachment.png', BOX_PRICE_SHEET_MANAGER, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', ' . $currencies->clean_value($query_result->fields['item_cost']) . ', ' . $currencies->clean_value($query_result->fields['full_price']) . ')"') . chr(10);
+	  if ($security_level > 2) echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_SALES_PRICE_SHEETS, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', ' . $currencies->clean_value($query_result->fields['item_cost']) . ', ' . $currencies->clean_value($query_result->fields['full_price']) . ', \'c\')"') . chr(10);
 ?>
 	</td>
   </tr> 
@@ -90,5 +90,5 @@ echo $toolbar->build_toolbar($add_search = true);
 ?>
 </table>
 <div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER_OF_ITEMS); ?></div>
+<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 </form>

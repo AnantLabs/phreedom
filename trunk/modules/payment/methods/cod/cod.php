@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/methods/cod.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_PAYMENT_COD_VERSION','3.2');
 
 class cod {
   var $code, $payment_fields;
@@ -45,7 +48,7 @@ class cod {
 
   function selection() {
     return array(
-	  'id'     => $this->code,
+	  'id'   => $this->code,
       'page' => MODULE_PAYMENT_COD_TITLE,
 	);
   }

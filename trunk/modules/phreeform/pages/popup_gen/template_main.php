@@ -28,18 +28,18 @@ echo html_hidden_field('title', $report->title) . chr(10);
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="self.close()"';
 $toolbar->icon_list['open']['show']     = false;
-$toolbar->icon_list['print']['params']  = 'onclick="submitToDo(\'exp_pdf\')"';
+$toolbar->icon_list['print']['params']  = 'onclick="submitToDo(\'exp_pdf\', true)"';
 $toolbar->icon_list['delete']['show']   = false;
 if ($report->reporttype == 'rpt') {
   $toolbar->icon_list['save']['params'] = 'onclick="entrySave();"';
   $toolbar->icon_list['export_html']    = array(
     'show'   => true, 
     'icon'   => 'mimetypes/text-html.png',
-    'params' => 'onclick="submitToDo(\'exp_html\')"', 
+    'params' => 'onclick="submitToDo(\'exp_html\', true)"', 
     'text'   => TEXT_GENERATE_HTML, 
     'order'  => '9',
   );
-  $toolbar->add_icon('export_csv', 'onclick="submitToDo(\'exp_csv\')"', $order = 10);
+  $toolbar->add_icon('export_csv', 'onclick="submitToDo(\'exp_csv\', true)"', $order = 10);
   $toolbar->add_icon('copy',       'onclick="querySaveAs()"',           $order = 13);
 } else {
   $toolbar->icon_list['save']['show'] = false;

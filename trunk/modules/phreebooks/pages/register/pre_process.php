@@ -66,7 +66,9 @@ while (!$result->EOF) {
   switch ($result->fields['journal_id']) {
    case  2:
    case 18:
+   case 19:
    case 20:
+   case 21:
      $deposit_amount    = $result->fields['debit_amount'];
      $withdrawal_amount = $result->fields['credit_amount'];
      break;

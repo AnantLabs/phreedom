@@ -134,10 +134,20 @@ switch ($action) {
 	if (substr($inventory_path, -1, 1) == '/') $inventory_path = substr($inventory_path, 0, strlen($inventory_path)-1); // remove trailing '/' if there
 	$inventory_type  = db_prepare_input($_POST['inventory_type']);
 	$sql_data_array  = array();
-	$inventory_fields = $db->Execute("select field_name, entry_type from " . TABLE_EXTRA_FIELDS . " where module_id='inventory'");
+	$inventory_fields = $db->Execute("select field_name, entry_type, params  from " . TABLE_EXTRA_FIELDS . " where module_id='inventory'");
 	while (!$inventory_fields->EOF) {
 	  $field_name = $inventory_fields->fields['field_name'];
-	  if (!isset($_POST[$field_name]) && $inventory_fields->fields['entry_type'] == 'check_box') {
+	  if ($inventory_fields->fields['entry_type'] == 'multi_check_box') {
+		$temp ='';
+		$params = unserialize($inventory_fields->fields['params']);
+		$choices = explode(',',$params['default']);
+		while ($choice = array_shift($choices)) {
+		  $values = explode(':',$choice);
+		  If(isset($_POST[$field_name.$values[0]])){
+			$temp.= $_POST[$field_name.$values[0]].',';
+		  }}
+		$sql_data_array[$field_name] = $temp;
+	  }elseif (!isset($_POST[$field_name]) && $inventory_fields->fields['entry_type'] == 'check_box') {
 		$sql_data_array[$field_name] = '0'; // special case for unchecked check boxes
 	  } elseif (isset($_POST[$field_name]) && $field_name <> 'id') {
 		$sql_data_array[$field_name] = db_prepare_input($_POST[$field_name]);
@@ -151,7 +161,9 @@ switch ($action) {
 	$sql_data_array['inactive']   = ($sql_data_array['inactive'] == '1' ? '1' : '0');
 	// special cases for monetary values in system fields
 	$sql_data_array['full_price'] = $currencies->clean_value($sql_data_array['full_price']);
-	$sql_data_array['item_cost']  = $currencies->clean_value($sql_data_array['item_cost']);
+	if ($_SESSION['admin_security'][SECURITY_ID_PURCHASE_INVENTORY] > 1) {
+	  $sql_data_array['item_cost']  = $currencies->clean_value($sql_data_array['item_cost']);
+	}
 	if ($inventory_type == 'ms') { // if it's a master stock item, process
 	  $attributes = array(
 		'attr_name_0' => db_prepare_input($_POST['attr_name_0']),
@@ -537,7 +549,7 @@ switch ($action) {
 	$list_header = $result['html_code'];
 	$disp_order  = $result['disp_order'];
 	// build the list for the page selected
-    if (isset($search_text) && gen_not_null($search_text)) {
+    if (isset($search_text) && $search_text <> '') {
       $search_fields = array('sku', 'description_short', 'description_purchase');
 	  // hook for inserting new search fields to the query criteria.
 	  if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);

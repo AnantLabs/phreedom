@@ -20,8 +20,9 @@
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes, managers, code enhancement
+// 3.2 => 2011-08-01 - Bug fixes
 // Module software version information
-define('MODULE_PHREEBOOKS_VERSION',    '3.1');
+define('MODULE_PHREEBOOKS_VERSION',    '3.2');
 // Menu Sort Positions
 define('MENU_HEADING_BANKING_ORDER',      40);
 define('MENU_HEADING_GL_ORDER',           50);
@@ -37,7 +38,7 @@ define('SECURITY_ID_SALES_STATUS',        32);
 define('SECURITY_ID_POINT_OF_SALE',       33);
 define('SECURITY_ID_INVOICE_MGR',         34);
 define('SECURITY_ID_QUOTE_STATUS',        35);
-define('SECURITY_ID_CUST_CREDIT_STATUS',  39);
+define('SECURITY_ID_CUST_CREDIT_STATUS',  40);
 define('SECURITY_ID_PURCHASE_ORDER',      53);
 define('SECURITY_ID_PURCHASE_QUOTE',      54);
 define('SECURITY_ID_PURCHASE_INVENTORY',  55);

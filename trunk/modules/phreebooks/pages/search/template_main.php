@@ -173,7 +173,7 @@ echo $toolbar->build_toolbar();
 		  $type = gen_get_contact_type($query_result->fields['bill_acct_id']);
 		  break;
 	    case 19: 
-		  $security_level = $_SESSION['admin_security'][SECURITY_ID_POINT_OF_SALE]; 
+		  $security_level = $_SESSION['admin_security'][SECURITY_ID_POS_MGR]; 
 		  $module = 'phreepos'; $mod = 'pos_mgr'; 
 		  break;
 	    case 20: 
@@ -183,7 +183,7 @@ echo $toolbar->build_toolbar();
 		  $type = gen_get_contact_type($query_result->fields['bill_acct_id']);
 		  break;
 	    case 21: 
-		  $security_level = $_SESSION['admin_security'][SECURITY_ID_WRITE_CHECKS]; 
+		  $security_level = $_SESSION['admin_security'][SECURITY_ID_POS_MGR]; 
 		  $module = 'phreepos'; $mod = 'pos_mgr'; 
 		  break;
 		default: 

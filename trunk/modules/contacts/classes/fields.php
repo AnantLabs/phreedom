@@ -34,7 +34,17 @@ class fields {
 	$description  = db_prepare_input($_POST['description']);
 	$tab_id       = db_prepare_input($_POST['tab_id']);
 	$entry_type   = db_prepare_input($_POST['entry_type']);
-	$contact_type = db_prepare_input($_POST['contact_type']);
+	//$contact_type = db_prepare_input($_POST['contact_type']);
+	$contact_type_array = array(
+	  array('id' => 'customer', 'text' => TEXT_CUSTOMER),
+	  array('id' => 'vendor',   'text' => TEXT_VENDOR),
+	  array('id' => 'employee', 'text' => TEXT_EMPLOYEE),
+	);
+	while ($type= array_shift($contact_type_array)){
+		if (db_prepare_input($_POST['contact_type_'. $type['id']]) ==true){
+				$contact_type .= $type['id'].':';
+			}
+	}
 	$field_name   = preg_replace("[^A-Za-z0-9_]", "", $field_name); // clean out all non-allowed values
 	if (!$field_name) $error = $messageStack->add(ASSETS_ERROR_FIELD_BLANK,'error');
 	$reserved_names = array('select', 'delete', 'insert', 'update', 'to', 'from', 'where', 'and', 'or',
@@ -108,6 +118,17 @@ class fields {
 		}
 		$values['entry_type'] = 'char(' . $max_choice_size . ')';
 		break;
+	  case 'multi_check_box':	
+		$params['default'] = db_prepare_input($_POST['radio_default']);
+		$choices = explode(',',$params['default']);
+		$max_choice_size = 0;
+		while ($choice = array_shift($choices)) {
+			$a_choice = explode(':',$choice);
+			if ($a_choice[2] == 1) $values['entry_params'] = " default '" . $a_choice[0] . "'";
+			if (strlen($a_choice[0]) > $max_choice_size) $max_choice_size = strlen($a_choice[0]);
+		}
+		$values['entry_type'] = 'text';
+		break;	
 	  case 'date':
 		$values['entry_type'] = 'date';
 		break;
@@ -230,7 +251,7 @@ class fields {
 	);
 	$cInfo = '';
 	if ($action <> 'new') {
-	  $result = $db->Execute("select id, entry_type, field_name, description, id, params 
+	  $result = $db->Execute("select id, entry_type, field_name, description, params, tab_id
 	    from " . TABLE_EXTRA_FIELDS . " where id = '" . $id . "'");
 	  $params = unserialize($result->fields['params']);
 	  foreach ($params as $key => $value) $result->fields[$key] = $value;
@@ -244,7 +265,7 @@ class fields {
 	  $messageStack->add(EXTRA_FIELDS_ERROR_NO_TABS, 'error');
 	  echo $messageStack->output();
 	}
-
+	$cInfo->contact_type = explode(':',$cInfo->contact_type);
 	$output  = '<table width="100%" border="1" cellspacing="1" cellpadding="1">' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '    <th colspan="2">' . ($action=='new' ? TEXT_NEW_FIELD : TEXT_EDIT_FIELD) . '</th>' . chr(10);
@@ -262,8 +283,21 @@ class fields {
 	$output .= '  </tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td>' . TEXT_CONTACT_TYPE . '</td>' . chr(10);
-	$output .= '	<td>' . html_pull_down_menu('contact_type', $contact_type, $cInfo->contact_type) . '</td>' . chr(10);
-	$output .= '  </tr>' . chr(10);
+	$output .= '	<td>' ;
+	while ($type= array_shift($contact_type)){
+		if (!is_array($cInfo->contact_type)){
+			$output .= html_checkbox_field('contact_type_'. $type['id'] , true , false). $type['text'] ;
+			$output .= '<br />';
+		}elseif(in_array($type['id'],$cInfo->contact_type)){
+			$output .= html_checkbox_field('contact_type_'. $type['id'],  true , true ). $type['text'] ;
+			$output .= '<br />';
+		}else{
+			$output .= html_checkbox_field('contact_type_'. $type['id'],  true , false). $type['text'] ;
+			$output .= '<br />';
+		}
+	}
+	$output .= '	</td>' ;
+	$output .= '</tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td>' . INV_CATEGORY_MEMBER . '</td>' . chr(10);
 	$output .= '	<td>' . html_pull_down_menu('tab_id', $tab_list, $cInfo->tab_id) . '</td>' . chr(10);
@@ -309,8 +343,9 @@ class fields {
 	$output .= '  </tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td>';
-	$output .= html_radio_field('entry_type', 'drop_down', ($cInfo->entry_type=='drop_down' ? true : false)) . '&nbsp;' . INV_LABEL_DROP_DOWN_FIELD . '<br />';
-	$output .= html_radio_field('entry_type', 'radio',     ($cInfo->entry_type=='radio'     ? true : false)) . '&nbsp;' . INV_LABEL_RADIO_FIELD;
+	$output .= html_radio_field('entry_type', 'multi_check_box', ($cInfo->entry_type=='multi_check_box' ? true : false)) . '&nbsp;' . INV_LABEL_MULTI_SELECT_FIELD . '<br />';
+	$output .= html_radio_field('entry_type', 'drop_down', ($cInfo->entry_type=='drop_down' ? true : false))             . '&nbsp;' . INV_LABEL_DROP_DOWN_FIELD . '<br />';
+	$output .= html_radio_field('entry_type', 'radio',     ($cInfo->entry_type=='radio'     ? true : false))             . '&nbsp;' . INV_LABEL_RADIO_FIELD;
 	$output .= '	</td>' . chr(10);
 	$output .= '	<td>' . INV_LABEL_CHOICES . '<br />' . html_textarea_field('radio_default', 35, 6, $cInfo->radio_default) . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);

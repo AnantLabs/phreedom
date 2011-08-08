@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/dashboards/so_status/so_status.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_SO_STATUS_VERSION','3.2');
 
 class so_status extends ctl_panel {
   function so_status() {

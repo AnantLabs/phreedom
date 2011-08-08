@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/methods/fedex_v7/fedex_v7.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_SHIPPING_FEDEX_V7_VERSION','3.2');
 
 define('FEDEX_V7_COST_FACTOR',0.10); // percent of allowed cost over actual charge
 define('FEDEX_V7_MAX_SINGLE_BOX_WEIGHT', 150); // maximum single box weight for small package in pounds
@@ -83,7 +86,7 @@ class fedex_v7 {
 	'FEDEX_2_DAY_FREIGHT'    => '2DFrt',
 	'FEDEX_3_DAY_FREIGHT'    => '3DFrt',
 	'FEDEX_FREIGHT'          => 'GndFrt',
-	'FEDEX_NATIONAL_FREIGHT' => 'EcoFrt',
+//	'FEDEX_NATIONAL_FREIGHT' => 'EcoFrt',
 	// new options
 //	'EUROPE_FIRST_INTERNATIONAL_PRIORITY',
 //	'INTERNATIONAL_ECONOMY_FREIGHT',

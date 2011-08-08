@@ -22,8 +22,8 @@ class contacts_admin {
   function contacts_admin() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.1',
-	  'phreebooks' => '3.1',
+	  'phreedom'   => '3.2',
+	  'phreebooks' => '3.2',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -60,9 +60,9 @@ class contacts_admin {
 		  email VARCHAR(48) NULL DEFAULT '',
 		  website VARCHAR(48) NULL DEFAULT '',
 		  notes text,
-		  PRIMARY KEY  (address_id),
+		  PRIMARY KEY (address_id),
 		  KEY customer_id (ref_id,type)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_CONTACTS => "CREATE TABLE " . TABLE_CONTACTS . " (
 		  id int(11) NOT NULL auto_increment,
 		  type char(1) NOT NULL default 'c',
@@ -83,10 +83,10 @@ class contacts_admin {
 		  last_update date default NULL,
 		  last_date_1 date default NULL,
 		  last_date_2 date default NULL,
-		  PRIMARY KEY  (id),
+		  PRIMARY KEY (id),
 		  KEY type (type),
 		  KEY short_name (short_name)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_CONTACTS_LOG => "CREATE TABLE " . TABLE_CONTACTS_LOG . " (
 		  log_id int(11) NOT NULL auto_increment,
 		  contact_id int(11) NOT NULL default '0',
@@ -94,7 +94,7 @@ class contacts_admin {
 		  action varchar(32) NOT NULL default '',
 		  notes text,
 		  PRIMARY KEY (log_id)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_DEPARTMENTS => "CREATE TABLE " . TABLE_DEPARTMENTS . " (
 		  id int(11) NOT NULL auto_increment,
 		  description_short varchar(30) NOT NULL default '',
@@ -105,12 +105,12 @@ class contacts_admin {
 		  department_inactive enum('0','1') NOT NULL default '0',
 		  PRIMARY KEY (id),
 		  KEY type (department_type)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Departments for employee organization';",
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_DEPT_TYPES => "CREATE TABLE " . TABLE_DEPT_TYPES . " (
 		  id int(11) NOT NULL auto_increment,
 		  description varchar(30) NOT NULL default '',
 		  PRIMARY KEY (id)
-		) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Type descriptions for the departments';",
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_PROJECTS_COSTS => "CREATE TABLE " . TABLE_PROJECTS_COSTS . " (
 		  cost_id int(8) NOT NULL auto_increment,
 		  description_short varchar(16) collate utf8_unicode_ci NOT NULL default '',
@@ -119,7 +119,7 @@ class contacts_admin {
 		  inactive enum('0','1') collate utf8_unicode_ci NOT NULL default '0',
 		  PRIMARY KEY (cost_id),
 		  KEY description_short (description_short)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Project Costs used for Job Phase Breakdown';",
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_PROJECTS_PHASES => "CREATE TABLE " . TABLE_PROJECTS_PHASES . " (
 		  phase_id int(8) NOT NULL auto_increment,
 		  description_short varchar(16) collate utf8_unicode_ci NOT NULL default '',
@@ -129,15 +129,15 @@ class contacts_admin {
 		  inactive enum('0','1') collate utf8_unicode_ci NOT NULL default '0',
 		  PRIMARY KEY (phase_id),
 		  KEY description_short (description_short)
-		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Project Phases used for Job Costing';",
+		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
     );
   }
 
   function install($module) {
     global $db;
 	$error = false;
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_cust_id_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_cust_id_num VARCHAR( 16 ) NOT NULL DEFAULT 'C10000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_vend_id_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_vend_id_num VARCHAR( 16 ) NOT NULL DEFAULT 'V10000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_cust_id_num')) $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_cust_id_num VARCHAR( 16 ) NOT NULL DEFAULT 'C10000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_vend_id_num')) $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_vend_id_num VARCHAR( 16 ) NOT NULL DEFAULT 'V10000';");
 	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 	xtra_field_sync_list('contacts', TABLE_CONTACTS);
     return $error;
@@ -236,8 +236,8 @@ class contacts_admin {
 	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (13, 13, 'vm', 'Closed Cases', 'Fernando', '23 Frontage Rd', '', 'New York', 'NY', '10019', 'USA', '888-555-6322', '800-555-5716', '', '', 'custserv@closedcases.net', '', '');");
 	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (14, 14, 'vm', 'MegaWatts Power Supplies', '', '11 Joules St.', '', 'Denver', 'CO', '80234', 'USA', '303-222-5617', '', '', '', 'help@hotmail.com', '', '');");
 	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (15, 15, 'vm', 'Slipped Disk Corp.', 'Accts. Receivable', '1234 Main St', 'Suite #1', 'La Verne', 'CA', '91750', 'USA', '714-555-0001', '', '', '', 'sales@slippedisks.com', '', '');");
-	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (16, 16, 'em', '', '', '123 Birch Ave', 'Apt 12', 'Anytown', 'CO', '80234', 'USA', '303-555-3451', '', '', '', 'john@mycompany.com', '', '');");
-	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (17, 17, 'em', '', '', '6541 First St', '', 'Anytown', 'CO', '80234', 'USA', '303-555-7426', '', '', '', 'nary@mycomapny.com', '', '');");
+	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (16, 16, 'em', 'John Smith', '', '123 Birch Ave', 'Apt 12', 'Anytown', 'CO', '80234', 'USA', '303-555-3451', '', '', '', 'john@mycompany.com', '', '');");
+	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (17, 17, 'em', 'Mary Johnson', '', '6541 First St', '', 'Anytown', 'CO', '80234', 'USA', '303-555-7426', '', '', '', 'nary@mycomapny.com', '', '');");
 	// Data for table `contacts`
 	$db->Execute("TRUNCATE TABLE " . TABLE_CONTACTS);
 	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (1, 'v', 'Obscure Video', '0', '', '', '', '', '2000', '', '', '', '3:1:10:30:2500.00', '', '', now(), NULL, NULL, NULL);");

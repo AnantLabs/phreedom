@@ -67,14 +67,14 @@ if (sizeof($contact->fields) > 0) {
   $xml .= "</BillContact>\n";
 }
 if (sizeof($bill->fields) > 0) { // there was an bill to open
-  $xml .= "\t<BillData>\n";
+  $xml .= "<BillData>\n";
   foreach ($bill->fields as $key => $value) $xml .= "\t\t" . xmlEntry($key, $value);
   foreach ($item_list as $item) { // there should always be invoices to pull
     $xml .= "\t<Item>\n";
     foreach ($item as $key => $value) $xml .= "\t\t" . xmlEntry($key, $value);
     $xml .= "\t</Item>\n";
   }
-  $xml .= "\t</BillData>\n";
+  $xml .= "</BillData>\n";
 }
 
 if ($debug) $xml .= xmlEntry('debug', $debug);

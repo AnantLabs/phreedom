@@ -87,8 +87,10 @@
   function load_specific_method($module, $method) {
     $method_dir  = DIR_FS_MODULES . $module . '/methods/';
     load_method_language($method_dir, $method);
-    require_once($method_dir . $method . '/' . $method . '.php');
-    return $method;
+    if (file_exists($method_dir . $method . '/' . $method . '.php')) {
+	  require_once ($method_dir . $method . '/' . $method . '.php');
+    }
+	return $method;
   }
 
 
@@ -409,10 +411,10 @@
     return $result_array;
   }
 
-  function get_price_sheet_data() {
+  function get_price_sheet_data($type = 'c') {
     global $db;
     $sql = "select distinct sheet_name, default_sheet from " . TABLE_PRICE_SHEETS . " 
-		where inactive = '0' order by sheet_name";
+		where inactive = '0' and type = '" . $type . "' order by sheet_name";
     $result = $db->Execute($sql);
     $sheets = array();
 	$default = '';
@@ -701,7 +703,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 }
 
   function gen_locale_date($raw_date, $long = false) { // from db to display format
-    if ($raw_date == '0000-00-00' || !$raw_date) return '';
+    if ($raw_date == '0000-00-00' || $raw_date == '0000-00-00 00:00:00' || !$raw_date) return '';
   	global $messageStack;
 	$error  = false;
     $year   = substr($raw_date,  0, 4);
@@ -1390,6 +1392,26 @@ function charConv($string, $in, $out) {
 			}
 			$output .= '</td></tr>';
 			break;
+		case 'multi_check_box':	
+			$output  .= '<td class="main">';
+			$output  .= '<table frame="border"><tr>';
+			$choices  = explode(',',$params['default']);
+			$selected = explode(',',$cInfo->$param_array['field_name']);
+			$i = 1;
+			while ($choice = array_shift($choices)) {
+				$values = explode(':', $choice);
+				$output .= '<td>';
+				$output .= html_checkbox_field($param_array['field_name'] . $values[0] , $values[0], in_array($values[0], $selected) ? true : false);
+				$output .= $values[1] . '</td>';
+				if ($i == 4){
+					$output .= '</tr><tr>';
+					$i=0;
+				}
+				$i++;
+			}
+			$output .= '</tr></table>';
+			$output .= '</td></tr>';
+			break;	
 		case 'check_box':
 			$output .= '<td class="main">' . html_checkbox_field($param_array['field_name'], '1', ($cInfo->$param_array['field_name']==1) ? true : false) . '</td></tr>';
 			break;
@@ -1596,7 +1618,7 @@ function validate_ajax_user($token = 0) {
   function web_connected($silent = true) {
     global $messageStack;
     $web_enabled = false; 
-    $connected = @fsockopen('www.phreebooks.com', 80, $errno, $errstr, 20);
+    $connected = @fsockopen('www.google.com', 80, $errno, $errstr, 20);
     if ($connected) { 
       $web_enabled = true; 
       fclose($connected); 
@@ -1698,6 +1720,7 @@ function xml_to_object($xml = '') {
 	  return substr($xml, strpos($xml, '[CDATA[') + 7, strrpos($xml, ']]') - strpos($xml, '[CDATA[') - 7);
 	} elseif (substr($xml, 0, 1) == '<') { // beginning tag, process
 	  $tag = substr($xml, 1, strpos($xml, '>') - 1);
+	  $attr = array();
 	  if (substr($tag, -1) == '/') { // the tag is self closing
 	    $selfclose = true;
 		$tag       = substr($xml, 1, strpos($xml, '>') - 2);
@@ -1708,9 +1731,21 @@ function xml_to_object($xml = '') {
 	    $end_tag   = '</' . $tag . '>';
 	    $taglen    = strlen($tag) + 2;
 	  }
-	  if (strpos($tag, ' ') !== false) { // there are tag properites, TBD put these into array
-		$tag = substr($tag, 0, strpos($tag, ' '));
+	  if (strpos($tag, ' ') !== false) { // there are tag properites
+		$new_tag = substr($tag, 0, strpos($tag, ' '));
+		$end_tag = $selfclose ? ('<' . $tag . '/>') : '</' . $new_tag . '>';
+		$temp = explode(' ', $tag);
+		$tag = array_shift($temp);
+		if (sizeof($temp) > 0) {
+		  foreach ($temp as $prop) {
+		    if ($prop) {
+		      $oneval = explode('=', $prop);
+		      $attr[$oneval[0]] = $onveal[1]; 
+		    }
+		  }
+		}
 	  }
+	  // TBD, the attr array is set but how to add to output?
 	  if (!$selfclose && strpos($xml, $end_tag) === false) {
 	    $messageStack->add('PhreeBooks XML parse error looking for end tag: ' . $tag . ' but could not find it!','error');
 	    return false;

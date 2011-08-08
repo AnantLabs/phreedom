@@ -71,6 +71,7 @@ define('TEXT_GROUP_TOTAL_FOR','Group Total For:');
 define('TEXT_IMPORT_ALL','Import All Reports From This Directory');
 define('TEXT_IMPORT_ALL_DESC','To import all reports listed above, click here:');
 define('TEXT_IMPORT_ONE','Import Selected Report');
+define('TEXT_JOIN_TYPE','Join Type');
 define('TEXT_LAST_PAGE','Last Page');
 define('TEXT_LAST_UPDATE','Last Update');
 define('TEXT_MIN_VALUE','Min Value');

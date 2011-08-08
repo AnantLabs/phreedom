@@ -40,7 +40,7 @@ if (count($extra_toolbar_buttons) > 0) {
 
 // add the help file index and build the toolbar
 $toolbar->add_help('09');
-echo $toolbar->build_toolbar(); 
+echo $toolbar->build_toolbar();
 
 // Build the page
 ?>

@@ -92,11 +92,12 @@ function validateDB() {
   var fields = '';
   var tableCnt = 0;
   for (i=0, j=1; i<document.getElementById('table_setup').rows.length - 2; i++, j++) {
-    table = document.forms[0].elements['table[]'][i].value;
+    table   = document.forms[0].elements['table[]'][i].value;
+    joinOpt = document.forms[0].elements['joinopt[]'][i].value;
     if (table) { 
       tableCrit = document.forms[0].elements['table_crit[]'][i].value;
       if (tableCrit || (table && i==0)) {
-	    fields += '&table'+j+'='+table+'&table'+j+'criteria='+tableCrit;
+	    fields += '&joinopt'+j+'='+joinOpt+'&table'+j+'='+table+'&table'+j+'criteria='+tableCrit;
         tableCnt++;
 	  }
 	}
@@ -324,12 +325,13 @@ function buildRow(idTable, rIndex, boxID) {
 
   switch (idTable) {
 	case 'table_setup':
-	  cell[0]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('table[]', $kTables, '', 'onchange="fieldLoad()"')); ?>';
-	  cell[1]  = '<?php echo html_input_field   ('table_crit[]', '', 'size="80"'); ?>';
+	  cell[0]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('joinopt[]', $joinOptions, '', '')); ?>';
+	  cell[1]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('table[]', $kTables, '', 'onchange="fieldLoad()"')); ?>';
+	  cell[2]  = '<?php echo " on " . html_input_field   ('table_crit[]', '', 'size="80"'); ?>';
 	  temp     = '<?php echo str_replace("'", "\'", html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_table_row_TBD')); ?>';
 	  temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'table_setup\', \'delete\')"')); ?>';
-	  cell[2]  = temp.replace(/row_TBD/g, rowCnt);
-	  attr[2]  = 'right';
+	  cell[3]  = temp.replace(/row_TBD/g, rowCnt);
+	  attr[3]  = 'right';
       break;
     case 'group_setup':
 	  cell[0]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('grp_fld[]',  $kFields, '', 'onclick="updateFieldList(this)"')); ?>';

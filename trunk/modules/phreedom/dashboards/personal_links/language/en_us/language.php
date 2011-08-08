@@ -15,7 +15,7 @@
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
 // | GNU General Public License for more details.                    |
 // +-----------------------------------------------------------------+
-//  Path: /modules/phreedom/dashboards/personal_links/language/en_us/personal_links.php
+//  Path: /modules/phreedom/dashboards/personal_links/language/en_us/language.php
 //
 
 define('CP_PERSONAL_LINKS_TITLE','My Links');

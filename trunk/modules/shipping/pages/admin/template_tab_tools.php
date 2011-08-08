@@ -49,7 +49,7 @@
 	  </td>
     </tr>
 	<tr>
-	  <td align="right"><?php echo html_button_field('backup', GEN_ADM_TOOLS_BTN_BACKUP, 'onclick="submitToDo(\'backup\')"'); ?></td>
+	  <td align="right"><?php echo html_button_field('backup', GEN_ADM_TOOLS_BTN_BACKUP, 'onclick="submitToDo(\'backup\', true)"'); ?></td>
 	  <td><?php echo html_button_field('clean',  GEN_ADM_TOOLS_BTN_CLEAN,  'onclick="if (confirm(\'' . GEN_ADM_TOOLS_BTN_CLEAN_CONFIRM . '\')) submitToDo(\'clean\')"'); ?></td>
 	</tr>
   </table>

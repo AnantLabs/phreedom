@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/encryption/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
@@ -25,7 +24,7 @@
 // Include translations here as well.
 
 function init() {
-  document.orders.elements['enc_key'].focus();
+  document.getElementById('enc_key').focus();
 }
 
 function check_form() {

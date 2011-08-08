@@ -23,10 +23,10 @@ define('MODULE_PHREEBOOKS_TITLE','PhreeBooks Module');
 define('MODULE_PHREEBOOKS_DESCRIPTION','The phreebooks module provides double entry accounting. Functions include Purchase Orders, Sales Orders, Invoicing, Journal Entries and more. <b>NOTE: This is a core module and should not be removed!</b>');
 // Headings
 // Installation
-define('MODULE_PHREEBOOKS_NOTES_1','PRIORITY MEDIUM: Enter company information (Company -> Module Admin -> My Company tab)');
-define('MODULE_PHREEBOOKS_NOTES_2','PRIORITY LOW: Set up mail server settings (Company -> Module Admin -> Email tab)');
-define('MODULE_PHREEBOOKS_NOTES_3','PRIORITY HIGH: Enter or import chart of accounts (Company -> Module Admin -> PhreeBooks Module -> Chart of Accounts tab)');
-define('MODULE_PHREEBOOKS_NOTES_4','PRIORITY MEDIUM: Set default general ledger accounts for customer and vendors, after loading GL accounts (Company -> PhreeeBooks Module Properties -> Customers/Vendors tab)');
+define('MODULE_PHREEBOOKS_NOTES_1','PRIORITY MEDIUM: Enter company information (Company -> Module Administration -> My Company tab)');
+define('MODULE_PHREEBOOKS_NOTES_2','PRIORITY LOW: Set up mail server settings (Company -> Module Administration -> Email tab)');
+define('MODULE_PHREEBOOKS_NOTES_3','PRIORITY HIGH: Change or import chart of accounts from default settings (Company -> Module Administration -> PhreeBooks Module Properties -> Chart of Accounts tab)');
+define('MODULE_PHREEBOOKS_NOTES_4','PRIORITY MEDIUM: Update default general ledger accounts for customer and vendors, after loading GL accounts (Company -> Module Administration -> PhreeeBooks Module Properties -> Customers/Vendors tab)');
 // General Defines
 define('TEXT_DEFAULT_GL_ACCOUNTS','Default GL Accounts');
 define('TEXT_PAYMENT_TERMS','Payment Terms');
@@ -148,6 +148,7 @@ define('CD_01_50_DESC', 'This feature adds two additional fields to the order sc
 define('CD_01_52_DESC', 'Enabling this feature will cause PhreeBooks to round calculated taxes by authority prior to adding up all applicable authorities. For tax rates with a single authority, this will only keep math precision errors from entering the journal. For multi-authority tax rates, this could cause too much or too little tax from being collected. If not sure, leave set to No.');
 define('CD_01_55_DESC', 'If set to Yes, this option will enable data entry on order forms for USB and supported bar code readers.');
 define('CD_01_75_DESC', 'If set to Yes, this option uses a single line order screen without displayed fields for full price and discount. The single line screen uses GL account numbers versus allowing full GL account numbers/descriptions in two line mode.');
+define('ALLOW_NEGATIVE_INVENTORY_DESC','Allow sales of inventory items resulting in negative stock levels? PhreeBooks allows this and the journal entry resulting in inventory going negative is re-posted when inventory is received to accurately calculate costs.');
 /************************** (Customer Defaults) ***********************************************/
 define('CD_02_01_DESC', 'Default Accounts Receivables account. Typically an Accounts Receivable type account.');
 define('CD_02_02_DESC', 'Default account to use for sales transactions. Typically an Income type account.');

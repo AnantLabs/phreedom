@@ -58,16 +58,17 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 <table border="0" width="100%" cellspacing="0" cellpadding="1">
   <tr class="dataTableHeadingRow"><?php echo $list_header; ?></tr>
 <?php
-	while (!$query_result->EOF) {
-	  $oID            = $query_result->fields['id'];
-	  $post_date      = gen_locale_date($query_result->fields['post_date']);
-	  $reference_id   = htmlspecialchars($query_result->fields['purchase_invoice_id']);
-	  $primary_name   = htmlspecialchars($query_result->fields['bill_primary_name']);
-	  $purch_order_id = htmlspecialchars($query_result->fields['purch_order_id']);
-	  $closed         = $query_result->fields['closed'] ? TEXT_YES : '';
-	  $total_amount   = $currencies->format_full($query_result->fields['total_amount'], true, $query_result->fields['currencies_code'], $query_result->fields['currencies_value']);
-	  if (ENABLE_MULTI_CURRENCY) $total_amount .= ' (' . $query_result->fields['currencies_code'] . ')';
-	  $bkgnd          = $query_result->fields['waiting'] ? ' style="background-color:lightblue"' : '';
+  while (!$query_result->EOF) {
+	$oID            = $query_result->fields['id'];
+	$post_date      = gen_locale_date($query_result->fields['post_date']);
+	$reference_id   = htmlspecialchars($query_result->fields['purchase_invoice_id']);
+	$primary_name   = htmlspecialchars($query_result->fields['bill_primary_name']);
+	$purch_order_id = htmlspecialchars($query_result->fields['purch_order_id']);
+	$closed         = $query_result->fields['closed'] ? TEXT_YES : '';
+	$total_amount   = $currencies->format_full($query_result->fields['total_amount'], true, $query_result->fields['currencies_code'], $query_result->fields['currencies_value']);
+	if (ENABLE_MULTI_CURRENCY) $total_amount .= ' (' . $query_result->fields['currencies_code'] . ')';
+	$bkgnd          = $query_result->fields['waiting'] ? ' style="background-color:lightblue"' : '';
+	$attach_exists  = file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip') ? true : false;
 	switch (JOURNAL_ID) {
 	  case  2:
 	    $link_page = html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=journal&amp;oID=' . $oID . '&amp;jID=' . JOURNAL_ID . '&amp;action=edit', 'SSL');
@@ -83,8 +84,10 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 	    $link_page = html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $oID . '&amp;jID=' . JOURNAL_ID . '&amp;action=edit', 'SSL');
 	    break;
 	  case 18: 
+	    $link_page = html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;oID=' . $oID . '&amp;jID=' . JOURNAL_ID . '&amp;type=c&amp;action=edit', 'SSL');
+	    break;
 	  case 20: 
-	    $link_page = html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;oID=' . $oID . '&amp;jID=' . JOURNAL_ID . '&amp;action=edit', 'SSL');
+	    $link_page = html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;oID=' . $oID . '&amp;jID=' . JOURNAL_ID . '&amp;type=v&amp;action=edit', 'SSL');
 	    break;
 	}
 ?>
@@ -163,6 +166,9 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 	  case 20: 
 		echo html_icon('actions/document-print.png',    TEXT_PRINT,  'small', 'onclick="printOrder('. $oID . ')"') . chr(10);
 	    break;
+	}
+	if ($attach_exists) {
+	  echo html_icon('status/mail-attachment.png', TEXT_DOWNLOAD_ATTACHMENT,'small', 'onclick="submitSeq(' . $oID . ', \'dn_attach\', true)"') . chr(10);
 	}
 	echo html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="window.open(\'' . $link_page . '\',\'_blank\')"') . chr(10);
 ?>

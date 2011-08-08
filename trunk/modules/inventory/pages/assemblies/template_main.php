@@ -17,15 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/assemblies/template_main.php
 //
-
 // start the form
 echo html_form('inv_assy', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 $hidden_fields = NULL;
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
 echo html_hidden_field('id', $cInfo->id) . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['params']   = 'onclick="OpenAssyList()"';
@@ -42,7 +39,6 @@ if (count($extra_toolbar_buttons) > 0) {
 // add the help file index and build the toolbar
 $toolbar->add_help('07.04.03.01');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
 <div class="pageHeading"><?php echo INV_ASSY_HEADING_TITLE; ?></div>

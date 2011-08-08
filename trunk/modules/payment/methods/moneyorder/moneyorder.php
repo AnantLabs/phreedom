@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/methods/moneyorder/moneyorder.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_PAYMENT_MONEYORDER_VERSION','3.2');
 
 class moneyorder {
   var $code, $payment_fields;

@@ -81,7 +81,7 @@ $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 
 // build the list for the page selected
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('sku', 'description_short', 'description_sales', 'description_purchase');
   // hook for inserting new search fields to the query criteria.
   if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);

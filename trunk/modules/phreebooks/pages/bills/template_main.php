@@ -183,6 +183,7 @@ echo '<br />' . html_input_field('bill_email', $order->bill_email, 'size="40" ma
 
 <div>
   <table id="item_table" width="100%" border="1" cellpadding="1" cellspacing="1">
+	<thead>
 	<tr>
 	  <th align="center"><?php echo BNK_INVOICE_NUM; ?></th>
 	  <th align="center"><?php echo BNK_DUE_DATE; ?></th>
@@ -192,6 +193,8 @@ echo '<br />' . html_input_field('bill_email', $order->bill_email, 'size="40" ma
 	  <th align="center"><?php echo constant('BNK_' . JOURNAL_ID . '_AMOUNT_PAID') . (ENABLE_MULTI_CURRENCY ? ' (' . DEFAULT_CURRENCY . ')' : ''); ?></th>
 	  <th align="center"><?php echo TEXT_PAY; ?></th>
 	</tr>
+	</thead>
+	<tbody>
 	<?php if ($order->id_1) {
 	  $i = 1;
 	  while (true) {
@@ -228,6 +231,7 @@ echo '<br />' . html_input_field('bill_email', $order->bill_email, 'size="40" ma
 		$i++;
 	  }
 	} ?>
+	</tbody>
   </table>
 </div>
 </form>

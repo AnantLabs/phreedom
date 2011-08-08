@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/dashboards/personal_links/personal_links.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_PERSONAL_LINKS_VERSION','3.2');
 
 class personal_links extends ctl_panel {
   function personal_links() {

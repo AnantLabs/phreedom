@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/dashboards/mini_financial/mini_financial.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_MINI_FINANCIAL_VERSION','3.2');
 
 class mini_financial extends ctl_panel {
   function mini_financial() {

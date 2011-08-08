@@ -32,7 +32,7 @@ $bID         = 0;
 
 define('JOURNAL_ID', $jID);
 // select the customer and build the contact record
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('a.primary_name', 'a.contact', 'a.telephone1', 'a.telephone2', 'a.address1', 
 	'a.address2', 'a.city_town', 'a.postal_code', 'c.short_name');
   $search = ' and (' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\')';

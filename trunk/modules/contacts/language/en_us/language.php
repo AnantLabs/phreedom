@@ -62,19 +62,12 @@ define('ACT_ACCOUNT_NUMBER','Facebook ID');
 define('ACT_ID_NUMBER','Twitter ID');
 define('GEN_WEBSITE','Website');
 define('GEN_ACCOUNT_LINK','Link to Employee Account');
-
 // Targeted defines (to differentiate wording differences for different account types)
 // Text specific to branch contacts
 define('ACT_B_TYPE_NAME','Branches');
 define('ACT_B_HEADING_TITLE', 'Branches');
 define('ACT_B_SHORT_NAME', 'Branch ID');
-define('ACT_B_GL_ACCOUNT_TYPE',TEXT_NOT_USED);
-define('ACT_B_ID_NUMBER',TEXT_NOT_USED);
-define('ACT_B_REP_ID',TEXT_NOT_USED);
-define('ACT_B_ACCOUNT_NUMBER',TEXT_NOT_USED);
 define('ACT_B_FIRST_DATE','Creation Date: ');
-define('ACT_B_LAST_DATE1',TEXT_NOT_USED);
-define('ACT_B_LAST_DATE2',TEXT_NOT_USED);
 define('ACT_B_PAGE_TITLE_EDIT','Edit Branch');
 // Text specific to Customer contacts (default)
 define('ACT_C_TYPE_NAME','Customers');
@@ -95,15 +88,14 @@ define('ACT_E_SHORT_NAME', 'Employee ID');
 define('ACT_E_GL_ACCOUNT_TYPE','Employee Type');
 define('ACT_E_ID_NUMBER','Social Security Number');
 define('ACT_E_REP_ID','Department ID');
-define('ACT_E_ACCOUNT_NUMBER',TEXT_NOT_USED);
 define('ACT_E_FIRST_DATE','Hire Date: ');
 define('ACT_E_LAST_DATE1','Last Raise Date: ');
 define('ACT_E_LAST_DATE2','Termination Date: ');
 define('ACT_E_PAGE_TITLE_EDIT','Edit Employee');
 // Text specific to PhreeCRM
-define('ACT_I_SHORT_NAME','Contact');
-define('ACT_I_HEADING_TITLE','PhreeCRM');
 define('ACT_I_TYPE_NAME','Contacts');
+define('ACT_I_HEADING_TITLE','PhreeCRM');
+define('ACT_I_SHORT_NAME','Contact');
 define('ACT_I_PAGE_TITLE_EDIT','Edit Contact');
 // Text specific to Projects
 define('ACT_J_TYPE_NAME','Projects');
@@ -125,7 +117,6 @@ define('ACT_V_FIRST_DATE','Vendor Since: ');
 define('ACT_V_LAST_DATE1','Last Invoice Date: ');
 define('ACT_V_LAST_DATE2','Last Payment Date: ');
 define('ACT_V_PAGE_TITLE_EDIT','Edit Vendor');
-
 // Category headings
 define('ACT_CATEGORY_CONTACT','Contact Information');
 define('ACT_CATEGORY_M_ADDRESS','Main Mailing Address');
@@ -151,7 +142,6 @@ define('ACT_PAYMENT_CREDIT_CARD_EXPIRES','Credit Card Expiration Date');
 define('ACT_CARD_HINT','Card Hint');
 define('ACT_EXP','Exp');
 define('ACT_PAYMENT_CREDIT_CARD_CVV2','Security Code');
-
 // Account Terms
 define('ACT_SPECIAL_TERMS','Special Terms');
 define('ACT_TERMS_DUE','Terms (Due)');
@@ -173,7 +163,6 @@ define('ACT_TERMS_NET','Net ');
 define('ACT_TERMS_STANDARD_DAYS', ' day(s). ');
 define('ACT_TERMS_CREDIT_LIMIT', 'Credit limit: ');
 define('ACT_AMT_PAST_DUE','Amount Past Due: ');
-
 // misc information messages
 define('RECORD_NUM_REF_ONLY','record ID (Reference only) = ');
 define('ACT_ID_AUTO_FILL','(Leave blank for system generated ID)');
@@ -192,8 +181,7 @@ define('ACT_LIST_OPEN_INVOICES','Open Invoices');
 define('ACT_NO_KEY_EXISTS','A payment was specified but the encryption key has not been entered. The payment address was saved but the payment information was not.');
 define('ACT_ERROR_DUPLICATE_CONTACT','The contact ID already exists in the system, please enter a new contact ID.');
 define('CRM_ROW_DELETE_ALERT','Are you sure you want to remove this CRM note?');
-
 // java script errors
-define('ACT_JS_SHORT_NAME', '* The \'ID\' entry cannot be blank.\n');
+define('ACT_JS_SHORT_NAME', '* The \'ID\' entry cannot be blank.');
 
 ?>

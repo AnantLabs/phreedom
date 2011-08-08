@@ -76,9 +76,12 @@ while (!$xtra_tab_list->EOF) {
   while (!$field_list->EOF) {
 	if ($xtra_tab_list->fields['id'] == $field_list->fields['tab_id']) {
 	  $xtra_params = unserialize($field_list->fields['params']);
-	  if (substr($xtra_params['contact_type'], 0, 1) == $type) {
-	    $xtra_header .= xtra_field_build_entry($field_list->fields, $cInfo) . chr(10);
-		$found_one = true;
+	  $temp =explode(':',$xtra_params['contact_type']);
+	  while ($value = array_shift($temp)){
+	  	if (substr($value, 0, 1) == $type) {
+		    $xtra_header .= xtra_field_build_entry($field_list->fields, $cInfo) . chr(10);
+			$found_one = true;
+	  	}
 	  }
 	}
 	$field_list->MoveNext();

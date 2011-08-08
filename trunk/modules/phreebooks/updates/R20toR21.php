@@ -75,13 +75,14 @@ if (!in_array('description_short', $field_array)) {
 	}
     $result->MoveNext();
   }
-  // some other cleanup
-  $db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE ship_date    ship_date    DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
-  $db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE deliver_date deliver_date DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
-  $db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE actual_date  actual_date  DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
-  $db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE ref_id       ref_id       VARCHAR(16) NOT NULL DEFAULT '0'");
-  $db->Execute("ALTER TABLE " . TABLE_JOURNAL_ITEM . " CHANGE reconciled   reconciled   SMALLINT(4) NOT NULL DEFAULT '0'");
 }
+
+// some other cleanup
+$db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE ship_date    ship_date    DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
+$db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE deliver_date deliver_date DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
+$db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE actual_date  actual_date  DATETIME    NOT NULL DEFAULT '0000-00-00 00:00:00'");
+$db->Execute("ALTER TABLE " . TABLE_SHIPPING_LOG . " CHANGE ref_id       ref_id       VARCHAR(16) NOT NULL DEFAULT '0'");
+$db->Execute("ALTER TABLE " . TABLE_JOURNAL_ITEM . " CHANGE reconciled   reconciled   SMALLINT(4) NOT NULL DEFAULT '0'");
 
 if (!defined('AR_DEF_DEP_LIAB_ACCT')) {
   $db->Execute("INSERT INTO " .  TABLE_CONFIGURATION . " 
@@ -90,31 +91,33 @@ if (!defined('AR_DEF_DEP_LIAB_ACCT')) {
   $db->Execute("INSERT INTO " .  TABLE_CONFIGURATION . " 
     ( `configuration_title` , `configuration_key` , `configuration_value` , `configuration_description` , `configuration_group_id` , `sort_order` , `last_modified` , `date_added` , `use_function` , `set_function` ) 
     VALUES ( 'CD_03_07_TITLE', 'AP_DEF_DEP_LIAB_ACCT', '', 'CD_03_07_DESC', '3', '7', NULL , now(), NULL , 'cfg_pull_down_gl_acct_list(' );");
-  $db->Execute("ALTER TABLE " . TABLE_JOURNAL_MAIN . " ADD discount DOUBLE NOT NULL DEFAULT '0' AFTER freight");
-  $result = $db->Execute("select ref_id, debit_amount from " . TABLE_JOURNAL_ITEM . " where gl_type = 'dsc'");
-  while(!$result->EOF) {
-    $db->Execute("update " . TABLE_JOURNAL_MAIN . " set discount = " . $result->fields['debit_amount'] . " where id = " . $result->fields['ref_id']);
-    $result->MoveNext();
+}
+
+if (!db_field_exists(TABLE_JOURNAL_MAIN, 'discount')) $db->Execute("ALTER TABLE " . TABLE_JOURNAL_MAIN . " ADD discount DOUBLE NOT NULL DEFAULT '0' AFTER freight");
+$result = $db->Execute("select ref_id, debit_amount from " . TABLE_JOURNAL_ITEM . " where gl_type = 'dsc'");
+while(!$result->EOF) {
+  $db->Execute("update " . TABLE_JOURNAL_MAIN . " set discount = " . $result->fields['debit_amount'] . " where id = " . $result->fields['ref_id']);
+  $result->MoveNext();
+}
+
+// set reconciled for past closed journal_mains
+$result = $db->Execute("select * from " . TABLE_RECONCILIATION);
+while (!$result->EOF) {
+  $period        = $result->fields['period'];
+  $gl_account    = $result->fields['gl_account'];
+  $cleared_items = unserialize($result->fields['cleared_items']);
+  if (sizeof($cleared_items) > 0) {
+    $one_period = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " 
+      where closed = '1' and journal_id in (2, 18, 20) and id in (" . implode(',', $cleared_items) . ")");
+	$update_ids = array();
+	while (!$one_period->EOF) {
+	  $update_ids[] = $one_period->fields['id'];
+	  $one_period->MoveNext();
+	}
+	$db->Execute("update " . TABLE_JOURNAL_ITEM . " set reconciled = '" . $period . "' 
+	  where gl_account = '" . $gl_account . "' and ref_id in (" . implode(',', $update_ids) . ")");
   }
-  // set reconciled for past closed journal_mains
-  $result = $db->Execute("select * from " . TABLE_RECONCILIATION);
-  while (!$result->EOF) {
-    $period        = $result->fields['period'];
-    $gl_account    = $result->fields['gl_account'];
-    $cleared_items = unserialize($result->fields['cleared_items']);
-	if (sizeof($cleared_items) > 0) {
-      $one_period = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " 
-  	    where closed = '1' and journal_id in (2, 18, 20) and id in (" . implode(',', $cleared_items) . ")");
-	  $update_ids = array();
-	  while (!$one_period->EOF) {
-	    $update_ids[] = $one_period->fields['id'];
-	    $one_period->MoveNext();
-	  }
-	  $db->Execute("update " . TABLE_JOURNAL_ITEM . " set reconciled = '" . $period . "' 
-		where gl_account = '" . $gl_account . "' and ref_id in (" . implode(',', $update_ids) . ")");
-    }
-	$result->MoveNext();
-  }
+  $result->MoveNext();
 }
 
 ?>

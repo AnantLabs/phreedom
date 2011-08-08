@@ -64,6 +64,7 @@ switch ($action) {
 	$report->page->orientation    = db_prepare_input($_POST['paperorientation']);
 	if ($_POST['table']) foreach ($_POST['table'] as $key => $value) {
 	  $report->tables[] = new objectInfo(array(
+	    'joinopt'      => db_prepare_input($_POST['joinopt'][$key]),
 	    'tablename'    => db_prepare_input($_POST['table'][$key]),
 	    'relationship' => db_prepare_input($_POST['table_crit'][$key]),
 	  ));
@@ -381,6 +382,7 @@ switch ($action) {
 	$nyChoice     = gen_build_pull_down($NoYesChoice);
 	$pFields      = gen_build_pull_down($FormProcessing);
 	$tProcessing  = gen_build_pull_down($TextProcessing);
+	$joinOptions  = gen_build_pull_down($joinSyntax);
 	// build the groups list
 	$report_groups = build_groups($report_groups);
 	$rFields  = '<select name="groupname" id="groupname">' . chr(10);

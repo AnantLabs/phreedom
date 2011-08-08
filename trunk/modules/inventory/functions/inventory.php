@@ -18,29 +18,29 @@
 //  Path: /modules/inventory/functions/inventory.php
 //
 
-  function build_bom_list($id, $error = false) {
-	global $db;
-	$bom_list = array();
-	if ($error) { // re-generate the erroneous information
-		$x = 1;
-		while (isset($_POST['sku_' . $x])) { // while there are item rows to read in
-			$bom_list[] = array(
-				'id'          => db_prepare_input($_POST['id_' . $x]),
-				'sku'         => db_prepare_input($_POST['sku_' . $x]),
-				'description' => db_prepare_input($_POST['desc_' . $x]),
-				'qty'         => db_prepare_input($_POST['qty_' . $x]));
-			$x++;
-		}
-	} else { // pull the information from the database
-		$result = $db->Execute("select id, sku, description, qty 
-			from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = " . $id . " order by id");
-		while (!$result->EOF) {
-			$bom_list[] = $result->fields;
-			$result->MoveNext();
-		}
+function build_bom_list($id, $error = false) {
+  global $db;
+  $bom_list = array();
+  if ($error) { // re-generate the erroneous information
+	$x = 1;
+	while (isset($_POST['sku_' . $x])) { // while there are item rows to read in
+	  $bom_list[] = array(
+		'id'          => db_prepare_input($_POST['id_' . $x]),
+		'sku'         => db_prepare_input($_POST['sku_' . $x]),
+		'description' => db_prepare_input($_POST['desc_' . $x]),
+		'qty'         => db_prepare_input($_POST['qty_' . $x]));
+	  $x++;
+    }
+  } else { // pull the information from the database
+	$result = $db->Execute("select id, sku, description, qty 
+	  from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = " . $id . " order by id");
+	while (!$result->EOF) {
+	  $bom_list[] = $result->fields;
+	  $result->MoveNext();
 	}
-	return $bom_list;
   }
+  return $bom_list;
+}
 
   function load_store_stock($sku, $store_id) {
 	global $db;
@@ -80,7 +80,7 @@
 	$prices = array();
 	for ($i=0, $j=1; $i < MAX_NUM_PRICE_LEVELS; $i++, $j++) {
 		$level_info = explode(':', $price_levels[$i]);
-		$price      = $currencies->clean_value($level_info[0] ? $level_info[0] : (($i == 0) ? $full_price : 0));
+		$price      = $level_info[0] ? $level_info[0] : ($i==0 ? $full_price : 0);
 		$qty        = $level_info[1] ? $level_info[1] : $j;
 		$src        = $level_info[2] ? $level_info[2] : 0;
 		$adj        = $level_info[3] ? $level_info[3] : 0;
@@ -254,17 +254,19 @@
 	// load the units received and sold, assembled and adjusted
 	$sql = "select m.journal_id, m.post_date, i.qty, i.gl_type, i.credit_amount, i.debit_amount 
 	  from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
-	  where m.journal_id in (6, 12, 14, 16) and i.sku = '" . $sku ."' and m.post_date >= '" . $last_year . "' 
+	  where m.journal_id in (6, 12, 14, 16, 19, 21) and i.sku = '" . $sku ."' and m.post_date >= '" . $last_year . "' 
 	  order by m.post_date DESC";
 	$result = $db->Execute($sql);
 	while(!$result->EOF) {
 	  $month = substr($result->fields['post_date'], 0, 7);
 	  switch ($result->fields['journal_id']) {
 	    case  6:
+	    case 21:
 	      $history['purchases'][$month]['qty']          += $result->fields['qty'];
 	      $history['purchases'][$month]['total_amount'] += $result->fields['debit_amount'];
 		  break;
 	    case 12:
+	    case 19:
 	      $history['sales'][$month]['qty']              += $result->fields['qty'];
 	      $history['sales'][$month]['usage']            += $result->fields['qty'];
 	      $history['sales'][$month]['total_amount']     += $result->fields['credit_amount'];
@@ -303,45 +305,51 @@
 
   function inv_calculate_sales_price($qty, $sku_id, $contact_id = 0) {
     global $db, $currencies;
-	// get the inventory prices
-	$inventory = $db->Execute("select item_cost, full_price, price_sheet from " . TABLE_INVENTORY . " where id = '" . $sku_id . "'");
-	// determine what price to charge based on customer and sku information
-	if ($inventory->fields['price_sheet'] <> '') { // if inventory price sheet is defined, it has priority
-	  $sheet_name = $inventory->fields['price_sheet'];
+	if ($contact_id) {
+	  $customer = $db->Execute("select type, price_sheet from " . TABLE_CONTACTS . " where id = '" . $contact_id . "'");
+	  $type = $customer->fields['type'];
 	} else {
-	  $customer = $db->Execute("select price_sheet from " . TABLE_CONTACTS . " where id = '" . $contact_id . "'");
-	  if ($customer->fields['price_sheet'] <> '') { // no price sheet used for this customer, check for default
-	    $sheet_name = $customer->fields['price_sheet'];
-	  } else {
-	    $customer = $db->Execute("select sheet_name from " . TABLE_PRICE_SHEETS . " where default_sheet = '1'");
-	    $sheet_name = ($customer->RecordCount() == 0) ? '' : $customer->fields['sheet_name'];
-	  }
+	  $customer->fields['price_sheet'] == '';
+	  $type = 'c'; // assume for now it's a customer price sheet
 	}
-
+	// get the inventory prices
+	$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v from " . TABLE_INVENTORY . " 
+	  where id = '" . $sku_id . "'");
+	$inv_price_sheet = ($type == 'v') ? $inventory->fields['price_sheet_v'] : $inventory->fields['price_sheet'];
+	// determine what price sheet to use, priority: customer, inventory, default
+	if ($customer->fields['price_sheet']  <> '') {
+	  $sheet_name = $customer->fields['price_sheet'];
+	} elseif ($inv_price_sheet <> '') {
+	  $sheet_name = $inv_price_sheet;
+	} else {
+	  $default_sheet = $db->Execute("select sheet_name from " . TABLE_PRICE_SHEETS . " 
+		where type = '" . $type . "' and default_sheet = '1'");
+	  $sheet_name = ($default_sheet->RecordCount() == 0) ? '' : $default_sheet->fields['sheet_name'];
+	}
 	// determine the sku price ranges from the price sheet in effect
-	$sql = "select id, default_levels from " . TABLE_PRICE_SHEETS . " 
-		where inactive = '0' and 
-		(expiration_date is null or expiration_date = '0000-00-00' or expiration_date >= '" . date('Y-m-d', time()) . "') 
-		and sheet_name = '" . $sheet_name . "'";
-	$price_sheets = $db->Execute($sql);
-	
-	// retrieve special pricing for this inventory item
-	$sql = "select price_sheet_id, price_levels from " . TABLE_INVENTORY_SPECIAL_PRICES . " 
+	$levels = false;
+	if ($sheet_name <> '') {
+	  $sql = "select id, default_levels from " . TABLE_PRICE_SHEETS . " 
+	    where inactive = '0' and type = '" . $type . "' and sheet_name = '" . $sheet_name . "' and 
+	    (expiration_date is null or expiration_date = '0000-00-00' or expiration_date >= '" . date('Y-m-d') . "')";
+	  $price_sheets = $db->Execute($sql);
+	  // retrieve special pricing for this inventory item
+	  $sql = "select price_sheet_id, price_levels from " . TABLE_INVENTORY_SPECIAL_PRICES . " 
 		where price_sheet_id = '" . $price_sheets->fields['id'] . "' and inventory_id = " . $sku_id;
-	$result = $db->Execute($sql);
-	$special_prices = array();
-	while (!$result->EOF) {
-		$special_prices[$result->fields['price_sheet_id']] = $result->fields['price_levels'];
-		$result->MoveNext();
+	  $result = $db->Execute($sql);
+	  $special_prices = array();
+	  while (!$result->EOF) {
+	    $special_prices[$result->fields['price_sheet_id']] = $result->fields['price_levels'];
+	    $result->MoveNext();
+	  }
+	  $levels = isset($special_prices[$price_sheets->fields['id']]) ? $special_prices[$price_sheets->fields['id']] : $price_sheets->fields['default_levels'];
 	}
-	
-	$levels = isset($special_prices[$price_sheets->fields['id']]) ? $special_prices[$price_sheets->fields['id']] : $price_sheets->fields['default_levels'];
 	if ($levels) {
 	  $prices = inv_calculate_prices($inventory->fields['item_cost'], $inventory->fields['full_price'], $levels);
 	  $price = '0.0';
 	  foreach ($prices as $value) if ($qty >= $value['qty']) $price = $currencies->clean_value($value['price']);
 	} else {
-	  $price = $inventory->fields['full_price'];
+	  $price = ($type == 'v') ? $inventory->fields['item_cost'] : $inventory->fields['full_price'];
 	}
 	return $price;
   }

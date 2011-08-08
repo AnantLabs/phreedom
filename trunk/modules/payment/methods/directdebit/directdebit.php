@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/methods/directdebit/directdebit.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_PAYMENT_DIRECTDEBIT_VERSION','3.2');
 
 class directdebit {
   var $code, $payment_fields;

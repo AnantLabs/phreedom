@@ -14,12 +14,8 @@
 // | but WITHOUT ANY WARRANTY; without even the implied warranty of  |
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
 // | GNU General Public License for more details.                    |
-// |                                                                 |
-// | The license that is bundled with this package is located in the |
-// | file: /doc/manual/ch01-Introduction/license.html.               |
-// | If not, see http://www.gnu.org/licenses/                        |
 // +-----------------------------------------------------------------+
-//  Path: /modules/inventory/pages/popup_adj/js_include.php
+//  Path: /modules/phreedom/pages/roles/js_include.php
 //
 
 ?>
@@ -27,10 +23,9 @@
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
+var delete_pushed = false;
 
 function init() {
-  document.getElementById('search_text').focus();
-  document.getElementById('search_text').select();
 }
 
 function check_form() {
@@ -38,9 +33,13 @@ function check_form() {
 }
 
 // Insert other page specific functions here.
-function setReturnEntry(rID) {
-  window.opener.EditAdjustment(rID);
-  self.close();
+function copyItem(id) {
+  var adminName = prompt('<?php echo GEN_MSG_COPY_INTRO; ?>', '');
+  if (adminName) {
+	location.href = 'index.php?module=phreedom&page=roles&action=copy&cID='+id+'&name='+adminName;
+  } else {
+	return false;
+  }
 }
 
 // -->

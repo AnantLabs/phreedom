@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/dashboards/favorite_reports.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_FAVORITE_REPORTS_VERSION','3.2');
 
 require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
 

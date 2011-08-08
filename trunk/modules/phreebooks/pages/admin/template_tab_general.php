@@ -48,6 +48,10 @@
 	    <td><?php echo CD_01_50_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('enable_order_discount', $sel_yes_no, $_POST['enable_order_discount'] ? $_POST['enable_order_discount'] : ENABLE_ORDER_DISCOUNT, ''); ?></td>
 	  </tr>
+	  <tr>
+	    <td><?php echo ALLOW_NEGATIVE_INVENTORY_DESC; ?></td>
+	    <td><?php echo html_pull_down_menu('allow_negative_inventory', $sel_yes_no, $_POST['allow_negative_inventory'] ? $_POST['allow_negative_inventory'] : ALLOW_NEGATIVE_INVENTORY, ''); ?></td>
+	  </tr>
 	</table>
   </fieldset>
 </div>

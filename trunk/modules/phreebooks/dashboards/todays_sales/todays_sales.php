@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/dashboards/todays_sales/todays_sales.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_TODAYS_SALES_VERSION','3.2');
 
 class todays_sales extends ctl_panel {
   function todays_sales() {
@@ -77,7 +80,7 @@ class todays_sales extends ctl_panel {
 	  }
 	}
 	if (!$params['num_rows'] && $result->RecordCount() > 0) {
-	  $contents .= '<div style="float:right">' . $currencies->format_full($total, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
+	  $contents .= '<div style="float:right">' . $currencies->format_full($total, true, DEFAULT_CURRENCY, 1) . '</div>';
 	  $contents .= '<div><b>' . TEXT_TOTAL . '</b></div>' . chr(10);
 	}
 	return $this->build_div(CP_TODAYS_SALES_TITLE, $contents, $control);

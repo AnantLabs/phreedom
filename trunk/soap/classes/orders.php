@@ -284,20 +284,22 @@ class xml_orders extends parser {
 	if (!$psOrd->period)                                                      $missing_fields[] = TEXT_PERIOD;
 	if (!$psOrd->bill_primary_name)                                           $missing_fields[] = GEN_PRIMARY_NAME;
 	if (!$psOrd->bill_country_code)                                           $missing_fields[] = GEN_COUNTRY_CODE;
-	if (!$psOrd->ship_primary_name)                                           $missing_fields[] = GEN_PRIMARY_NAME;
-	if (!$psOrd->ship_country_code)                                           $missing_fields[] = GEN_COUNTRY_CODE;
 	if (ADDRESS_BOOK_CONTACT_REQUIRED        && !$psOrd->bill_contact)        $missing_fields[] = GEN_CONTACT;
 	if (ADDRESS_BOOK_ADDRESS1_REQUIRED       && !$psOrd->bill_address1)       $missing_fields[] = GEN_ADDRESS1;
 	if (ADDRESS_BOOK_ADDRESS2_REQUIRED       && !$psOrd->bill_address2)       $missing_fields[] = GEN_ADDRESS2;
 	if (ADDRESS_BOOK_CITY_TOWN_REQUIRED      && !$psOrd->bill_city_town)      $missing_fields[] = GEN_CITY_TOWN;
 	if (ADDRESS_BOOK_STATE_PROVINCE_REQUIRED && !$psOrd->bill_state_province) $missing_fields[] = GEN_STATE_PROVINCE;
 	if (ADDRESS_BOOK_POSTAL_CODE_REQUIRED    && !$psOrd->bill_postal_code)    $missing_fields[] = GEN_POSTAL_CODE;
-	if (ADDRESS_BOOK_CONTACT_REQUIRED        && !$psOrd->ship_contact)        $missing_fields[] = GEN_CONTACT;
-	if (ADDRESS_BOOK_ADDRESS1_REQUIRED       && !$psOrd->ship_address1)       $missing_fields[] = GEN_ADDRESS1;
-	if (ADDRESS_BOOK_ADDRESS2_REQUIRED       && !$psOrd->ship_address2)       $missing_fields[] = GEN_ADDRESS2;
-	if (ADDRESS_BOOK_CITY_TOWN_REQUIRED      && !$psOrd->ship_city_town)      $missing_fields[] = GEN_CITY_TOWN;
-	if (ADDRESS_BOOK_STATE_PROVINCE_REQUIRED && !$psOrd->ship_state_province) $missing_fields[] = GEN_STATE_PROVINCE;
-	if (ADDRESS_BOOK_POSTAL_CODE_REQUIRED    && !$psOrd->ship_postal_code)    $missing_fields[] = GEN_POSTAL_CODE;
+	if (defined('MODULE_SHIPPING_STATUS')) {
+//	  if (!$psOrd->ship_primary_name)                                         $missing_fields[] = GEN_PRIMARY_NAME;
+//	  if (!$psOrd->ship_country_code)                                         $missing_fields[] = GEN_COUNTRY_CODE;
+	  if (ADDRESS_BOOK_SHIP_CONTACT_REQ      && !$psOrd->ship_contact)        $missing_fields[] = GEN_CONTACT;
+	  if (ADDRESS_BOOK_SHIP_ADD1_REQ         && !$psOrd->ship_address1)       $missing_fields[] = GEN_ADDRESS1;
+	  if (ADDRESS_BOOK_SHIP_ADD2_REQ         && !$psOrd->ship_address2)       $missing_fields[] = GEN_ADDRESS2;
+	  if (ADDRESS_BOOK_SHIP_CITY_REQ         && !$psOrd->ship_city_town)      $missing_fields[] = GEN_CITY_TOWN;
+	  if (ADDRESS_BOOK_SHIP_STATE_REQ        && !$psOrd->ship_state_province) $missing_fields[] = GEN_STATE_PROVINCE;
+	  if (ADDRESS_BOOK_SHIP_POSTAL_CODE_REQ  && !$psOrd->ship_postal_code)    $missing_fields[] = GEN_POSTAL_CODE;
+	}
 	if (sizeof($missing_fields) > 0) {
 	  $this->failed[]   = $this->order['reference'];
 	  $this->response[] = sprintf(SOAP_MISSING_FIELDS, $this->order['reference'], implode(', ', $missing_fields));

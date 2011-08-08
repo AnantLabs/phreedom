@@ -22,13 +22,12 @@ require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php'); // needed 
 
 class statement_builder {
   function statement_builder() {
-	// List the special fields as an array to substitute out for the sql, must match from the selection menu generation
-	$this->special_field_array = array('balance_0', 'balance_30', 'balance_60', 'balance_90');
   }
 
   function load_query_results($tableKey = 'id', $tableValue = 0) {
 	global $db, $FieldListings, $report;
 	if (!$tableValue) return false;
+	$today = date('Y-m-d');
 	$this->bill_acct_id = $tableValue;
 	// fetch the main contact information, only one record
 	$sql = "select c.id, c.type, c.short_name, c.special_terms, 
@@ -37,37 +36,43 @@ class statement_builder {
 	  from " . TABLE_CONTACTS . " c inner join " . TABLE_ADDRESS_BOOK . " a on c.id = a.ref_id 
 	  where c.id = " . $this->bill_acct_id . " and a.type like '%m'";
 	$result = $db->Execute($sql);
-//echo 'Contact sql = ' . $sql . '<br />returned ' . $result->RecordCount() . '<br /><br />';
 	while (list($key, $value) = each($result->fields)) $this->$key = db_prepare_input($value);
 
-	// calculate the starting balance
-	$dates = gen_build_sql_date($report->datedefault, $report->datefield);
-	$sql = "select sum(i.credit_amount) as credit, sum(i.debit_amount) as debit 
-		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-		where m.bill_acct_id = " . $this->bill_acct_id . " and m.post_date < '" . $dates['start_date'] . "' 
-		  and m.journal_id in (6, 7, 12, 13) and i.gl_type = 'ttl'";
-	$result = $db->Execute($sql);
-//echo 'Starting bal sql = ' . $sql . '<br />returned ' . $result->RecordCount() . '<br /><br />';
-	$this->prior_balance = ($result->RecordCount()) ? ($result->fields['debit'] - $result->fields['credit']) : 0;
-	$sql = "select sum(i.credit_amount) as credit, sum(i.debit_amount) as debit 
-		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-		where m.bill_acct_id = " . $this->bill_acct_id . " and m.post_date < '" . $dates['start_date'] . "' 
-		  and m.journal_id in (18, 20) and i.gl_type in ('pmt', 'chk')";
-	$result = $db->Execute($sql);
-	$this->prior_balance -= ($result->RecordCount()) ? ($result->fields['credit'] - $result->fields['debit']) : 0;
+	$dates   = gen_build_sql_date($report->datedefault, $report->datefield);
+	$late_0  = gen_specific_date($today, 1);
+	$late_30 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_1 : -AR_AGING_PERIOD_1);
+	$late_60 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_2 : -AR_AGING_PERIOD_2);
+	$late_90 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_3 : -AR_AGING_PERIOD_3);
+	$this->balance_0     = 0;
+	$this->balance_30    = 0;
+	$this->balance_60    = 0;
+	$this->balance_90    = 0;
+	$this->prior_balance = 0;
+	$balances = fill_paid_invoice_array(0, $this->bill_acct_id, $this->type);
+	if (is_array($balances['invoices'])) foreach ($balances['invoices'] as $open_inv) {
+	  $negate = (in_array($result->fields['journal_id'], array(7, 13))) ? true : false;
+	  $balance  = $negate ? -$open_inv['total_amount'] : $open_inv['total_amount'];
+	  if       ($open_inv['post_date'] < $late_90) {
+		$this->balance_90 += $balance;
+	  } elseif ($open_inv['post_date'] < $late_60) {
+		$this->balance_60 += $balance;
+	  } elseif ($open_inv['post_date'] < $late_30) {
+		$this->balance_30 += $balance;
+	  } else {
+		$this->balance_0  += $balance;
+	  }
+	  if ($open_inv['post_date'] < $dates['start_date']) $this->prior_balance += $balance;
+	}
 
-	// fetch journal history based on date criteria
 	$strDates = str_replace('post_date', 'm.post_date', $dates['sql']);
 	$this->line_items = array();
-	$sql = "select m.post_date, m.journal_id, i.debit_amount, i.credit_amount, m.purchase_invoice_id, 
-	  m.purch_order_id, i.gl_type 
+	$sql = "select m.post_date, m.journal_id, m.terms, i.debit_amount, i.credit_amount, m.purchase_invoice_id, 
+	    m.purch_order_id, i.gl_type 
 	  from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
 	  where m.bill_acct_id = " . $this->bill_acct_id;
 	if ($strDates) $sql .= " and " . $strDates;
-//		$sql .= " and m.journal_id in (6, 7, 12, 13, 18, 20) and i.gl_type in ('dsc', 'ttl') order by m.post_date";
 	$sql .= " and m.journal_id in (6, 7, 12, 13, 18, 20) and i.gl_type in ('ttl', 'dsc') order by m.post_date";
 	$result = $db->Execute($sql);
-//echo 'History sql = ' . $sql . '<br />returned ' . $result->RecordCount() . '<br /><br />';
 	$this->statememt_total = 0;
 	while (!$result->EOF) {
 	  $reverse    = in_array($result->fields['journal_id'], array(6, 7, 12, 13)) ? true : false;
@@ -93,24 +98,13 @@ class statement_builder {
 	  $this->statememt_total += $credit - $debit;
 	  $result->MoveNext();
 	}
-
-	// convert particular values indexed by id to common name
-	if ($this->rep_id) {
-		$sql = "select short_name from " . TABLE_CONTACTS . " where id = " . $this->rep_id;
-		$result = $db->Execute($sql);
-		$this->rep_id = $result->fields['display_name'];
-	} else {
-		$this->rep_id = '';
-	}
 	$this->balance_due = $this->prior_balance + $this->statememt_total;
 	if ($this->type == 'v') { // invert amount for vendors for display purposes
 		$this->prior_balance = -$this->prior_balance; 
 		$this->balance_due   = -$this->balance_due;
 	}
-//echo 'prior balance = ' . $this->prior_balance . ' and bal due = ' . $this->balance_due . '<br />';
 	$this->post_date = date(DATE_FORMAT);
-
-	// sequence the results per Prefs[Seq]
+	// sequence the results
 	$output = array();
 	foreach ($report->fieldlist as $OneField) { // check for a data field and build sql field list
 	  if ($OneField->type == 'Data') { // then it's data field, include it
@@ -118,7 +112,6 @@ class statement_builder {
 		$output[] = $this->$field;
 	  }
 	}
-	// return results
 	return $output;
   }
 
@@ -157,6 +150,7 @@ class statement_builder {
 	$output[] = array('id' => 'id',                  'text' => RW_SB_RECORD_ID);
 	$output[] = array('id' => 'journal_id',          'text' => RW_SB_JOURNAL_ID);
 	$output[] = array('id' => 'post_date',           'text' => RW_SB_POST_DATE);
+	$output[] = array('id' => 'closed',              'text' => TEXT_CLOSED);
 	$output[] = array('id' => 'purchase_invoice_id', 'text' => RW_SB_INV_NUM);
 	$output[] = array('id' => 'short_name',          'text' => RW_SB_CUSTOMER_ID);
 	$output[] = array('id' => 'bill_acct_id',        'text' => RW_SB_CUSTOMER_RECORD);
@@ -179,6 +173,10 @@ class statement_builder {
 	// special calculated fields
 	$output[] = array('id' => 'prior_balance',       'text' => RW_SB_PRIOR_BALANCE);
 	$output[] = array('id' => 'balance_due',         'text' => RW_SB_BALANCE_DUE);
+	$output[] = array('id' => 'balance_0',           'text' => RW_AR_AGE1);
+	$output[] = array('id' => 'balance_30',          'text' => RW_AR_AGE2);
+	$output[] = array('id' => 'balance_60',          'text' => RW_AR_AGE3);
+	$output[] = array('id' => 'balance_90',          'text' => RW_AR_AGE4);
 	return $output;
   }
 

@@ -56,6 +56,14 @@ switch ($action) {
 	$toggle = $result->fields['waiting'] ? '0' : '1';
 	$db->Execute("update " . TABLE_JOURNAL_MAIN . " set waiting = '" . $toggle . "' where id = '" . $id . "'");
     break;
+  case 'dn_attach':
+	$oID = db_prepare_input($_POST['rowSeq']);
+	if (file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip')) {
+	  require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+	  $backup = new backup();
+	  $backup->download(PHREEBOOKS_DIR_MY_ORDERS, 'order_' . $oID . '.zip', true);
+	}
+	die;
   case 'go_first':    $_GET['list'] = 1;     break;
   case 'go_previous': $_GET['list']--;       break;
   case 'go_next':     $_GET['list']++;       break;
@@ -144,7 +152,7 @@ $disp_order  = $result['disp_order'];
 
 // build the list for the page selected
 $period_filter = ($acct_period == 'all') ? '' : (' and period = ' . $acct_period);
-if (isset($search_text) && gen_not_null($search_text)) {
+if (isset($search_text) && $search_text <> '') {
   // hook for inserting new search fields to the query criteria.
   if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);
   $search = ' and (' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\')';

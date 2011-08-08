@@ -24,7 +24,7 @@
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
 var num_price_levels = <?php echo MAX_NUM_PRICE_LEVELS; ?>;
-<?php echo js_calendar_init($cal_ps); ?>
+<?php if ($include_calendar) echo js_calendar_init($cal_ps); ?>
 
 function init() {
   <?php 
@@ -55,13 +55,13 @@ function check_form() {
 
 // Insert other page specific functions here.
 function priceMgr(rowID, itemID) {
-	var rowCost = cleanCurrency(document.getElementById('cost_'+rowID).value);
-	var rowPrice = cleanCurrency(document.getElementById('sell_'+rowID).value);
-	window.open('index.php?module=inventory&page=popup_prices&iID='+itemID+'&cost='+rowCost+'&price='+rowPrice,"price_mgr","width=800,height=400,resizable=1,scrollbars=1,top=150,left=200");
+  var rowCost = cleanCurrency(document.getElementById('cost_'+rowID).value);
+  var rowPrice = cleanCurrency(document.getElementById('sell_'+rowID).value);
+  window.open('index.php?module=inventory&page=popup_prices&iID='+itemID+'&cost='+rowCost+'&price='+rowPrice,"price_mgr","width=800,height=400,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function deleteItem(id) {
-	location.href = 'index.php?module=inventory&page=price_sheets&action=delete&psID='+id;
+  location.href = 'index.php?module=inventory&page=price_sheets&action=delete&psID='+id;
 }
 
 function initEditForm() {
@@ -72,56 +72,55 @@ function updatePrice() {
   for (var rowID=1; rowID<=num_price_levels; rowID++) {
 	var src = document.getElementById('src_'+rowID).selectedIndex;
 	if (rowID == 1) src++; // for the first element, the not used is missing
-	
 	switch (src) {
-		case 0: // Not Used
-			document.getElementById('adj_'+rowID).value = 0;
-			document.getElementById('rnd_'+rowID).value = 0;
-			document.getElementById('price_'+rowID).value = 0;
-			document.getElementById('adj_'+rowID).disabled = true;
-			document.getElementById('rnd_'+rowID).disabled = true;
-			document.getElementById('adj_val_'+rowID).disabled = true;
-			document.getElementById('rnd_val_'+rowID).disabled = true;
-			break;
-		case 1: // Direct Entry
-			document.getElementById('adj_'+rowID).value = 0;
-			document.getElementById('rnd_'+rowID).value = 0;
-			document.getElementById('adj_'+rowID).disabled = true;
-			document.getElementById('rnd_'+rowID).disabled = true;
-			document.getElementById('adj_val_'+rowID).disabled = true;
-			document.getElementById('rnd_val_'+rowID).disabled = true;
-			document.getElementById('price_'+rowID).disabled = false;
-			break;
-		case 2: // Last Cost
-		case 3: // Retail Price
-		case 4: // Price Level 1
-		default:
-			document.getElementById('adj_'+rowID).disabled = false;
-			document.getElementById('rnd_'+rowID).disabled = false;
-			document.getElementById('adj_val_'+rowID).disabled = false;
-			document.getElementById('rnd_val_'+rowID).disabled = false;
-			document.getElementById('price_'+rowID).disabled = true;
+	  case 0: // Not Used
+		document.getElementById('adj_'+rowID).value = 0;
+		document.getElementById('rnd_'+rowID).value = 0;
+		document.getElementById('price_'+rowID).value = 0;
+		document.getElementById('adj_'+rowID).disabled = true;
+		document.getElementById('rnd_'+rowID).disabled = true;
+		document.getElementById('adj_val_'+rowID).disabled = true;
+		document.getElementById('rnd_val_'+rowID).disabled = true;
+		break;
+	  case 1: // Direct Entry
+		document.getElementById('adj_'+rowID).value = 0;
+		document.getElementById('rnd_'+rowID).value = 0;
+		document.getElementById('adj_'+rowID).disabled = true;
+		document.getElementById('rnd_'+rowID).disabled = true;
+		document.getElementById('adj_val_'+rowID).disabled = true;
+		document.getElementById('rnd_val_'+rowID).disabled = true;
+		document.getElementById('price_'+rowID).disabled = false;
+		break;
+	  case 2: // Last Cost
+	  case 3: // Retail Price
+	  case 4: // Price Level 1
+	  default:
+		document.getElementById('adj_'+rowID).disabled = false;
+		document.getElementById('rnd_'+rowID).disabled = false;
+		document.getElementById('adj_val_'+rowID).disabled = false;
+		document.getElementById('rnd_val_'+rowID).disabled = false;
+		document.getElementById('price_'+rowID).disabled = true;
 	}
 
 	document.getElementById('adj_val_'+rowID).disabled = false;
 	switch (document.getElementById('adj_'+rowID).selectedIndex) {
-		case 0: // None
-			document.getElementById('adj_val_'+rowID).disabled = true;
-			break;
-		case 1: // Decrease by Amount
-		case 2: // Decrease by Percent
-		case 3: // Increase by Amount
-		case 4: // Increase by Percent
+	  case 0: // None
+		document.getElementById('adj_val_'+rowID).disabled = true;
+		break;
+	  case 1: // Decrease by Amount
+	  case 2: // Decrease by Percent
+	  case 3: // Increase by Amount
+	  case 4: // Increase by Percent
 	}
 
 	switch (document.getElementById('rnd_'+rowID).selectedIndex) {
-		case 0: // None
-		case 1: // Next Integer (whole dollar)
-			document.getElementById('rnd_val_'+rowID).disabled = true;
-			break;
-		case 2: // Constant Cents
-		case 3: // Next Increment
-			document.getElementById('rnd_val_'+rowID).disabled = false;
+	  case 0: // None
+	  case 1: // Next Integer (whole dollar)
+		document.getElementById('rnd_val_'+rowID).disabled = true;
+		break;
+	  case 2: // Constant Cents
+	  case 3: // Next Increment
+		document.getElementById('rnd_val_'+rowID).disabled = false;
 	}
   }
 }

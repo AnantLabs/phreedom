@@ -17,14 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/price_sheets/template_main.php
 //
-
 // start the form
 echo html_form('pricesheet', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '')   . chr(10);
 echo html_hidden_field('rowSeq', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -32,20 +29,18 @@ $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
-
 // pull in extra toolbar overrides and additions
 if (count($extra_toolbar_buttons) > 0) {
   foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 }
-
 // add the help file index and build the toolbar
 $toolbar->add_help('07.04.06');
 if ($search_text) $toolbar->search_text = $search_text;
 echo $toolbar->build_toolbar($add_search = true); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PRICE_SHEET_HEADING_TITLE; ?></div>
+<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
+
 <div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
 <div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
 <table border="0" width="100%" cellspacing="0" cellpadding="2">

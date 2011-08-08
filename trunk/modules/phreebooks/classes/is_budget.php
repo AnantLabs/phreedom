@@ -172,6 +172,11 @@ class is_budget {
 	$this->inc_stmt_data[] = $line;
   }
 
+  function build_table_drop_down() {
+	$output = array();
+	return $output;
+  }
+
   function build_selection_dropdown() {
 	// build user choices for this class with the current and newly established fields
 	$output = array();

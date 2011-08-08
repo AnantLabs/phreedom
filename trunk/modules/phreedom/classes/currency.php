@@ -84,6 +84,10 @@ class currency {
 	$server_used = CURRENCY_SERVER_PRIMARY;
 	$currency = $db->Execute("select currencies_id, code, title from " . $this->db_table);
 	while (!$currency->EOF) {
+	  if ($currency->fields['code'] == $this->def_currency) {
+	    $currency->MoveNext();
+		continue;
+	  }
 	  $quote_function = 'quote_' . CURRENCY_SERVER_PRIMARY . '_currency';
 	  $rate = $quote_function($currency->fields['code'], $this->def_currency);
 	  if (empty($rate) && (gen_not_null(CURRENCY_SERVER_BACKUP))) {
@@ -92,10 +96,9 @@ class currency {
 		$rate = $quote_function($currency->fields['code'], $this->def_currency);
 		$server_used = CURRENCY_SERVER_BACKUP;
 	  }
-	  if (gen_not_null($rate)) {
-		$db->Execute("update " . $this->db_table . "
-					  set value = '" . $rate . "', last_updated = now()
-					  where currencies_id = '" . (int)$currency->fields['currencies_id'] . "'");
+	  if ($rate <> 0) {
+		$db->Execute("update " . $this->db_table . " set value = '" . $rate . "', last_updated = now()
+		  where currencies_id = '" . (int)$currency->fields['currencies_id'] . "'");
 		$message[] = sprintf(SETUP_INFO_CURRENCY_UPDATED, $currency->fields['title'], $currency->fields['code'], $server_used);
 		$messageStack->add(sprintf(SETUP_INFO_CURRENCY_UPDATED, $currency->fields['title'], $currency->fields['code'], $server_used), 'success');
 	  } else {

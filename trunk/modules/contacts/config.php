@@ -22,8 +22,9 @@
 // 3.1 => released by Rene on the forum
 // 3.2 => Release by Rene on the forum
 // 3.3 => 2011-04-15 - CRM additions, bug fixes
+// 3.4 => 2011-08-01 - bug fixes
 // Module software version information
-define('MODULE_CONTACTS_VERSION',     '3.3');
+define('MODULE_CONTACTS_VERSION',     '3.4');
 // Menu Sort Positions
 define('MENU_HEADING_CUSTOMERS_ORDER',   10);
 define('MENU_HEADING_VENDORS_ORDER',     20);

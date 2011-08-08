@@ -143,6 +143,8 @@ define('BANKING_HEADING_REGISTER','Cash Account Register');
 define('TEXT_BEGINNING_BALANCE','Beginning Balance');
 define('TEXT_ENDING_BALANCE','Ending Balance');
 define('TEXT_DEPOSIT','Deposit');
+define('TEXT_DELETE_ATTACHMENT','Delete Attachment');
+define('TEXT_DOWNLOAD_ATTACHMENT','Download Attachment');
 // Form Messages
 define('ACT_ERROR_NO_ACCOUNT_ID','When adding a new Customer/Vendor, the ID field is required, please enter an unique id.');
 define('AR_CONTACT_STATUS','Customer Status');
@@ -182,6 +184,7 @@ define('ORD_RECUR_INTRO','This transaction can be duplicated in the future by se
 define('ORD_RECUR_ENTRIES','Enter the number of entries to create');
 define('ORD_RECUR_FREQUENCY','How often to post entries');
 define('ORD_PAST_LAST_PERIOD','The posted transaction cannot recur past the last period in the system!');
+define('ORD_PRICE_SHEET_WARN','Price sheet cannot be determined unless SKU is defined!');
 // Budget
 define('GL_BUDGET_HEADING_TITLE','Budget Manager');
 define('GL_BUDGET_INTRO_TEXT','This tool sets the budgets for general ledger accounts.<br />NOTE: The Save icon must be pressed after data entry before the account or fiscal year is changed!');
@@ -226,6 +229,7 @@ define('GL_ERROR_DELETING_ACCOUNT_HISTORY','Error deleting customer/vendor accou
 define('GL_ERROR_UPDATING_INVENTORY_STATUS','Updating inventory status requires the sku to be in the database. The failing SKU was: ');
 define('GL_ERROR_CALCULATING_COGS','Calculating the cost of goods sold requires the sku to be in the database, the operation failed.');
 define('GL_ERROR_POSTING_INV_HISTORY','Error posting inventory history.');
+define('GL_ERROR_POSTING_NEGATIVE_INV','This entry cannot be posted because it would make your inventory go negative. Your settings do not allow inventory to go negative!');
 define('GL_ERROR_UNPOSTING_COGS','Error rolling back the cost of goods sold. SKU: ');
 define('GL_ERROR_BAD_SKU_ENTERED','The sku entered could not be found. No action was taken.');
 define('GL_ERROR_SKU_NOT_ASSY','Cannot assemble an inventory item that has no components. SKU: ');
@@ -251,6 +255,12 @@ define('ORD_JS_INACTIVE_A','Caution! SKU: ');
 define('ORD_JS_INACTIVE_B',' is an inactive item.\n\nPress OK to continue or Cancel to return to the order form');
 define('ORD_JS_CANNOT_CONVERT_QUOTE','An un-Posted Sales Quote cannot be converted to Sales Order or a Sales/Invoice!');
 define('ORD_JS_CANNOT_CONVERT_SO','An un-Posted Sales Order cannot be converted to a Purchase Order!');
+// Low Stock messages
+define('LOW_STOCK_BUTTON','Fill order with items with low stock');
+define('LOW_STOCK_PROCESSED','Procesed');
+define('LOW_STOCK_NO_PRODUCTS','There are no products that need to be orderd for this vendor.');
+define('LOW_STOCK_NO_VENDOR','No vendor found');
+define('LOW_STOCK_ALREADY_EXECUTED','This action was executed before and is now blocked to prevent double entry. Reload the form to try again!');
 // Audit Log Messages
 define('ORD_DELIVERY_DATES','PO/SO Delivery Dates - ');
 define('BNK_LOG_ACCT_RECON','Account Reconciliation, period: ');

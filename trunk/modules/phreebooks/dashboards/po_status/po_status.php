@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/dashboards/po_status/po_status.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('DASHBOARD_PO_STATUS_VERSION','3.2');
 
 class po_status extends ctl_panel {
   function po_status() {

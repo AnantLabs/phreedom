@@ -127,8 +127,8 @@ switch ($action) {
 	foreach ($mInstall->keys as $key => $value) remove_configure($key);
 	remove_configure('MODULE_' . strtoupper($method) . '_STATUS');
 	if (admin_remove_tables(array_keys($mInstall->tables))) $error = true;
-	if (admin_remove_dirs($mInstall->dirlist))              $error = true;
-	if ($mInstall->remove($method))                         $error = true;
+	if (admin_remove_dirs($mInstall->dirlist, DIR_FS_MY_FILES.$_SESSION['company'].'/')) $error = true;
+	if ($mInstall->remove($method)) $error = true;
 	gen_add_audit_log(sprintf(AUDIT_LOG_REMOVE_SUCCESS, $method));
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	break;

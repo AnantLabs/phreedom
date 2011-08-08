@@ -20,14 +20,12 @@
 $security_level = validate_user(SECURITY_ID_SEARCH);
 /**************  include page specific files    *********************/
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');
-
 /**************   page specific initialization  *************************/
 $sort_by = array(
   'date' => TEXT_DATE,
   'id'   => TEXT_JOURNAL_TYPE,
   'amt'  => TEXT_AMOUNT,
 );
-
 $choices = array(
   'all'  => TEXT_ALL,
   'rng'  => TEXT_RANGE,
@@ -35,12 +33,13 @@ $choices = array(
   'neq'  => TEXT_NOT_EQUAL,
   'like' => TEXT_CONTAINS,
 );
-
 $journal_choices = array('0' => TEXT_ALL);
 for ($i = 1; $i < 30; $i++) {
-	if (defined('ORD_TEXT_' . $i . '_WINDOW_TITLE')) $journal_choices[$i] = sprintf(TEXT_JID_ENTRY, constant('ORD_TEXT_' . $i . '_WINDOW_TITLE'));
+  $j_constant = str_pad($i, 2, '0', STR_PAD_LEFT);
+  if (defined('GEN_ADM_TOOLS_J' . $j_constant)) {
+	$journal_choices[$i] = sprintf(TEXT_JID_ENTRY, constant('GEN_ADM_TOOLS_J' . $j_constant));
+  }
 }
-
 $_GET['sort_id']         = $_POST['sort_id']           ? db_prepare_input($_POST['sort_id'])         : $_GET['sort_id'];
 $_GET['date_id']         = $_POST['date_id']           ? db_prepare_input($_POST['date_id'])         : $_GET['date_id'];
 $_GET['date_from']       = $_POST['date_from']         ? db_prepare_input($_POST['date_from'])       : $_GET['date_from'];
@@ -64,18 +63,14 @@ $_GET['gl_acct_id_to']   = $_POST['gl_acct_id_to']     ? db_prepare_input($_POST
 $_GET['main_id']         = $_POST['main_id']           ? db_prepare_input($_POST['main_id'])         : $_GET['main_id'];
 $_GET['main_id_from']    = $_POST['main_id_from']      ? db_prepare_input($_POST['main_id_from'])    : $_GET['main_id_from'];
 $_GET['main_id_to']      = $_POST['main_id_to']        ? db_prepare_input($_POST['main_id_to'])      : $_GET['main_id_to'];
-
 // set some defaults
 $_GET['date_id']   = $_GET['date_id']   ? $_GET['date_id']   : 'l'; // default to current period
 $_GET['date_from'] = $_GET['date_from'] ? $_GET['date_from'] : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
 $_GET['date_to']   = $_GET['date_to']   ? $_GET['date_to']   : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_END);
-
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/search/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'go_first':    $_GET['list'] = 1;     break;
@@ -131,11 +126,6 @@ $cal_to = array(
   'default'   => $_GET['date_to'],
   'params'    => array('align' => 'left'),
 );
-
-$include_header   = true;
-$include_footer   = true;
-$include_tabs     = false;
-$include_calendar = true;
 
 // load gl accounts
 $gl_array_list = gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, false, true);
@@ -194,10 +184,13 @@ $query_raw = "select distinct m.id, m.journal_id, m.post_date, m.description, m.
 	on m.id = i.ref_id " . $crit . " order by $disp_order";
 
 $query_result = $db->Execute($query_raw);
-
-$query_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
+$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
 $query_result = $db->Execute($query_raw);
 
+$include_header   = true;
+$include_footer   = true;
+$include_tabs     = false;
+$include_calendar = true;
 $include_template = 'template_main.php'; // include display template (required)
 define('PAGE_TITLE', HEADING_TITLE_SEARCH_INFORMATION);
 ?>

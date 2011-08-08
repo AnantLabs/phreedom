@@ -21,8 +21,9 @@
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes, java label printing, improved xml
+// 3.2 => 2011-08-01 - Bug fixes
 // Module software version information
-define('MODULE_SHIPPING_VERSION',       '3.1');
+define('MODULE_SHIPPING_VERSION',       '3.2');
 // Menu Sort Positions
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_SHIPPING_MANAGER', 13);

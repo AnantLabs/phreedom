@@ -138,6 +138,7 @@ class phreedom_admin {
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
 	  TABLE_USERS => "CREATE TABLE " . TABLE_USERS . " (
 		  admin_id int(11) NOT NULL auto_increment,
+		  is_role enum('0','1') NOT NULL default '0'
 		  admin_name varchar(32) NOT NULL default '',
 		  inactive enum('0','1') NOT NULL default '0',
 		  display_name varchar(32) NOT NULL default '',
@@ -238,6 +239,9 @@ class phreedom_admin {
 	    if (!db_table_exists($table)) if (!$db->Execute($create_table_sql)) $error = true;
 	  }
 	  write_configure(PHREEHELP_FORCE_RELOAD, '1');
+	}
+  	if (MODULE_PHREEDOM_STATUS < '3.2') {
+	  if (!db_field_exists(TABLE_USERS, 'is_role')) $db->Execute("ALTER TABLE ".TABLE_USERS." ADD is_role ENUM('0','1') NOT NULL DEFAULT '0' AFTER admin_id");
 	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));

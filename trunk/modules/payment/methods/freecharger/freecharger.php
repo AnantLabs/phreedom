@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/methods/freecharger/freecharger.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_PAYMENT_FREECHARGER_VERSION','3.2');
 
 class freecharger {
   var $code;

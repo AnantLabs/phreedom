@@ -17,6 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/methods/flat/flat.php
 //
+// Revision history
+// 2011-07-01 - Added version number for revision control
+define('MODULE_SHIPPING_FLAT_VERSION','3.2');
 
 class flat {
   function flat() {

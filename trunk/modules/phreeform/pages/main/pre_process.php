@@ -148,7 +148,7 @@ switch ($action) { // figure which detail page to load
 	$result      = html_heading_bar(array(), $_GET['list_order'], array(' ', TEXT_DOCUMENT_TITLE, TEXT_ACTION));
 	$list_header = $result['html_code'];
 	// build the list for the page selected
-	if (isset($search_text) && gen_not_null($search_text)) {
+	if (isset($search_text) && $search_text <> '') {
 	  $search_fields = array('doc_title');
 	  $search = ' where ' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\'';
 	} else {

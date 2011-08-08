@@ -29,7 +29,8 @@ $strTable .= DB_PREFIX . $_GET['table1'];
 $tables[]  = $_GET['table1'];
 while (true) {
   if (!isset($_GET['table' . $i])) break;
-  $strTable .= ' join ' . DB_PREFIX . $_GET['table' . $i] . ' on ' . $_GET['table' . $i . 'criteria'];
+  $joinopt = (isset($_GET['joinopt' . $i])) ? $_GET['joinopt' . $i] : 'JOIN';
+  $strTable .= ' ' . $joinopt . ' ' . DB_PREFIX . $_GET['table' . $i] . ' on ' . $_GET['table' . $i . 'criteria'];
   $tables[] = $_GET['table' . $i];
   $i++;
   if ($runaway++ > 100) {

@@ -30,13 +30,16 @@
 		  <th colspan="20"><?php echo TEXT_DATABASE_TABLES; ?></th>
 		</tr>
 		<tr>
+		  <th><?php echo TEXT_JOIN_TYPE;      ?></th>
 		  <th><?php echo TEXT_TABLE_NAME;     ?></th>
 		  <th><?php echo TEXT_TABLE_CRITERIA; ?></th>
 		  <th><?php echo TEXT_ACTION;         ?></th>
 		</tr>
 		<tr>
+		  <th><?php echo '&nbsp;'; ?></th>
 		  <td><?php 
 		    echo html_pull_down_menu('table[]', $kTables, $report->tables[0]->tablename, 'onchange="fieldLoad()"');
+		    echo html_hidden_field('joinopt[]');
 		    echo html_hidden_field('table_crit[]');
 		      ?>
 		  </td>
@@ -45,8 +48,9 @@
 		</thead><tbody>
 		<?php for ($i = 1; $i < sizeof($report->tables); $i++) { ?>
 		  <tr>
-			<td><?php echo html_pull_down_menu('table[]', $kTables, $report->tables[$i]->tablename, 'onchange="fieldLoad()"'); ?></td>
-			<td><?php echo html_input_field('table_crit[]',         $report->tables[$i]->relationship,  'size="80"');  ?></td>
+			<td><?php echo html_pull_down_menu('joinopt[]', $joinOptions, $report->tables[$i]->joinopt, ''); ?></td>
+			<td><?php echo html_pull_down_menu('table[]',   $kTables,     $report->tables[$i]->tablename, 'onchange="fieldLoad()"'); ?></td>
+			<td nowrap="nowrap"><?php echo ' on ' . html_input_field('table_crit[]', $report->tables[$i]->relationship, 'size="80"');  ?></td>
 			<td align="right">
 			  <?php 
 		  	    echo html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_table_' . $i) . chr(10);

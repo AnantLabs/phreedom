@@ -20,13 +20,15 @@
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes
+// 3.2 => 2011-08-01 - Bug fixes, added roles
 // Module software version information
-define('MODULE_PHREEDOM_VERSION',  '3.1');
+define('MODULE_PHREEDOM_VERSION',  '3.2');
 // Menu Sort Positions
 define('MENU_HEADING_COMPANY_ORDER',  90);
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_USERS',            1);
 define('SECURITY_ID_IMPORT_EXPORT',    2);
+define('SECURITY_ID_ROLES',            5);
 define('SECURITY_ID_CONFIGURATION',   11); // admin for all modules
 define('SECURITY_ID_BACKUP',          18);
 define('SECURITY_ID_ENCRYPTION',      20);
@@ -94,6 +96,13 @@ $menu[] = array(
   'rank'        => 90,
   'security_id' => SECURITY_ID_USERS, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=users&amp;list=1', 'SSL'),
+);
+$menu[] = array(
+  'text'        => BOX_HEADING_ROLES,
+  'heading'     => MENU_HEADING_COMPANY,
+  'rank'        => 85,
+  'security_id' => SECURITY_ID_ROLES, 
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=roles&amp;list=1', 'SSL'),
 );
 
 ?>

@@ -17,15 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/price_sheets/template_detail.php
 //
-
 // start the form
 echo html_form('pricesheet', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 $hidden_fields = NULL;
-
 // include hidden fields
 echo html_hidden_field('id', $id);
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -36,19 +33,16 @@ if ($security_level > 1) {
 }
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-
 // pull in extra toolbar overrides and additions
 if (count($extra_toolbar_buttons) > 0) {
 	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 }
-
 // add the help file index and build the toolbar
 $toolbar->add_help('07.04.06');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo ($action == 'new') ? PRICE_SHEET_NEW_TITLE : PRICE_SHEET_EDIT_TITLE . $sheet_name . ' (' . TEXT_REVISION . ' ' . $revision . ')'; ?></div>
+<div class="pageHeading"><?php echo PAGE_TITLE . $sheet_name . ' (' . TEXT_REVISION . ' ' . $revision . ')'; ?></div>
 <table align="center" width="400" border="0" cellspacing="2" cellpadding="2">
   <tr>
     <td class="main"><?php echo PRICE_SHEET_NAME; ?></td>

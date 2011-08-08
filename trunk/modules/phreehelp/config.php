@@ -21,8 +21,9 @@
 // Release History
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes
+// 3.2 => 2011-08-01 - Bug fixes
 // Module software version information
-define('MODULE_PHREEHELP_VERSION',  '3.1');
+define('MODULE_PHREEHELP_VERSION',  '3.2');
 // Menu sort positions
 // Menu security id's
 // New database tables

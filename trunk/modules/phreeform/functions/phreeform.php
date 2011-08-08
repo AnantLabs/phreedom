@@ -417,12 +417,15 @@ function BuildForm($report, $delivery_method = 'D') { // for forms only
 	if ($criteria['sql']) $strCrit[] = $criteria['sql'];
 	$report->sqlCrit   = implode(' and ', $strCrit);
 	// fetch the tables to query
+	$report->sqlTable = '';
 	foreach ($report->tables as $table) {
-	  $temp = DB_PREFIX . $table->tablename;
-	  if (isset($table->relationship)) $temp .= ' on ' . prefixTables($table->relationship);
-	  $strTable[] = $temp;
+	  if (isset($table->relationship)) {
+	    if (!$table->joinopt) $table->joinopt = ' JOIN ';
+	    $report->sqlTable .= ' ' . $table->joinopt . ' ' . DB_PREFIX . $table->tablename . ' ON ' . prefixTables($table->relationship);
+	  } else {
+	    $report->sqlTable .= DB_PREFIX . $table->tablename;
+	  }
 	}
-	$report->sqlTable = implode(' join ', $strTable);
 	// We now have the sql, find out how many groups in the query (to determine the number of forms)
 	$form_field_list = ($report->filenamefield == '') ? (prefixTables($report->formbreakfield)) : (prefixTables($report->formbreakfield) . ', ' . prefixTables($report->filenamefield));
 	$sql = 'select ' . $form_field_list . ' from ' . $report->sqlTable;
@@ -691,7 +694,7 @@ function BuildSeq($report, $delivery_method = 'D') { // for forms only - Sequent
 			  $value   = ProcessData($data_element, $field->boxfield[$offset]->processing);
 			  $temp[] .= formatReceipt($value, $field->boxfield[$offset]->width, $field->boxfield[$offset]->align);
 			}
-			$oneline = implode("", $temp);
+			$oneline = implode("", $temp) . "\n";
 		  }
 		  $field->rowbreak = 1;
 		  break;
@@ -918,18 +921,21 @@ function BuildSQL($report) { // for reports only
 	$strCrit  = $criteria['sql'];
 	if ($criteria['description']) $filterdesc .= PHREEFORM_CRITBY . ' ' . $criteria['description'] . '; ';
 	// fetch the tables to query
-	$strTable = array();
+	$sqlTable = '';
 	foreach ($report->tables as $table) {
-	  $temp = DB_PREFIX . $table->tablename;
-	  if (isset($table->relationship)) $temp .= ' on ' . prefixTables($table->relationship);
-	  $strTable[] = $temp;
+	  if (isset($table->relationship)) {
+	    if (!$table->joinopt) $table->joinopt = 'JOIN';
+	    $sqlTable .= ' ' . $table->joinopt . ' ' . DB_PREFIX . $table->tablename . ' ON ' . prefixTables($table->relationship);
+	  } else {
+	    $sqlTable .= DB_PREFIX . $table->tablename;
+	  }
 	}
 	// Build query string
-	$sql = 'select ' . $strField . ' from ' . implode(' join ', $strTable);
-	if ( $strCrit &&  $strDate) $sql .= ' where '    . $strDate . ' and ' . $strCrit;
-	if (!$strCrit &&  $strDate) $sql .= ' where '    . $strDate;
-	if ( $strCrit && !$strDate) $sql .= ' where '    . $strCrit;
-	if ( $strSort)              $sql .= ' order by ' . $strSort;
+	$sql = 'SELECT ' . $strField . ' FROM ' . $sqlTable;
+	if ( $strCrit &&  $strDate) $sql .= ' WHERE '    . $strDate . ' AND ' . $strCrit;
+	if (!$strCrit &&  $strDate) $sql .= ' WHERE '    . $strDate;
+	if ( $strCrit && !$strDate) $sql .= ' WHERE '    . $strCrit;
+	if ( $strSort)              $sql .= ' ORDER BY ' . $strSort;
 //echo 'sql = '; print_r($sql); echo '<br><br>'; exit;
 //echo 'period = '; print_r($report->period); echo '<br><br>';
 	return array(
@@ -1059,7 +1065,6 @@ function GeneratePDFFile($Data, $report, $delivery_method = 'D') { // for report
 	$ReportName = ReplaceNonAllowedCharacters($report->title) . '.pdf';
 	if ($delivery_method == 'S') return $pdf->Output($ReportName, 'S');
 	header('Content-type: application/pdf');
-	header('Content-Length: ' . strlen($pdfcode));
 	header('Content-Disposition: inline; filename=' . $ReportName);
 	header('Expires: 0');
 	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');

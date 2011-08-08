@@ -17,11 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/orders/template_main.php
 //
-
 // start the form
-echo html_form('orders', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
+echo html_form('orders', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
 $hidden_fields = NULL;
-
 // include hidden fields
 echo html_hidden_field('todo',            '') . chr(10);
 echo html_hidden_field('id',              $order->id) . chr(10); // db journal entry id, null = new entry; not null = edit
@@ -46,7 +44,6 @@ if (!ENABLE_MULTI_CURRENCY) {
   echo html_hidden_field('currencies_value', '1') . chr(10);
 }
 if (!ENABLE_MULTI_BRANCH) echo html_hidden_field('store_id', '0') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['params']   = 'onclick="OpenOrdrList(this)"';
@@ -95,7 +92,10 @@ if ($security_level < 3 && $order->id) {
   $toolbar->icon_list['save']['show']  = false;
   $toolbar->icon_list['print']['show'] = false;
 }
-
+if ($security_level >1 && JOURNAL_ID == 4 ) {
+  $toolbar->add_icon('import', 'onclick=PreProcessLowStock()');
+  $toolbar->icon_list['import']['text'] = LOW_STOCK_BUTTON;
+}
 // pull in extra toolbar overrides and additions
 if (count($extra_toolbar_buttons) > 0) {
   foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
@@ -136,42 +136,42 @@ echo $toolbar->build_toolbar();
 		  <td><?php echo TEXT_DATE . ' ' . html_calendar_field($cal_order); ?></td>
 		</tr>
 		<tr>
-		  <td class="main" width="33%"><?php echo in_array(JOURNAL_ID, array(3,4,6,7)) ? TEXT_REMIT_TO : TEXT_BILL_TO; ?>
+		  <td width="33%"><?php echo in_array(JOURNAL_ID, array(3,4,6,7)) ? TEXT_REMIT_TO : TEXT_BILL_TO; ?>
 		    <?php echo html_pull_down_menu('bill_to_select', gen_null_pull_down(), '', 'onchange="fillAddress(\'bill\')"'); ?>
 		  </td>
-		  <td class="main" width="40%"><?php echo (defined('MODULE_SHIPPING_STATUS')) ? ORD_SHIP_TO : '&nbsp;'; ?>
+		  <td width="40%"><?php echo (defined('MODULE_SHIPPING_STATUS')) ? ORD_SHIP_TO : '&nbsp;'; ?>
 		    <?php echo html_pull_down_menu('ship_to_select', gen_null_pull_down(), '', 'disabled="disabled" onchange="fillAddress(\'ship\')"'); ?>
 		  </td>
 		  <td width="27%" rowspan="2" valign="top">
 			<table width="100%"  border="0" cellspacing="2" cellpadding="2">
 <?php if (ENABLE_MULTI_CURRENCY) {	// show currency slection pulldown ?>
 			  <tr>
-				<td class="main" align="right"><?php echo TEXT_CURRENCY; ?></td>
-				<td class="main">
+				<td align="right"><?php echo TEXT_CURRENCY; ?></td>
+				<td>
 				  <?php echo html_pull_down_menu('display_currency', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $order->currencies_code, 'onchange="recalculateCurrencies();"'); ?>
 			    </td>
 			  </tr>
 			  <tr>
-				<td class="main" align="right"><?php echo TEXT_EXCHANGE_RATE; ?></td>
-				<td class="main">
+				<td align="right"><?php echo TEXT_EXCHANGE_RATE; ?></td>
+				<td>
 				  <?php echo html_input_field('currencies_value', $order->currencies_value, 'readonly="readonly"'); ?>
 			    </td>
 			  </tr>
 <?php } ?>
 			  <tr>
-				<td class="main" align="right"><?php echo constant('ORD_HEADING_NUMBER_' . JOURNAL_ID); ?></td>
-				<td class="main"><?php echo html_input_field('purchase_invoice_id', $order->purchase_invoice_id, 'onmouseover="Tip(\'' . ORD_TT_PURCH_INV_NUM . '\')"'); ?></td>
+				<td align="right"><?php echo constant('ORD_HEADING_NUMBER_' . JOURNAL_ID); ?></td>
+				<td><?php echo html_input_field('purchase_invoice_id', $order->purchase_invoice_id, 'onmouseover="Tip(\'' . ORD_TT_PURCH_INV_NUM . '\')"'); ?></td>
 			  </tr>
 <?php if (isset($template_options['waiting'])) {	// show waiting for invoice (purchase_receive, vendor cm) checkbox ?>
 			  <tr>
-				<td class="main" align="right"><?php echo $template_options['waiting']['title']; ?></td>
-				<td class="main"><?php echo $template_options['waiting']['field']; ?></td>
+				<td align="right"><?php echo $template_options['waiting']['title']; ?></td>
+				<td><?php echo $template_options['waiting']['field']; ?></td>
 			  </tr>
 <?php } ?>
 <?php if (isset($template_options['closed'])) {	// show close checkbox ?>
 			  <tr>
-				<td class="main" align="right"><?php echo $template_options['closed']['title']; ?></td>
-				<td class="main"><?php echo $template_options['closed']['field']; ?></td>
+				<td align="right"><?php echo $template_options['closed']['title']; ?></td>
+				<td><?php echo $template_options['closed']['field']; ?></td>
 			  </tr>
 <?php } ?>
 			  <tr>
@@ -181,7 +181,7 @@ echo $toolbar->build_toolbar();
 		  </td>
 		</tr>
 		<tr>
-		  <td nowrap="nowrap" class="main" valign="top">
+		  <td nowrap="nowrap" valign="top">
 <?php
 echo html_input_field('bill_primary_name', $order->bill_primary_name, 'size="33" maxlength="32" onfocus="clearField(\'bill_primary_name\', \'' . GEN_PRIMARY_NAME . '\')" onblur="setField(\'bill_primary_name\', \'' . GEN_PRIMARY_NAME . '\')"', true) . chr(10);
 echo html_checkbox_field('bill_add_update', '1', ($order->bill_add_update) ? true : false, '', '') . ORD_ADD_UPDATE . '<br />' . chr(10);
@@ -197,7 +197,7 @@ echo html_input_field('bill_telephone1', $order->bill_telephone1, 'size="21" max
 echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48" onfocus="clearField(\'bill_email\', \'' . GEN_EMAIL . '\')" onblur="setField(\'bill_email\', \'' . GEN_EMAIL . '\')"', ADDRESS_BOOK_EMAIL_REQUIRED) . chr(10);
 ?>
 		  </td>
-		  <td nowrap="nowrap" class="main" width="33%" valign="top">
+		  <td nowrap="nowrap" width="33%" valign="top">
 <?php if (defined('MODULE_SHIPPING_STATUS')) { // show shipping address
   echo html_input_field('ship_primary_name', $order->ship_primary_name, 'size="33" maxlength="32" onfocus="clearField(\'ship_primary_name\', \'' . GEN_PRIMARY_NAME . '\')" onblur="setField(\'ship_primary_name\', \'' . GEN_PRIMARY_NAME . '\')"', true) . chr(10);
   echo html_checkbox_field('ship_add_update', '1', ($order->ship_add_update) ? true : false, '', '') . ORD_ADD_UPDATE . '<br />' . chr(10);
@@ -242,14 +242,14 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
           <th class="dataTableHeadingContent"><?php echo DEF_GL_ACCT_TITLE; ?></th>
         </tr>
         <tr>
-          <td class="main" align="center"><?php echo html_input_field('purch_order_id', $order->purch_order_id, 'size="21" maxlength="20"'); ?></td>
+          <td align="center"><?php echo html_input_field('purch_order_id', $order->purch_order_id, 'size="21" maxlength="20"'); ?></td>
           <?php if (ENABLE_MULTI_BRANCH) { ?>
-            <td class="main" align="center"><?php echo html_pull_down_menu('store_id', gen_get_store_ids(), $order->store_id ? $order->store_id : $_SESSION['admin_prefs']['def_store_id']); ?></td>
+            <td align="center"><?php echo html_pull_down_menu('store_id', gen_get_store_ids(), $order->store_id ? $order->store_id : $_SESSION['admin_prefs']['def_store_id']); ?></td>
 		  <?php } ?>
-          <td class="main" align="center"><?php echo html_pull_down_menu('rep_id', gen_get_rep_ids($account_type), $order->rep_id ? $order->rep_id : $default_sales_rep); ?></td>
-<?php if ($template_options['terms']) echo '<td class="main" align="center">' . html_input_field('terms_text', gen_terms_to_language('0', true, 'ap'), 'readonly="readonly" size="25"') . '&nbsp;' . html_icon('apps/accessories-text-editor.png', ACT_TERMS_DUE, 'small', 'align="top" style="cursor:pointer" onclick="TermsList()"') . '</td>'; ?>
-<?php if ($template_options['terminal_date']) echo '<td class="main" align="center">' . html_calendar_field($cal_terminal) . '</td>'; ?>
-          <td class="main" align="center">
+          <td align="center"><?php echo html_pull_down_menu('rep_id', gen_get_rep_ids($account_type), $order->rep_id ? $order->rep_id : $default_sales_rep); ?></td>
+<?php if ($template_options['terms']) echo '<td align="center">' . html_input_field('terms_text', gen_terms_to_language('0', true, 'ap'), 'readonly="readonly" size="25"') . '&nbsp;' . html_icon('apps/accessories-text-editor.png', ACT_TERMS_DUE, 'small', 'align="top" style="cursor:pointer" onclick="TermsList()"') . '</td>'; ?>
+<?php if ($template_options['terminal_date']) echo '<td align="center">' . html_calendar_field($cal_terminal) . '</td>'; ?>
+          <td align="center">
 			<?php echo html_pull_down_menu('gl_acct_id', $gl_array_list, $order->gl_acct_id, ''); ?>
           </td>
         </tr>
@@ -259,6 +259,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   <tr>
 	<td id="productList" class="formArea">
 	  <table id="item_table" width="100%" border="1" cellpadding="1" cellspacing="1">
+	    <thead>
 <?php if (SINGLE_LINE_ORDER_SCREEN) { ?>
         <tr>
           <th class="dataTableHeadingContent"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
@@ -289,6 +290,8 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
           <th class="dataTableHeadingContent"><?php echo TEXT_AMOUNT; ?></th>
         </tr>
 <?php } // end if single line order screen ?>
+	    </thead>
+	    <tbody>
 <?php
 		  if ($order->item_rows) {
 			for ($j = 0, $i = 1; $j < count($order->item_rows); $j++, $i++) {
@@ -301,37 +304,37 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 					echo '  <td rowspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 2) . '" align="center">' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_ROW_DELETE_ALERT . '\')) removeInvRow(' . $i . ');"') . '</td>' . chr(10);
 					$sku_enable = true;
 				}
-				echo '  <td nowrap="nowrap" class="main" align="center">';
+				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('qty_' . $i, $order->item_rows[$j]['qty'], ($item_col_1_enable ? '' : ' readonly="readonly"') . ' size="7" maxlength="6" onchange="updateRowTotal(' . $i . ', true)" style="text-align:right"');
 				echo '</td>' . chr(10);
-				echo '  <td nowrap="nowrap" class="main" align="center">';
+				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('pstd_' . $i, $order->item_rows[$j]['pstd'], ($item_col_2_enable ? '' : ' readonly="readonly"') . ' size="7" maxlength="6" onchange="updateRowTotal(' . $i . ', true)" style="text-align:right"');
 				// for serialized items, show the icon
 				if (in_array(JOURNAL_ID, array(6,7,12,13,18,20))) echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'align="top" style="cursor:pointer" onclick="serialList(\'serial_' . $i . '\')"');
 				echo '</td>' . chr(10);
-				echo '  <td nowrap="nowrap" class="main" align="center">';
+				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('sku_' . $i, $order->item_rows[$j]['sku'], ($sku_enable ? '' : ' readonly="readonly"') . ' size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\')" onblur="setField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\'); loadSkuDetails(0, ' . $i . ')"') . chr(10);
 				echo html_icon('status/folder-open.png', TEXT_SEARCH, 'small', 'id="sku_open_' . $i . '" align="top" style="cursor:pointer' . ($sku_enable ? '' : ';display:none') . '" onclick="InventoryList(' . $i . ')"') . chr(10);
 				echo '</td>' . chr(10);
 // for textarea uncomment below (NOTE: the field length is set in the db to 255, this choice does not control the users input character count, or ...
-//				echo '  <td colspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 5) . '" class="main">' . html_textarea_field('desc_' . $i, (SINGLE_LINE_ORDER_SCREEN)?50:110, '1', $order->item_rows[$j]['desc'], 'maxlength="255"') . '</td>' . chr(10);
+//				echo '  <td colspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 5) . '">' . html_textarea_field('desc_' . $i, (SINGLE_LINE_ORDER_SCREEN)?50:110, '1', $order->item_rows[$j]['desc'], 'maxlength="255"') . '</td>' . chr(10);
 // for standard controlled input, uncomment below (default setting)
-				echo '  <td colspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 3) . '" class="main">' . html_input_field('desc_' . $i, $order->item_rows[$j]['desc'], 'size="'.((SINGLE_LINE_ORDER_SCREEN)?50:75).'" maxlength="255"') . '</td>' . chr(10);
+				echo '  <td colspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 3) . '">' . html_input_field('desc_' . $i, $order->item_rows[$j]['desc'], 'size="'.((SINGLE_LINE_ORDER_SCREEN)?50:75).'" maxlength="255"') . '</td>' . chr(10);
 				if (SINGLE_LINE_ORDER_SCREEN) {
-				  echo '  <td class="main">' . html_combo_box('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct'], 'size="10"') . '</td>' . chr(10);
+				  echo '  <td>' . html_combo_box('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct'], 'size="10"') . '</td>' . chr(10);
 				} else {
-				  echo '  <td colspan="2" class="main">' . html_pull_down_menu('proj_' . $i, $proj_list, $order->item_rows[$j]['proj']) . '</td>' . chr(10);
+				  echo '  <td colspan="2">' . html_pull_down_menu('proj_' . $i, $proj_list, $order->item_rows[$j]['proj']) . '</td>' . chr(10);
 				  echo '</tr>' . chr(10) . '<tr>' . chr(10);
-				  echo '  <td colspan="3" class="main">' . html_pull_down_menu('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct']) . '</td>' . chr(10);
-				  echo '  <td class="main">' . html_input_field('full_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
-				  echo '  <td class="main">' . html_input_field('disc_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
+				  echo '  <td colspan="3">' . html_pull_down_menu('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct']) . '</td>' . chr(10);
+				  echo '  <td>' . html_input_field('full_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
+				  echo '  <td>' . html_input_field('disc_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
 				}
-				echo '  <td nowrap="nowrap" class="main" align="center">';
+				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('price_' . $i, $currencies->precise($order->item_rows[$j]['price'], true, $order->currencies_code, $order->currencies_value), 'size="8" maxlength="20" onchange="updateRowTotal(' . $i . ', false)" style="text-align:right"') . chr(10);
-				echo html_icon('status/folder-open.png', TEXT_PRICE_MANAGER, 'small', 'align="top" style="cursor:pointer" onclick="PriceManagerList(' . $i . ')"');
+				echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_PRICE_MANAGER, 'small', 'align="top" style="cursor:pointer" onclick="PriceManagerList(' . $i . ')"');
 				echo '</td>' . chr(10);
-				echo '  <td class="main">' . html_pull_down_menu('tax_' . $i, $tax_rates, $order->item_rows[$j]['tax'], 'onchange="updateRowTotal(' . $i . ', false)"') . '</td>' . chr(10);
-				echo '  <td class="main" align="center">' . chr(10);
+				echo '  <td>' . html_pull_down_menu('tax_' . $i, $tax_rates, $order->item_rows[$j]['tax'], 'onchange="updateRowTotal(' . $i . ', false)"') . '</td>' . chr(10);
+				echo '  <td align="center">' . chr(10);
 				// Hidden fields
 				echo html_hidden_field('id_' . $i,                $order->item_rows[$j]['id']) . chr(10);
 				echo html_hidden_field('so_po_item_ref_id_' . $i, $order->item_rows[$j]['so_po_item_ref_id']) . chr(10);
@@ -354,6 +357,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 		} else {
 			$hidden_fields .= '<script type="text/javascript">addInvRow();</script>' . chr(10);
 		} ?>
+		</tbody>
       </table>
 	</td>
   </tr>
@@ -364,8 +368,8 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
     <td>
 	  <table width="100%" border="0" cellspacing="2" cellpadding="0">
         <tr>
-          <td class="main">&nbsp;</td>
-          <td class="main" align="right">
+          <td>&nbsp;</td>
+          <td align="right">
 <?php echo ORD_SUBTOTAL . ' '; ?>
 <?php echo html_input_field('subtotal', $currencies->format($order->subtotal, true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" style="text-align:right"'); ?>
 		  </td>
@@ -373,11 +377,11 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 
 <?php if (ENABLE_ORDER_DISCOUNT && in_array(JOURNAL_ID, array(9, 10, 12, 19))) { ?>
         <tr>
-          <td class="main">
+          <td>
 <?php echo ORD_DISCOUNT_GL_ACCT . ' '; 
       echo html_pull_down_menu('disc_gl_acct_id', $gl_array_list, $order->disc_gl_acct_id, ''); ?>
 		  </td>
-          <td class="main" align="right">
+          <td align="right">
 <?php echo ORD_DISCOUNT_PERCENT . ' ' . html_input_field('disc_percent', ($order->disc_percent ? number_format(100*$order->disc_percent,3) : '0'), 'size="7" maxlength="6" onchange="calculateDiscountPercent()" style="text-align:right"') . ' ' . TEXT_DISCOUNT; ?>
 <?php echo html_input_field('discount', $currencies->format(($order->discount ? $order->discount : '0'), true, $order->currencies_code, $order->currencies_value), 'size="15" maxlength="20" onchange="calculateDiscount()" style="text-align:right"'); ?>
 		  </td>
@@ -389,11 +393,11 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 } ?>
 <?php if (defined('MODULE_SHIPPING_STATUS')) { ?>
         <tr>
-          <td class="main">
+          <td>
 <?php echo ORD_FREIGHT_GL_ACCT . ' '; 
       echo html_pull_down_menu('ship_gl_acct_id', $gl_array_list, $order->ship_gl_acct_id, ''); ?>
 		  </td>
-          <td class="main" align="right">
+          <td align="right">
 <?php echo html_button_field('estimate', TEXT_ESTIMATE, 'onclick="FreightList()"');
   echo ORD_SHIP_CARRIER . ' ' . html_pull_down_menu('ship_carrier', $methods, $default = '', 'onchange="buildFreightDropdown()"');
   echo ' ' . ORD_FREIGHT_SERVICE . ' ' . html_pull_down_menu('ship_service', gen_null_pull_down(), '');
@@ -410,15 +414,19 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   echo '        </td></tr>' . chr(10);
 } ?>
         <tr>
-          <td class="main">&nbsp;</td>
-          <td class="main" align="right">
+          <td><?php echo 'Select file to attach: ' . html_file_field('file_name'); ?></td>
+          <td align="right">
 <?php echo ($account_type == 'v') ? ORD_PURCHASE_TAX . ' ' : ORD_SALES_TAX . ' '; ?>
 <?php echo ' ' . html_input_field('sales_tax', $currencies->format(($order->sales_tax ? $order->sales_tax : '0.00'), true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" onchange="updateTotalPrices()" style="text-align:right"'); ?>
 		  </td>
         </tr>
         <tr>
-          <td class="main">&nbsp;</td>
-          <td class="main" align="right">
+          <td><div id="show_attach" style="display:none">
+			<?php echo html_checkbox_field('rm_attach', '1', ($order->del_attach) ? true : false, '', '') . ' ' . TEXT_DELETE_ATTACHMENT; ?>
+    		<?php echo html_button_field('dn_attach', TEXT_DOWNLOAD_ATTACHMENT, 'onclick="downloadAttachment()"'); ?>
+		    </div>&nbsp;
+		  </td>
+          <td align="right">
 <?php echo ORD_INVOICE_TOTAL . ' '; ?>
 <?php echo html_input_field('total', $currencies->format($order->total_amount, true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" style="text-align:right"'); ?>
 		  </td>
@@ -446,7 +454,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 	echo '</fieldset>';
 } else { echo '&nbsp;'; } ?>
 		  </td>
- 		  <td class="main" align="right"></td>
+ 		  <td align="right"></td>
         </tr>
       </table>
     </td>

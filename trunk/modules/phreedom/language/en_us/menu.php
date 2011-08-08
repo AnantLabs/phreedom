@@ -24,6 +24,7 @@ define('HEADER_TITLE_LOGOFF', 'Logoff');
 define('MENU_HEADING_COMPANY','Company');
 define('MENU_HEADING_TOOLS','Tools');
 define('HEADING_TITLE_USERS','Users');
+define('BOX_HEADING_ROLES','Roles');
 define('MENU_HEADING_MODULES','Modules');
 // Menu Titles
 define('BOX_HEADING_USERS','Users');

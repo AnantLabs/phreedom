@@ -49,9 +49,8 @@ switch ($action) {
 	$old_key =         db_prepare_input($_POST['old_encrypt_key']);
 	$new_key =         db_prepare_input($_POST['new_encrypt_key']);
 	$new_key_confirm = db_prepare_input($_POST['new_encrypt_confirm']);
-    if (ENCRYPTION_VALUE && !pw_validate_password($old_key, ENCRYPTION_VALUE)) {
-      $error = true;
-      $messageStack->add(ERROR_OLD_ENCRYPT_NOT_CORRECT,'error');
+	if (defined('ENCRYPTION_VALUE') && !pw_validate_password($old_key, ENCRYPTION_VALUE)) {
+      $error = $messageStack->add(ERROR_OLD_ENCRYPT_NOT_CORRECT,'error');
     }
 	if (strlen($new_key) < ENTRY_PASSWORD_MIN_LENGTH) {
 	  $error = $messageStack->add(sprintf(ENTRY_PASSWORD_NEW_ERROR, ENTRY_PASSWORD_MIN_LENGTH), 'error');
@@ -60,8 +59,7 @@ switch ($action) {
 	  $error = $messageStack->add(ENTRY_PASSWORD_NEW_ERROR_NOT_MATCHING, 'error');
 	}
 	if (!$error) {
-	  $db->Execute("update " . TABLE_CONFIGURATION . " set configuration_value = '" . pw_encrypt_password($new_key) . "' 
-		where configuration_key = 'ENCRYPTION_VALUE'");
+	  write_configure('ENCRYPTION_VALUE', pw_encrypt_password($new_key));
       $messageStack->add(GEN_ENCRYPTION_KEY_CHANGED,'success');
 	}
     break;

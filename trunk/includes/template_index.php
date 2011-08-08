@@ -40,6 +40,7 @@ if ($custom_html) { // load the template only as the rest of the html will be ge
   var date_delimiter      = '<?php echo DATE_DELIMITER; ?>';
   var inactive_bg_color   = '#cccccc';
   var inactive_text_color = '#cccccc';
+  var form_submitted      = false;
   // Variables for script generated combo boxes
   var icon_path           = '<?php echo DIR_WS_ICONS; ?>';
   var combo_image_on      = '<?php echo DIR_WS_ICONS . '16x16/phreebooks/pull_down_active.gif'; ?>';
@@ -78,17 +79,20 @@ if ($custom_html) { // load the template only as the rest of the html will be ge
 <?php require_once(DIR_FS_ADMIN . 'themes/' . $_SESSION['theme'] . '/menu.php'); ?>
 
 <!-- Template -->
+<div id="please_wait">
+  <p><?php echo html_icon('phreebooks/please_wait.gif', TEXT_PLEASE_WAIT, 'large'); ?></p>
+</div>
 <div class="trans" id="transcontent">
 <?php // load the template, required
 if (is_file($template_path)) { require($template_path); } else die('No template file. Looking for: ' . $template_path);
 ?>
 </div>
 
+<!-- Footer -->
 <?php if ($include_footer) {
   // Hook for custom logo
   $image_path = defined('FOOTER_LOGO') ? FOOTER_LOGO : (DIR_WS_ADMIN . 'modules/phreedom/images/phreesoft_logo.png');
 ?>
-  <!-- Footer -->
   <div id="footertable">
   <br />
   <table width="100%">

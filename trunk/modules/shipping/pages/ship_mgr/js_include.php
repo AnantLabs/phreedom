@@ -39,7 +39,7 @@ function loadPopUp(method, action, id) {
 
 function submitAction(module_id, action) {
   document.getElementById('module_id').value = module_id;
-  submitToDo(action);
+  submitToDo(action, true);
 }
 
 function submitShipSequence(module_id, rowSeq, todo) {

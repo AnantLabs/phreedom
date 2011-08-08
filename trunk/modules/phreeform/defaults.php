@@ -120,12 +120,12 @@ function value_to_words_en_us($number) {
 }
 
 function build_1000_words($number, $position) {
-  $output = '';
-  $suffix = array_shift($position);
-  $tens = $number % 100;
-  $number = intval($number / 100);
+  $output   = '';
+  $suffix   = array_shift($position);
+  $tens     = $number % 100;
+  $number   = intval($number / 100);
   $hundreds = $number % 10;
-  $number = intval($number / 10);
+  $number   = intval($number / 10);
   if ($number >= 1) $output = build_1000_words($number, $position);
   switch ($hundreds) {
 	case 1: $output .= ' ' . TEXT_ONE   . ' ' . TEXT_HUNDERD; break;
@@ -278,6 +278,21 @@ $BarCodeTypes = array(
   'UPCA'    => 'UPC-A',
   'POSTNET' => 'POSTNET',
   'CODABAR' => 'CODABAR',
+);
+
+$joinSyntax = array(
+  'JOIN'                     => 'JOIN',
+  'LEFT JOIN'                => 'LEFT JOIN',
+  'RIGHT JOIN'               => 'RIGHT JOIN',
+  'INNER JOIN'               => 'INNER JOIN',
+  'CROSS JOIN'               => 'CROSS JOIN',
+  'STRAIGHT_JOIN'            => 'STRAIGHT_JOIN',
+  'LEFT OUTER JOIN'          => 'LEFT OUTER JOIN',
+  'RIGHT OUTER JOIN'         => 'RIGHT OUTER JOIN',
+  'NATURAL LEFT JOIN'        => 'NATURAL LEFT JOIN',
+  'NATURAL RIGHT JOIN'       => 'NATURAL RIGHT JOIN',
+  'NATURAL LEFT OUTER JOIN'  => 'NATURAL LEFT OUTER JOIN',
+  'NATURAL RIGHT OUTER JOIN' => 'NATURAL RIGHT OUTER JOIN',
 );
 
 /***************************************************************************************************/

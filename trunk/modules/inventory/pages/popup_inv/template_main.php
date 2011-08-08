@@ -59,7 +59,7 @@ echo $toolbar->build_toolbar($add_search = true);
 </table>
 </div>
 <div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER_OF_ITEMS); ?></div>
+<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 <table border="0" width="100%" cellspacing="0" cellpadding="0">
   <tr class="dataTableHeadingRow"><?php  echo $list_header; ?></tr>
 <?php
@@ -92,5 +92,5 @@ echo $toolbar->build_toolbar($add_search = true);
 ?>
 </table>
 <div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER_OF_ITEMS); ?></div>
+<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 </form>

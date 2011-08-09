@@ -19,7 +19,7 @@ Normally you submit a few patches and then the project manager makes the decisio
  * Add price sheets for vendors
 
 === Translator Module ===
- * When doing relatively minor translations ie other english languages all that ticking of checkbox is a real pain when the vast majority of the fields do not require translation. Add select all checkbox to automatically fill (or deselect if some/all are filled already) [Will be in next release - Dave]
+ * When doing relatively minor translations ie other english languages all that ticking of checkbox is a real pain when the vast majority of the fields do not require translation. Add select all checkbox to automatically fill (or deselect if some/all are filled already) Note: Will be in next release - Dave
 
 === HIGH PRIORITY ===
  * rework import/export beginning balances to handle multi-branch

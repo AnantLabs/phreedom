@@ -54,7 +54,7 @@ function ReportPopup(action, rID) {
 	  document.getElementById('newName').value = name;
 	case 'export':
 	  document.getElementById('rowSeq').value  = rID;
-	  submitToDo(action);
+	  submitToDo(action, true);
 	  break;
     default:
       window.open("index.php?module=phreeform&page=popup_build&action="+action+"&rID="+rID,"popup_build","menubar=1,toolbar=1,width=1000,height=800,resizable=1,scrollbars=1,top=100,left=100");

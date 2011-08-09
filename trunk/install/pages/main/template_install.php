@@ -19,7 +19,10 @@
 //
 
 ?>
-<form name="install" id="install" action="index.php?action=install<?php echo $lang ? '&lang='.$lang : ''; ?>" method="post">
+<div id="please_wait" style="display:hidden">
+  <p><?php echo html_icon('phreebooks/please_wait.gif', '', 'large'); ?></p>
+</div>
+<form name="install" id="install" action="index.php?action=install<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td align="center" valign="middle"><p>&nbsp;</p><p>&nbsp;</p>
@@ -121,7 +124,7 @@
 			</tr>
 
 			<tr>
-			  <td colspan="2" align="right"><?php echo html_submit_field('btn_install', TEXT_CONTINUE); ?></td>
+			  <td colspan="2" align="right"><?php echo html_submit_field('btn_install', TEXT_CONTINUE, 'onclick="showLoading()"'); ?></td>
 			</tr>
             </table>
 	      </td>

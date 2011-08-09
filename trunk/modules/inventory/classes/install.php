@@ -85,6 +85,7 @@ class inventory_admin {
 		  item_cost float NOT NULL default '0',
 		  cost_method enum('a','f','l') NOT NULL default 'f',
 		  price_sheet varchar(32) default NULL,
+		  price_sheet_v varchar(32) default NULL,
 		  full_price float NOT NULL default '0',
 		  item_weight float NOT NULL default '0',
 		  quantity_on_hand float NOT NULL default '0',
@@ -254,8 +255,8 @@ class inventory_admin {
 	$db->Execute("TRUNCATE TABLE " . TABLE_INVENTORY);
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (1, 'AMD-3600-CPU', '0', 'si', 'AMD 3600+ Athlon CPU', 'AMD 3600+ Athlon CPU', 'AMD 3600+ Athlon CPU', 'demo/athlon.jpg', '4000', '1200', '5000', '1', '0', 100, 'f', '', 150, 1, 0, 0, 0, 0, 0, 0, 3, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (2, 'ASSY-BB', '0', 'lb', 'Labor - BB Computer Assy', 'Labor Cost - Assemble Bare Bones Computer', 'Labor - BB Computer Assy', '', '4000', '6000', '5000', '1', '0', 25, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
-	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (3, 'BOX-TW-322', '0', 'si', 'TW-322 Shipping Box', 'TW-322 Shipping Box - 12 x 12 x 12', 'TW-322 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.35, 'f', '', 0, 0, 0, 0, 0, 0, 15, 25, 0, 1, '', '0', now(), '', '');");
-	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (4, 'BOX-TW-553', '0', 'si', 'TW-533 Shipping Box', 'TW-533 Shipping Box - 24 x 12 x 12', 'TW-533 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.75, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
+	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (3, 'BOX-TW-322', '0', 'ns', 'TW-322 Shipping Box', 'TW-322 Shipping Box - 12 x 12 x 12', 'TW-322 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.35, 'f', '', 0, 0, 0, 0, 0, 0, 15, 25, 0, 1, '', '0', now(), '', '');");
+	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (4, 'BOX-TW-553', '0', 'ns', 'TW-533 Shipping Box', 'TW-533 Shipping Box - 24 x 12 x 12', 'TW-533 Shipping Box', '', '4000', '6800', '5000', '1', '0', 1.75, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (5, 'CASE-ALIEN', '0', 'si', 'Alien Case - Red', 'Closed Cases - Red Full Tower ATX case w/o power supply', 'Alien Case - Red', 'demo/red_alien.jpg', '4000', '1200', '5000', '1', '0', 47, 'f', '', 98.26, 11, 0, 0, 0, 0, 2, 1, 13, 5, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (6, 'DESC-WARR', '0', 'ai', 'Warranty Template', 'Warranty Template', 'Warranty Template', '', '1000', '1000', '1000', '1', '0', 0, 'f', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '0', now(), '', '');");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY . " VALUES (7, 'DVD-RW', '0', 'si', 'DVD RW with Lightscribe', 'DVD RW with Lightscribe - 8x', 'DVD RW with Lightscribe', 'demo/lightscribe.jpg', '4000', '1200', '5000', '1', '0', 23.6, 'f', '', 45, 2, 0, 0, 0, 0, 3, 1, 15, 14, '', '0', now(), '', '');");

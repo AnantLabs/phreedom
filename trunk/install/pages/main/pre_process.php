@@ -18,11 +18,23 @@
 //  Path: /install/pages/main/pre_process.php
 //
 /**************  include page specific files    *********************/
+// calculate server path info
+$virtual_path   = substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/install/')+1);
+$server_path    = $_SERVER['SCRIPT_FILENAME'];
+if (empty($server_path)) $server_path = $_SERVER['PATH_TRANSLATED'];
+$server_path    = str_replace(array('\\','//'), '/', $server_path);
+$dir_root       = substr($server_path, 0, strrpos($server_path, '/install/')+1);
+define('DIR_WS_ADMIN', $virtual_path);
+define('DIR_WS_ICONS',  DIR_WS_ADMIN . 'themes/default/icons/');
+define('DIR_FS_ADMIN', $dir_root);
+//echo 'server = '; print_r($_SERVER); echo '<br>';
 define('DB_TYPE','mysql');
 define('DEFAULT_LANGUAGE','en_us');
 define('PATH_TO_MY_FILES','my_files/'); // for now since it is in the release
 define('DIR_FS_MODULES','../modules/');
 define('DIR_FS_MY_FILES','../' . PATH_TO_MY_FILES);
+// Set the default chart to load
+$default_chart = DIR_FS_MODULES . 'phreebooks/language/en_us/charts/USA_Retail.xml';
 
 require_once('functions/install.php');
 $lang = $_GET['lang'] ? $_GET['lang'] : DEFAULT_LANGUAGE;
@@ -35,6 +47,7 @@ require_once('../includes/common_functions.php');
 require_once('../includes/common_classes.php');
 require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
+require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $error   = false; 
 $caution = false;
@@ -146,17 +159,8 @@ switch ($action) {
 	if (strlen($db_username) < 1) $error = $messageStack->add(ERROR_TEXT_DB_USERNAME_ISEMPTY, 'error');
 	if (strlen($db_password) < 1) $error = $messageStack->add(ERROR_TEXT_DB_PASSWORD_ISEMPTY, 'error');
 
-	// calculate server path info
-    $virtual_path   = substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/install/')+1);
-    $server_path    = $_SERVER['SCRIPT_FILENAME'];
-    if (empty($server_path)) $server_path = $_SERVER['PATH_TRANSLATED'];
-    $server_path    = str_replace(array('\\','//'), '/', $server_path);
-    $dir_root       = substr($server_path, 0, strrpos($server_path, '/install/')+1);
-//echo 'server = '; print_r($_SERVER); echo '<br>';
 	// define some things so the install can use existing functions
-	define('DB_PREFIX',    $db_prefix);
-	define('DIR_WS_ADMIN', $virtual_path);
-	define('DIR_FS_ADMIN', $dir_root);
+	define('DB_PREFIX', $db_prefix);
 	session_start();
 	$_SESSION['company']  = $db_name;
 	$_SESSION['language'] = $lang;
@@ -277,7 +281,7 @@ switch ($action) {
 		  params = '" . serialize($params) . "'");
 	  }
 	}
-	if (!$error) { // install fiscal year
+	if (!$error) { // install fiscal year, default chart of accounts
 	  require_once('../modules/phreebooks/functions/phreebooks.php');
 	  $db->Execute("TRUNCATE TABLE " . TABLE_ACCOUNTING_PERIODS);
 	  $current_year = date('Y');
@@ -292,6 +296,27 @@ switch ($action) {
 		$start_period = $start_period + 12;
 	    $runaway++;
 	    if ($runaway > 3) break;
+	  }
+	  // load the retail chart as default if the chart of accounts table is empty
+	  $result = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " limit 1");
+	  $entries_exist = $result->RecordCount() > 0 ? true : false;
+	  $result = $db->Execute("select id from " . TABLE_CHART_OF_ACCOUNTS . " limit 1");
+	  $chart_exists = $result->RecordCount() > 0 ? true : false;
+	  if (!$entries_exist && !$chart_exists) {
+	    $accounts = xml_to_object(file_get_contents($default_chart));
+	    if (is_object($accounts->ChartofAccounts)) $accounts = $accounts->ChartofAccounts; // just pull the first one
+	    if (is_object($accounts->account)) $accounts->account = array($accounts->account); // in case of only one chart entry
+	    if (is_array($accounts->account)) foreach ($accounts->account as $account) {
+		  $sql_data_array = array(
+		    'id'              => $account->id,
+		    'description'     => $account->description,
+		    'heading_only'    => $account->heading,
+		    'primary_acct_id' => $account->primary,
+		    'account_type'    => $account->type,
+		  );
+		  db_perform(TABLE_CHART_OF_ACCOUNTS, $sql_data_array, 'insert');
+		}
+	    build_and_check_account_history_records();
 	  }
 	}
 	if (!$error) { // write the includes/configure.php file

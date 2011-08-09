@@ -25,7 +25,7 @@
 // Include translations here as well.
 
 function init() {
-	resize();
+  resize();
 }
 
 function check_form() {
@@ -33,38 +33,17 @@ function check_form() {
 }
 
 // Insert other page specific functions here.
-var i=0;
+var arrTemp = self.location.href.split("?");
+var picUrl  = (arrTemp.length > 0) ? arrTemp[1] : "";
+var NS      = (navigator.appName=="Netscape") ? true : false;
 function resize() {
-  i=0;
-//  if (navigator.appName == 'Netscape') i=20;
-  if (window.navigator.userAgent.indexOf('MSIE 6.0') != -1 && window.navigator.userAgent.indexOf('SV1') != -1) {
-      i=30; //This browser is Internet Explorer 6.x on Windows XP SP2
-  } else if (window.navigator.userAgent.indexOf('MSIE 6.0') != -1) {
-      i=0; //This browser is Internet Explorer 6.x
-  } else if (window.navigator.userAgent.indexOf('Firefox') != -1 && window.navigator.userAgent.indexOf("Windows") != -1) {
-      i=25; //This browser is Firefox on Windows
-  } else if (window.navigator.userAgent.indexOf('Mozilla') != -1 && window.navigator.userAgent.indexOf("Windows") != -1) {
-      i=45; //This browser is Mozilla on Windows
-  } else {
-      i=80; //This is all other browsers including Mozilla on Linux
-  }
-  if (document.getElementById('popup_image') && document.getElementById('popup_image').clientWidth) {
-      var imgHeight = document.images[0].height+40-i;
-      var imgWidth = document.images[0].width+20;
-      var height = screen.height;
-      var width = screen.width;
-      var leftpos = width / 2 - imgWidth / 2;
-      var toppos = height / 2 - imgHeight / 2;
-
-      var frameWidth = imgWidth;
-      var frameHeight = imgHeight+i;
-      window.moveTo(leftpos, toppos);
-      window.resizeTo(frameWidth,frameHeight+i);
-  } else if (document.body) {
-    window.resizeTo(document.body.clientWidth, document.body.clientHeight-i);
-  }
+  iWidth  = (NS) ? window.innerWidth  : document.body.clientWidth;
+  iHeight = (NS) ? window.innerHeight : document.body.clientHeight;
+  iWidth  = document.getElementById('popup_image').width  - iWidth;
+  iHeight = document.getElementById('popup_image').height - iHeight;
+  window.resizeBy(iWidth, iHeight);
   self.focus();
-}
+};
 
 // -->
 </script>

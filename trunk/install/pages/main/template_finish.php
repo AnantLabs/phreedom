@@ -20,7 +20,7 @@
 
 ?>
 
-<form name="install" id="install" action="index.php?action=open_company<?php echo $lang ? '&lang='.$lang : ''; ?>" method="post">
+<form name="install" id="install" action="index.php?action=open_company<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td align="center" valign="middle"><p>&nbsp;</p><p>&nbsp;</p>

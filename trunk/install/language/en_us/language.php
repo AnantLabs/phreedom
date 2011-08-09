@@ -104,7 +104,7 @@ define('INTRO_FINISHED','<h2>Congratulations!</h2>
 <h3>You have successfully installed the Phreedom&trade; Small Business Solution on your system!</h3>
 <h2>Next Steps</h2>
 <p>A ToDo list has been generated identifying the key actions necessary to operated the installed modules. This list will appear on the homepage dashboard of the administrator. Additional module configuration, preferences and settings can be made through the Company -&gt; Module Admin menu.</p>
-<p>For security reasons, you change your configuration settings file to read-only. This file can be found at <strong>/includes/configure.php</strong>. If you enabled full access the the includes folder for installation, it can be changed back to the previous settings. It is also required that the folder <strong>/install</strong> be removed or renamed to prevent re-installation of the application.</p>
+<p>For security reasons, you should change your configuration settings file to read-only. This file can be found at <strong>/includes/configure.php</strong>. If you enabled full access the the includes folder for installation, it can be changed back to the previous settings. It is also required that the folder <strong>/install</strong> be removed or renamed to prevent re-installation of the application.</p>
 <h2>Documentation and Support</h2>
 <p>Phreedom includes a built in context sensitive help file system. As with most open source applications, this is a continual work in process but provides general guidance and support.</p>
 <p>There is also online documentation available on the PhreeSoft website (<a target="_blank" href="http://www.phreesoft.com">www.PhreeSoft.com</a>). The most current module documentation is available as well as other FAQs and customization/developer support.</p>

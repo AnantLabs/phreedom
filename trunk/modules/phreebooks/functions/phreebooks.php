@@ -45,7 +45,7 @@ function modify_account_history_records($id, $add_acct = true) {
   global $db;
   $result = $db->Execute("select max(period) as period from " . TABLE_ACCOUNTING_PERIODS);
   $max_period = $result->fields['period'];
-  if (!$max_period) die ('table: accounting_periods is not set, run setup.');
+  if (!$max_period) die ('table: '.TABLE_ACCOUNTING_PERIODS.' is not set, run setup.');
   if ($add_acct) {
     $result = $db->Execute("select heading_only from " . TABLE_CHART_OF_ACCOUNTS . " where id = '" . $id . "'");
 	if ($result->fields['heading_only'] <> '1') {
@@ -62,7 +62,7 @@ function build_and_check_account_history_records() {
   global $db;
   $result = $db->Execute("select max(period) as period from " . TABLE_ACCOUNTING_PERIODS);
   $max_period = $result->fields['period'];
-  if (!$max_period) die ('table: accounting_periods is not set, run setup.');
+  if (!$max_period) die ('table: '.TABLE_ACCOUNTING_PERIODS.' is not set, run setup.');
   $result = $db->Execute("select id, heading_only from " . TABLE_CHART_OF_ACCOUNTS . " order by id");
   while (!$result->EOF) {
     if ($result->fields['heading_only'] <> '1') {

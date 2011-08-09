@@ -24,7 +24,6 @@
 <legend><?php echo GEN_ADM_TOOLS_SEQ_HEADING; ?></legend>
 <p><?php echo GEN_ADM_TOOLS_SEQ_DESC; ?></p>
   <table align="center" border="0" cellspacing="2" cellpadding="1">
-    <tr>
 <?php 
   foreach ($status_fields as $field_name) {
     $desc = strtoupper($field_name) . '_DESC';

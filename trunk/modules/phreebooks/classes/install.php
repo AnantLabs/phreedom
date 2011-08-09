@@ -20,7 +20,6 @@
 
 class phreebooks_admin {
   function phreebooks_admin() {
-    $this->default_chart = DIR_FS_MODULES . 'phreebooks/language/en_us/charts/USA_Retail.xml';
 	$this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
 	  'phreedom'  => '3.2',
@@ -275,27 +274,6 @@ class phreebooks_admin {
 	$dir_dest   = DIR_FS_MY_FILES . $_SESSION['company'] . '/phreeform/images/';
 	@copy($dir_source . 'phreebooks_logo.jpg', $dir_dest . 'phreebooks_logo.jpg');
 	@copy($dir_source . 'phreebooks_logo.png', $dir_dest . 'phreebooks_logo.png');
-	// load the retail chart as default if the chart of accounts table is empty
-	$result = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " limit 1");
-	$entries_exist = $result->RecordCount() > 0 ? true : false;
-	$result = $db->Execute("select id from " . TABLE_CHART_OF_ACCOUNTS . " limit 1");
-	$chart_exists = $result->RecordCount() > 0 ? true : false;
-	if (!$entries_exist && !$chart_exists) {
-	  $accounts = xml_to_object(file_get_contents($this->default_chart));
-	  if (is_object($accounts->ChartofAccounts)) $accounts = $accounts->ChartofAccounts; // just pull the first one
-	  if (is_object($accounts->account)) $accounts->account = array($accounts->account); // in case of only one chart entry
-	  if (is_array($accounts->account)) foreach ($accounts->account as $account) {
-	    $sql_data_array = array(
-	      'id'              => $account->id,
-		  'description'     => $account->description,
-		  'heading_only'    => $account->heading,
-		  'primary_acct_id' => $account->primary,
-		  'account_type'    => $account->type,
-	    );
-	    db_perform(TABLE_CHART_OF_ACCOUNTS, $sql_data_array, 'insert');
-	  }
-	  build_and_check_account_history_records();
-	}
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_1;
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_2;
 	$this->notes[] = MODULE_PHREEBOOKS_NOTES_3;

@@ -1,14 +1,14 @@
 #summary Welcome page, Links and Information.
 = Introduction =
 
-This wiki is for development of Phreedom only. We have a user wiki that we are working on, more on that later.
+Welcome to the Phreedom development wiki.
 
 
 = Details =
 
-We will get you some details here shortly...
+We have more details to list...
 
 = Links =
-The main site: more on this later, [http://www.phreesoft.com/ phreesoft]
+The main site: [http://www.phreesoft.com/ phreesoft]
 
 The support forum: When you need phreedom support go here [http://www.phreesoft.com/forum/index.php phreedom support]

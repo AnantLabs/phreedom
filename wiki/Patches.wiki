@@ -10,7 +10,7 @@ Here's what you need to do to get an environment that is ripe for making source 
  * *Issues* (tab next to this one)  is the system that Phreedom uses for bug tracking,
  * *Download and Install [http://tortoisesvn.tigris.org/ Tortoise] SVN* -  is the best Subversion client for Windows. It will let you get the latest source from the code repository.
  * *Install XAMPP* - If you're not already running Apache locally, you're going to need it. 
- * *Checkout a Copy of Phreedom* - Find the directory that XAMPP is using for its DocumentRoot and right-click on it (or create a "phreedom" directory there and right-click on that). Select *_SVN Checkout_*.... In the dialog, use http://phreedom.googlecode.com/svn/trunk/ as the repository URL. Click OK to download the latest Phreedom source.
+ * *Checkout a Copy of Phreedom* - Find the directory that XAMPP is using for its Document Root and right-click on it (or create a "phreedom" directory there and right-click on that). Select *_SVN Checkout_*.... In the dialog, use http://phreedom.googlecode.com/svn/trunk/ as the repository URL. Click OK to download the latest Phreedom source.
  * *Make a Database* - Use phpMyAdmin to create a new database for Phreedom. Navigate to http://localhost/phpmyadmin to see the interface.
  * *Run the Phreedom  Install* - I trust you already know how to do this. If not, then perhaps patching is a bit advanced, no?
 

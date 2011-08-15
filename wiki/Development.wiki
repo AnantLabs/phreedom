@@ -48,8 +48,8 @@ Normally you submit a few patches and then the project manager makes the decisio
 === FUTURE RELEASE IMPROVEMENTS ===
  * POS Interface (modified order screen with separate cash accounts) with touch screen monitor
  * iPhone interface
-// Control Panel Ideas //
-// Improvements //
+==== Control Panel Ideas ====
+==== Improvements ====
  * vTiger Interface
  * sugarCRM Interface - commercial
  * Ubercart

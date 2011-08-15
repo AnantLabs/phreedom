@@ -1,14 +1,12 @@
 #summary Development Information.
 #sidebar TableOfContents
 
-* [Articles HOWTO articles]
-    * [ArticlesXSS Web security]
-    * [ArticlesDom DOM manipulation]
-    * [ArticlesStyle CSS and style]
-    * [ArticlesTips Tips and tricks]
-  * [DOMReference DOM reference]
-  * [HTMLElements HTML reference]
-  * [CSSReference CSS reference]
+* [Welcome Welcome to the Development wiki]
+* [Development Development Information]
+* [svn How we use svn trunk, tags, and branches]
+* [Patches How to submit a patch] 
+* [WishList A list of features that have been approved for development]
+* [DiscussionGroups The discussion groups used in the development discussions]
 
 <wiki:toc max_depth="4" />
 

@@ -3,7 +3,7 @@
 * [Development Development Information]<br>
 * [svn How we use svn trunk, tags, and branches]<br>
 * [Patches How to submit a patch]<br>
-* [WishList A list of features that have been approved for development]<br>
+* [WishLists A list of features that have been approved for development]<br>
 * [DiscussionGroups The discussion groups used in the development discussions]<br>
 
 = Introduction =

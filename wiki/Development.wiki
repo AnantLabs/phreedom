@@ -1,5 +1,7 @@
 #summary Development Information.
 
+#sidebar TableOfContents 
+
 = Introduction =
 
 We welcome new developers...

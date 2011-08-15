@@ -1,12 +1,12 @@
 #summary Development Information.
 #sidebar TableOfContents
 
-* [Welcome Welcome to the Development wiki]
-* [Development Development Information]
-* [svn How we use svn trunk, tags, and branches]
-* [Patches How to submit a patch] 
-* [WishList A list of features that have been approved for development]
-* [DiscussionGroups The discussion groups used in the development discussions]
+* [Welcome Welcome to the Development wiki]<br>
+* [Development Development Information]<br>
+* [svn How we use svn trunk, tags, and branches]<br>
+* [Patches How to submit a patch]<br>
+* [WishList A list of features that have been approved for development]<br>
+* [DiscussionGroups The discussion groups used in the development discussions]<br>
 
 <wiki:toc max_depth="4" />
 

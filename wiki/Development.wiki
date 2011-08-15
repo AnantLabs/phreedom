@@ -1,5 +1,4 @@
 #summary Development Information.
-#sidebar TableOfContents
 
 * [Welcome Welcome to the Development wiki]<br>
 * [Development Development Information]<br>

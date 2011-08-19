@@ -46,7 +46,14 @@ Normally you submit a few patches and then the project manager makes the decisio
  * Topic 1299, utility to verify cleared accounts
 
 === FUTURE RELEASE IMPROVEMENTS ===
- * POS Interface (modified order screen with separate cash accounts) with touch screen monitor
+*Development Roadmap* 
+
+ * POS Module
+
+ Interface (modified order screen with separate cash accounts) with touch screen monitor
+
+ Merging of same sku line items, Join two or more invoice items into one, more space on receipt (or on invoice)
+
  * iPhone interface
 ==== Control Panel Ideas ====
 ==== Improvements ====

@@ -138,10 +138,10 @@ class aged_receivables {
 	$output[] = array('id' => 'journal_main.bill_postal_code',    'text' => RW_AR_BILL_ZIP);
 	$output[] = array('id' => 'journal_main.bill_country_code',   'text' => RW_AR_BILL_COUNTRY);
 	$output[] = array('id' => 'journal_main.bill_telephone1',     'text' => RW_AR_BILL_TELE1);
-//	$output[] = array('id' => 'contacts.bill_telephone2',     'text' => RW_AR_BILL_TELE2);
-//	$output[] = array('id' => 'contacts.bill_fax',            'text' => RW_AR_BILL_FAX);
+//	$output[] = array('id' => 'contacts.bill_telephone2',         'text' => RW_AR_BILL_TELE2);
+//	$output[] = array('id' => 'contacts.bill_fax',                'text' => RW_AR_BILL_FAX);
 	$output[] = array('id' => 'journal_main.bill_email',          'text' => RW_AR_BILL_EMAIL);
-//	$output[] = array('id' => 'contacts.bill_website',        'text' => RW_AR_BILL_WEBSITE);
+//	$output[] = array('id' => 'contacts.bill_website',            'text' => RW_AR_BILL_WEBSITE);
 	$output[] = array('id' => 'journal_main.ship_acct_id',        'text' => RW_AR_SHIP_ACCT_ID);
 	$output[] = array('id' => 'journal_main.ship_address_id',     'text' => RW_AR_SHIP_ADD_ID);
 	$output[] = array('id' => 'journal_main.ship_primary_name',   'text' => RW_AR_SHIP_PRIMARY_NAME);
@@ -153,17 +153,17 @@ class aged_receivables {
 	$output[] = array('id' => 'journal_main.ship_postal_code',    'text' => RW_AR_SHIP_ZIP);
 	$output[] = array('id' => 'journal_main.ship_country_code',   'text' => RW_AR_SHIP_COUNTRY);
 	$output[] = array('id' => 'journal_main.ship_telephone1',     'text' => RW_AR_SHIP_TELE1);
-//	$output[] = array('id' => 'contacts.ship_telephone2',     'text' => RW_AR_SHIP_TELE2);
-//	$output[] = array('id' => 'contacts.ship_fax',            'text' => RW_AR_SHIP_FAX);
+//	$output[] = array('id' => 'contacts.ship_telephone2',         'text' => RW_AR_SHIP_TELE2);
+//	$output[] = array('id' => 'contacts.ship_fax',                'text' => RW_AR_SHIP_FAX);
 	$output[] = array('id' => 'journal_main.ship_email',          'text' => RW_AR_SHIP_EMAIL);
-//	$output[] = array('id' => 'contacts.ship_website',        'text' => RW_AR_SHIP_WEBSITE);
+//	$output[] = array('id' => 'contacts.ship_website',            'text' => RW_AR_SHIP_WEBSITE);
 	$output[] = array('id' => 'contacts.short_name',              'text' => RW_AR_CUSTOMER_ID);
 	$output[] = array('id' => 'contacts.account_number',          'text' => RW_AR_ACCOUNT_NUMBER);
 	$output[] = array('id' => 'journal_main.terminal_date',       'text' => RW_AR_SHIP_DATE);
-	$output[] = array('id' => 'balance_0',                        'text' => RW_AR_AGE1);
-	$output[] = array('id' => 'balance_30',                       'text' => RW_AR_AGE2);
-	$output[] = array('id' => 'balance_60',                       'text' => RW_AR_AGE3);
-	$output[] = array('id' => 'balance_90',                       'text' => RW_AR_AGE4);
+	$output[] = array('id' => 'balance_0',                        'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_1);
+	$output[] = array('id' => 'balance_30',                       'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_2);
+	$output[] = array('id' => 'balance_60',                       'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_3);
+	$output[] = array('id' => 'balance_90',                       'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_4);
 	return $output;
   }
 

@@ -48,6 +48,15 @@ $pb_headings[MENU_HEADING_INVENTORY_ORDER] = array(
 );
 // Set the menus
 $menu[] = array(
+  'text'        => BOX_INV_NEW, 
+  'heading'     => MENU_HEADING_INVENTORY, 
+  'rank'        => 1, 
+  'hide'        => true,
+  'security_id' => SECURITY_ID_MAINTAIN_INVENTORY, 
+  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_INVENTORY] > 1 ? false : true,
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;action=new', 'SSL'),
+);
+$menu[] = array(
   'text'        => BOX_INV_MAINTAIN, 
   'heading'     => MENU_HEADING_INVENTORY, 
   'rank'        => 5, 

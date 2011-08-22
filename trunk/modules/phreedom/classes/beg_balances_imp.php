@@ -181,7 +181,7 @@ class beg_bal_import {
 				'sku'         => $order['sku'],
 				'description' => $order['description'],
 				'gl_account'  => $order['inv_gl_acct'],
-				'taxable'     => ($order['taxable']) ? $order['taxable'] : 0,
+				'taxable'     => $order['taxable'] ? $order['taxable'] : 0,
 				$credit_debit => $currencies->clean_value($order['total_cost']),
 				'post_date'   => $order['post_date'],
 			);
@@ -193,12 +193,13 @@ class beg_bal_import {
 				'qty'          => '1',
 				'description'  => constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE') . '-' . TEXT_IMPORT,
 				'gl_account'   => $order['inv_gl_acct'],
-				'taxable'      => ($order['taxable']) ? $order['taxable'] : 0,
-				$credit_debit  => $currencies->clean_value($order['total_amount']),
-				'post_date'    => $order['post_date']);
+				'taxable'      => $order['taxable'] ? $order['taxable'] : 0,
+				$credit_debit  => $order['total_amount'],
+				'post_date'    => $order['post_date'],
+			);
 			break;
 		  }
-		  $total_amount += $order['total_cost'];
+		  $total_amount += $currencies->clean_value($order['total_cost']);
 		  $next_order    = $this->records[$row_cnt + 1]['order_id'];
 		  if ((JOURNAL_ID == 4 || JOURNAL_ID == 10) && $order['order_id'] == $next_order) { // more line items
 			$row_cnt++;

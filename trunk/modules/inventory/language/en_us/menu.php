@@ -20,8 +20,8 @@
 // Enter the new menu category heading if necessary
 define('MENU_HEADING_INVENTORY', 'Inventory');
 // Menu Titles
-define('BOX_INV_MAINTAIN', 'Edit/Maintain');
-define('BOX_INV_NEW', 'Add Inventory');
+define('BOX_INV_MAINTAIN', 'Inventory Manager');
+define('BOX_INV_NEW', 'New Inventory');
 define('BOX_INV_TRANSFER','Transfer Inventory');
 define('ORD_TEXT_14_WINDOW_TITLE','Assemblies');
 define('ORD_TEXT_16_WINDOW_TITLE','Adjustments');

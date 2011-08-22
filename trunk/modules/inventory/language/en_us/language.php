@@ -127,7 +127,7 @@ define('INV_XFER_QTY','Transfer Quantity');
 define('INV_XFER_ERROR_SAME_STORE_ID','The source and destination store ID\'s are the same, the transfer was not performed!');
 define('INV_XFER_ERROR_NOT_ENOUGH_SKU','Transfer of inventory item %s was skipped, there is not enough in stock!');
 
-define('INV_ENTER_SKU','Enter the SKU, item type and cost method then press Continue<br />Maximum SKU length is ' . MAX_INVENTORY_SKU_LENGTH . ' characters (' . (MAX_INVENTORY_SKU_LENGTH - 5) . ' for Master Stock)');
+define('INV_ENTER_SKU','Enter the SKU, item type and cost method then press Continue<br />Maximum SKU length is %s characters (%s for Master Stock)');
 define('INV_MS_ATTRIBUTES','Master Stock Attributes');
 define('INV_TEXT_ATTRIBUTE_1','Attribute 1');
 define('INV_TEXT_ATTRIBUTE_2','Attribute 2');

@@ -18,6 +18,7 @@
 //  Path: /modules/reportwriter/language/en_us/classes/aged_summary.php
 //
 
+define('TEXT_AGE','Age');
 define('RW_AR_RECORD_ID','Record ID');
 define('RW_AR_JOURNAL_ID','Journal ID');
 define('RW_AR_STORE_ID','Store ID');
@@ -71,9 +72,5 @@ define('RW_AR_SHIP_WEBSITE','Ship Website');
 define('RW_AR_CUSTOMER_ID','Customer ID');
 define('RW_AR_ACCOUNT_NUMBER','Account Number');
 define('RW_AR_SHIP_DATE','Ship Date');
-define('RW_AR_AGE1','Age ' . AR_AGING_HEADING_1);
-define('RW_AR_AGE2','Age ' . AR_AGING_HEADING_2);
-define('RW_AR_AGE3','Age ' . AR_AGING_HEADING_3);
-define('RW_AR_AGE4','Age ' . AR_AGING_HEADING_4);
 
 ?>

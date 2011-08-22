@@ -68,8 +68,7 @@ function ClearForm() {
   var sku  = document.getElementById('sku_1').value;
   if ((sku != '' && sku != text_search) || desc != '') {
 	if (force_clear || confirm(warn_form_has_data)) {
-      var size = (single_line_list == '1') ? 1 : 2;
-      while (document.getElementById('item_table').rows.length > size) removeInvRow(size);
+      while (document.getElementById('item_table').rows.length > 0) removeInvRow(1);
 	  addInvRow();
 	} else {
 	  if (single_line_list == '1') {
@@ -77,7 +76,7 @@ function ClearForm() {
 	  } else {
 		var numRows = document.getElementById('item_table').rows.length/2;
 	  }
-	  for (var i=1; i<numRows; i++) {
+	  for (var i=1; i<=numRows; i++) {
 		document.getElementById('id_'+i).value = 0;
 		document.getElementById('so_po_item_ref_id_'+i).value = 0;
 	  }
@@ -320,7 +319,7 @@ function fillOrder(xml) {
 	        document.getElementById('sku_' + jIndex).readOnly = true;
 	        document.getElementById('sku_open_' + jIndex).style.display = 'none';
 	        // don't allow row to be removed, turn off the delete icon
-	        rowOffset = (single_line_list == '1') ? jIndex : jIndex * 2;
+	        rowOffset = (single_line_list == '1') ? jIndex-1 : (jIndex*2)-2;
 	        document.getElementById("item_table").rows[rowOffset].cells[0].innerHTML = '&nbsp;';
 	      }
 		  updateRowTotal(jIndex, false);
@@ -575,7 +574,7 @@ function addInvRow() {
     var rowCnt  = (newRow2.rowIndex - 1)/2;
   }
 
-  // NOTE: any change here also need to be made to template form for reload if action fails
+// NOTE: any change here also need to be made to template form for reload if action fails
 //  cell = '<td rowspan="'+(single_line_list?1:2)+'" align="center">';
   cell  = '<td align="center">';
   cell += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"') + '</td>';
@@ -693,15 +692,15 @@ function addInvRow() {
 function removeInvRow(index) {
   var i, acctIndex, offset, newOffset;
   if (single_line_list == '1') {
-	var numRows = document.getElementById('item_table').rows.length-1;
+	var numRows = document.getElementById('item_table').rows.length;
   } else {
-	var numRows = (document.getElementById('item_table').rows.length-2)/2;
+	var numRows = (document.getElementById('item_table').rows.length)/2;
   }
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
 	// move the delete icon from the previous row
-	offset = (single_line_list == '1') ? i+1 : (i*2)+2;
-	newOffset = (single_line_list == '1') ? i : i*2;
+	offset = (single_line_list == '1') ? i : i*2;
+	newOffset = (single_line_list == '1') ? i-1 : (i*2)-2;
 	if (document.getElementById('item_table').rows[offset].cells[0].innerHTML == '&nbsp;') {
 	  document.getElementById('item_table').rows[newOffset].cells[0].innerHTML = '&nbsp;';
 	} else {
@@ -858,7 +857,7 @@ function updateTotalPrices() {
   } else {
 	var numRows = document.getElementById('item_table').rows.length/2;
   }
-  for (var i=1; i<numRows; i++) {
+  for (var i=1; i<numRows+1; i++) {
 	switch (journalID) {
 	  case  '3':
 	  case  '4':
@@ -1092,7 +1091,7 @@ function loadSkuDetails(iID, rowCnt) {
 	url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&bID='+bID+'&cID='+cID+'&qty='+qty+'&iID='+iID+'&sku='+sku+'&rID='+rowCnt+'&jID='+journalID,
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+      alert ("Ajax ErrorThrown: " + errorThrown + "\nTextStatus: " + textStatus + "\nError: " + XMLHttpRequest.responseText);
     },
 	success: fillInventory
   });
@@ -1179,9 +1178,9 @@ function fillInventory(sXml) {
   if (text) alert(text);
 
   if (single_line_list == '1') {
-	rowCnt = document.getElementById('item_table').rows.length - 1;
+	rowCnt = document.getElementById('item_table').rows.length;
   } else {
-	rowCnt = parseInt((document.getElementById('item_table').rows.length / 2) - 1);
+	rowCnt = parseInt((document.getElementById('item_table').rows.length/2));
   }
   var qty = document.getElementById(qty_pstd+rowCnt).value;
   var sku = document.getElementById('sku_'+rowCnt).value;
@@ -1243,29 +1242,33 @@ function ContactProp() {
 }
 
 function PreProcessLowStock() {
-	if (!lowStockExecute) {
-		alert(lowStockExecuted);
-		return;
-	}
-	 var acct   = document.getElementById('bill_acct_id').value;
-	 if (!acct){
-		 alert(lowStockNoVendor);
-		 return;
-	 }
-	 var store  = document.getElementById('store_id').value;
-	 var rowCnt = document.getElementById('item_table').rows.length;
-	 if (rowCnt<=1) rowCnt =1;
-	 if(isNaN(store)) store = 0;
-	$.ajax({
-		type: "GET",
-		contentType: "application/xml; charset=utf-8",
-		url: 'index.php?module=phreebooks&page=ajax&op=low_stock&cID='+acct+'&sID='+store+'&rID='+rowCnt,
-		dataType: ($.browser.msie) ? "text" : "xml",
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-		},
-		success: PostProcessLowStock
-	  });
+  if (!lowStockExecute) {
+	alert(lowStockExecuted);
+	return;
+  }
+  var acct   = document.getElementById('bill_acct_id').value;
+  if (!acct){
+    alert(lowStockNoVendor);
+    return;
+  }
+  var store  = document.getElementById('store_id').value;
+  if (single_line_list == '1') {
+	var rowCnt = document.getElementById('item_table').rows.length;
+  } else {
+	var rowCnt = document.getElementById('item_table').rows.length/2;
+  }
+  if (rowCnt<=1)    rowCnt = 1;
+  if (isNaN(store)) store  = 0;
+ $.ajax({
+	type: "GET",
+	contentType: "application/xml; charset=utf-8",
+	url: 'index.php?module=phreebooks&page=ajax&op=low_stock&cID='+acct+'&sID='+store+'&rID='+rowCnt,
+	dataType: ($.browser.msie) ? "text" : "xml",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	},
+	success: PostProcessLowStock
+  });
 }
 
 function PostProcessLowStock(sXml) {

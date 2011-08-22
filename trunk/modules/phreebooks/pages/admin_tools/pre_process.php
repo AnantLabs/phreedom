@@ -178,6 +178,7 @@ switch ($action) {
 		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 		break;
 	}
+	$tolerance    = 1 / pow(10, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']); // i.e. 1 cent in USD
 	$fiscal_years = array();
 	$sql = "select distinct fiscal_year, min(period) as first_period, max(period) as last_period
 	  from " . TABLE_ACCOUNTING_PERIODS . " group by fiscal_year order by fiscal_year ASC";
@@ -195,7 +196,8 @@ switch ($action) {
 	$beg_bal      = array();
 	$bad_accounts = array();
 	foreach ($fiscal_years as $fiscal_year) {
-	  $sql = "select account_id, period, beginning_balance, (beginning_balance + debit_amount - credit_amount) as next_beg_bal
+	  $sql = "select account_id, period, beginning_balance, debit_amount, credit_amount, 
+	      (beginning_balance + debit_amount - credit_amount) as next_beg_bal
 		from " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " 
 		where period >= " . $fiscal_year['first_period'] . " and period <= " . $fiscal_year['last_period'] . " 
 		order by period, account_id";
@@ -206,8 +208,16 @@ switch ($action) {
 		  continue;
 		}
 		$period       = $result->fields['period'];
-		$next_period  = $period + 1;
 		$gl_account   = $result->fields['account_id'];
+		$posted = $db->Execute("select sum(debit_amount) as debit, sum(credit_amount) as credit 
+		  from " . TABLE_JOURNAL_MAIN . " m join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
+		  where period = " . $period . " and gl_account = '" . $gl_account . "' 
+		  and journal_id in (2, 6, 7, 12, 13, 14, 16, 18, 19, 20, 21)");
+		if ($posted->RecordCount() == 0) { // no records posted during this period, set credits and debits to zero
+		  $posted->fields['debit']  = 0;
+		  $posted->fields['credit'] = 0;
+		}
+		$next_period  = $period + 1;
 		$beg_balance  = $currencies->format($result->fields['beginning_balance']);
 		$next_beg_bal = $currencies->format($result->fields['next_beg_bal']);
 		$beg_bal[$next_period][$gl_account] = $next_beg_bal;
@@ -216,13 +226,13 @@ switch ($action) {
 		  $bad_accounts[$period][$gl_account] = array('sync' => '1');
 		}
 		// check posted transactions to account to see if they match
-		$posted = $db->Execute("select sum(debit_amount) as debit, sum(credit_amount) as credit 
-		  from " . TABLE_JOURNAL_MAIN . " m join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-		  where period = " . $period . " and gl_account = '" . $gl_account . "' 
-		  and journal_id in (2, 6, 7, 12, 13, 14, 16, 18, 19, 20, 21)");
-		$posted_bal   = $currencies->format($result->fields['beginning_balance'] + $posted->fields['debit'] - $posted->fields['credit']);
-		if ($posted_bal <> $next_beg_bal) {
-		  if ($action <> 'coa_hist_fix') $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, $period, $gl_account, $posted_bal, $next_beg_bal),'caution');
+		$diff_debit  = $currencies->format($result->fields['debit_amount']  - $posted->fields['debit']);
+		$diff_credit = $currencies->format($result->fields['credit_amount'] - $posted->fields['credit']);
+		if (abs($diff_debit) > $tolerance || abs($diff_credit) > $tolerance) {
+		  if ($action <> 'coa_hist_fix') {
+			$posted_bal = $currencies->format($result->fields['beginning_balance'] + $posted->fields['debit'] - $posted->fields['credit']);
+		    $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, $period, $gl_account, $posted_bal, $next_beg_bal),'caution');
+		  }
 		  $bad_accounts[$period][$gl_account] = array(
 		    'sync'   => '1',
 		    'debit'  => $posted->fields['debit'],
@@ -271,7 +281,6 @@ switch ($action) {
 			$db->transCommit();
 			$messageStack->add_session(GEN_ADM_TOOLS_REPAIR_COMPLETE,'success');
 			gen_add_audit_log(GEN_ADM_TOOLS_REPAIR_LOG_ENTRY);
-//			gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=coa_hist_test', 'SSL'));
 		}
 	  }
 	}

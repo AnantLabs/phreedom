@@ -694,7 +694,7 @@ function BuildSeq($report, $delivery_method = 'D') { // for forms only - Sequent
 			  $value   = ProcessData($data_element, $field->boxfield[$offset]->processing);
 			  $temp[] .= formatReceipt($value, $field->boxfield[$offset]->width, $field->boxfield[$offset]->align);
 			}
-			$oneline = implode("", $temp) . "\n";
+			$oneline .= implode("", $temp). "\n";
 		  }
 		  $field->rowbreak = 1;
 		  break;

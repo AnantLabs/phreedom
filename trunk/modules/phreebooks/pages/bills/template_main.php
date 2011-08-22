@@ -182,7 +182,7 @@ echo '<br />' . html_input_field('bill_email', $order->bill_email, 'size="40" ma
 </div>
 
 <div>
-  <table id="item_table" width="100%" border="1" cellpadding="1" cellspacing="1">
+  <table width="100%" border="1" cellpadding="1" cellspacing="1">
 	<thead>
 	<tr>
 	  <th align="center"><?php echo BNK_INVOICE_NUM; ?></th>
@@ -194,7 +194,7 @@ echo '<br />' . html_input_field('bill_email', $order->bill_email, 'size="40" ma
 	  <th align="center"><?php echo TEXT_PAY; ?></th>
 	</tr>
 	</thead>
-	<tbody>
+	<tbody id="item_table">
 	<?php if ($order->id_1) {
 	  $i = 1;
 	  while (true) {

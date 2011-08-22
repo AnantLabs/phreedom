@@ -70,8 +70,8 @@ switch ($action) {
 	}
 	// see if this is an update or new entry
 	$sql_data_array = array(
-		'statement_balance' => $statement_balance,
-		'cleared_items'     => serialize($cleared_items),
+	  'statement_balance' => $statement_balance,
+	  'cleared_items'     => serialize($cleared_items),
 	);
 	$sql = "select id from " . TABLE_RECONCILIATION . " where period = " . $period . " and gl_account = '" . $gl_account . "'";
 	$result = $db->Execute($sql);
@@ -85,13 +85,13 @@ switch ($action) {
 	$result = $db->Execute($sql);
 	// set reconciled flag to period for all records that were checked
 	if (count($cleared_items)) {
-		$sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = $period where id in (" . implode(',', $cleared_items) . ")";
-		$result = $db->Execute($sql);
+	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = $period where id in (" . implode(',', $cleared_items) . ")";
+	  $result = $db->Execute($sql);
 	}
 	// set reconciled flag to '0' for all records that were unchecked
 	if (count($uncleared_items)) {
-		$sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = 0 where id in (" . implode(',', $uncleared_items) . ")";
-		$result = $db->Execute($sql);
+	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = 0 where id in (" . implode(',', $uncleared_items) . ")";
+	  $result = $db->Execute($sql);
 	}
 	// check to see if the journal main closed flag should be set or cleared based on all cash accounts
 	$mains = array();
@@ -155,34 +155,34 @@ $sql = "select statement_balance, cleared_items from " . TABLE_RECONCILIATION . 
 	where period = " . $period . " and gl_account = '" . $gl_account . "'";
 $result = $db->Execute($sql);
 if ($result->RecordCount() <> 0) { // there are current cleared items in the present accounting period (edit)
-	$statement_balance = $currencies->format($result->fields['statement_balance']);
-	$cleared_items     = unserialize($result->fields['cleared_items']);
-	// load information from general ledger
-	if (count($cleared_items) > 0) {
-		$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description 
-			from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-			where i.gl_account = '" . $gl_account . "' and i.id in (" . implode(',', $cleared_items) . ")";
-		$result = $db->Execute($sql);
-		while (!$result->EOF) {
-			if (isset($bank_list[$result->fields['id']])) { // record exists, mark as cleared (shouldn't happen)
-				$bank_list[$result->fields['id']]['cleared'] = 1;
-			} else {
-				$previous_total = $bank_list[$result->fields['id']]['dep_amount'] - $bank_list[$result->fields['id']]['pmt_amount'];
-				$new_total      = $previous_total + $result->fields['debit_amount'] - $result->fields['credit_amount'];
-				$bank_list[$result->fields['id']] = array (
-					'post_date'  => $result->fields['post_date'],
-					'reference'  => $result->fields['purchase_invoice_id'],
-					'name'       => $result->fields['bill_primary_name'],
-					'description'=> $result->fields['description'],
-					'dep_amount' => ($new_total < 0) ? ''          : $new_total,
-					'pmt_amount' => ($new_total < 0) ? -$new_total : '',
-					'payment'    => ($new_total < 0) ? 1           : 0,
-					'cleared'    => 1,
-				);
-			}
-			$result->MoveNext();
-		} 
-	}
+  $statement_balance = $currencies->format($result->fields['statement_balance']);
+  $cleared_items     = unserialize($result->fields['cleared_items']);
+  // load information from general ledger
+  if (count($cleared_items) > 0) {
+	$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description 
+		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
+		where i.gl_account = '" . $gl_account . "' and i.id in (" . implode(',', $cleared_items) . ")";
+	$result = $db->Execute($sql);
+	while (!$result->EOF) {
+	  if (isset($bank_list[$result->fields['id']])) { // record exists, mark as cleared (shouldn't happen)
+		$bank_list[$result->fields['id']]['cleared'] = 1;
+	  } else {
+		$previous_total = $bank_list[$result->fields['id']]['dep_amount'] - $bank_list[$result->fields['id']]['pmt_amount'];
+		$new_total      = $previous_total + $result->fields['debit_amount'] - $result->fields['credit_amount'];
+		$bank_list[$result->fields['id']] = array (
+		  'post_date'  => $result->fields['post_date'],
+		  'reference'  => $result->fields['purchase_invoice_id'],
+		  'name'       => $result->fields['bill_primary_name'],
+		  'description'=> $result->fields['description'],
+		  'dep_amount' => ($new_total < 0) ? ''          : $new_total,
+		  'pmt_amount' => ($new_total < 0) ? -$new_total : '',
+		  'payment'    => ($new_total < 0) ? 1           : 0,
+		  'cleared'    => 1,
+		);
+	  }
+	  $result->MoveNext();
+	} 
+  }
 }
 
 // combine by reference number

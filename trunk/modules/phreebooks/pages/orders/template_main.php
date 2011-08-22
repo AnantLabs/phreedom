@@ -258,7 +258,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   </tr>
   <tr>
 	<td id="productList" class="formArea">
-	  <table id="item_table" width="100%" border="1" cellpadding="1" cellspacing="1">
+	  <table width="100%" border="1" cellpadding="1" cellspacing="1">
 	    <thead>
 <?php if (SINGLE_LINE_ORDER_SCREEN) { ?>
         <tr>
@@ -291,7 +291,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
         </tr>
 <?php } // end if single line order screen ?>
 	    </thead>
-	    <tbody>
+	    <tbody id="item_table">
 <?php
 		  if ($order->item_rows) {
 			for ($j = 0, $i = 1; $j < count($order->item_rows); $j++, $i++) {

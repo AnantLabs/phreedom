@@ -33,7 +33,7 @@ echo $toolbar->build_toolbar();
   <div class="pageHeading"><?php echo INV_HEADING_NEW_ITEM; ?></div>
   <table width="500" align="center" cellspacing="0" cellpadding="1">
     <tr>
-	  <th nowrap="nowrap" colspan="2"><?php echo INV_ENTER_SKU; ?></th>
+	  <th nowrap="nowrap" colspan="2"><?php echo sprintf(INV_ENTER_SKU, MAX_INVENTORY_SKU_LENGTH, MAX_INVENTORY_SKU_LENGTH-5); ?></th>
     </tr>
     <tr>
 	  <td class="main" align="right"><?php echo TEXT_SKU; ?></td>

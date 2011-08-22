@@ -173,10 +173,10 @@ class statement_builder {
 	// special calculated fields
 	$output[] = array('id' => 'prior_balance',       'text' => RW_SB_PRIOR_BALANCE);
 	$output[] = array('id' => 'balance_due',         'text' => RW_SB_BALANCE_DUE);
-	$output[] = array('id' => 'balance_0',           'text' => RW_AR_AGE1);
-	$output[] = array('id' => 'balance_30',          'text' => RW_AR_AGE2);
-	$output[] = array('id' => 'balance_60',          'text' => RW_AR_AGE3);
-	$output[] = array('id' => 'balance_90',          'text' => RW_AR_AGE4);
+	$output[] = array('id' => 'balance_0',           'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_1);
+	$output[] = array('id' => 'balance_30',          'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_2);
+	$output[] = array('id' => 'balance_60',          'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_3);
+	$output[] = array('id' => 'balance_90',          'text' => TEXT_AGE . ' ' . AR_AGING_HEADING_4);
 	return $output;
   }
 

@@ -21,7 +21,6 @@ $security_level = validate_user(SECURITY_ID_PHREEFORM);
 /**************  include page specific files    *********************/
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/phreeform.php');
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/popup_gen/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -99,7 +98,7 @@ $to_name         = $_POST['to_name']         ? $_POST['to_name']         : $_GET
 $cc_email        = $_POST['cc_email']        ? $_POST['cc_email']        : '';
 $cc_name         = $_POST['cc_name']         ? $_POST['cc_name']         : $cc_address;
 $message_subject = $title . ' ' . TEXT_FROM . ' ' . COMPANY_NAME;
-$email_subject   = $_POST['message_subject'] ? $_POST['message_subject'] : $message_subject;
+$message_subject = $_POST['message_subject'] ? $_POST['message_subject'] : $message_subject;
 $message_body    = $report->emailmessage     ? TextReplace($report->emailmessage) : sprintf(PHREEFORM_EMAIL_BODY, $title, COMPANY_NAME);
 $email_text      = $_POST['message_body']    ? $_POST['message_body']    : $message_body;
 
@@ -284,7 +283,7 @@ if (!$error) switch ($action) {
 		  $block['EMAIL_CC_ADDRESS'] = $cc_email;
 		}
 		$attachments_list['file'] = $temp_file;
-		$success = validate_send_mail($to_name, $to_email, $email_subject, $email_text, $from_name, $from_email, $block, $attachments_list);
+		$success = validate_send_mail($to_name, $to_email, $message_subject, $email_text, $from_name, $from_email, $block, $attachments_list);
 		if ($success) $messageStack->add(EMAIL_SEND_SUCCESS, 'success');
 		unlink($temp_file);
 	}

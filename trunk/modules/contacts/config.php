@@ -66,7 +66,7 @@ $menu[] = array(
   'rank'        => 5, 
   'hide'        => true,
   'security_id' => SECURITY_ID_MAINTAIN_CUSTOMERS, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 1 ? false : true,
+  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_CUSTOMERS] > 1 ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=c', 'SSL'),
 );
 $menu[] = array(

@@ -22,7 +22,6 @@ define('TEXT_AGE','Age');
 define('RW_SB_RECORD_ID','Record ID');
 define('RW_SB_POST_DATE','Post Date');
 define('RW_SB_JOURNAL_ID','Journal ID');
-
 define('RW_SB_CUSTOMER_ID','Customer ID');
 define('RW_SB_ACCOUNT_NUMBER','Account Number');
 define('RW_SB_SALES_REP','Sales Rep');
@@ -43,10 +42,6 @@ define('RW_SB_BILL_EMAIL','Bill E-mail');
 define('RW_SB_BILL_WEBSITE','Bill Website');
 define('RW_SB_PRIOR_BALANCE','Prior Balance');
 define('RW_SB_BALANCE_DUE','Balance Due');
-define('RW_AR_AGE1',TEXT_AGE . ' ' . AR_AGING_HEADING_1);
-define('RW_AR_AGE2',TEXT_AGE . ' ' . AR_AGING_HEADING_2);
-define('RW_AR_AGE3',TEXT_AGE . ' ' . AR_AGING_HEADING_3);
-define('RW_AR_AGE4',TEXT_AGE . ' ' . AR_AGING_HEADING_4);
 
 // Table fields
 define('RW_SB_JOURNAL_DESC','Journal Description');

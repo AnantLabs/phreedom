@@ -63,7 +63,7 @@ if (!defined('ROUND_TAX_BY_AUTH')) {
            ( `configuration_title` , `configuration_key` , `configuration_value` , `configuration_description` , `configuration_group_id` , `sort_order` , `last_modified` , `date_added` , `use_function` , `set_function` ) 
     VALUES ( 'CD_01_52_TITLE', 'ROUND_TAX_BY_AUTH', '0', 'CD_01_52_DESC', '1', '52', NULL , now(), NULL , 'cfg_keyed_select_option(array(0 =>\'" . TEXT_NO . "\', 1=>\'" . TEXT_YES . "\'),' );");
 }
-// add gl_type to adjustments for ajaz page loading
+// add gl_type to adjustments for ajax page loading
 $result = $db->Execute("update " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
 	set i.gl_type = 'adj' where m.journal_id = 16 and i.gl_type = '' and i.sku <> ''");
 $result = $db->Execute("update " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 

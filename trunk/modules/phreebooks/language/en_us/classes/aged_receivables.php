@@ -72,9 +72,5 @@ define('RW_AR_SHIP_WEBSITE','Ship Website');
 define('RW_AR_CUSTOMER_ID','Customer ID');
 define('RW_AR_ACCOUNT_NUMBER','Account Number');
 define('RW_AR_SHIP_DATE','Ship Date');
-define('RW_AR_AGE1',TEXT_AGE . ' ' . AR_AGING_HEADING_1);
-define('RW_AR_AGE2',TEXT_AGE . ' ' . AR_AGING_HEADING_2);
-define('RW_AR_AGE3',TEXT_AGE . ' ' . AR_AGING_HEADING_3);
-define('RW_AR_AGE4',TEXT_AGE . ' ' . AR_AGING_HEADING_4);
 
 ?>

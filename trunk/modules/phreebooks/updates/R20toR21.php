@@ -24,11 +24,7 @@
 
 //********************************* END OF IMPORTANT ****************************************//
 
-$fields  = mysql_list_fields(DB_DATABASE, TABLE_DEPARTMENTS);
-$columns = mysql_num_fields($fields);
-$field_array[] = array();
-for ($i = 0; $i < $columns; $i++) $field_array[] = mysql_field_name($fields, $i);
-if (!in_array('description_short', $field_array)) {
+if (!db_field_exists(TABLE_DEPARTMENTS, 'description_short')) {
   $db->Execute("ALTER TABLE " . TABLE_DEPARTMENTS . " ADD description_short VARCHAR(30) NULL AFTER id");
   $db->Execute("UPDATE " . TABLE_DEPARTMENTS . " set description_short = id");
   $db->Execute("ALTER TABLE " . TABLE_DEPARTMENTS . " CHANGE id id INT(11) NOT NULL AUTO_INCREMENT");

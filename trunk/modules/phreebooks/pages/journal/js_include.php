@@ -149,8 +149,8 @@ function processEditJournal(sXml) {
 	document.getElementById('id_'+jIndex).value     = $(this).find("id").text();
 	document.getElementById('acct_'+jIndex).value   = $(this).find("gl_account").text();
 	if ($(this).find("description").text()) document.getElementById('desc_'+jIndex).value = $(this).find("description").text();
-	document.getElementById('debit_'+jIndex).value  = $(this).find("debit_amount").text();
-	document.getElementById('credit_'+jIndex).value = $(this).find("credit_amount").text();
+	document.getElementById('debit_'+jIndex).value  = formatCurrency($(this).find("debit_amount").text());
+	document.getElementById('credit_'+jIndex).value = formatCurrency($(this).find("credit_amount").text());
 	DebitOrCredit = ($(this).find("debit_amount").text() != 0) ? 'd' : 'c';
 	formatRow(jIndex, DebitOrCredit);
 	jIndex++;

@@ -52,7 +52,17 @@ if ($iID) {
   $search_fields = array('sku', 'upc_code', 'description_short', 'description_sales', 'description_purchase');
   $search = ' where ' . implode(' like \'%' . $sku . '%\' or ', $search_fields) . ' like \'%' . $sku . '%\'';
 }
-$inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
+
+$vendor_search = false;
+$vendor        = in_array($jID, array(3,4,6,7)) ? true : false;
+if ($vendor) {
+  $first_search  = $search . " and vendor_id = '" . $cID . "'";
+  $inventory     = $db->Execute("select * from " . TABLE_INVENTORY . $first_search);
+  $vendor_search = $inventory->recordCount() ? true : false;
+}
+if (!$vendor || !$vendor_search) {
+  $inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
+}
 if ($UPC && $inventory->RecordCount() <> 1) { // for UPC codes submitted only, send an error
   echo createXmlHeader() . xmlEntry('error', ORD_JS_SKU_NOT_UNIQUE) . createXmlFooter();
   die;
@@ -67,6 +77,7 @@ $cog_types = explode(',', COG_ITEM_TYPES);
 if (!in_array($inventory->fields['inventory_type'], $cog_types)) $inventory->fields['quantity_on_hand'] = 'NA';
 // load branch stock ( must be before BOM loading )
 $inventory->fields['branch_qty_in_stock'] = (strpos(COG_ITEM_TYPES, $inventory->fields['inventory_type']) === false) ? 'NA' : strval(load_store_stock($sku, $bID));
+//$debug .= 'qty in stock = ' . $inventory->fields['quantity_on_hand'] . ' and branch qty = ' . $inventory->fields['branch_qty_in_stock'];
 // Load the assembly information
 $assy_cost = 0;
 if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventory_type'] == 'sa') {

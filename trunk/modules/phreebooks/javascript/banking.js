@@ -49,7 +49,7 @@ function ClearForm() {
   while (document.getElementById('payment_id').options.length) {
 	document.getElementById('payment_id').remove(0);
   }
-  while (document.getElementById("item_table").rows.length > 1) {
+  while (document.getElementById("item_table").rows.length > 0) {
 	document.getElementById("item_table").deleteRow(-1); 
   }
   loadNewBalance(defaultGlAcct);
@@ -201,8 +201,8 @@ function fillBill(xml) {
 		document.getElementById('desc_' + jIndex).readOnly  = true;
 		document.getElementById('dscnt_' + jIndex).readOnly = true;
 		document.getElementById('total_' + jIndex).readOnly = true;
-		document.getElementById('item_table').rows[rowCnt].className = 'rowInactive';
-		document.getElementById('item_table').rows[rowCnt].cells[6].innerHTML = '&nbsp;'; // remove checkbox
+		document.getElementById('item_table').rows[rowCnt-1].className = 'rowInactive';
+		document.getElementById('item_table').rows[rowCnt-1].cells[6].innerHTML = '&nbsp;'; // remove checkbox
 	} else if ($(this).find("amount_paid").text()) {
 		document.getElementById('pay_' + jIndex).checked    = true;
 	}
@@ -375,10 +375,10 @@ function updatePayValues(rowCnt) {
 function updateTotalPrices() {
   var temp = '';
   var total = 0;
-  for (var i=1; i<document.getElementById("item_table").rows.length; i++) {
+  for (var i=1; i<=document.getElementById("item_table").rows.length; i++) {
 	if (document.getElementById('total_'+i).value) {
-		temp = cleanCurrency(document.getElementById('total_'+i).value);
-		total += parseFloat(temp);
+	  temp = cleanCurrency(document.getElementById('total_'+i).value);
+	  total += parseFloat(temp);
 	}
   }
   var tot = new String(total);

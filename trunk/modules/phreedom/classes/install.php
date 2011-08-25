@@ -206,18 +206,18 @@ class phreedom_admin {
 	  }
 	  if (method_exists($mod_init, 'initialize')) $mod_init->initialize($module);
 	}
-    if (web_connected(false) && CFG_AUTO_UPDATE_CHECK && (SECURITY_ID_ADMINISTRATION > 3)) { // check for software updates
+    if (web_connected(false) && CFG_AUTO_UPDATE_CHECK && (SECURITY_ID_CONFIGURATION > 3)) { // check for software updates
 	  $revisions = @file_get_contents(VERSION_CHECK_URL);
 	  if ($revisions) {
 	    $versions = xml_to_object($revisions);
-		$latest  = $revisions->Revisions->Modules->$mod->Current;
+		$latest  = $versions->Revisions->Phreedom->Current;
 		$current = MODULE_PHREEDOM_VERSION;
 		if ($latest > $current) $messageStack->add_session(sprintf(TEXT_VERSION_CHECK_NEW_VER, $current, $latest), 'caution'); 
 		foreach ($loaded_modules as $mod) { // check rest of modules
 		  if ($mod == 'phreedom') continue; // skip this module
-		  $latest  = $revisions->Revisions->Modules->$mod->Current;
+		  $latest  = $versions->Revisions->Modules->$mod->Current;
 		  $current = constant('MODULE_' . strtoupper($mod) . '_VERSION');
-		  if ($latest > $current) $messageStack->add_session(sprintf(TEXT_VERSION_CHECK_NEW_VER, $current, $latest), 'caution'); 
+		  if ($latest > $current) $messageStack->add_session(sprintf(TEXT_VERSION_CHECK_NEW_MOD_VER, $mod, $current, $latest), 'caution'); 
 		}
 	  }
     }

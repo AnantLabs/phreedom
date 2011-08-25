@@ -175,6 +175,8 @@ switch ($action) {
 		if (DEBUG) $messageStack->write_debug();
 		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	  } // else print or print_update, fall through and load javascript to call form_popup and clear form
+	  $print_record_id = $order->id; // save id for printing
+	  $order  = new banking(); // reset all values
 	} else { // else there was a post error, display and re-display form
 	  $error = $messageStack->add(GL_ERROR_NO_POST, 'error');
 	  if (DEBUG) $messageStack->write_debug();

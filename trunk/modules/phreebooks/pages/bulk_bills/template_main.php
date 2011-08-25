@@ -120,9 +120,12 @@ echo $toolbar->build_toolbar();
 </div>
 
 <div>
-  <table id="item_table" align="center" border="0" cellpadding="1" cellspacing="0">
+  <table align="center" cellspacing="0">
+	<thead>
 <?php if (ENABLE_MULTI_CURRENCY) echo '<tr><td colspan="9" class="fieldRequired"> ' . sprintf(GEN_PRICE_SHEET_CURRENCY_NOTE, $currencies->currencies[DEFAULT_CURRENCY]['title']) . '</td></tr>'; ?>
-  <tr class="dataTableHeadingRow" valign="top"><?php echo $list_header; ?></tr>
+      <tr class="dataTableHeadingRow" valign="top"><?php echo $list_header; ?></tr>
+	</thead>
+	<tbody id="item_table">
 <?php
 	// build the javascript constructor for creating each address object
 	$idx = 1;
@@ -170,6 +173,7 @@ echo $toolbar->build_toolbar();
 	  $query_result->MoveNext();
 	}
 ?>
+	</tbody>
   </table>
 </div>
 </form>

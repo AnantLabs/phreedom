@@ -17,35 +17,33 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/popup_status/template_main.php
 //
-
-// start the form
 echo html_form('status', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="self.close()"';
 $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-
-// build the toolbar
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo constant($type . '_CONTACT_STATUS'); ?></div>
-<table border="1" width="100%" cellspacing="0" cellpadding="1">
-  <tr>
-	<td colspan="5" align="center"<?php echo $inactive_flag; ?>><?php echo $status_text; ?></td>
-  </tr>
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div style="text-align:center" <?php echo $inactive_flag; ?>><?php echo $status_text; ?></div>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
   <tr><th colspan="5"><?php echo ACT_POPUP_TERMS_WINDOW_TITLE; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
   <tr><td colspan="5"><?php echo ACT_TERMS_DUE . ': ' . $special_terms . ACT_TERMS_CREDIT_LIMIT . $currencies->format($credit_limit); ?></td></tr>
 <?php if ($past_due <> 0) { ?>
   <tr><td colspan="5"><?php echo ACT_AMT_PAST_DUE . $currencies->format($past_due); ?></td></tr>
 <?php } ?>
+ </tbody>
+</table>
+<table class="ui-widget" style="border-collapse:collapse;width:100%;">
+ <thead class="ui-widget-header">
   <tr><th colspan="5"><?php echo ACT_ACT_HISTORY; ?></th></tr>
   <tr>
 	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_1 : AR_AGING_HEADING_1; ?></th>
@@ -54,6 +52,8 @@ echo $toolbar->build_toolbar();
 	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_4 : AR_AGING_HEADING_4; ?></th>
 	<th align="center"><?php echo TEXT_TOTAL; ?></th>
   </tr>
+ </thead>
+ <tbody class="ui-widget-content">
   <tr>
 	<td align="center"><?php echo $currencies->format($new_data['balance_0']); ?></td>
 	<td align="center"><?php echo $currencies->format($new_data['balance_30']); ?></td>
@@ -61,7 +61,14 @@ echo $toolbar->build_toolbar();
 	<td align="center"><?php echo $currencies->format($new_data['balance_90']); ?></td>
 	<td align="center"><?php echo $currencies->format($total_outstanding); ?></td>
   </tr>
+ </tbody>
+</table>
+<table class="ui-widget" style="border-collapse:collapse;width:100%;">
+ <thead class="ui-widget-header">
   <tr><th colspan="5"><?php echo TEXT_NOTES; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
   <tr><td colspan="5"><?php echo $notes; ?></td></tr>
+ </tbody>
 </table>
 </form>

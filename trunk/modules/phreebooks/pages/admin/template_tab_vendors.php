@@ -19,11 +19,13 @@
 //
 
 ?>
-<div id="vendors" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_VENDOR_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_vendors">
+  <fieldset>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_DEFAULT_GL_ACCOUNTS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td colspan="3"><?php echo CD_03_01_DESC; ?></td>
 	    <td nowrap="nowrap"><?php echo html_combo_box('ap_default_inventory_account', $inv_chart, $_POST['ap_default_inventory_account'] ? $_POST['ap_default_inventory_account'] : AP_DEFAULT_INVENTORY_ACCOUNT, ''); ?></td>
@@ -52,8 +54,13 @@
 	    <td colspan="3"><?php echo CD_03_07_DESC; ?></td>
 	    <td><?php echo html_combo_box('ap_def_dep_liab_acct', $ocl_chart, $_POST['ap_def_dep_liab_acct'] ? $_POST['ap_def_dep_liab_acct'] : AP_DEF_DEP_LIAB_ACCT, ''); ?></td>
 	  </tr>
-
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_PAYMENT_TERMS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td><?php echo CD_03_11_DESC; ?></td>
 	    <td><?php echo html_checkbox_field('ap_use_credit_limit', $inc_chart, $_POST['ap_use_credit_limit'] ? $_POST['ap_use_credit_limit'] : AP_USE_CREDIT_LIMIT, ''); ?></td>
@@ -71,8 +78,13 @@
 	      <?php echo CD_02_15_DESC; ?>
 		</td>
 	  </tr>
-
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_ACCOUNT_AGING; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td><?php echo CD_02_20_DESC; ?></td>
 	    <td><?php echo html_input_field('ap_aging_heading_1', $_POST['ap_aging_heading_1'] ? $_POST['ap_aging_heading_1'] : AP_AGING_HEADING_1, ''); ?></td>
@@ -97,8 +109,13 @@
 	    <td><?php echo CD_02_19_DESC; ?></td>
 	    <td><?php echo html_input_field('ap_aging_date_3', $_POST['ap_aging_date_3'] ? $_POST['ap_aging_date_3'] : AP_AGING_DATE_3, ''); ?></td>
 	  </tr>
-
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_PREFERENCES; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td colspan="3"><?php echo CD_03_30_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('ap_add_sales_tax_to_shipping', inv_calculate_tax_drop_down('v'), $_POST['ap_add_sales_tax_to_shipping'] ? $_POST['ap_add_sales_tax_to_shipping'] : AP_ADD_SALES_TAX_TO_SHIPPING, ''); ?></td>
@@ -115,6 +132,7 @@
 	    <td colspan="3"><?php echo CD_03_50_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('ap_tax_before_discount', $sel_yes_no, $_POST['ap_tax_before_discount'] ? $_POST['ap_tax_before_discount'] : AP_TAX_BEFORE_DISCOUNT, ''); ?></td>
 	  </tr>
+	 </tbody>
 	</table>
   </fieldset>
 </div>

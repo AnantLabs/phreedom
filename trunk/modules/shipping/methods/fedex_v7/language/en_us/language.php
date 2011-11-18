@@ -92,7 +92,7 @@ define('SHIPPING_FEDEX_V7_TRACK_SUCCESS','Successfully Tracked Package Reference
 define('SHIPPING_FEDEX_V7_TRACK_STATUS','The package reference: %s is not delivered, the status is: (Code %s) %s.');
 define('SHIPPING_FEDEX_V7_TRACK_FAIL','The following package reference number was deliverd after the expected date/time: ');
 define('SHIPPING_FEDEX_V7_CLOSE_SUCCESS','Successfully closed the FedEx shipments for today.');
-// Ship manager Defines
+// Ship manager
 define('SRV_TRACK_FEDEX_V7','Track Today\'s FedEx Shipments');
 // FedEx ground delivery days definitions
 define('ONE_DAY','One Day Transit');
@@ -116,7 +116,9 @@ define('EIGHTEEN_DAYS','Eighteen Days Transit');
 define('NINETEEN_DAYS','Nineteen Days Transit');
 define('TWENTY_DAYS','Twenty Days Transit');
 define('UNKNOWN','Unknown Transit Time');
-// Label Manager
+// Label manager
+define('TEXT_PRINT_PDF_DOCUMENTS','Print PDF documents (after label printing is complete)');
+define('TEXT_PRINT_PAPER','Print Paper Documents');
 define('SHIPPING_FEDEX_ERROR_POSTAL_CODE','Postal Code is required to use the FedEx module');
 define('SHIPPING_FEDEX_RECON_TITLE','FedEx Reconciliation Report generated: ');
 define('SHIPPING_FEDEX_RECON_INTRO','Invoice Number: %s dated %s');

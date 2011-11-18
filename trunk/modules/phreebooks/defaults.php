@@ -19,6 +19,8 @@
 //
 // default directory for order attachments
 define('PHREEBOOKS_DIR_MY_ORDERS',  DIR_FS_MY_FILES . $_SESSION['company'] . '/phreebooks/orders/');
+// default for sorting on PAyBIlls and CUstomer Receipts listings
+define('PHREEBOOKS_DEFAULT_BILL_SORT','invoice'); // choices are 'invoice', 'due_date'
 
 /************* DO NOT EDIT BELOW THIS LINE ************************/
 // Chart of accounts types

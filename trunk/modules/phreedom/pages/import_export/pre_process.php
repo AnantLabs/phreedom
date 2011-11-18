@@ -28,12 +28,10 @@ require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
 require_once(DIR_FS_WORKING . 'classes/beg_balances_imp.php');
 require_once(DIR_FS_WORKING . 'functions/phreedom.php');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
-
 /**************   page specific initialization  *************************/
 $error   = false; 
 $action  = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 $subject = $_POST['subject'];
-
 if (substr($action, 0, 3) == 'go_') {
   $subject = substr($action, 3);
   $action  = 'module';
@@ -50,7 +48,6 @@ if (substr($action, 0, 3) == 'go_') {
   $db_table = substr($action, 13);
   $action   = 'export_table';
 }
-
 $coa_types = load_coa_types();
 $glEntry   = new journal();
 $glEntry->journal_id = JOURNAL_ID;
@@ -65,7 +62,8 @@ while (!$result->EOF) {
 	'desc'      => $result->fields['description'], 
 	'type'      => $result->fields['account_type'],
 	'type_desc' => $coa_types[$result->fields['account_type']]['text'],
-	'beg_bal'   => $currencies->clean_value($result->fields['beginning_balance']));
+	'beg_bal'   => $result->fields['beginning_balance'],
+  );
   $glEntry->affected_accounts[$result->fields['id']] = true; // build list of affected accounts to update chart history
   $result->MoveNext();
 }
@@ -87,7 +85,6 @@ foreach ($dir as $file) {
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_MODULES . 'phreedom/custom/pages/import_export/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'sample_xml':

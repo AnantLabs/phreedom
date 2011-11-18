@@ -29,12 +29,12 @@ function pf_process_shipping($strData, $Process) {
 }
 
 function shipping_get_name($id) {
-//echo 'id = ' . $id . '<br>';
   if (!$id) return '';
   $parts = explode(':', $id);
   if (!$parts[0]) return '';
   load_specific_method('shipping', $parts[0]);
-  return defined(constant($parts[0] . '_' . $parts[1])) ? constant($parts[0] . '_' . $parts[1]) : $id;
+//echo 'id = ' . $id . ' and method = ' . constant($parts[0] . '_' . $parts[1]) . '<br>';
+  return defined($parts[0] . '_' . $parts[1]) ? constant($parts[0] . '_' . $parts[1]) : $id;
 }
 
 ?>

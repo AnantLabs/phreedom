@@ -17,15 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/pages/popup_phreefrom/tab_frm_field_setup.php
 //
-
 require_once(DIR_FS_WORKING . 'pages/popup_build/box_html.php'); // box templates
-
 ?>
-<div id="pf_field" class="tabset_content">
-<h2 class="tabset_label"><?php echo TEXT_FIELD_SETUP; ?></h2>
-<h2 align="center"><?php echo TEXT_FIELD_SETUP; ?></h2>
-<table width="800" align="center"><tr><td>
-  <table id="field_setup_frm" width="100%" cellspacing="0"><thead>
+<div id="tab_field">
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+<tr><td>
+  <table id="field_setup_frm" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
+  <thead class="ui-widget-header">
     <tr><th id="fieldListHeading" colspan="8"><?php echo PHREEFORM_FLDLIST; ?></th></tr>
     <tr>
       <th width="25%"><?php echo PHREEFORM_DISPNAME; ?></th>
@@ -41,11 +39,13 @@ require_once(DIR_FS_WORKING . 'pages/popup_build/box_html.php'); // box template
 <?php } ?>
       <th width="10%"><?php echo TEXT_ACTION;   ?></th>
     </tr>
-	</thead><tbody>
+	</thead>
+	<tbody class="ui-widget-content">
 <?php for ($i = 0; $i < sizeof($report->fieldlist); $i++) { ?>
     <tr>
 	  <td colspan="8">
-	    <table id="fld_tbl_<?php echo $i; ?>" width="100%" cellspacing="0">
+	    <table id="fld_tbl_<?php echo $i; ?>" class="ui-widget" style="border-style:none;width:100%">
+		  <tbody class="ui-widget-content">
 		  <tr>
 		    <td width="25%" align="center"><?php echo html_input_field('fld_desc[]',   $report->fieldlist[$i]->description, 'size="20" maxlength="25"'); ?></td>
 		    <td width="10%" align="center"><?php echo html_input_field('fld_abs[]',    $report->fieldlist[$i]->abscissa,    'size="6" maxlength="4"'); ?></td>
@@ -70,13 +70,16 @@ require_once(DIR_FS_WORKING . 'pages/popup_build/box_html.php'); // box template
 			  <?php echo box_build($report->fieldlist[$i], $i); ?>
 			</td>
 		  </tr>
+	      </tbody>
 	    </table>
 	  </td>
     </tr>
 <?php } ?>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td valign="bottom">
 <?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'field_setup_frm\', \'add\')"'); ?>
-</td></tr></table>
+</td></tr>
+</table>
 </div>

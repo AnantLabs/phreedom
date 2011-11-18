@@ -21,17 +21,14 @@
 $notes       = NULL;
 $extra_stuff = NULL;
 ?>
-<div id="pf_crit" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_CRITERIA; ?></h2>
-  <h2 align="center"><?php echo TEXT_CRITERIA; ?></h2>
-	<table align="center">
+<div id="tab_crit">
+<table class="ui-widget" style="border-style:none;width:100%">
+ <tbody class="ui-widget-content">
 	<tr>
 	  <td>
-		<table width="100%" cellspacing="0"><thead>
-		<tr>
-		  <th colspan="3"><?php echo PHREEFORM_DATEINFO; ?></th>
-		</tr>
-		</thead><tbody>
+		<table class="ui-widget" style="border-collapse:collapse;width:100%">
+		<thead class="ui-widget-header"><tr><th colspan="3"><?php echo PHREEFORM_DATEINFO; ?></th></tr></thead>
+		<tbody class="ui-widget-content">
 		<tr>
 		  <td width="33%" valign="top"><?php
 			echo PHREEFORM_DATELIST . '<br /><br />';
@@ -73,10 +70,9 @@ $extra_stuff = NULL;
 	<?php if ($report->reporttype == 'rpt') { ?>
 	<tr>
 	  <td>
-		<table id="group_setup" width="100%" cellspacing="1"><thead>
-		<tr>
-		  <th colspan="20"><?php echo PHREEFORM_GRPLIST; ?></th>
-		</tr>
+		<table class="ui-widget" style="border-collapse:collapse;width:100%">
+		<thead class="ui-widget-header">
+		<tr><th colspan="20"><?php echo PHREEFORM_GRPLIST; ?></th></tr>
 		<tr>
 		  <th><?php echo PHREEFORM_TBLFNAME;   ?></th>
 		  <th><?php echo PHREEFORM_DISPNAME;   ?></th>
@@ -85,7 +81,8 @@ $extra_stuff = NULL;
 		  <th><?php echo PHREEFORM_TEXTPROC;   ?></th>
 		  <th><?php echo TEXT_ACTION;       ?></th>
 		</tr>
-		</thead><tbody>
+		</thead>
+		<tbody id="group_setup" class="ui-widget-content">
 		<?php for ($i = 0; $i < sizeof($report->grouplist); $i++) { ?>
 		  <tr>
 			<td><?php echo html_pull_down_menu('grp_fld[]', $kFields, $report->grouplist[$i]->fieldname, 'onclick="updateFieldList(this)"'); ?></td>
@@ -101,14 +98,16 @@ $extra_stuff = NULL;
 			</td>
 		  </tr>
 		<?php } ?>
-		</tbody></table>
+		</tbody>
+		</table>
 	  </td>
 	  <td valign="bottom"><?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'group_setup\', \'add\')"'); ?></td>
 	</tr>
 	<?php } ?>
 	<tr>
 	  <td>
-		<table id="sort_setup" width="100%" cellspacing="0" cellpadding="1"><thead>
+		<table class="ui-widget" style="border-collapse:collapse;width:100%">
+		<thead class="ui-widget-header">
 		<tr><th colspan="20"><?php echo PHREEFORM_SORTLIST; ?></th></tr>
 		<tr>
 		  <th><?php echo PHREEFORM_TBLFNAME; ?></th>
@@ -117,9 +116,8 @@ $extra_stuff = NULL;
 		  <th><?php echo TEXT_ACTION;        ?></th>
 		</tr>
 		</thead>
-		<?php if (sizeof($report->sortlist) > 0) {
-		  echo '<tbody>';
-		  for ($i = 0; $i < sizeof($report->sortlist); $i++) { ?>
+		<tbody id="sort_setup" class="ui-widget-content">
+		<?php for ($i = 0; $i < sizeof($report->sortlist); $i++) { ?>
 		  <tr>
 			<td><?php echo html_pull_down_menu('sort_fld[]', $kFields, $report->sortlist[$i]->fieldname, 'onclick="updateFieldList(this)"'); ?></td>
 			<td><?php echo html_input_field('sort_desc[]',   $report->sortlist[$i]->description); ?></td>
@@ -131,21 +129,17 @@ $extra_stuff = NULL;
 			  ?>
 			</td>
 		  </tr>
-		  <?php } 
-		  echo '</tbody>';
-		} else {
-		  echo '<tbody><tr><td>&nbsp;</td></tr></tbody>' . chr(10);
-		} ?>
+		  <?php } ?>
+		</tbody>
 		</table>
 	  </td>
 	  <td valign="bottom"><?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'sort_setup\', \'add\')"'); ?></td>
 	</tr>
 	<tr>
 	  <td>
-		<table id="crit_setup" width="100%" cellspacing="0" cellpadding="1"><thead>
-		<tr>
-		  <th colspan="20"><?php echo TEXT_CRITERIA; ?></th>
-		</tr>
+		<table class="ui-widget" style="border-collapse:collapse;width:100%">
+		<thead class="ui-widget-header">
+		<tr><th colspan="20"><?php echo TEXT_CRITERIA; ?></th></tr>
 		<tr>
 		  <th><?php echo PHREEFORM_TBLFNAME;   ?></th>
 		  <th><?php echo PHREEFORM_DISPNAME;   ?></th>
@@ -155,7 +149,8 @@ $extra_stuff = NULL;
 		  <th><?php echo TEXT_MAX_VALUE; ?></th>
 		  <th><?php echo TEXT_ACTION;       ?></th>
 		</tr>
-		</thead><tbody>
+		</thead>
+		<tbody id="crit_setup" class="ui-widget-content">
 		<?php for ($i = 0; $i < sizeof($report->filterlist); $i++) { ?>
 		  <tr>
 			<td><?php echo html_pull_down_menu('crit_fld[]',  $kFields,  $report->filterlist[$i]->fieldname, 'onclick="updateFieldList(this)"'); ?></td>

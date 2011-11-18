@@ -23,6 +23,8 @@ $debug = NULL;
 $security_level = validate_ajax_user();
 /**************  include page specific files    *********************/
 gen_pull_language('contacts');
+require_once(DIR_FS_MODULES . 'phreebooks/defaults.php');
+require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $cID       = db_prepare_input($_GET['cID']);
 $oID       = db_prepare_input($_GET['oID']);
@@ -68,6 +70,10 @@ if ($cID && !$just_ship) { // build the contact data
   $terms_type = ($type == 'v') ? 'AP' : 'AR';
   $contact->fields['terms_text'] = gen_terms_to_language($contact->fields['special_terms'], true, $terms_type);
   $contact->fields['ship_gl_acct_id'] = ($type == 'v') ? AP_DEF_FREIGHT_ACCT : AR_DEF_FREIGHT_ACCT;
+  $invoices = fill_paid_invoice_array(0, $cID, $type);
+  $terms    = explode(':', $contact->fields['special_terms']);
+  $contact->fields['credit_limit'] = $terms[4] ? $terms[4] : ($type == 'v' ? AP_CREDIT_LIMIT_AMOUNT : AR_CREDIT_LIMIT_AMOUNT);
+  $contact->fields['credit_remaining'] = $contact->fields['credit_limit'] - $invoices['balance'] + $order->fields['total_amount'];
   $bill_add   = $db->Execute("select * from " . TABLE_ADDRESS_BOOK . " 
     where ref_id = '" . $cID . "' and type in ('" . $type . "m', '" . $type . "b')");
   //fix some special fields
@@ -98,12 +104,13 @@ if (sizeof($order->fields) > 0) {
     $order->fields['ship_service'] = $ship_level[1];
 	$order->fields['attach_exist'] = file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip') ? 1 : 0;
 	if ($so_po) { // opening a SO/PO for Invoice/Receive
-	  $id                              = 0;
-	  $so_po_ref_id                    = $order->fields['id'];
-	  $order->fields['so_po_ref_id']   = $so_po_ref_id;
-	  $order->fields['cb_closed']      = 0;
-	  $order->fields['cb_waiting']     = 0;
-      $order->fields['purch_order_num']= $order->fields['purchase_invoice_id']; // set the ref field to the SO/PO #
+	  $id                            = 0;
+	  $so_po_ref_id                  = $order->fields['id'];
+	  $order->fields['so_po_ref_id'] = $so_po_ref_id;
+	  $order->fields['cb_closed']    = 0;
+	  $order->fields['cb_waiting']   = 0;
+      if (JOURNAL_ID == 6)  $order->fields['purch_order_id']  = $order->fields['purchase_invoice_id'];
+      if (JOURNAL_ID == 12) $order->fields['sales_order_num'] = $order->fields['purchase_invoice_id'];
 	  unset($order->fields['id']);
 	  unset($order->fields['purchase_invoice_id']);
 	  unset($order->fields['id']);
@@ -119,11 +126,15 @@ if (sizeof($order->fields) > 0) {
 	$item_list = array();
 	$subtotal  = 0;
 	if ($so_po_ref_id) {	// then there is a purchase order/sales order to load first
+      if (JOURNAL_ID == 12) { // fetch the sales order number
+	    $result = $db->Execute("select purchase_invoice_id from " . TABLE_JOURNAL_MAIN . " where id = " . $so_po_ref_id);
+		$order->fields['sales_order_num'] = $result->fields['purchase_invoice_id'];
+	  }
 	  // fetch the so/po line items per the original order
 	  $ordr_items = $db->Execute("select * from " . TABLE_JOURNAL_ITEM . " where ref_id = " . $so_po_ref_id);
 	  while (!$ordr_items->EOF) {
 		$total = $ordr_items->fields['credit_amount'] + $ordr_items->fields['debit_amount'];
-	  	if (in_array($ordr_items->fields['gl_type'], array('poo', 'soo'))) {
+	  	if (in_array($ordr_items->fields['gl_type'], array('poo', 'soo', 'por', 'sos'))) {
 		  $subtotal   += $total;
 		  $inv_details = $db->Execute("select inventory_type, inactive, item_weight, quantity_on_hand, lead_time 
 		    from " . TABLE_INVENTORY . " where sku = '" . $ordr_items->fields['sku'] . "'");

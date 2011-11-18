@@ -17,18 +17,14 @@
 // +-----------------------------------------------------------------+
 //  Path: /includes/application_top.php
 //
-
-// Start the clock for the page parse time log
 define('PAGE_EXECUTION_START_TIME', microtime(true));
+$force_reset_cache = false;
 // set php_self in the local scope
 if (!isset($PHP_SELF)) $PHP_SELF = $_SERVER['PHP_SELF'];
 // Check for application configuration parameters
-if (file_exists('includes/configure.php')) {
-  require('includes/configure.php');
-} elseif (file_exists('install/index.php')) {
-  header('Location: install/index.php');
-  exit();
-} else die('Phreedom cannot find the configuration file. Aborting!');
+if     (file_exists('includes/configure.php')) { require('includes/configure.php'); } 
+elseif (file_exists('install/index.php')) { header('Location: install/index.php'); exit(); }
+else   die('Phreedom cannot find the configuration file. Aborting!');
 // Load some path constants
 $path = (ENABLE_SSL_ADMIN == 'true' ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_ADMIN;
 if (!defined('PATH_TO_MY_FILES')) define('PATH_TO_MY_FILES','my_files/');
@@ -52,11 +48,8 @@ define('COG_ITEM_TYPES','si,sr,ms,mi,as,sa');
 session_start();
 $session_started = true;
 // set the language
-if (isset($_GET['language'])) {
-  $_SESSION['language'] = $_GET['language'];
-} elseif (!$_SESSION['language']) {
-  $_SESSION['language'] = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : 'en_us';
-}
+if   (isset($_GET['language'])) { $_SESSION['language'] = $_GET['language']; } 
+elseif (!$_SESSION['language']) { $_SESSION['language'] = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : 'en_us'; }
 // see if the user is logged in
 $user_validated = ($_SESSION['admin_id']) ? true : false;
 // load general language translation, Check for global define overrides first
@@ -64,7 +57,7 @@ $path = DIR_FS_MODULES . 'phreedom/custom/language/' . $_SESSION['language'] . '
 if (file_exists($path)) { include($path); }
 $path = DIR_FS_MODULES . 'phreedom/language/' . $_SESSION['language'] . '/language.php';
 if (file_exists($path)) { require_once($path); } 
-  else { require_once(DIR_FS_MODULES . 'phreedom/language/en_us/language.php'); }
+else { require_once(DIR_FS_MODULES . 'phreedom/language/en_us/language.php'); }
 // define general functions and classes used application-wide
 require_once(DIR_FS_MODULES  . 'phreedom/defaults.php');
 require_once(DIR_FS_INCLUDES . 'common_functions.php');
@@ -73,23 +66,12 @@ require_once(DIR_FS_INCLUDES . 'common_classes.php');
 $custom_path = DIR_FS_MODULES . $module . '/custom/pages/' . $page . '/extra_defines.php';
 if (file_exists($custom_path)) { include($custom_path); }
 gen_pull_language($module);
-// determine what theme to use
-if (isset($_POST['theme'])) {
-  define('DIR_WS_THEMES', DIR_WS_ADMIN . 'themes/' . $_POST['theme'] . '/');
-  $_SESSION['theme'] = $_POST['theme'];
-} elseif (isset($_SESSION['theme'])) {
-  define('DIR_WS_THEMES', DIR_WS_ADMIN . 'themes/' . $_SESSION['theme'] . '/');
-} else {
-  define('DIR_WS_THEMES', DIR_WS_ADMIN . 'themes/default/');
-  $_SESSION['theme'] = 'default';
-}
+define('DIR_WS_THEMES', 'themes/' . ($_SESSION['admin_prefs']['theme'] ? $_SESSION['admin_prefs']['theme'] : DEFAULT_THEME) . '/');
+define('MY_COLORS',$_SESSION['admin_prefs']['colors']?$_SESSION['admin_prefs']['colors']:DEFAULT_COLORS);
+define('MY_MENU',  $_SESSION['admin_prefs']['menu']  ?$_SESSION['admin_prefs']['menu']  :DEFAULT_MENU);
 define('DIR_WS_IMAGES', DIR_WS_THEMES . 'images/');
-if (file_exists(DIR_WS_THEMES . 'icons/')) {
-  define('DIR_WS_ICONS',  DIR_WS_THEMES . 'icons/');
-} else { // use default
-  define('DIR_WS_ICONS',  DIR_WS_ADMIN . 'themes/default/icons/');
-}
-
+if (file_exists(DIR_WS_THEMES . 'icons/')) { define('DIR_WS_ICONS',  DIR_WS_THEMES . 'icons/'); }
+else { define('DIR_WS_ICONS', 'themes/default/icons/'); } // use default
 $messageStack = new messageStack;
 $toolbar      = new toolbar;
 // determine what company to connect to
@@ -131,12 +113,8 @@ if ($db_company && file_exists(DIR_FS_MY_FILES . $db_company . '/config.php')) {
   if (file_exists($path)) { include($path); }
   $currencies = new currencies();
 }
-
-// some error checking before we proceed
-// re-direct if SSL request not matching actual request
 $prefered_type = ENABLE_SSL_ADMIN == 'true' ? 'SSL' : 'NONSSL';
-if ($request_type <> $prefered_type) gen_redirect(html_href_link(FILENAME_DEFAULT, '', 'SSL'));
-// check for default currency defined
-if ($user_validated && !defined('DEFAULT_CURRENCY')) $messageStack->add(ERROR_NO_DEFAULT_CURRENCY_DEFINED, 'error');
+if ($request_type <> $prefered_type) gen_redirect(html_href_link(FILENAME_DEFAULT, '', 'SSL')); // re-direct if SSL request not matching actual request
+if ($user_validated && !defined('DEFAULT_CURRENCY')) $messageStack->add(ERROR_NO_DEFAULT_CURRENCY_DEFINED, 'error'); // check for default currency defined
 
 ?>

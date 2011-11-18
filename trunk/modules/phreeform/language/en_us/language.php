@@ -25,9 +25,7 @@ define('PHREEFORM_REPORT_GEN','Report Generator');
 define('PHREEFORM_GROUP','PhreeForm Group: ');
 // General
 define('TEXT_ABSCISSA','Abscissa');
-define('TEXT_ALL_GROUPS','Allow All Groups');
 define('TEXT_ALL_PAGES','All Pages');
-define('TEXT_ALL_USERS','Allow All Users');
 define('TEXT_ATTRIBUTES','Attributes');
 define('TEXT_BORDER_AREA','Border');
 define('TEXT_BROWSER','Browser:');
@@ -63,7 +61,6 @@ define('TEXT_FIRST_PAGE','First Page');
 define('TEXT_FOLDER','Folder');
 define('TEXT_FOLDER_NAME','Folder Name');
 define('TEXT_GENERATE_HTML','Output HTML');
-define('TEXT_GROUPS','Groups');
 define('TEXT_GROUP_CODE','Group Code');
 define('TEXT_GROUP_MEMBER','Group Member');
 define('TEXT_GROUP_PAGE_BREAK','Group Page Break');

@@ -29,18 +29,17 @@ $cal_i_note = array(
 ?>
 <script type="text/javascript"><?php echo js_calendar_init($cal_i_note); ?></script>
 
-<div id="cat_notes" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_NOTES; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_notes">
+  <fieldset>
   <legend><?php echo TEXT_NOTES; ?></legend>
   <table><tr>
-	<td id="contactList" class="formArea">
-	  <table id="crm_notes" width="100%" border="1" cellpadding="1" cellspacing="1">
+	<td id="contactList">
+	  <table id="crm_notes">
         <tr>
-          <th class="dataTableHeadingContent" align="center"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
-          <th class="dataTableHeadingContent" align="center"><?php echo TEXT_DATE; ?></th>
-          <th class="dataTableHeadingContent" align="center"><?php echo TEXT_ACTION; ?></th>
-          <th class="dataTableHeadingContent" align="center"><?php echo TEXT_NOTES; ?></th>
+          <th><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+          <th><?php echo TEXT_DATE; ?></th>
+          <th><?php echo TEXT_ACTION; ?></th>
+          <th><?php echo TEXT_NOTES; ?></th>
         </tr>
 <?php 
 if ($cInfo->crm_notes) {
@@ -52,9 +51,9 @@ if ($cInfo->crm_notes) {
 		    <?php echo $security_level < 4 ? '&nbsp;' : html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . CRM_ROW_DELETE_ALERT . '\')) removeCRMRow(' . $i . ');"'); ?>
 			<?php echo html_hidden_field('im_note_id_'.$i, $value['log_id']); ?>
 		  </td>
-		  <td class="main"><?php echo gen_locale_date($value['log_date']); ?></td>
-		  <td class="main"><?php echo html_input_field('crm_act_' . $i, htmlspecialchars($crm_actions[$value['action']]), 'readonly="readonly"'); ?></td>
-	      <td class="main"><?php echo html_textarea_field('crm_note_' . $i, 50, 1, htmlspecialchars($value['notes']), 'readonly="readonly"'); ?></td>
+		  <td><?php echo gen_locale_date($value['log_date']); ?></td>
+		  <td><?php echo html_input_field('crm_act_' . $i, htmlspecialchars($crm_actions[$value['action']]), 'readonly="readonly"'); ?></td>
+	      <td><?php echo html_textarea_field('crm_note_' . $i, 50, 1, htmlspecialchars($value['notes']), 'readonly="readonly"'); ?></td>
 		</tr>
 <?php
     $i++;

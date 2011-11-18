@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 // Path: /index.php
 //
-
 error_reporting(E_ALL & ~E_NOTICE);
 if ($_POST['module'])    $module = $_POST['module'];
 elseif ($_GET['module']) $module = $_GET['module'];
@@ -25,8 +24,7 @@ else                     $module = 'phreedom';
 if ($_POST['page'])      $page = $_POST['page'];
 elseif ($_GET['page'])   $page = $_GET['page'];
 else                     $page = 'main';
-
-require('includes/application_top.php');
+require_once('includes/application_top.php');
 if (!$user_validated) {
   $_SESSION['pb_cat']    = $_GET['module'];
   $_SESSION['pb_module'] = $_GET['page'];

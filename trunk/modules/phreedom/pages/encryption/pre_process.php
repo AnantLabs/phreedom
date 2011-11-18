@@ -42,10 +42,7 @@ switch ($action) {
 	}
 	break;
   case 'encrypt_key':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+	validate_security($security_level, 4);
 	$old_key =         db_prepare_input($_POST['old_encrypt_key']);
 	$new_key =         db_prepare_input($_POST['new_encrypt_key']);
 	$new_key_confirm = db_prepare_input($_POST['new_encrypt_confirm']);

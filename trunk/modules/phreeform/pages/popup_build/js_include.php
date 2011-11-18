@@ -46,13 +46,16 @@ var textPortrait  = '<?php echo TEXT_PORTRAIT; ?>';
 var textLandscape = '<?php echo TEXT_LANDSCAPE; ?>';
 
 function init() {
+  $(function() {
+	$('#buildtabs').tabs();
+  });
   if (action == 'preview') {
     var rID = document.getElementById('rID').value;
     var popupWin = window.open("index.php?module=phreeform&page=popup_gen&rID="+rID+"&todo=open&preview=1","popup_gen","width=900,height=650,resizable=1,scrollbars=1,top=150,left=200");
   }
 <?php 
   if ($self_close) {
-    echo 'window.opener.location.reload();' . chr(10);
+    echo 'window.opener.location="index.php?module=phreeform&page=main";' . chr(10);
     echo 'self.close();' . chr(10); 
   }
   if ($report->reporttype == 'frm') {
@@ -314,13 +317,11 @@ function buildRow(idTable, rIndex, boxID) {
   var updateList = false;
   var tableInit  = true;
   if (!isNaN(boxID)) {
-    var newRow = document.getElementById(idTable+boxID).tBodies[0].insertRow(rIndex);
-//    newRow.onmousedown = function () { bClick = this.rowIndex; }
+    var newRow = document.getElementById(idTable+boxID).insertRow(-1);
   } else {
-    var newRow = document.getElementById(idTable).tBodies[0].insertRow(rIndex);
-//    newRow.onmousedown = function () { rClick = this.rowIndex; }
+    var newRow = document.getElementById(idTable).insertRow(-1);
   }
-  rowCnt = newRow.rowIndex - 2; // less header lines
+  rowCnt = newRow.rowIndex; // less header lines
 //alert('idTable = '+idTable+' and rIndex = '+rIndex+' and boxID = '+boxID+' and rowCnt = '+rowCnt);
 
   switch (idTable) {
@@ -445,10 +446,11 @@ function buildRow(idTable, rIndex, boxID) {
     case 'box_Cblk':
 	  cell[0]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('box_fld_boxTBD[]',  $cFields)); ?>';
 	  cell[1]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('box_proc_boxTBD[]', $tProcessing)); ?>';
+	  cell[2]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('box_fmt_boxTBD[]',  $pFields)); ?>';
 	  temp     = '<?php echo str_replace("'", "\'", html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_cblk_row_TBD')); ?>';
 	  temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'box_Cblk\', \'delete\', row_TBD)"')); ?>';
-	  cell[2]  = temp.replace(/row_TBD/g, boxID);
-	  attr[2]  = 'right';
+	  cell[3]  = temp.replace(/row_TBD/g, boxID);
+	  attr[3]  = 'right';
  	  for (var i=0; i<cell.length; i++) cell[i] = cell[i].replace(/boxTBD/g, boxID);
      break;
 	case 'box_Tbl':
@@ -474,10 +476,11 @@ function buildRow(idTable, rIndex, boxID) {
 	  var temp = '<?php echo str_replace("'", "\'", html_combo_box('box_fld_boxTBD[]',       $kFields, '', 'onclick="updateFieldList(this)"', '220px', '', 'fld_combo_tbd')); ?>';
 	  cell[0]  = temp.replace(/box_combo_tbd/g, "box_combo_"+boxID+rowCnt);
 	  cell[1]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('box_proc_boxTBD[]', $tProcessing)); ?>';
+	  cell[2]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('box_fmt_boxTBD[]',  $pFields)); ?>';
 	  temp     = '<?php echo str_replace("'", "\'", html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_tblk_row_TBD')); ?>';
 	  temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'box_Tblk\', \'delete\', row_TBD)"')); ?>';
-	  cell[2]  = temp.replace(/row_TBD/g, boxID);
-	  attr[2]  = 'right';
+	  cell[3]  = temp.replace(/row_TBD/g, boxID);
+	  attr[3]  = 'right';
  	  for (var i=0; i<cell.length; i++) cell[i] = cell[i].replace(/boxTBD/g, boxID);
       break;
     case 'box_Ttl':
@@ -701,7 +704,7 @@ function TableDnD() {
     /** Initialise the drag and drop by capturing mouse move events */
     this.init = function(table) {
         this.table = table;
-        var rows = table.tBodies[0].rows; //getElementsByTagName("tr")
+        var rows = table.getElementsByTagName("tr"); 
 //alert('init table = '+table.id+' and number of rows = '+rows.length);
         for (var i=0; i<rows.length; i++) {
 			// John Tarr: added to ignore rows that I've added the NoDnD attribute to (Category and Header rows)
@@ -795,7 +798,7 @@ function TableDnD() {
 
     /** We're only worried about the y position really, because we can only move rows up and down */
     this.findDropTargetRow = function(y) {
-        var rows = this.table.tBodies[0].rows;
+        var rows = this.table.getElementsByTagName("tr");
 		for (var i=0; i<rows.length; i++) {
 			var row = rows[i];
 			// John Tarr added to ignore rows that I've added the NoDnD attribute to (Header rows)

@@ -19,10 +19,9 @@
 //
 
 ?>
-<div id="general" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_GENERAL_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_general">
+  <fieldset>
+    <table>
 	  <tr><th colspan="2"><?php echo TEXT_OPTIONS; ?></th></tr>
 	  <tr>
 	    <td><?php echo CD_13_01_DESC; ?></td>

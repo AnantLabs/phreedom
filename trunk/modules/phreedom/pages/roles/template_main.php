@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/roles/template_main.php
 //
-// start the form
 echo html_form('roles', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
@@ -29,28 +28,28 @@ $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.08.07');
 if ($search_text) $toolbar->search_text = $search_text;
 echo $toolbar->build_toolbar($add_search = true); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . BOX_HEADING_ROLES); ?></div>
-<table border="0" width="100%" cellspacing="0" cellpadding="1">
-  <tr class="dataTableHeadingRow" valign="top"><?php echo $list_header; ?></tr>
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . BOX_HEADING_ROLES); ?></div>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
+  <tr><?php echo $list_header; ?></tr>
+ </thead>
+ <tbody class="ui-widget-content">
 	<?php
+	$odd = true;
 	while (!$query_result->EOF) {
 	?>
-  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['admin_id']; ?>, 'edit')"><?php echo $query_result->fields['admin_name']; ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['admin_id']; ?>, 'edit')"><?php echo $query_result->fields['inactive'] ? TEXT_YES : ''; ?></td>
-	<td class="dataTableContent" align="right">
+  <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
+	<td onclick="submitSeq(<?php echo $query_result->fields['admin_id']; ?>, 'edit')"><?php echo $query_result->fields['admin_name']; ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['admin_id']; ?>, 'edit')"><?php echo $query_result->fields['inactive'] ? TEXT_YES : ''; ?></td>
+	<td align="right">
 <?php 
 // build the action toolbar
 	  // first pull in any extra buttons, this is dynamic since each row can have different buttons
@@ -63,9 +62,11 @@ echo $toolbar->build_toolbar($add_search = true);
   </tr>
 <?php
 	$query_result->MoveNext();
+	$odd = !$odd;
 }
 ?>
+ </tbody>
 </table>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . BOX_HEADING_ROLES); ?></div>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . BOX_HEADING_ROLES); ?></div>
 </form>

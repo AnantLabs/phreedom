@@ -19,7 +19,6 @@
 //
 
 $fieldset_content = NULL;
-
 // build the tab toolbar
 $docbar = new toolbar;
 $docbar->icon_list['cancel']['show']   = false;
@@ -39,31 +38,32 @@ if ($id) $docbar->icon_list['go_up'] = array(
   'order'  => 2,
 );
 if ($action <> 'search') $fieldset_content .= $docbar->build_toolbar() . chr(10);
-
 // build the table contents
 $doc_cnt = 0;
-$fieldset_content .= '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-$fieldset_content .= '  <tr class="dataTableHeadingRow">' . $list_header . '</tr>' . chr(10);
+$fieldset_content .= '<table class="ui-widget" style="border-collapse:collapse;width:100%"><tbody class="ui-widget-content">' . chr(10);
+$fieldset_content .= '  <tr>' . $list_header . '</tr>' . chr(10);
+$odd = true;
 while (!$query_result->EOF) {
   if (security_check($query_result->fields['security'])) {
 	$folder = ($query_result->fields['doc_type'] == '0') ? true : false;
-	$fieldset_content .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-	$fieldset_content .= '	<td class="dataTableContent" onclick="fetch_doc(' . $query_result->fields['id'] . ')">' . html_icon(get_mime_image($query_result->fields['doc_ext'], $folder), '', 'small') . '</td>' . chr(10);
-	$fieldset_content .= '	<td class="dataTableContent" onclick="fetch_doc(' . $query_result->fields['id'] . ')">' . $query_result->fields['doc_title'] . '</td>' . chr(10);
-	$fieldset_content .= '	<td class="dataTableContent" align="right"> ' . '&nbsp;' . '</td>' . chr(10); // action space
+	$fieldset_content .= '  <tr class="' . ($odd?'odd':'even') . '" style="cursor:pointer">' . chr(10);
+	$fieldset_content .= '	<td onclick="fetch_doc(' . $query_result->fields['id'] . ')">' . html_icon(get_mime_image($query_result->fields['doc_ext'], $folder), '', 'small') . '</td>' . chr(10);
+	$fieldset_content .= '	<td onclick="fetch_doc(' . $query_result->fields['id'] . ')">' . $query_result->fields['doc_title'] . '</td>' . chr(10);
+	$fieldset_content .= '	<td align="right"> ' . '&nbsp;' . '</td>' . chr(10); // action space
 	$fieldset_content .= '  </tr>' . chr(10);
 	$doc_cnt++;
+	$odd = !$odd;
   }
   $query_result->MoveNext();
 }
 if ($doc_cnt > 0) {
-  $fieldset_content .= '</table>' . chr(10);
-  $fieldset_content .= '<div class="page_count_right">' . $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']) . '</div>' . chr(10);
-  $fieldset_content .= '<div class="page_count">' . $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_FILES) . '</div>' . chr(10);
+  $fieldset_content .= '</tbody></table>' . chr(10);
+  $fieldset_content .= '<div style="float:right">' . $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']) . '</div>' . chr(10);
+  $fieldset_content .= '<div>' . $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_FILES) . '</div>' . chr(10);
 } else {
-  $fieldset_content .= '  <tr class="dataTableRow">' . chr(10);
-  $fieldset_content .= '	<td colspan="3" class="dataTableContent">' . TEXT_EMPTY_FOLDER . '</td>' . chr(10);
+  $fieldset_content .= '  <tr>' . chr(10);
+  $fieldset_content .= '	<td colspan="3">' . TEXT_EMPTY_FOLDER . '</td>' . chr(10);
   $fieldset_content .= '  </tr>' . chr(10);
-  $fieldset_content .= '</table>' . chr(10);
+  $fieldset_content .= '</tbody></table>' . chr(10);
 }
 ?>

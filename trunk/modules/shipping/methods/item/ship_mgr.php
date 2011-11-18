@@ -18,8 +18,9 @@
 //  Path: /modules/shipping/methods/item/ship_mgr.php
 //
 ?>
-<div align="center" class="pageHeading"><?php echo constant('MODULE_SHIPPING_' . strtoupper($method_id) . '_TEXT_TITLE'); ?></div>
-<table width="95%" border="1" cellspacing="1" cellpadding="1">
+<h1><?php echo constant('MODULE_SHIPPING_' . strtoupper($method_id) . '_TEXT_TITLE'); ?></h1>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
   <tr>
     <th colspan="8"><?php echo SHIPPING_ITEM_SHIPMENTS_ON . gen_locale_date($date); ?></th>
   </tr>
@@ -33,21 +34,23 @@
 	<th><?php echo SHIPPING_TEXT_COST; ?></th>
 	<th><?php echo TEXT_ACTION; ?></th>
   </tr>
-	<?php 
+ </thead>
+ <tbody class="ui-widget-content">
+  <?php 
 	$result = $db->Execute("select id, shipment_id, ref_id, method, deliver_date, tracking_id, cost 
 		from " . TABLE_SHIPPING_LOG . " 
 		where carrier = 'item' and ship_date = '" . $date . "'");
 	if ($result->RecordCount() > 0) {
 		while(!$result->EOF) {
 			echo '  <tr>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . $result->fields['shipment_id'] . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . $result->fields['ref_id'] . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="center">' . constant('item_' . $result->fields['method']) . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . gen_locale_date($result->fields['deliver_date']) . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . gen_locale_date($result->fields['actual_date']) . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . $result->fields['tracking_id'] . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">' . $currencies->format_full($result->fields['cost']) . '</td>' . chr(10);
-			echo '    <td class="dataTableContent" align="right">';
+			echo '    <td align="right">' . $result->fields['shipment_id'] . '</td>' . chr(10);
+			echo '    <td align="right">' . $result->fields['ref_id'] . '</td>' . chr(10);
+			echo '    <td align="center">' . constant('item_' . $result->fields['method']) . '</td>' . chr(10);
+			echo '    <td align="right">' . gen_locale_date($result->fields['deliver_date']) . '</td>' . chr(10);
+			echo '    <td align="right">' . gen_locale_date($result->fields['actual_date']) . '</td>' . chr(10);
+			echo '    <td align="right">' . $result->fields['tracking_id'] . '</td>' . chr(10);
+			echo '    <td align="right">' . $currencies->format_full($result->fields['cost']) . '</td>' . chr(10);
+			echo '    <td align="right">';
 	  		echo html_icon('phreebooks/stock_id.png', TEXT_VIEW_SHIP_LOG, 'small', 'onclick="loadPopUp(\'item\', \'edit\', ' . $result->fields['id'] . ')"') . chr(10);
 //	  		echo html_icon('actions/document-print.png', TEXT_PRINT, 'small', 'onclick="window.open(\'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('method', 'labels', 'date')) . 'method=item&date=' . $date . '&labels=' . $result->fields['tracking_id'], 'SSL') . '\',\'label_mgr\',\'width=800,height=700,resizable=1,scrollbars=1,top=50,left=50\')"') . chr(10);
 	  		echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SHIPPING_DELETE_CONFIRM . '\')) window.open(\'index.php?module=shipping&page=popup_label_mgr&method=item&sID=' . $result->fields['shipment_id'] . '&action=delete\',\'popup_label_mgr\',\'width=800,height=700,resizable=1,scrollbars=1,top=50,left=50\')"') . chr(10);
@@ -59,4 +62,5 @@
 		echo '  <tr><td align="center" colspan="8">' . SHIPPING_NO_SHIPMENTS . '</td></tr>';
 	}
 	?>
+ </tbody>
 </table>

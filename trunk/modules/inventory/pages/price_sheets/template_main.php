@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/price_sheets/template_main.php
 //
-// start the form
 echo html_form('pricesheet', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo', '')   . chr(10);
@@ -29,42 +28,39 @@ $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-  foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 // add the help file index and build the toolbar
 $toolbar->add_help('07.04.06');
 if ($search_text) $toolbar->search_text = $search_text;
 echo $toolbar->build_toolbar($add_search = true); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
-<table border="0" width="100%" cellspacing="0" cellpadding="2">
-  <tr class="dataTableHeadingRow"><?php echo $list_header; ?></tr>
-<?php
-while (!$query_result->EOF) {
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
+<table class="ui-widget" style="border-collapse:collapse;width:100%;">
+ <thead class="ui-widget-header">
+  <tr><?php echo $list_header; ?></tr>
+ </thead>
+ <tbody class="ui-widget-content">
+ <?php
+ $odd = true;
+ while (!$query_result->EOF) {
 	$result = $db->Execute("select id from " . TABLE_INVENTORY_SPECIAL_PRICES . " 
 		where price_sheet_id = " . $query_result->fields['id']);
 	$special_price = ($result->RecordCount() > 0) ? TEXT_YES : '';
 ?>
-  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $query_result->fields['sheet_name']; ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo ($query_result->fields['inactive'] == '1' ? TEXT_YES : ''); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $query_result->fields['revision']; ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo ($query_result->fields['default_sheet'] == '1' ? TEXT_YES : ''); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo gen_locale_date($query_result->fields['effective_date']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo gen_locale_date($query_result->fields['expiration_date']); ?></td>
-	<td class="dataTableContent" align="center" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $special_price; ?></td>
-	<td class="dataTableContent" align="right">
+  <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $query_result->fields['sheet_name']; ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo ($query_result->fields['inactive'] == '1' ? TEXT_YES : ''); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $query_result->fields['revision']; ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo ($query_result->fields['default_sheet'] == '1' ? TEXT_YES : ''); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo gen_locale_date($query_result->fields['effective_date']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo gen_locale_date($query_result->fields['expiration_date']); ?></td>
+	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo $special_price; ?></td>
+	<td align="right">
 <?php 
-// build the action toolbar
-	// first pull in any extra buttons, this is dynamic since each row can have different buttons
 	if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
-
 	if ($query_result->fields['revision'] == $rev_levels[$query_result->fields['sheet_name']]) {
 		if ($security_level > 1) echo html_button_field('revise_' . $query_result->fields['id'], TEXT_REVISE, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action', 'list', 'psID')) . 'list=' . $_GET['list'] . '&amp;action=revise&amp;psID=' . $query_result->fields['id']) . '\'"', 'SSL');
 	}
@@ -75,11 +71,12 @@ while (!$query_result->EOF) {
   </tr>
 <?php
   $query_result->MoveNext();
+  $odd = !$odd;
 }
 ?>
+</tbody>
 </table>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
-
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
 <?php echo html_button_field('prices', TEXT_BULK_EDIT, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=bulk_prices', 'SSL') . '\'"'); ?>
 </form>

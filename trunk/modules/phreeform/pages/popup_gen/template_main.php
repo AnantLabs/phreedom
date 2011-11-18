@@ -17,14 +17,10 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/pages/popup_gen/template_filter.php
 //
-
-// start the form
 echo html_form('popup_gen', FILENAME_DEFAULT, gen_get_all_get_params(array('action', 'gID')));
-
 // include hidden fields
 echo html_hidden_field('todo',  '') . chr(10);
 echo html_hidden_field('title', $report->title) . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="self.close()"';
 $toolbar->icon_list['open']['show']     = false;
@@ -47,25 +43,32 @@ if ($report->reporttype == 'rpt') {
 $toolbar->add_help('11.02');
 echo $toolbar->build_toolbar();
 ?>
-
 <!-- start the tabsets -->
 <?php if (sizeof($r_list) > 1) { ?>
-  <div class="pageHeading"><?php echo PHREEFORM_GROUP . $title; ?></div>
+  <h1><?php echo PHREEFORM_GROUP . $title; ?></h1>
 <?php } else { ?>
-  <div class="pageHeading"><?php echo ($report->reporttype == 'frm' ? TEXT_FORM : TEXT_REPORT) . ': ' . ($report->title); ?></div>
+  <h1><?php echo ($report->reporttype == 'frm' ? TEXT_FORM : TEXT_REPORT) . ': ' . ($report->title); ?></h1>
 <?php } ?>
 	<div>
-	  <table width="50%" align="center">
+	<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+	 <thead class="ui-widget-header">
 		<tr><th colspan="3"><?php echo TEXT_DELIVERY_METHOD; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	    <tr>
 		  <td align="center"><?php echo TEXT_BROWSER  . html_radio_field('delivery_method', 'I', ($delivery_method == 'I') ? true : false, '', 'onclick="hideEmail();"', false); ?></td>
 		  <td align="center"><?php echo TEXT_DOWNLOAD . html_radio_field('delivery_method', 'D', ($delivery_method == 'D') ? true : false, '', 'onclick="hideEmail();"', false); ?></td>
 		  <td align="center"><?php echo TEXT_EMAIL    . html_radio_field('delivery_method', 'S', ($delivery_method == 'S') ? true : false, '', 'onclick="hideEmail();"', false); ?></td>
 	    </tr>
-	  </table>
+	 </tbody>
+	</table>
 	</div>
 	<div id="rpt_email" style="display:none">
-	  <table align="center" border="0" cellspacing="0" cellpadding="1">
+	  <table class="ui-widget" style="border-style:none;width:100%">
+	   <thead class="ui-widget-header">
+		<tr><th colspan="3"><?php echo TEXT_DELIVERY_METHOD; ?></th></tr>
+	   </thead>
+	   <tbody class="ui-widget-content">
 	    <tr>
 		  <td align="right"><?php echo TEXT_SENDER_NAME; ?></td>
 		  <td><?php echo html_input_field('from_name', $from_name) . ' ' . TEXT_EMAIL . html_input_field('from_email', $from_email, 'size="40"'); ?></td>
@@ -86,6 +89,7 @@ echo $toolbar->build_toolbar();
 		  <td align="right" valign="top"><?php echo TEXT_MESSAGE_BODY; ?></td>
 		  <td><?php echo html_textarea_field('message_body', '60', '8', $message_body); ?></td>
 	    </tr>
+	   </tbody>
 	  </table>
 	</div>
 <?php if (sizeof($r_list) > 1) { ?>
@@ -102,23 +106,18 @@ echo $toolbar->build_toolbar();
     echo html_hidden_field('rID', $rID) . chr(10);
 ?>
 
-<ul class="tabset_tabs">
-<?php // build the tab list's
-  $set_default = false;
-  foreach ($tab_list as $key => $value) {
-  	echo '  <li><a href="#cat_' . $key . '"' . (!$set_default ? ' class="active"' : '') . '>' . $value . '</a></li>' . chr(10);
-	$set_default = true;
-  }
-?>
+<div id="gentabs">
+<ul>
+  <?php foreach ($tab_list as $key => $value) echo add_tab_list('tab_'.$key, $value); ?>
 </ul>
 
-<div id="cat_crit" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_CRITERIA; ?></h2>
+<div id="tab_crit">
 	<div id="rpt_body">
-	  <table align="center" border="1" cellspacing="1" cellpadding="1">
-		<tr>
-		  <th colspan="4"><?php echo TEXT_CRITERIA_SETUP; ?></th>
-		</tr>
+	  <table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
+	   <thead class="ui-widget-header">
+		<tr><th colspan="4"><?php echo TEXT_CRITERIA_SETUP; ?></th></tr>
+	   </thead>
+	   <tbody class="ui-widget-content">
 		<?php if ($report->datelist <> '') { 
 			if ($report->datelist == 'z') { // special case for period pull-down
 				echo '<tr><td>' . TEXT_PERIOD . '</td>';
@@ -126,7 +125,7 @@ echo $toolbar->build_toolbar();
 				echo html_pull_down_menu('period', gen_get_period_pull_down(false), CURRENT_ACCOUNTING_PERIOD);
 				echo '</td></tr>' . chr(10);
 			} else { ?>
-				<tr>
+				<tr  class="ui-widget-header">
 				  <th colspan="2">&nbsp;</th>
 				  <th align="center"><?php echo TEXT_FROM; ?></th>
 				  <th align="center"><?php echo TEXT_TO; ?></th>
@@ -164,7 +163,7 @@ echo $toolbar->build_toolbar();
 		</tr>
 		<?php }
 		if ($report->filterlist <> '') { ?>
-			<tr>
+			<tr  class="ui-widget-header">
 			  <th><?php echo TEXT_FILTER; ?></th>
 			  <th><?php echo TEXT_TYPE; ?></th>
 			  <th><?php echo TEXT_FROM; ?></th>
@@ -195,17 +194,18 @@ echo $toolbar->build_toolbar();
 			  echo '</tr>' . chr(10);
 			}
 		} // end if ($filterlist <> '') ?>
+	   </tbody>
 	  </table>
 	</div>
-</div>
+  </div>
 <?php } ?>
 
 <?php // ********************  end criteria tab, start fields tab ************************** ?>
 <?php if ($report->reporttype == 'rpt') { ?>
-<div id="cat_field" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_FIELDS; ?></h2>
-	<table align="center"><tr><td>
-	  <table id="field_setup" width="100%" cellspacing="0"><thead>
+  <div id="tab_field">
+	<table><tr><td>
+	  <table id="field_setup" class="ui-widget" style="border-collapse:collapse;width:100%">
+	  <thead  class="ui-widget-header">
 		<tr><th id="fieldListHeading" colspan="10"><?php echo TEXT_FIELD_LIST; ?></th></tr>
 		<tr>
 		  <th><?php echo PHREEFORM_TBLFNAME; ?></th>
@@ -219,7 +219,8 @@ echo $toolbar->build_toolbar();
 		  <th><?php echo TEXT_ALIGN; ?></th>
 		  <th><?php echo TEXT_ACTION; ?></th>
 		</tr>
-		</thead><tbody>
+		</thead>
+		<tbody  class="ui-widget-content">
 	<?php for ($i = 0; $i < sizeof($report->fieldlist); $i++) { ?>
 		<tr>
 		  <td nowrap="nowrap"><?php echo html_combo_box('fld_fld[]', CreateSpecialDropDown($report), $report->fieldlist[$i]->fieldname, '', '220px', '', 'fld_combo_' . $i); ?></td>
@@ -239,19 +240,23 @@ echo $toolbar->build_toolbar();
 		  </td>
 		</tr>
 	<?php } ?>
-	  </tbody></table>
+	  </tbody>
+	  </table>
 	</td>
 	<td valign="bottom">
 	<?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'field_setup\', \'add\')"'); ?>
-	</td></tr></table>
-</div>
+	</td></tr>
+	</table>
+  </div>
 <?php } ?>
 <?php // ********************  end fields tab, start page setup tab ************************** ?>
 <?php if ($report->reporttype == 'rpt') { ?>
-<div id="cat_page" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_PAGE_SETUP; ?></h2>
-  <table align="center" border="2" cellspacing="1" cellpadding="1">
-    <tr><th colspan="8"><?php echo PHREEFORM_PGLAYOUT ?></th></tr>
+<div id="tab_page">
+    <table  class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
+	 <thead class="ui-widget-header">
+      <tr><th colspan="8"><?php echo PHREEFORM_PGLAYOUT ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
     <tr>
       <td colspan="4" align="center">
         <?php echo TEXT_PAPER . ' ' . html_pull_down_menu('papersize', gen_build_pull_down($PaperSizes), $report->page->size, 'onchange="calculateWidth()"'); ?>
@@ -261,14 +266,14 @@ echo $toolbar->build_toolbar();
 	  	<?php echo              ' ' . html_radio_field('paperorientation', 'L', ($report->page->orientation == 'L') ? true : false, '', 'onchange="calculateWidth()"') . '  ' . TEXT_LANDSCAPE; ?>
 	  </td>
     </tr>
-    <tr><th colspan="8"><?php echo PHREEFORM_PGMARGIN; ?></th></tr>
+    <tr  class="ui-widget-header"><th colspan="8"><?php echo PHREEFORM_PGMARGIN; ?></th></tr>
     <tr>
       <td colspan="2" align="center"><?php echo TEXT_TOP    . ' ' . html_input_field('margintop',    $report->page->margin->top,    'size="5" maxlength="3"') . ' ' . TEXT_MM; ?></td>
       <td colspan="2" align="center"><?php echo TEXT_BOTTOM . ' ' . html_input_field('marginbottom', $report->page->margin->bottom, 'size="5" maxlength="3"') . ' ' . TEXT_MM; ?></td>
       <td colspan="2" align="center"><?php echo TEXT_LEFT   . ' ' . html_input_field('marginleft',   $report->page->margin->left,   'size="5" maxlength="3" onchange="calculateWidth()"') . ' ' . TEXT_MM; ?></td>
       <td colspan="2" align="center"><?php echo TEXT_RIGHT  . ' ' . html_input_field('marginright',  $report->page->margin->right,  'size="5" maxlength="3" onchange="calculateWidth()"') . ' ' . TEXT_MM; ?></td>
     </tr>
-    <tr><th colspan="8"><?php echo PHREEFORM_PGHEADER; ?></th></tr>
+    <tr class="ui-widget-header"><th colspan="8"><?php echo PHREEFORM_PGHEADER; ?></th></tr>
     <tr>
       <td colspan="3">&nbsp;</td>
       <td align="center"><?php echo TEXT_SHOW; ?></td>
@@ -322,7 +327,9 @@ echo $toolbar->build_toolbar();
       <td align="center"><?php echo html_pull_down_menu('totalscolor', $kFontColors, $report->page->totals->color); ?></td>
       <td align="center"><?php echo html_pull_down_menu('totalsalign', $kFontAlign,  $report->page->totals->align); ?></td>
     </tr>
+  </tbody>
   </table>
-</div>
+  </div>
 <?php } ?>
+</div>
 </form>

@@ -67,7 +67,7 @@ if ($UPC && $inventory->RecordCount() <> 1) { // for UPC codes submitted only, s
   echo createXmlHeader() . xmlEntry('error', ORD_JS_SKU_NOT_UNIQUE) . createXmlFooter();
   die;
 } elseif ($inventory->RecordCount() <> 1) { // need to return something to avoid error in FireFox
-  echo createXmlHeader() . xmlEntry('result', 'Too many hits, exiting!') . createXmlFooter();  
+  echo createXmlHeader() . xmlEntry('result', 'Not enough or too many hits, exiting!') . createXmlFooter();  
   die;
 }
 $iID = $inventory->fields['id']; // set the item id (just in case UPC or sku was the only identifying parameter)
@@ -84,16 +84,20 @@ if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventor
   $result = $db->Execute("select sku, qty from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = '" . $iID . "'");
   $bom    = array();
   while (!$result->EOF) {
-	$sql = "select description_short, item_cost, quantity_on_hand from " . TABLE_INVENTORY . " where sku = '" . $result->fields['sku'] . "'";
+	$sql = "select description_short, inventory_type, item_cost, quantity_on_hand from " . TABLE_INVENTORY . " where sku = '" . $result->fields['sku'] . "'";
 	$sku_cost = $db->Execute($sql);
 	$assy_cost += $result->fields['qty'] * $sku_cost->fields['item_cost'];
-	$branch_qty_in_stock = ($bID) ? strval(load_store_stock($result->fields['sku'], $bID)) : $sku_cost->fields['quantity_on_hand'];
+	if (in_array($sku_cost->fields['inventory_type'], $cog_types)) {
+	  $qty_in_stock = strval(load_store_stock($result->fields['sku'], $bID));
+	} else {
+	  $qty_in_stock = 'NA';
+	}
 	$bom[] = array(
 	  'qty'               => $result->fields['qty'],
 	  'sku'               => $result->fields['sku'],
 	  'description_short' => $sku_cost->fields['description_short'],
 	  'item_cost'         => $sku_cost->fields['item_cost'],
-	  'quantity_on_hand'  => $branch_qty_in_stock,
+	  'quantity_on_hand'  => $qty_in_stock,
 	);
 	$result->MoveNext();
   }
@@ -113,8 +117,8 @@ if ($result->RecordCount() == 0) {
   }
 }
 // load prices
-$sales_price = strval(inv_calculate_sales_price(abs($qty), $iID, $cID));
-//$debug .= ' processing cID = ' . $cID . ' and price = ' . $sales_price . chr(10);
+$sales_price = strval(inv_calculate_sales_price(abs($qty), $iID, $cID, $vendor ? 'v' : 'c'));
+//$debug .= 'journal = ' . $jID . ' and cID = ' . $cID . ' and price = ' . $sales_price . chr(10);
 // load sku stock status and open orders
 $stock_note = array();
 switch($jID) {

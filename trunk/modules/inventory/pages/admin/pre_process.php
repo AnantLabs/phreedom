@@ -40,10 +40,7 @@ $fields   = new fields();
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
-	if ($security_level < 3) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL')); 
-	}
+	validate_security($security_level, 3); // security check
 	// save general tab
 	foreach ($install->keys as $key => $default) {
 	  $field = strtolower($key);
@@ -53,10 +50,7 @@ switch ($action) {
 	$messageStack->add(INVENTORY_CONFIG_SAVED,'success');
     break;
   case 'delete':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  break;
-	}
+	validate_security($security_level, 4); // security check
     $subject = $_POST['subject'];
     $id      = $_POST['rowSeq'];
 	if (!$subject || !$id) break;
@@ -64,10 +58,7 @@ switch ($action) {
 	break;
   case 'inv_hist_test':
   case 'inv_hist_fix':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+	validate_security($security_level, 3); // security check
 	$result = $db->Execute("select sku, qty from " . TABLE_INVENTORY_COGS_OWED);
 	$owed = array();
 	while (!$result->EOF) {
@@ -121,13 +112,10 @@ switch ($action) {
 	  }
 	}
 	if ($cnt == 0) $messageStack->add(INV_TOOLS_IN_BALANCE, 'success');
-	$def_tab = 'tools';
+	$default_tab_id = 'tools';
     break;
   case 'inv_on_order_fix':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	};
+	validate_security($security_level, 3); // security check
     // fetch the inventory items that we track COGS and get qty on SO, PO
 	$cnt = 0;
 	$fix = 0;
@@ -165,39 +153,34 @@ switch ($action) {
 	}
 	$messageStack->Add(sprintf(INV_TOOLS_SO_PO_RESULT, $cnt, $fix),'success');
 	gen_add_audit_log(sprintf(INV_TOOLS_AUTDIT_LOG_SO_PO,  $cnt), 'Fixed: ' . $fix);
-	$def_tab = 'tools';
+	$default_tab_id = 'tools';
     break;
   default:
 }
 
 /*****************   prepare to display templates  *************************/
 $category_array = xtra_field_get_tabs();
-
 // build some general pull down arrays
 $sel_yes_no = array(
  array('id' => '0', 'text' => TEXT_NO),
  array('id' => '1', 'text' => TEXT_YES),
 );
-
 $cost_methods = array(
  array('id' => 'f', 'text' => INV_TEXT_FIFO),
  array('id' => 'l', 'text' => INV_TEXT_LIFO),
  array('id' => 'a', 'text' => INV_TEXT_AVERAGE),
 ); 
-
 $sel_item_cost = array(
  array('id' => '0',  'text' => TEXT_NO),
  array('id' => 'PO', 'text' => TEXT_PURCH_ORDER),
  array('id' => 'PR', 'text' => TEXT_PURCHASE),
 ); 
-
 $sel_sales_tax = ord_calculate_tax_drop_down('c');
 $sel_purch_tax = ord_calculate_tax_drop_down('v');
-
 // some pre-defined gl accounts
 $cog_chart = gen_coa_pull_down(2, false, true, false, $restrict_types = array(32)); // cogs types only
 $inc_chart = gen_coa_pull_down(2, false, true, false, $restrict_types = array(30)); // income types only
-$inv_chart = gen_coa_pull_down(2, false, true, false, $restrict_types = array(4,34)); // inv, expenses types only
+$inv_chart = gen_coa_pull_down(2, false, true, false, $restrict_types = array(4, 34)); // inv, expenses types only
 
 $include_header   = true;
 $include_footer   = true;

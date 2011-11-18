@@ -21,125 +21,99 @@ $security_level = validate_user(SECURITY_ID_ADJUST_INVENTORY);
 /**************  include page specific files    *********************/
 gen_pull_language('phreebooks');
 require_once(DIR_FS_WORKING . 'defaults.php');
-require_once(DIR_FS_WORKING . 'functions/inventory.php');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
-
 /**************   page specific initialization  *************************/
 define('JOURNAL_ID',16);	// Adjustment Journal
 define('GL_TYPE', '');
-
+$action              = isset($_GET['action'])    ? $_GET['action']    : $_POST['todo'];
+$post_date           = isset($_POST['post_date'])? gen_db_date($_POST['post_date']) : date('Y-m-d');
+$error               = false;
 $glEntry             = new journal();
-$glEntry->id         = ($_POST['id'] <> '') ? $_POST['id'] : '';
+$glEntry->id         = isset($_POST['id'])       ? $_POST['id']       : '';
 $glEntry->journal_id = JOURNAL_ID;
 $glEntry->store_id   = isset($_POST['store_id']) ? $_POST['store_id'] : 0;
-$action              = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/adjustments/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
-    // security check
-	if ($security_level < 2) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-		break;
-	}
+	validate_security($security_level, 2); // security check
 	// retrieve and clean input values
-	$glEntry->post_date           = gen_db_date($_POST['post_date']);
+	$glEntry->post_date           = $post_date;
+	$glEntry->period              = gen_calculate_period($post_date);
 	$glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
 	$glEntry->admin_id            = $_SESSION['admin_id'];
-	$sku                          = db_prepare_input($_POST['sku_1']);
-	$qty                          = db_prepare_input($_POST['adj_qty']);
-	$serialize_number             = db_prepare_input($_POST['serial_1']);
-	$desc                         = db_prepare_input($_POST['desc_1']);
-	$acct                         = db_prepare_input($_POST['acct_1']);
+	$glEntry->closed              = '1'; // closes by default
+	$glEntry->closed_date         = $post_date;
+	$glEntry->currencies_code     = DEFAULT_CURRENCY;
+	$glEntry->currencies_value    = 1;
 	$adj_reason                   = db_prepare_input($_POST['adj_reason']);
-	$price                        = $currencies->clean_value($_POST['price_1']);
-
-	// check for errors and prepare extra values
-	$glEntry->period              = gen_calculate_period($glEntry->post_date);
-	if (!$glEntry->period) break;
-
-	$temp = inv_sku_inv_accounts($sku);
-	$sku_inv_acct = $temp['inventory_wage'];
-	if (!$sku_inv_acct) {
-		$messageStack->add(INV_ERROR_SKU_INVALID, 'error');
-		break;
-	}
-
-	// process the request
-	$glEntry->closed             = '1'; // closes by default
-	$glEntry->journal_main_array = $glEntry->build_journal_main_array();
-
+	$adj_account                  = db_prepare_input($_POST['gl_acct']);
+ 	// process the request
+	$glEntry->journal_main_array  = $glEntry->build_journal_main_array();
 	// build journal entry based on adding or subtracting from inventory
-	if ($qty < 0) { // removing from inventory (loss, damage, etc.)
+	$rowCnt    = 1;
+	$adj_total = 0;
+	$adj_lines = 0;
+	while (true) {
+	  if (!isset($_POST['sku_'.$rowCnt])) break;
+	  $sku              = db_prepare_input($_POST['sku_'.$rowCnt]);
+	  $qty              = db_prepare_input($_POST['qty_'.$rowCnt]);
+	  $serialize_number = db_prepare_input($_POST['serial_'.$rowCnt]);
+	  $desc             = db_prepare_input($_POST['desc_'.$rowCnt]);
+	  $acct             = db_prepare_input($_POST['acct_'.$rowCnt]);
+	  $price            = $currencies->clean_value($_POST['price_'.$rowCnt]);
+	  if ($qty > 0) $adj_total += $qty * $price;
+	  if ($qty && $sku <> '' && $sku <> TEXT_SEARCH) {
+	    $glEntry->journal_rows[] = array(
+		  'sku'              => $sku,
+		  'qty'              => $qty,
+		  'gl_type'          => 'adj',
+		  'serialize_number' => $serialize_number,
+		  'gl_account'       => $acct,
+		  'description'      => $desc,
+		  'credit_amount'    => 0,
+		  'debit_amount'     => $qty > 0 ? $qty * $price : 0,
+		  'post_date'        => $post_date,
+	    );
+		$adj_lines++;
+	  }
+	  $rowCnt++;
+	}
+	if ($adj_lines > 0) {
+	  $glEntry->journal_main_array['total_amount'] = $adj_total;
 	  $glEntry->journal_rows[] = array(
-		'sku'              => $sku,
-		'qty'              => $qty,
-		'gl_type'          => 'adj',
-		'serialize_number' => $serialize_number,
-		'gl_account'       => $sku_inv_acct,
-		'description'      => $desc,
-		'credit_amount'    => '',
-	  );
-	  $glEntry->journal_rows[] = array(
-		'sku'              => '',
-		'qty'              => '',
-		'gl_type'          => 'ttl',
-		'gl_account'       => $acct,
-		'description'      => $adj_reason,
-		'debit_amount'     => '',
-	  );
-	} elseif ($qty > 0) { // adding to inventory (treat like purchase/receive)
-	  $tot_amount = $qty * $price;
-	  $glEntry->journal_main_array['total_amount'] = $tot_amount;
-	  $glEntry->journal_rows[] = array(
-		'sku'              => $sku,
-		'qty'              => $qty,
-		'gl_type'          => 'adj',
-		'serialize_number' => $serialize_number,
-		'gl_account'       => $sku_inv_acct,
-		'description'      => $desc,
-		'debit_amount'     => $tot_amount,
-	  );
-	  $glEntry->journal_rows[] = array(
-		'sku'              => '',
-		'qty'              => '',
-		'gl_type'          => 'ttl',
-		'gl_account'       => $acct,
-		'description'      => $adj_reason,
-		'credit_amount'    => $tot_amount,
-	  );
+	    'sku'           => '',
+	    'qty'           => '',
+	    'gl_type'       => 'ttl',
+	    'gl_account'    => $adj_account,
+	    'description'   => $adj_reason,
+	    'debit_amount'  => 0,
+	    'credit_amount' => $adj_total,
+		'post_date'     => $post_date,
+      );
+	  // *************** START TRANSACTION *************************
+	  $db->transStart();
+	  $glEntry->override_cogs_acct = $adj_account; // force cogs account to be users specified account versus default inventory account
+	  if ($glEntry->Post($glEntry->id ? 'edit' : 'insert')) {
+	    $db->transCommit();	// post the chart of account values
+	    gen_add_audit_log(INV_LOG_ADJ . ($action=='save' ? TEXT_SAVE : TEXT_EDIT), $sku, $qty);
+	    $messageStack->add_session(INV_POST_SUCCESS . $glEntry->purchase_invoice_id, 'success');
+	    if (DEBUG) $messageStack->write_debug();
+	    gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+	  }
+	  // *************** END TRANSACTION *************************
 	} else {
-	  die('Cannot adjust inventory with a zero quantity'); // This is tested in javascript, should not happen
+	  $messageStack->add(INV_ADJ_QTY_ZERO, 'error');
 	}
-	// *************** START TRANSACTION *************************
-	$db->transStart();
-	$glEntry->override_cogs_acct = $acct; // force cogs account to be users specified account versus default inventory account
-	if ($glEntry->Post($glEntry->id ? 'edit' : 'insert')) {
-		$db->transCommit();	// post the chart of account values
-		gen_add_audit_log(INV_LOG_ADJ . ($action=='save' ? TEXT_SAVE : TEXT_EDIT), $sku, $qty);
-		$messageStack->add_session(INV_POST_SUCCESS . $glEntry->purchase_invoice_id, 'success');
-		if (DEBUG) $messageStack->write_debug();
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-		// *************** END TRANSACTION *************************
-	}
-	$messageStack->add(GL_ERROR_NO_POST, 'error');
+	$error = $messageStack->add(GL_ERROR_NO_POST, 'error');
 	$cInfo = new objectInfo($_POST);
 	break;
 
   case 'delete':
-    // security check
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
-	// process the request
+	validate_security($security_level, 4); // security check
 	if ($glEntry->id) {
 	  $delOrd = new journal();
 	  $delOrd->journal($glEntry->id); // load the posted record based on the id submitted
@@ -153,39 +127,28 @@ switch ($action) {
 		break;
 	  }
 	}
-	$messageStack->add(GL_ERROR_NO_DELETE, 'error');
+	$error = $messageStack->add(GL_ERROR_NO_DELETE, 'error');
 	$cInfo = new objectInfo($_POST);
 	break;
 
   case 'edit':
+	validate_security($security_level, 2); // security check
     $oID = (int)$_GET['oID'];
-    // security check
-	if ($security_level < 2) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
-	$cInfo = new objectInfo(array());
-	$cInfo->acct_1 = INV_STOCK_DEFAULT_COS;
-	break;
-
+	// fall through like default
   default:
-	$cInfo = new objectInfo(array());
-	$cInfo->acct_1 = INV_STOCK_DEFAULT_COS;
+	$cInfo = new objectInfo();
+	$cInfo->gl_acct = INV_STOCK_DEFAULT_COS;
+	break;
 }
-
 /*****************   prepare to display templates  *************************/
-// load gl accounts
-$gl_array_list = gen_coa_pull_down();
-
+$gl_array_list = gen_coa_pull_down(); // load gl accounts
 $cal_adj = array(
   'name'      => 'dateReference',
   'form'      => 'inv_adj',
   'fieldname' => 'post_date',
   'imagename' => 'btn_date_1',
-  'default'   => isset($cInfo->post_date) ? gen_locale_date($cInfo->post_date) : date(DATE_FORMAT),
+  'default'   => gen_locale_date($post_date),
 );
-
 $include_header   = true;
 $include_footer   = true;
 $include_calendar = true;

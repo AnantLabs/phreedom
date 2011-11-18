@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/popup_price_mgr/template_main.php
 //
-// start the form
 echo html_form('price_mgr', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo',   '') . chr(10);
@@ -28,17 +27,14 @@ $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['params']   = 'onclick="submitToDo(\'save\')"';
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-  foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.04.06');
 echo $toolbar->build_toolbar(); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-<table cellspacing="2" cellpadding="2">
+<h1><?php echo PAGE_TITLE; ?></h1>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <tbody class="ui-widget-content">
   <tr>
 	<td nowrap="nowrap"><?php echo TEXT_SKU . ': '; ?></td>
 	<td nowrap="nowrap"><?php echo $inventory_details->fields['sku']; ?></td>
@@ -74,45 +70,48 @@ echo $toolbar->build_toolbar();
 	<td nowrap="nowrap">&nbsp;</td>
 	<td nowrap="nowrap">&nbsp;</td>
   </tr>
+ </tbody>
 </table>
 
 <?php
   if ($price_sheets->RecordCount() > 0) {
 	if (ENABLE_MULTI_CURRENCY) echo '<p class="fieldRequired"> ' . sprintf(GEN_PRICE_SHEET_CURRENCY_NOTE, $currencies->currencies[DEFAULT_CURRENCY]['title']) . '</p>';
-	echo '<ul class="tabset_tabs">' . chr(10);
+	echo '<div id="pricetabs"><ul>' . chr(10);
 	$j=1;
 	while (!$price_sheets->EOF) {
-	  echo '<li><a href="#tab_' . $price_sheets->fields['id'] . '"' . ($j==1 ? ' class="active"' : '') . '>' . $price_sheets->fields['sheet_name'] . ' (Rev. ' . $price_sheets->fields['revision'] . ')</a></li>' . chr(10);
+	  echo add_tab_list('tab_'.$price_sheets->fields['id'], $price_sheets->fields['sheet_name'] . ' (Rev. ' . $price_sheets->fields['revision'] . ')');
 	  $price_sheets->MoveNext();
 	  $j++;
 	}
 	$price_sheets->Move(0);
 	$price_sheets->MoveNext();
 	echo '</ul>' . chr(10);
-
 	$m = 1;
 	while (!$price_sheets->EOF) { ?>
 	  <!-- start the tabsets -->
-	  <div id="<?php echo 'tab_' . $price_sheets->fields['id'];?>" class="tabset_content">
-	    <h2 class="tabset_label"><?php echo $price_sheets->fields['sheet_name']; ?></h2>
+	  <div id="tab_<?php echo $price_sheets->fields['id']; ?>">
 <?php
 		$checked = isset($special_prices[$price_sheets->fields['id']]) ? false : true;
 		echo html_checkbox_field('def_' . $m, '1', $checked, '', $parameters = '') . '&nbsp;' . TEXT_USE_DEFAULT_PRICE_SHEET . '<br />';
-		echo html_hidden_field('id_' . $m, $price_sheets->fields['id']);
+		echo html_hidden_field('id_' . $m, $price_sheets->fields['id']) . chr(10);
+		echo html_hidden_field('sheet_name_'.$m, $price_sheets->fields['sheet_name']) . chr(10);
 ?>
-		<table width="90%"  border="1" cellspacing="1" cellpadding="1">
+		<table class="ui-widget" style="border-collapse:collapse;width:100%">
+		 <thead class="ui-widget-header">
 		  <tr>
-			<td align="center"><?php echo TEXT_LEVEL; ?></td>
-			<td align="center"><?php echo TEXT_QUANTITY; ?></td>
-			<td align="center"><?php echo TEXT_SOURCE; ?></td>
-			<td align="center"><?php echo TEXT_ADJUSTMENT; ?></td>
-			<td align="center"><?php echo INV_ADJ_VALUE; ?></td>
-			<td align="center"><?php echo INV_ROUNDING; ?></td>
-			<td align="center"><?php echo INV_RND_VALUE; ?></td>
-			<td align="center"><?php echo TEXT_PRICE; ?></td>
-			<td align="center"><?php echo TEXT_MARGIN; ?></td>
+			<th align="center"><?php echo TEXT_LEVEL; ?></th>
+			<th align="center"><?php echo TEXT_QUANTITY; ?></th>
+			<th align="center"><?php echo TEXT_SOURCE; ?></th>
+			<th align="center"><?php echo TEXT_ADJUSTMENT; ?></th>
+			<th align="center"><?php echo INV_ADJ_VALUE; ?></th>
+			<th align="center"><?php echo INV_ROUNDING; ?></th>
+			<th align="center"><?php echo INV_RND_VALUE; ?></th>
+			<th align="center"><?php echo TEXT_PRICE; ?></th>
+			<th align="center"><?php echo TEXT_MARGIN; ?></th>
 		  </tr>
-<?php
+		 </thead>
+		 <tbody class="ui-widget-content">
+		  <?php
 		$levels = isset($special_prices[$price_sheets->fields['id']]) ? $special_prices[$price_sheets->fields['id']] : $price_sheets->fields['default_levels'];
 		$price_levels = explode(';', $levels);
 		// remove the first and last element from the price level source array (not used and Level 1 price source)
@@ -143,15 +142,17 @@ echo $toolbar->build_toolbar();
 			echo '</tr>' . chr(10);
 		}
 ?>
+		 </tbody>
 		</table>
-	</div>
-	<!-- end of tabsets -->
+	  </div>
+	  <!-- end of tabsets -->
 <?php 
-	$price_sheets->MoveNext();
-	$m++;
-  } 
-} else {
-  echo '<p><div align="center"><h3>' . INV_NO_PRICE_SHEETS . '</h3></div></p>';
-} // end ($price_sheets->RecordCount() > 0) 
+	  $price_sheets->MoveNext();
+	  $m++;
+    }
+    echo '</div>' . chr(10);
+  } else {
+    echo '<p><div align="center"><h3>' . INV_NO_PRICE_SHEETS . '</h3></div></p>';
+  } // end ($price_sheets->RecordCount() > 0) 
 ?>
 </form>

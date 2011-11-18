@@ -39,12 +39,7 @@ if (file_exists($custom_path)) { include($custom_path); }
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
-    // security check
-	if ($security_level < 2) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
+	validate_security($security_level, 2); // security check
 	// retrieve and clean input values
 	$glEntry->admin_id            = $_SESSION['admin_id'];
 	$glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
@@ -60,18 +55,9 @@ switch ($action) {
 	$result = $db->Execute("select account_inventory_wage, quantity_on_hand 
 	  from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
 	$sku_inv_acct = $result->fields['account_inventory_wage'];
-	if (!$result->RecordCount()) {
-	  $error = true;
-	  $messageStack->add(INV_ERROR_SKU_INVALID, 'error');
-	}
-	if ($qty < 0 && ($result->fields['quantity_on_hand'] + $qty) < 0 ) {
-	  $error = true;
-	  $messageStack->add(INV_ERROR_NEGATIVE_BALANCE, 'error');
-	}
-	if (!$qty) { // this is tested in javascript, should never happen
-	  $error = true;
-	  $messageStack->add(JS_ASSY_VALUE_ZERO, 'error');
-	}
+	if (!$result->RecordCount()) $error = $messageStack->add(INV_ERROR_SKU_INVALID, 'error');
+	if ($qty < 0 && ($result->fields['quantity_on_hand'] + $qty) < 0 ) $error = $messageStack->add(INV_ERROR_NEGATIVE_BALANCE, 'error');
+	if (!$qty) $error = $messageStack->add(JS_ASSY_VALUE_ZERO, 'error');
 	// finished checking errors, reload if any errors found
 	if ($error) {
 	  $cInfo = new objectInfo($_POST);
@@ -99,21 +85,12 @@ switch ($action) {
 	  gen_add_audit_log(INV_LOG_ASSY . ($action=='save' ? TEXT_SAVE : TEXT_EDIT), $sku, $qty);
 	  $messageStack->add_session(INV_POST_ASSEMBLY_SUCCESS . $sku, 'success');
 	  if (DEBUG) $messageStack->write_debug();
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+//	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	  // *************** END TRANSACTION *************************
 	}
 	break;
-
   case 'delete':
-    // security check
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
-	// Error check to see if we can delete this record
-	// NOTE: Nothing to check at this time
-	// process the request
+	validate_security($security_level, 4); // security check
 	if (!$error && $glEntry->id) {
 	  $delAssy = new journal($glEntry->id); // load the posted record based on the id submitted
 	  // *************** START TRANSACTION *************************
@@ -130,21 +107,13 @@ switch ($action) {
 	$messageStack->add(GL_ERROR_NO_DELETE, 'error');
 	$cInfo = new objectInfo($_POST);
 	break;
-
   case 'edit':
+	validate_security($security_level, 2); // security check
     $oID = (int)$_GET['oID'];
-    // security check
-	if ($security_level < 2) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
 	$cInfo = new objectInfo(array());
     break;
-
   default:
 }
-
 /*****************   prepare to display templates  *************************/
 $cal_assy = array(
   'name'      => 'datePost',
@@ -153,7 +122,6 @@ $cal_assy = array(
   'imagename' => 'btn_date_1',
   'default'   => isset($glEntry->post_date) ? gen_locale_date($glEntry->post_date) : date(DATE_FORMAT),
 );
-
 $include_header   = true;
 $include_footer   = true;
 $include_tabs     = false;

@@ -96,47 +96,39 @@ class chart_of_accounts {
 
   function build_main_html() {
   	global $db, $messageStack;
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-	$heading_array = array(
-		'id'           => GL_HEADING_ACCOUNT_NAME,
-		'description'  => TEXT_ACCT_DESCRIPTION,
-		'account_type' => GL_INFO_ACCOUNT_TYPE,
-		'subaccount'   => GL_HEADING_SUBACCOUNT,
+    $content = array();
+	$content['thead'] = array(
+	  'value'  => array(GL_HEADING_ACCOUNT_NAME, TEXT_ACCT_DESCRIPTION, GL_INFO_ACCOUNT_TYPE, GL_HEADING_SUBACCOUNT, TEXT_ACTION),
+	  'params' => 'width="100%" cellspacing="0" cellpadding="1"',
 	);
-	$result     = html_heading_bar($heading_array, $_GET['list_order']);
-	$output    .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output    .= '  </tr>' . chr(10);
-	// Build field data
-    $query_raw = "select id, description, heading_only, primary_acct_id, account_type, account_inactive 
-		from " . $this->db_table . " order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $result = $db->Execute($query_raw);
-    while (!$result->EOF) {
-	  $bkgnd = ($result->fields['account_inactive']) ? 'style="background-color:pink"' : '';
+    $result = $db->Execute("select id, description, heading_only, primary_acct_id, account_type, account_inactive from " . $this->db_table);
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $bkgnd = ($result->fields['account_inactive']) ? 'class="ui-state-error" ' : '';
 	  $account_type_desc = constant('COA_' . str_pad($result->fields['account_type'], 2, "0", STR_PAD_LEFT) . '_DESC');
       if ($result->fields['heading_only']) {
 	    $account_type_desc = TEXT_HEADING;
-		$bkgnd = 'style="background-color:#cccccc"';
+		$bkgnd = 'class="ui-state-active" ';
 	  }
-	  $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      $output .= '    <td class="dataTableContent" ' . $bkgnd . ' onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')">' . $result->fields['id'] . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" ' . $bkgnd . ' onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')">' . htmlspecialchars($result->fields['description']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" ' . $bkgnd . ' onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')">' . $account_type_desc . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" ' . $bkgnd . ' onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')">' . htmlspecialchars($result->fields['primary_acct_id'] ? TEXT_YES . ' - ' . $result->fields['primary_acct_id'] : TEXT_NO) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($this->security_id > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')"') . chr(10);
-	  if ($this->security_id > 3) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . GL_INFO_DELETE_INTRO . '\')) subjectDelete(\'chart_of_accounts\', ' . $result->fields['id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
+	  $actions = '';
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'chart_of_accounts_edit\', \'' . $result->fields['id'] . '\')"') . "\n";
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . GL_INFO_DELETE_INTRO . '\')) subjectDelete(\'chart_of_accounts\', ' . $result->fields['id'] . ')"') . "\n";
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => htmlspecialchars($result->fields['id']),
+			  'params'=> $bkgnd.'style="cursor:pointer" onclick="loadPopUp(\'chart_of_accounts_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => htmlspecialchars($result->fields['description']), 
+			  'params'=> $bkgnd.'style="cursor:pointer" onclick="loadPopUp(\'chart_of_accounts_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => htmlspecialchars($account_type_desc),
+			  'params'=> $bkgnd.'style="cursor:pointer" onclick="loadPopUp(\'chart_of_accounts_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['primary_acct_id'] ? TEXT_YES . ' - ' . htmlspecialchars($result->fields['primary_acct_id']) : TEXT_NO,
+			  'params'=> $bkgnd.'style="cursor:pointer" onclick="loadPopUp(\'chart_of_accounts_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> $bkgnd.'align="right"'),
+	  );
       $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'chart_of_accounts_list', 'chart_of_accounts') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], GL_DISPLAY_NUMBER_OF_COA) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('coa_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -148,38 +140,42 @@ class chart_of_accounts {
 	} else {
       $cInfo = new objectInfo($result->fields);
 	}
-	$output  = '<table border="0" width="100%" cellspacing="2" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow">' . chr(10);
-	$output .= '    <th colspan="2">' . (!$result->fields['id'] ? GL_INFO_NEW_ACCOUNT : GL_INFO_EDIT_ACCOUNT) . '</th>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td colspan="2">' . (!$result->fields['id'] ? GL_INFO_INSERT_INTRO : GL_EDIT_INTRO) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . TEXT_GL_ACCOUNT . '</td>' . chr(10);
-	$output .= '    <td>' . (!$result->fields['id'] ? html_input_field('id', $cInfo->id) : $cInfo->id) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . TEXT_ACCT_DESCRIPTION . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('description', $cInfo->description, 'size="48" maxlength="64"') . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . GL_INFO_HEADING_ONLY . '</td>' . chr(10);
-	$output .= '    <td>' . html_checkbox_field('heading_only', '1', $cInfo->heading_only) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . GL_INFO_PRIMARY_ACCT_ID . '</td>' . chr(10);
-	$output .= '    <td>' . html_pull_down_menu('primary_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, true), $cInfo->primary_acct_id) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . GL_INFO_ACCOUNT_TYPE . '</td>' . chr(10);
-	$output .= '    <td>' . html_pull_down_menu('account_type', $coa_types_list, $cInfo->account_type) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
-	$output .= '    <td>' . GL_INFO_ACCOUNT_INACTIVE . '</td>' . chr(10);
-	$output .= '    <td>' . html_checkbox_field('account_inactive', '1', $cInfo->account_inactive ? true : false) . '</td>' . chr(10);
-    $output .= '  </tr>' . chr(10);
-    $output .= '</table>' . chr(10);
+	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . "\n";
+	$output .= '  <thead class="ui-widget-header">' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <th colspan="2">' . (!$result->fields['id'] ? GL_INFO_NEW_ACCOUNT : GL_INFO_EDIT_ACCOUNT) . '</th>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td colspan="2">' . (!$result->fields['id'] ? GL_INFO_INSERT_INTRO : GL_EDIT_INTRO) . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . TEXT_GL_ACCOUNT . '</td>' . "\n";
+	$output .= '    <td>' . (!$result->fields['id'] ? html_input_field('id', $cInfo->id) : $cInfo->id) . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . TEXT_ACCT_DESCRIPTION . '</td>' . "\n";
+	$output .= '    <td>' . html_input_field('description', $cInfo->description, 'size="48" maxlength="64"') . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . GL_INFO_HEADING_ONLY . '</td>' . "\n";
+	$output .= '    <td>' . html_checkbox_field('heading_only', '1', $cInfo->heading_only) . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . GL_INFO_PRIMARY_ACCT_ID . '</td>' . "\n";
+	$output .= '    <td>' . html_pull_down_menu('primary_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, true), $cInfo->primary_acct_id) . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . GL_INFO_ACCOUNT_TYPE . '</td>' . "\n";
+	$output .= '    <td>' . html_pull_down_menu('account_type', $coa_types_list, $cInfo->account_type) . '</td>' . "\n";
+    $output .= '  </tr>' . "\n";
+	$output .= '  <tr>' . "\n";
+	$output .= '    <td>' . GL_INFO_ACCOUNT_INACTIVE . '</td>' . "\n";
+	$output .= '    <td>' . html_checkbox_field('account_inactive', '1', $cInfo->account_inactive ? true : false) . '</td>' . "\n";
+    $output .= '  </tr>'  . "\n";
+	$output .= '  </tbody>' . "\n";
+    $output .= '</table>' . "\n";
     return $output;
   }
 }

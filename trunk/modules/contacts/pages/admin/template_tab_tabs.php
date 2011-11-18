@@ -17,7 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/template_tab_tabs.php
 //
-$tabs_toolbar = new toolbar;
+$tabs_toolbar = new toolbar('tabs');
 $tabs_toolbar->icon_list['cancel']['show'] = false;
 $tabs_toolbar->icon_list['open']['show']   = false;
 $tabs_toolbar->icon_list['save']['show']   = false;
@@ -27,9 +27,8 @@ if ($security_level > 1) $tabs_toolbar->add_icon('new', 'onclick="loadPopUp(\'ta
 if ($tabs->extra_buttons) $tabs->customize_buttons($tabs_toolbar);
 
 ?>
-<div id="tabs" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_EXTRA_TABS; ?></h2>
+<div id="tab_tabs">
   <?php echo $tabs_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $tabs->title; ?></div>
+  <h1><?php echo $tabs->title; ?></h1>
   <div id="tabs_content"><?php echo $tabs->build_main_html(); ?></div>
 </div>

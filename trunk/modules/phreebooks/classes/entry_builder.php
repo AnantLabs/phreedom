@@ -23,6 +23,9 @@ require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 class entry_builder {
   function entry_builder() {
 	$this->discount = 0;
+	$taxes = ord_calculate_tax_drop_down('c');
+	$this->taxes = array();
+	foreach ($taxes as $rate) $this->taxes[$rate['id']] = $rate['rate']/100;
   }
 
   function load_query_results($tableKey = 'id', $tableValue = 0) {
@@ -92,7 +95,8 @@ class entry_builder {
 	$TextField = '';
 	foreach($Params as $Temp) {
 	  $fieldname  = $Temp->fieldname;
-	  $TextField .= AddSep($this->$fieldname, $Temp->processing);
+      $temp = $Temp->formatting ? ProcessData($this->$fieldname, $Temp->formatting) : $this->$fieldname;
+      $TextField .= AddSep($temp, $Temp->processing);
 	}
 	return $TextField;
   }
@@ -146,10 +150,10 @@ class entry_builder {
 	$sql = "select * from " . TABLE_JOURNAL_ITEM . " where ref_id = " . $id;
 	$result = $db->Execute($sql);
 	while (!$result->EOF) {
-	  $index = ($result->fields['so_po_item_ref_id']) ? $result->fields['so_po_item_ref_id'] : $result->fields['id'];
-	  $price = $result->fields['credit_amount'] + $result->fields['debit_amount'];
+	  $index    = ($result->fields['so_po_item_ref_id']) ? $result->fields['so_po_item_ref_id'] : $result->fields['id'];
+	  $price    = $result->fields['credit_amount'] + $result->fields['debit_amount'];
+	  $line_tax = $this->taxes[$result->fields['taxable']];
 	  if ($result->fields['gl_type'] == 'sos' || $result->fields['gl_type'] == 'por') {
-		$this->line_items[$index]['invoice_price']       = $price;
 		$this->line_items[$index]['invoice_full_price']  = $result->fields['full_price'];
 		$this->line_items[$index]['invoice_unit_price']  = ($result->fields['qty']) ? ($price / $result->fields['qty']) : 0;
 		$this->line_items[$index]['invoice_discount']    = ($result->fields['full_price'] == 0) ? 0 : ($result->fields['full_price'] - ($price / $result->fields['qty'])) / $result->fields['full_price'];
@@ -157,9 +161,10 @@ class entry_builder {
 		$this->line_items[$index]['invoice_sku']         = $result->fields['sku'];
 		$this->line_items[$index]['invoice_description'] = $result->fields['description'];
 		$this->line_items[$index]['invoice_serial_num']  = $result->fields['serialize_number'];
-		$this->invoice_subtotal += $price;
-		$backorder = max(0, $this->line_items[$index]['qty_on_backorder'] - $result->fields['qty']);
-		$this->line_items[$index]['qty_on_backorder'] = $backorder;
+		$this->line_items[$index]['qty_on_backorder']    = max(0, $this->line_items[$index]['qty_on_backorder'] - $result->fields['qty']);
+		$this->line_items[$index]['invoice_line_tax']    = $line_tax * $price;
+		$this->line_items[$index]['invoice_price']       = (1 + $line_tax) * $price; // line item price with tax
+		$this->invoice_subtotal += (1 + $line_tax) * $price;
 	  }
 	  if ($result->fields['gl_type'] == 'tax') {
 		$tax_list[] = $result->fields['description'] . ' - ' . $currencies->format_full($price);
@@ -254,7 +259,7 @@ class entry_builder {
 		  $tracking[] = $result->fields['tracking_id'];
 		  $result->MoveNext();
 		}
-	    $this->tracking_id = implode(', ', $tracking);
+	    $this->tracking_id = $this->ship_carrier.' '.$this->ship_service.' # '.implode(', ', $tracking);
 	  }
 	}
   }
@@ -364,6 +369,7 @@ class entry_builder {
 	$output[] = array('id' => 'invoice_unit_price',  'text' => RW_EB_INV_UNIT_PRICE);
 	$output[] = array('id' => 'invoice_discount',    'text' => RW_EB_INV_DISCOUNT);
 	$output[] = array('id' => 'invoice_price',       'text' => RW_EB_INV_PRICE);
+	$output[] = array('id' => 'invoice_line_tax',    'text' => RW_EB_INV_LINE_TAX);
 	$output[] = array('id' => 'invoice_sku',         'text' => RW_EB_INV_SKU);
 	$output[] = array('id' => 'invoice_serial_num',  'text' => RW_EB_INV_SERIAL_NUM);
 	return $output;

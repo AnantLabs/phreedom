@@ -55,7 +55,6 @@ switch ($action) {
 	  $_SESSION['admin_prefs']    = unserialize($result->fields['admin_prefs']);
 	  $_SESSION['company']        = $admin_company;
       $_SESSION['language']       = $admin_language;
-      $_SESSION['theme']          = $admin_theme;
 	  $_SESSION['account_id']     = $result->fields['account_id'];
       $_SESSION['admin_security'] = gen_parse_permissions($result->fields['admin_security']);
 	  // set some cookies for the next visit to remember the company, language, and theme
@@ -83,7 +82,7 @@ switch ($action) {
 	  }
 	  // check safe mode
 	  if (get_cfg_var('safe_mode')) $messageStack->add_session(SAFE_MODE_ERROR, 'error');
-      gen_redirect(html_href_link(FILENAME_DEFAULT, $get_parmas, 'SSL'));
+      gen_redirect(html_href_link(FILENAME_DEFAULT, $get_params, 'SSL'));
     } else {
 	  // Note: This is assigned to admin id = 1 since the user is not logged in.
 	  gen_add_audit_log(GEN_LOG_LOGIN_FAILED . $admin_name);
@@ -218,8 +217,8 @@ if(isset($_COOKIE['pb_company'])) {
   $admin_language = $_COOKIE['pb_language'];
   $admin_theme    = $_COOKIE['pb_theme'];
 } else{
-  $admin_company  = defined(DEFAULT_COMPANY)  ? DEFAULT_COMPANY  : '';
-  $admin_language = defined(DEFAULT_LANGUAGE) ? DEFAULT_LANGUAGE : '';
+  $admin_company  = defined('DEFAULT_COMPANY')  ? DEFAULT_COMPANY  : '';
+  $admin_language = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : '';
   $admin_theme    = 'default';
 }
 

@@ -17,14 +17,16 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/admin/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-
 function init() {
+	$(function() {
+		$('#admintabs').tabs();
+		$('#currency_table').dataTable();
+	});
 }
 
 function check_form() {

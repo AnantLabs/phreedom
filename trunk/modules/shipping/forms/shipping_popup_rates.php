@@ -31,36 +31,38 @@ $toolbar->add_icon('back', 'onclick="submitToDo(\'back\')"', $order = 9);
 $toolbar->add_help('09');
 echo $toolbar->build_toolbar(); 
 ?>
-<div class="pageHeading"><?php echo SHIPPING_POPUP_WINDOW_RATE_TITLE; ?></div>
-<table width="100%" border="0" cellspacing="0" cellpadding="1">
+<h1><?php echo SHIPPING_POPUP_WINDOW_RATE_TITLE; ?></h1>
+<table>
 <?php
 	$temp = $rates['rates'];
 	if (is_array($temp)) {
 		ksort($temp);
 		foreach ($temp as $key => $value) {
 			// build the heading row
-			echo '<tr class="dataTableHeadingRow"><th colspan="6"><div align="center">';
+			echo '<tr><th colspan="6"><div align="center">';
 			echo $shipping_defaults['service_levels'][$key] . '</div></th></tr>' . chr(10);
 			echo '<tr>';
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_CARRIER . '</td>' . chr(10);
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_SERVICE . '</td>' . chr(10);
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_FREIGHT_QUOTE . '</td>' . chr(10);
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_BOOK_PRICE . '</td>' . chr(10);
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_COST . '</td>' . chr(10);
-			echo '<td class="dataTableHeadingContent" align="center">' . SHIPPING_TEXT_NOTES . '</td>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_CARRIER . '</th>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_SERVICE . '</th>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_FREIGHT_QUOTE . '</th>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_BOOK_PRICE . '</th>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_COST . '</th>' . chr(10);
+			echo '<th>' . SHIPPING_TEXT_NOTES . '</th>' . chr(10);
 			echo '</tr>';
+			$odd = true;
 			if (is_array($value)) foreach ($value as $carrier => $prices) {
-				echo '<tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="setReturnRate(\'' . $prices['quote'] . '\', \'' . $carrier . '\', \'' . $key . '\')">' . chr(10);
+				echo '<tr class="' . ($odd?'odd':'even') . '" style="cursor:pointer" onclick="setReturnRate(\'' . $prices['quote'] . '\', \'' . $carrier . '\', \'' . $key . '\')">' . chr(10);
 				if (is_file('shipping/images/' . $carrier . '_logo.gif')) $file_name = 'shipping/images/' . $carrier . '_logo.gif';
 				if (is_file('shipping/images/' . $carrier . '_logo.png')) $file_name = 'shipping/images/' . $carrier . '_logo.png';
 				if (is_file('shipping/images/' . $carrier . '_logo.jpg')) $file_name = 'shipping/images/' . $carrier . '_logo.jgp';
-				echo '<td class="dataTableContent" align="center">' . ($no_image ? $carrier : html_image($file_name, $alt = '', '', '24')) . '</td>' . chr(10);
-				echo '<td class="dataTableContent">' . constant($carrier . '_' . $key) . '</td>' . chr(10);
-				echo '<td class="dataTableContent" align="right">' . $currencies->format($prices['quote']) . '</td>' . chr(10);
-				echo '<td class="dataTableContent" align="right">' . $currencies->format($prices['book']) . '</td>' . chr(10);
-				echo '<td class="dataTableContent" align="right">' . $currencies->format($prices['cost']) . '</td>' . chr(10);
-				echo '<td class="dataTableContent">' . $prices['note'] . '</td>' . chr(10);
+				echo '<td align="center">' . ($no_image ? $carrier : html_image($file_name, $alt = '', '', '24')) . '</td>' . chr(10);
+				echo '<td>' . constant($carrier . '_' . $key) . '</td>' . chr(10);
+				echo '<td align="right">' . $currencies->format($prices['quote']) . '</td>' . chr(10);
+				echo '<td align="right">' . $currencies->format($prices['book']) . '</td>' . chr(10);
+				echo '<td align="right">' . $currencies->format($prices['cost']) . '</td>' . chr(10);
+				echo '<td>' . $prices['note'] . '</td>' . chr(10);
 				echo '</tr>';
+				$odd = !$odd;
 			}
 		}
 	}

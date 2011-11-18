@@ -20,6 +20,7 @@
 $security_level = validate_user(SECURITY_ID_CONFIGURATION);
 /**************  include page specific files    *********************/
 gen_pull_language($module, 'admin');
+gen_pull_language('phreedom', 'admin');
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');
 require_once(DIR_FS_WORKING . 'classes/install.php');
 require_once(DIR_FS_WORKING . 'classes/chart_of_accounts.php');
@@ -106,11 +107,11 @@ switch ($action) {
 	if (!$subject || !$id) break;
     $$subject->btn_delete($id);
     switch($subject) {
-      case 'chart_of_accounts': $def_tab = 'chart_of_accounts'; break;
-      case 'tax_auths':         $def_tab = 'tax_auths';         break;
-      case 'tax_auths_vend':    $def_tab = 'tax_auths_vend';    break;
-      case 'tax_rates':         $def_tab = 'tax_rates';         break;
-      case 'tax_rates_vend':    $def_tab = 'tax_rates_vend';    break;
+      case 'chart_of_accounts': $default_tab_id = 'chart_of_accounts'; break;
+      case 'tax_auths':         $default_tab_id = 'tax_auths';         break;
+      case 'tax_auths_vend':    $default_tab_id = 'tax_auths_vend';    break;
+      case 'tax_rates':         $default_tab_id = 'tax_rates';         break;
+      case 'tax_rates_vend':    $default_tab_id = 'tax_rates_vend';    break;
     }
 	break;
   default:

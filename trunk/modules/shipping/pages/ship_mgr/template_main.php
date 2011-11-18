@@ -17,38 +17,26 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/ship_mgr/template_main.php
 //
-
-// start the form
 echo html_form('ship_mgr', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo',   '')    . chr(10);
 echo html_hidden_field('rowSeq', '')    . chr(10);
 echo html_hidden_field('module_id', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('09');
 echo $toolbar->build_toolbar($add_search = false, false, $cal_ship); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo BOX_SHIPPING_MANAGER; ?></div>
-<div>
-	  <ul class="tabset_tabs">
+<h1><?php echo BOX_SHIPPING_MANAGER; ?></h1>
+<div id="shippingtabs">
+  <ul>
 <?php 
-	$show_active = false;
 	$image_types = array('gif', 'png', 'jpg', 'jpeg');
 	$path = DIR_WS_MODULES . 'shipping/methods/';
 	foreach ($installed_modules as $value) {
@@ -59,17 +47,14 @@ echo $toolbar->build_toolbar($add_search = false, false, $cal_ship);
 		  break;
 		}
 	  }
-	  $active = !$show_active ? ' class="active"' : '';
-	  echo '<li><a href="#' . $value['id'] . '"' . $active . '><img src="' . $image_file . '" alt="' . $value['text'] . '" height="30" hspace="0" vspace="0" border="0" />' .  '</a></li>' . chr(10);
-	  $show_active = true;
+  	  echo add_tab_list('tab_'.$value['id'], html_image($image_file, $value['text'], 0, 30));
 	}
 ?>
-	  </ul>
+  </ul>
 <?php
   foreach ($installed_modules as $value) {
     $method_id = $value['id'];
-	echo '<div id="' . $method_id . '" class="tabset_content">' . chr(10);
-	echo '<h2 class="tabset_label">' . constant('MODULE_SHIPPING_' . strtoupper($method_id) . '_TEXT_TITLE') . '</h2>' . chr(10);
+	echo '<div id="tab_' . $method_id . '">' . chr(10);
 	include_once(DIR_FS_MODULES . 'shipping/methods/' . $method_id . '/ship_mgr.php');
 	echo '</div>' . chr(10);
   }

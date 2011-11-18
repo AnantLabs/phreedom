@@ -27,6 +27,8 @@ var text_sku          = '<?php echo TEXT_SKU; ?>';
 var delete_icon_HTML  = '<?php echo substr(html_icon("emblems/emblem-unreadable.png", TEXT_DELETE, "small", "onclick=\"if (confirm(\'" . INV_MSG_DELETE_INV_ITEM . "\')) removeBOMRow("), 0, -2); ?>';
 // required function called with every page load
 function init() {
+	$(function() { $('#detailtabs').tabs(); });
+	$('#inv_image').dialog({ autoOpen:false, width:800 });
   <?php if ($action <> 'new' && $action <> 'edit') { // set focus for main window
 	echo "  document.getElementById('search_text').focus();";
 	echo "  document.getElementById('search_text').select();";
@@ -83,6 +85,10 @@ function deleteItem(id) {
 	location.href = 'index.php?module=inventory&page=main&action=delete&cID='+id;
 }
 
+function showImage() {
+	$('#inv_image').dialog('open');	
+}
+
 function copyItem(id) {
 	var skuID = prompt('<?php echo INV_MSG_COPY_INTRO; ?>', '');
 	if (skuID) {
@@ -101,13 +107,9 @@ function renameItem(id) {
 	}
 }
 
-function ImgPopup(url) {
-  window.open('index.php?module=inventory&page=popup_image&img='+url,'popupWindow','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=yes,copyhistory=no,width=400,height=400,screenX=150,screenY=150,top=150,left=150')
-}
-
 function priceMgr(id, cost, price, type) {
-  if (!cost)  cost  = document.getElementById('item_cost').value;
-  if (!price) price = document.getElementById('full_price').value;
+  if (!cost)  cost  = cleanCurrency(document.getElementById('item_cost').value);
+  if (!price) price = cleanCurrency(document.getElementById('full_price').value);
   window.open('index.php?module=inventory&page=popup_price_mgr&iID='+id+'&cost='+cost+'&price='+price+'&type='+type,"price_mgr","width=800,height=400,resizable=1,scrollbars=1,top=150,left=200");
 }
 
@@ -140,20 +142,20 @@ function processSkuDetails(sXml) { // call back function
 
 function addBOMRow() {
 	var cell = Array(4);
-	var newRow = document.getElementById("item_table").insertRow(-1);
+	var newRow = document.getElementById("bom_table").insertRow(-1);
 	var newCell;
 	rowCnt = newRow.rowIndex;
 	// NOTE: any change here also need to be made below for reload if action fails
 	cell[0] = '<td align="center">';
 	cell[0] += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'style="cursor:pointer" onclick="if (confirm(\''+image_delete_msg+'\')) removeBOMRow('+rowCnt+');"') + '<\/td>';
-	cell[1] = '<td class="main" align="center">';
+	cell[1] = '<td align="center">';
 	// Hidden fields
 	cell[1] += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="">';
 	// End hidden fields
 	cell[1] += '<input type="text" name="assy_sku[]" id="sku_'+rowCnt+'" value="" size="<?php echo (MAX_INVENTORY_SKU_LENGTH + 1); ?>" maxlength="<?php echo MAX_INVENTORY_SKU_LENGTH; ?>">&nbsp;';
 	cell[1] += buildIcon(icon_path+'16x16/actions/system-search.png', text_sku, 'align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"') + '&nbsp;<\/td>';
-	cell[2] = '<td class="main"><input type="text" name="assy_desc[]" id="desc_'+rowCnt+'" value="" size="64" maxlength="64"><\/td>';
-	cell[3] = '<td class="main"><input type="text" name="assy_qty[]" id="qty_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
+	cell[2] = '<td><input type="text" name="assy_desc[]" id="desc_'+rowCnt+'" value="" size="64" maxlength="64"><\/td>';
+	cell[3] = '<td><input type="text" name="assy_qty[]" id="qty_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
 
 	for (var i=0; i<cell.length; i++) {
 		newCell = newRow.insertCell(-1);
@@ -165,21 +167,21 @@ function addBOMRow() {
 function removeBOMRow(delRowCnt) {
   var acctIndex;
   // remove row from display by reindexing and then deleting last row
-  for (var i = delRowCnt; i < (document.getElementById("item_table").rows.length - 1); i++) {
+  for (var i=delRowCnt; i<(document.getElementById("bom_table").rows.length); i++) {
 	// move the delete icon from the previous row
-	if (document.getElementById("item_table").rows[i+1].cells[0].innerHTML == '&nbsp;') {
-		document.getElementById("item_table").rows[i].cells[0].innerHTML = '&nbsp;';
+	if (document.getElementById("bom_table").rows[i].cells[0].innerHTML == '&nbsp;') {
+		document.getElementById("bom_table").rows[i-1].cells[0].innerHTML = '&nbsp;';
 	} else {
-		document.getElementById("item_table").rows[i].cells[0].innerHTML = delete_icon_HTML + i + ');">';
+		document.getElementById("bom_table").rows[i-1].cells[0].innerHTML = delete_icon_HTML + i + ');">';
 	}
-	document.inventory.elements['qty_'+i].value = document.inventory.elements['qty_'+(i+1)].value;
-	document.inventory.elements['sku_'+i].value = document.inventory.elements['sku_'+(i+1)].value;
+	document.inventory.elements['qty_'+i].value  = document.inventory.elements['qty_'+(i+1)].value;
+	document.inventory.elements['sku_'+i].value  = document.inventory.elements['sku_'+(i+1)].value;
 	document.inventory.elements['desc_'+i].value = document.inventory.elements['desc_'+(i+1)].value;
 // Hidden fields
-	document.inventory.elements['id_'+i].value = document.inventory.elements['id_'+(i+1)].value;
+	document.inventory.elements['id_'+i].value   = document.inventory.elements['id_'+(i+1)].value;
 // End hidden fields
   }
-  document.getElementById("item_table").deleteRow(-1);
+  document.getElementById("bom_table").deleteRow(-1);
 }
 
 function masterStockTitle(id) {

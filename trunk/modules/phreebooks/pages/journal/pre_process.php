@@ -22,26 +22,20 @@ $security_level = validate_user(SECURITY_ID_JOURNAL_ENTRY);
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');
 require_once(DIR_FS_WORKING . 'classes/gen_ledger.php');
-
 /**************   page specific initialization  *************************/
 define('JOURNAL_ID',2);	// General Journal
-$error = false;
-
+$error     = false;
 $post_date = ($_POST['post_date']) ? gen_db_date($_POST['post_date']) : date('Y-m-d', time());
-$period = gen_calculate_period($post_date);
-
-$glEntry = new journal();
+$period    = gen_calculate_period($post_date);
+$glEntry   = new journal();
 $glEntry->id = ($_POST['id'] <> '') ? $_POST['id'] : ''; // will be null unless opening an existing gl entry
 // All general journal entries are in the default currency.
 $glEntry->currencies_code  = DEFAULT_CURRENCY;
 $glEntry->currencies_value = 1;
-
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/journal/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
@@ -269,12 +263,12 @@ switch ($action) {
 /*****************   prepare to display templates  *************************/
 // retrieve the list of gl accounts and fill js arrays
 $gl_array_list = gen_coa_pull_down();
-$result = $db->Execute("select id, description, account_type from " . TABLE_CHART_OF_ACCOUNTS . " order by id");
-$js_gl_array = 'var js_gl_array = new Array(' . $result->RecordCount() . ');' . chr(10);
-for ($i = 0; $i < $result->RecordCount(); $i++) {
-  $is_asset = ($coa_types_list[$result->fields['account_type']]['asset']) ? '1' : '0';
-  $js_gl_array .= 'js_gl_array[' . $i . '] = new glProperties("' . $result->fields['id'] . '", "' . $result->fields['description'] . '", "' . $is_asset . '");' . chr(10);
-  $result->MoveNext();
+$i = 0;
+$js_gl_array = 'var js_gl_array = new Array();' . chr(10);
+foreach ($gl_array_list as $account) {
+  $is_asset = $coa_types_list[$account['type']]['asset'] ? '1' : '0';
+  $js_gl_array .= 'js_gl_array['.$i.'] = new glProperties("'.$account['id'].'", "'.$account['text'].'", "'.$is_asset.'");' . chr(10);
+  $i++;
 }
 
 $cal_gl = array(

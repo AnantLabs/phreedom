@@ -18,8 +18,8 @@
 //  Path: /modules/shipping/methods/fedex_v7/ship_mgr.php
 //
 ?>
-<div align="center" class="pageHeading"><?php echo constant('MODULE_SHIPPING_' . strtoupper($method_id) . '_TEXT_TITLE'); ?></div>
-<table align="center" width="70%">
+<h1><?php echo constant('MODULE_SHIPPING_' . strtoupper($method_id) . '_TEXT_TITLE'); ?></h1>
+<table class="ui-widget" style="border-style:none;width:100%">
   <tr>
 	<td><?php echo html_button_field('ship_'     . $method_id, SHIPPING_SHIP_PACKAGE, 'onclick="window.open(\'index.php?module=shipping&amp;page=popup_label_mgr&amp;method=' . $method_id . '\',\'popup_label_mgr\',\'width=800,height=700,resizable=1,scrollbars=1,top=50,left=50\')"'); ?></td>
 	<td><?php echo html_button_field('ship_log_' . $method_id, SHIPPING_CREATE_ENTRY, 'onclick="window.open(\'index.php?module=shipping&amp;page=popup_tracking&amp;method='  . $method_id . '&amp;action=new\',\'popup_tracking\',\'width=550,height=350,resizable=1,scrollbars=1,top=150,left=200\')"'); ?></td>
@@ -30,7 +30,8 @@
 	</td>
   </tr>
 </table>
-<table width="100%" border="1" cellspacing="1" cellpadding="1">
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
   <tr>
     <th colspan="8"><?php echo SHIPPING_FEDEX_V7_SHIPMENTS_ON . gen_locale_date($date); ?></th>
   </tr>
@@ -44,6 +45,8 @@
 	<th><?php echo SHIPPING_TEXT_COST;          ?></th>
 	<th><?php echo TEXT_ACTION;                 ?></th>
   </tr>
+ </thead>
+ <tbody class="ui-widget-content">
 	<?php 
 	$start_date = date('Y-m-d', strtotime("-1 day"));
 	$end_date   = date('Y-m-d', strtotime("+1 day"));
@@ -51,6 +54,7 @@
 		from " . TABLE_SHIPPING_LOG . " where carrier = '" . $method_id . "' 
 		  and ship_date like '" . $date . "%'");
 	if ($result->RecordCount() > 0) {
+	  $odd = true;
 	  while(!$result->EOF) {
 		switch ($result->fields['deliver_late']) {
 		  default:
@@ -58,15 +62,15 @@
 		  case 'T': $bkgnd = ' style="background-color:yellow"';   break;
 		  case 'L': $bkgnd = ' style="background-color:lightred"'; break;
 		}
-		echo '  <tr>' . chr(10);
-		echo '    <td class="dataTableContent"' . $bkgnd . ' align="center">' . $result->fields['shipment_id'] . '</td>' . chr(10);
-		echo '    <td class="dataTableContent"' . $bkgnd . ' align="center">' . $result->fields['ref_id'] . '</td>' . chr(10);
-		echo '    <td class="dataTableContent" align="center">' . constant($method_id . '_' . $result->fields['method']) . '</td>' . chr(10);
-		echo '    <td class="dataTableContent" align="right">' . ($result->fields['deliver_date'] <> '0000-00-00 00:00:00' ? gen_locale_date($result->fields['deliver_date'], true) : '&nbsp;') . '</td>' . chr(10);
-		echo '    <td class="dataTableContent" align="right">' . ($result->fields['actual_date']  <> '0000-00-00 00:00:00' ? gen_locale_date($result->fields['actual_date'], true)  : '&nbsp;') . '</td>' . chr(10);
-		echo '    <td class="dataTableContent" align="right"><a target="_blank" href="' . FEDEX_V7_TRACKING_URL . $result->fields['tracking_id'] . '">' . $result->fields['tracking_id'] . '</a></td>' . chr(10);
-		echo '    <td class="dataTableContent" align="right">' . $currencies->format_full($result->fields['cost']) . '</td>' . chr(10);
-		echo '    <td class="dataTableContent" align="right" nowrap="nowrap">';
+		echo '  <tr class="'.($odd?'odd':'even').'">' . chr(10);
+		echo '    <td' . $bkgnd . ' align="center">' . $result->fields['shipment_id'] . '</td>' . chr(10);
+		echo '    <td' . $bkgnd . ' align="center">' . $result->fields['ref_id'] . '</td>' . chr(10);
+		echo '    <td align="center">' . constant($method_id . '_' . $result->fields['method']) . '</td>' . chr(10);
+		echo '    <td align="right">' . ($result->fields['deliver_date'] <> '0000-00-00 00:00:00' ? gen_locale_date($result->fields['deliver_date'], true) : '&nbsp;') . '</td>' . chr(10);
+		echo '    <td align="right">' . ($result->fields['actual_date']  <> '0000-00-00 00:00:00' ? gen_locale_date($result->fields['actual_date'], true)  : '&nbsp;') . '</td>' . chr(10);
+		echo '    <td align="right"><a target="_blank" href="' . FEDEX_V7_TRACKING_URL . $result->fields['tracking_id'] . '">' . $result->fields['tracking_id'] . '</a></td>' . chr(10);
+		echo '    <td align="right">' . $currencies->format_full($result->fields['cost']) . '</td>' . chr(10);
+		echo '    <td align="right" nowrap="nowrap">';
 		if ($result->fields['actual_date'] == '0000-00-00 00:00:00') // not tracked yet, show the tracking icon 
 		  echo html_icon('phreebooks/truck-icon.png',   TEXT_TRACK_CONFIRM, 'small', 'onclick="submitShipSequence(\'' . $method_id . '\', ' . $result->fields['id'] . ', \'track\')"') . chr(10);
 		echo html_icon('phreebooks/stock_id.png',       TEXT_VIEW_SHIP_LOG, 'small', 'onclick="loadPopUp(\'' . $method_id . '\', \'edit\', ' . $result->fields['id'] . ')"') . chr(10);
@@ -75,9 +79,11 @@
 		echo '    </td>';
 		echo '  </tr>' . chr(10);
 		$result->MoveNext();
+		$odd = !$odd;
 	  }
 	} else {
 	  echo '  <tr><td align="center" colspan="8">' . SHIPPING_NO_SHIPMENTS . '</td></tr>';
 	}
 	?>
+ </tbody>
 </table>

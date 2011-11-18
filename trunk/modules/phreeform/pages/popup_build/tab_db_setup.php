@@ -19,13 +19,13 @@
 //
 
 ?>
-<div id="pf_db" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_DATABASE_SETUP; ?></h2>
-  <h2 align="center"><?php echo TEXT_DATABASE_SETUP; ?></h2>
-  <table width="60%" align="center">
+<div id="tab_db">
+  <table class="ui-widget" style="border-style:none;width:100%">
+  <tbody class="ui-widget-content">
 	<tr>
 	  <td>
-		<table id="table_setup" width="100%" cellspacing="0" cellpadding="1"><thead>
+		<table id="table_setup" class="ui-widget" style="border-collapse:collapse;width:100%">
+		<thead class="ui-widget-header">
 		<tr>
 		  <th colspan="20"><?php echo TEXT_DATABASE_TABLES; ?></th>
 		</tr>
@@ -35,8 +35,10 @@
 		  <th><?php echo TEXT_TABLE_CRITERIA; ?></th>
 		  <th><?php echo TEXT_ACTION;         ?></th>
 		</tr>
+		</thead>
+		<tbody class="ui-widget-content">
 		<tr>
-		  <th><?php echo '&nbsp;'; ?></th>
+		  <td><?php echo '&nbsp;'; ?></td>
 		  <td><?php 
 		    echo html_pull_down_menu('table[]', $kTables, $report->tables[0]->tablename, 'onchange="fieldLoad()"');
 		    echo html_hidden_field('joinopt[]');
@@ -45,7 +47,6 @@
 		  </td>
 		  <td colspan="2"><?php echo PHREEFORM_SPECIAL_REPORT . ' ' . html_input_field('special_class', $report->special_class); ?></td>
 		</tr>
-		</thead><tbody>
 		<?php for ($i = 1; $i < sizeof($report->tables); $i++) { ?>
 		  <tr>
 			<td><?php echo html_pull_down_menu('joinopt[]', $joinOptions, $report->tables[$i]->joinopt, ''); ?></td>
@@ -59,7 +60,8 @@
 			</td>
 		  </tr>
 		<?php } ?>
-		</tbody></table>
+		</tbody>
+		</table>
 	  </td>
 	  <td valign="bottom"><?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'table_setup\', \'add\')"'); ?></td>
 	</tr>
@@ -69,5 +71,6 @@
 	<tr>
 	  <td colspan="3"><?php echo PHREEFORM_DB_LINK_HELP; ?></td>
 	</tr>
+  </tbody>
   </table>
 </div>

@@ -19,11 +19,10 @@
 //
 
 ?>
-<div id="manager" class="tabset_content">
-  <h2 class="tabset_label"><?php echo BOX_COMPANY_MANAGER; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_manager">
+  <fieldset>
   <legend><?php echo SETUP_CO_MGR_COPY_CO; ?></legend>
-    <table width="600" align="center" border="0" cellspacing="0" cellpadding="2">
+    <table>
 	  <tr>
 	    <td colspan="2" align="right"><?php echo html_button_field('add_button', TEXT_COPY, 'onclick="submitToDo(\'copy_co\')"'); ?></td>
 	  </tr>
@@ -51,7 +50,7 @@
 		<td><?php echo html_input_field('co_name', $co_name, 'size="50"', true); ?></td>
 	  </tr>
 	</table>
-    <table align="center" border="0" cellspacing="0" cellpadding="2">
+    <table>
 	  <tr>
 	    <th colspan="4"><?php echo SETUP_CO_MGR_MOD_SELECT; ?></th>
 	  </tr>
@@ -73,9 +72,9 @@
 <?php } ?>
 	</table>
   </fieldset>
-  <fieldset class="formAreaTitle">
+  <fieldset>
   <legend><?php echo SETUP_CO_MGR_DEL_CO; ?></legend>
-    <table align="center" border="0" cellspacing="2" cellpadding="2">
+    <table>
 	  <tr>
 	    <td colspan="3" style="color:red"><?php echo SETUP_CO_MGR_DELETE_CONFIRM; ?></td>
 	  </tr>

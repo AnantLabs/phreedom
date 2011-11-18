@@ -70,6 +70,8 @@ switch ($action) {
 		  $db->Execute("update " . TABLE_INVENTORY_SPECIAL_PRICES . " set price_levels = '" . $price_levels . "' 
 			where inventory_id = " . $id . " and price_sheet_id = " . $sheet_id);
 		}
+		$inv_price_sheet = ($type == 'v') ? 'price_sheet_v' : 'price_sheet';
+		$db->Execute("update " . TABLE_INVENTORY . " set ". $inv_price_sheet . " = '" . $_POST['sheet_name_'.$tab_id ] . "' where id = " . $id );
 	  }
 	  $tab_id++;
 	}

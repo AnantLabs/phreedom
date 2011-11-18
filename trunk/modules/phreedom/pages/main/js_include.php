@@ -34,11 +34,17 @@ function check_form() {
 }
 
 function box_edit(boxId) {
-  document.getElementById(boxId).className = 'modbox_e';
+  document.getElementById(boxId+'_prop').style.display= '';
+  document.getElementById(boxId+'_hr').style.display  = '';
+  document.getElementById(boxId+'_can').style.display = '';
+  document.getElementById(boxId+'_add').style.display = 'none';
 }
 
 function box_cancel(boxId) {
-  document.getElementById(boxId).className = 'modbox';
+  document.getElementById(boxId+'_prop').style.display= 'none';
+  document.getElementById(boxId+'_hr').style.display  = 'none';
+  document.getElementById(boxId+'_can').style.display = 'none';
+  document.getElementById(boxId+'_add').style.display = '';
 }
 
 var plusSign = new Image(16,16);

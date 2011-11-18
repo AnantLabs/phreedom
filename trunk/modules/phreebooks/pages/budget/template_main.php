@@ -17,13 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/budget/template_main.php
 //
-
-// start the form
 echo html_form('budget', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -35,36 +31,23 @@ $toolbar->add_icon('new',  'onclick="if (confirm(\'' . GL_CLEAR_ACTUAL_CONFIRM .
 $toolbar->icon_list['new']['text']      = TEXT_BUDGET_CLEAR_HINT;
 $toolbar->add_icon('copy', 'onclick="if (confirm(\'' . GL_COPY_ACTUAL_CONFIRM  . '\')) submitToDo(\'copy_fy\')"',  $order = 25);
 $toolbar->icon_list['copy']['text']     = GL_BUDGET_COPY_HINT;
-
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-  foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help();
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo GL_BUDGET_HEADING_TITLE; ?></div>
-  <table width="80%" align="center" border="0" cellspacing="0" cellpadding="2">
-    <tr>
-	  <td colspan="4">
-		<?php echo '<p>' . GL_BUDGET_INTRO_TEXT . '</p>'; ?>
-	  </td>
-	</tr>
-	<tr>
-      <td colspan="2">
-	    <?php echo TEXT_GL_ACCOUNT; ?>
-	    <?php echo html_pull_down_menu('gl_acct', gen_coa_pull_down(), $gl_acct, 'onchange="submit()"'); ?>
-	    <?php echo html_icon('actions/view-refresh.png', TEXT_LOAD_ACCT_PRIOR, 'small', 'onclick="fetchAcct();"'); ?>
-	    <?php echo html_icon('actions/window-new.png', TEXT_CLEAR, 'small', 'onclick="copyBudget(\'clear\');"'); ?>
-	  </td>
-	  <td align="center" colspan="2">
-	    <?php echo GL_FISCAL_YEAR; ?>
-	    <?php echo html_pull_down_menu('fy', get_fiscal_year_pulldown(), $fy, 'onchange="submit()"'); ?>
-	  </td>
-	</tr>
+<h1><?php echo GL_BUDGET_HEADING_TITLE; ?></h1>
+  <div style="text-align:center"><?php echo '<p>' . GL_BUDGET_INTRO_TEXT . '</p>'; ?></div>
+  <div style="text-align:center">
+    <?php echo TEXT_GL_ACCOUNT; ?>
+    <?php echo html_pull_down_menu('gl_acct', gen_coa_pull_down(), $gl_acct, 'onchange="submit()"'); ?>
+    <?php echo html_icon('actions/view-refresh.png', TEXT_LOAD_ACCT_PRIOR, 'small', 'onclick="fetchAcct();"'); ?>
+    <?php echo html_icon('actions/window-new.png', TEXT_CLEAR, 'small', 'onclick="copyBudget(\'clear\');"'); ?>
+    <?php echo GL_FISCAL_YEAR; ?>
+    <?php echo html_pull_down_menu('fy', get_fiscal_year_pulldown(), $fy, 'onchange="submit()"'); ?>
+  </div>
+  <table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto">
+   <thead class="ui-widget-header">
 	<tr>
 	  <th><?php echo TEXT_PERIOD_DATES; ?></th>
 	  <th><?php echo TEXT_PRIOR_FY; ?></th>
@@ -73,6 +56,8 @@ echo $toolbar->build_toolbar();
 	  <th>&nbsp;</th>
 	  <th><?php echo TEXT_NEXT_FY; ?></th>
 	</tr>
+   </thead>
+   <tbody class="ui-widget-content">
 	<?php
 	$i = 0;
 	foreach ($fy_array as $value) { 
@@ -99,5 +84,6 @@ echo $toolbar->build_toolbar();
 	  echo '  <th align="center">' . html_input_field('next', '', 'readonly="readonly" style="text-align:right"') . '</th>' . chr(10);
 	  ?>
 	</tr>
+   </tbody>
   </table>
 </form>

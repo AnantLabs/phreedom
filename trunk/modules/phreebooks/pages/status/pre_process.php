@@ -36,13 +36,15 @@ switch (JOURNAL_ID) {
 }
 $security_level = validate_user($security_token);
 /**************  include page specific files    *********************/
+require(DIR_FS_WORKING . 'defaults.php');
 require(DIR_FS_WORKING . 'functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $list_order  = isset($_GET['list_order']) ? $_GET['list_order']             : 'post_date-desc';
 $acct_period = $_GET['search_period']     ? $_GET['search_period']          : CURRENT_ACCOUNTING_PERIOD;
 $search_text = $_POST['search_text']      ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
-$action      = isset($_GET['action'])     ? $_GET['action']                 : $_POST['todo'];
+if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
 if ($search_text == TEXT_SEARCH)    $search_text = '';
+$action      = isset($_GET['action'])     ? $_GET['action']                 : $_POST['todo'];
 if (!$action && $search_text <> '') $action      = 'search'; // if enter key pressed and search not blank
 $date_today = date('Y-m-d');
 /***************   hook for custom actions  ***************************/

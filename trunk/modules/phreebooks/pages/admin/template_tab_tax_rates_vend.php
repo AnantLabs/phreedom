@@ -26,9 +26,8 @@ $tax_rates_vend_toolbar->icon_list['print']['show']  = false;
 if ($security_level > 1) $tax_rates_vend_toolbar->add_icon('new', 'onclick="loadPopUp(\'tax_rates_vend_new\', 0)"', $order = 10);
 
 ?>
-<div id="tax_rates_vend" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_COUNTRIES_TABS; ?></h2>
+<div id="tab_tax_rates_vend">
   <?php echo $tax_rates_vend_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $tax_rates_vend->title; ?></div>
+  <h1><?php echo $tax_rates_vend->title; ?></h1>
   <div id="tax_rates_vend_content"><?php echo $tax_rates_vend->build_main_html(); ?></div>
 </div>

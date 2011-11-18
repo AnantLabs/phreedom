@@ -85,7 +85,7 @@ function security_check($tokens) {
   return false;
 }
 
-function validate_security($security = 'u:-1;g:-1', $include_all = true) {
+function pf_validate_security($security = 'u:-1;g:-1', $include_all = true) {
 	$types    = explode(';', $security);
 	$settings = array();
 	foreach ($types as $value) {
@@ -123,7 +123,7 @@ function load_recently_added() {
 	  $contents .= TEXT_NO_DOCUMENTS . '<br />';
 	} else {
 	  while (!$result->EOF) {
-	    if (validate_security($result->fields['security'], true)) {
+	    if (pf_validate_security($result->fields['security'], true)) {
 		  $contents .= '  <div>';
 		  $contents .= '    <a href="javascript:fetch_doc(' . $result->fields['id'] . ');">';
 		  $contents .= html_icon('mimetypes/text-x-generic.png', $result->fields['doc_title'], 'small') . ' ';
@@ -146,7 +146,7 @@ function load_my_reports() {
 	  $contents .= TEXT_NO_DOCUMENTS . '<br />';
 	} else {
 	  while (!$result->EOF) {
-		if (validate_security($result->fields['security'], false)) {
+		if (pf_validate_security($result->fields['security'], false)) {
 		  $contents .= '  <div>';
 		  $contents .= '    <a href="javascript:fetch_doc(' . $result->fields['id'] . ');">';
 		  $contents .= html_icon('mimetypes/text-x-generic.png', $result->fields['doc_title'], 'small') . ' ';
@@ -459,7 +459,8 @@ function BuildForm($report, $delivery_method = 'D') { // for forms only
 		}
 		$TextField = '';
 		foreach ($report->fieldlist[$i]->boxfield as $entry) {
-		  $TextField .= AddSep(constant($entry->fieldname), $entry->processing);
+			$temp = $entry->formatting ? ProcessData(constant($entry->fieldname), $entry->formatting) : constant($entry->fieldname);
+			$TextField .= AddSep($temp, $entry->processing);
 		}
 		$report->fieldlist[$i]->text = $TextField;
 	  }
@@ -522,7 +523,8 @@ function BuildPDF($report, $delivery_method = 'D') { // for forms only - PDF sty
 		    $result    = $db->Execute("select " . $strTxtBlk . $TrailingSQL);
 		    $TextField = '';
 		    for ($i = 0; $i < sizeof($field->boxfield); $i++) {
-			  $TextField .= AddSep($result->fields['r' . $i], $field->boxfield[$i]->processing);
+		      $temp = $field->boxfield[$i]->formatting ? ProcessData($result->fields['r'.$i], $field->boxfield[$i]->formatting) : $result->fields['r'.$i];
+		      $TextField .= AddSep($temp, $field->boxfield[$i]->processing);
 		    }
 		  }
 		  $report->fieldlist[$key]->text = $TextField;
@@ -662,7 +664,8 @@ function BuildSeq($report, $delivery_method = 'D') { // for forms only - Sequent
 			$result       = $db->Execute("select " . $strTxtBlk . $TrailingSQL);
 			$TextField    = '';
 			for ($i = 0; $i < sizeof($field->boxfield); $i++) {
-			  $TextField .= AddSep($result->fields['r' . $i], $field->boxfield[$i]->processing);
+		      $temp = $field->boxfield[$i]->formatting ? ProcessData($result->fields['r'.$i], $field->boxfield[$i]->formatting) : $result->fields['r'.$i];
+			  $TextField .= AddSep($temp, $field->boxfield[$i]->processing);
 			}
 		  }
 		  $report->fieldlist[$key]->text = $TextField;
@@ -831,14 +834,14 @@ function build_criteria($report) {
 		break;
 	  case 'YES':
 	  case 'TRUE':
-	  case 'ACTIVE':
+	  case 'INACTIVE':
 	  case 'PRINTED':
-		$sc .= prefixTables($FieldValues->fieldname) . ' = 1';
+		$sc .= prefixTables($FieldValues->fieldname) . ' = \'1\'';
 		$fc .= $FieldValues->description . ' = ' . $FieldValues->default;
 		break;
 	  case 'NO':
 	  case 'FALSE':
-	  case 'INACTIVE':
+	  case 'ACTIVE':
 	  case 'UNPRINTED':
 		$sc .= prefixTables($FieldValues->fieldname) . ' = \'0\'';
 		$fc .= $FieldValues->description . ' = ' . $FieldValues->default;
@@ -936,7 +939,7 @@ function BuildSQL($report) { // for reports only
 	if (!$strCrit &&  $strDate) $sql .= ' WHERE '    . $strDate;
 	if ( $strCrit && !$strDate) $sql .= ' WHERE '    . $strCrit;
 	if ( $strSort)              $sql .= ' ORDER BY ' . $strSort;
-//echo 'sql = '; print_r($sql); echo '<br><br>'; exit;
+//echo 'sql = '; print_r($sql); echo '<br><br>'; exit();
 //echo 'period = '; print_r($report->period); echo '<br><br>';
 	return array(
 	  'level'       => 'success',
@@ -1058,12 +1061,12 @@ function ReplaceNonAllowedCharacters($String) {
 	return $String;
 }
 
-function GeneratePDFFile($Data, $report, $delivery_method = 'D') { // for reports only
+function GeneratePDFFile($Data, $report, $delivery_method = 'D') { // for pdf reports only
 	require_once(DIR_FS_MODULES . 'phreeform/classes/report_generator.php');
 	$pdf = new PDF();
 	$pdf->ReportTable($Data);
 	$ReportName = ReplaceNonAllowedCharacters($report->title) . '.pdf';
-	if ($delivery_method == 'S') return $pdf->Output($ReportName, 'S');
+	if ($delivery_method == 'S') return array('filename' => $ReportName, 'pdf' => $pdf->Output($ReportName, 'S'));
 	header('Content-type: application/pdf');
 	header('Content-Disposition: inline; filename=' . $ReportName);
 	header('Expires: 0');
@@ -1075,15 +1078,16 @@ function GeneratePDFFile($Data, $report, $delivery_method = 'D') { // for report
 
 function GenerateHTMLFile($Data, $report, $delivery_method = 'D') { // for html reports only
 	require_once(DIR_FS_MODULES . 'phreeform/classes/html_generator.php');
-	$html = new HTML();
+	$html        = new HTML();
 	$html->title = ReplaceNonAllowedCharacters($report->title);
 	$html->ReportTable($Data);
-	if ($delivery_method == 'S') return $html->output;
+	$ReportName = ReplaceNonAllowedCharacters($report->title) . '.html';
+	if ($delivery_method == 'S') return array('filename' => $ReportName, 'pdf' => $html->output);
 	echo $html->output;
 	exit();
 }
 
-function GenerateCSVFile($Data, $report) { // for reports only
+function GenerateCSVFile($Data, $report, $delivery_method = 'D') { // for csv reports only
 	global $Heading, $posted_currencies;
 	$posted_currencies = array('currencies_code' => DEFAULT_CURRENCY, 'currencies_value' => 1); // use default currency
 	$CSVOutput = '';
@@ -1112,7 +1116,8 @@ function GenerateCSVFile($Data, $report) { // for reports only
 	  }
 	  $CSVOutput .= $CSVLine . chr(10);
 	}
-
+	$ReportName = ReplaceNonAllowedCharacters($report->title) . '.csv';
+	if ($delivery_method == 'S') return array('filename' => $ReportName, 'pdf' => $CSVOutput);
 	header("Content-type: application/csv");
 	header("Content-disposition: attachment; filename=" . $report->title . ".csv; size=" . strlen($CSVOutput));
 	header('Pragma: cache');

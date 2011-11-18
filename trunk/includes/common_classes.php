@@ -31,7 +31,6 @@
 // Section 1. Class toolbar
 /**************************************************************************************************************/
 class toolbar {
-// class constructor
   function toolbar($id = '0') {
     // set up the default toolbar
 	$this->id            = $id;
@@ -41,41 +40,11 @@ class toolbar {
 	$this->search_prefix = '';
     $this->icon_size     = 'large';	// default icon size (choice are small, medium, large)
   	$this->icon_list     = array();
-	$this->icon_list['cancel'] = array(
-	  'show'   => true, 
-	  'icon'   => 'actions/edit-undo.png',
-	  'params' => '', 
-	  'text'   => TEXT_CANCEL, 
-	  'order'  => 1,
-	);
-	$this->icon_list['open'] = array(
-	  'show'   => true, 
-	  'icon'   => 'actions/document-open.png',
-	  'params' => '', 
-	  'text'   => TEXT_OPEN, 
-	  'order'  => 2,
-	);
-	$this->icon_list['save'] = array(
-	  'show'   => true, 
-	  'icon'   => 'devices/media-floppy.png',
-	  'params' => '', 
-	  'text'   => TEXT_SAVE, 
-	  'order'  => 3,
-	);
-	$this->icon_list['delete'] = array(
-	  'show'   => true, 
-	  'icon'   => 'actions/edit-delete.png',
-	  'params' => '', 
-	  'text'   => TEXT_DELETE, 
-	  'order'  => 4,
-	);
-	$this->icon_list['print'] = array(
-	  'show'   => true, 
-	  'icon'   => 'phreebooks/pdficon_large.gif',
-	  'params' => '', 
-	  'text'   => TEXT_PRINT, 
-	  'order'  => 5,
-	);
+	$this->icon_list['cancel'] = array('show' => true, 'icon' => 'actions/edit-undo.png',        'params' => '', 'text' => TEXT_CANCEL, 'order' => 1);
+	$this->icon_list['open']   = array('show' => true, 'icon' => 'actions/document-open.png',    'params' => '', 'text' => TEXT_OPEN,   'order' => 2);
+	$this->icon_list['save']   = array('show' => true, 'icon' => 'devices/media-floppy.png',     'params' => '', 'text' => TEXT_SAVE,   'order' => 3);
+	$this->icon_list['delete'] = array('show' => true, 'icon' => 'actions/edit-delete.png',      'params' => '', 'text' => TEXT_DELETE, 'order' => 4);
+	$this->icon_list['print']  = array('show' => true, 'icon' => 'phreebooks/pdficon_large.gif', 'params' => '', 'text' => TEXT_PRINT,  'order' => 5);
   }
 
   function add_icon($name, $params = '', $order = 98) { // adds some common icons, per request
@@ -100,15 +69,7 @@ class toolbar {
 	  case 'update':     $image = 'apps/system-software-update.png';    $text = TEXT_UPDATE;     break;
 	  default:           $image = 'emblems/emblem-important.png';       $text = $name . ' ICON NOT FOUND'; 
 	}
-	if ($image) {
-	  $this->icon_list[$name] = array(
-		'show'   => true, 
-		'icon'   => $image,
-		'params' => $params, 
-		'text'   => $text, 
-		'order'  => $order,
-	  );
-	}
+	if ($image) $this->icon_list[$name] = array('show' => true, 'icon' => $image, 'params' => $params, 'text' => $text, 'order' => $order);
   }
 
   function add_help($index = '', $order = 99) { // adds some common icons, per request
@@ -126,31 +87,25 @@ class toolbar {
     $output = '';
 	if ($add_search) $output .= $this->add_search();
 	if ($add_period) $output .= $this->add_period();
-	if ($cal_props) $output  .= $this->add_date($cal_props);
-	$output .= '<div id="tb_main_' . $this->id . '" class="toolbar">' . "\n";
+	if ($cal_props)  $output .= $this->add_date($cal_props);
+	$output .= '<div id="tb_main_' . $this->id . '" class="ui-state-hover" style="border:0px;">' . "\n";
 	// Sort the icons by designated order
 	$sort_arr = array();
-    foreach($this->icon_list as $uniqid => $row) {
-        foreach($row as $key => $value) {
-            $sort_arr[$key][$uniqid] = $value;
-        }
-    }
+    foreach($this->icon_list as $uniqid => $row) foreach($row as $key => $value) $sort_arr[$key][$uniqid] = $value;
 	array_multisort($sort_arr['order'], SORT_ASC, $this->icon_list);
 	foreach ($this->icon_list as $id => $icon) {
-	  if ($icon['show']) {
-	    $output .= html_icon($icon['icon'], $icon['text'], $this->icon_size, 'id ="tb_icon_' . $id . '" style="cursor:pointer;" ' . $icon['params']) . "\n";
-	  }
+	  if ($icon['show']) $output .= html_icon($icon['icon'], $icon['text'], $this->icon_size, 'id ="tb_icon_' . $id . '" style="cursor:pointer;" ' . $icon['params']) . "\n";
 	}
 	$output .= '</div>' . "\n"; // end of the right justified icons
 	// display alerts/error messages, if any
     if ($messageStack->size > 0) $output .= $messageStack->output();
-	return $output;
+    return $output;
   }
 
   function add_search() {
-	$output = '<div id="tb_search_' . $this->id . '" class="toolbar_right">' . "\n";
+	$output = '<div id="tb_search_' . $this->id . '" class="ui-state-hover" style="float:right; border:0px;">' . "\n";
 	$output .= HEADING_TITLE_SEARCH_DETAIL . '<br />';
-	$output .= html_input_field('search_text', $this->search_text, $params = '');
+	$output .= html_input_field('search_text', $this->search_text, $params = 'onkeypress="checkEnter(event);"');
 	if ($this->search_text) $output .= '&nbsp;' . html_icon('actions/view-refresh.png', TEXT_RESET, 'small', 'onclick="location.href = \'index.php?' . gen_get_all_get_params(array('search_text', 'search_period', 'search_date', 'list', 'action')) . '\';" style="cursor:pointer;"');
     $output .= '&nbsp;' . html_icon('actions/system-search.png', TEXT_SEARCH, 'small', 'onclick="searchPage(\'' . gen_get_all_get_params(array('search_text', 'list', 'action')) . '\')" style="cursor:pointer;"');
 	$output .= '</div>' . "\n";
@@ -158,7 +113,7 @@ class toolbar {
   }
 
   function add_period() {
-	$output = '<div id="tb_period_' . $this->id . '" class="toolbar_right">' . "\n";
+	$output = '<div id="tb_period_' . $this->id . '" class="ui-state-hover" style="float:right; border:0px;">' . "\n";
 	$output .= TEXT_INFO_SEARCH_PERIOD_FILTER . '<br />' . "\n";
 	$output .= html_pull_down_menu('search_period', gen_get_period_pull_down($this->period_strict), $this->search_period, 'onchange="periodPage(\'' . gen_get_all_get_params(array('action', 'list')) . '\')"');
 	$output .= '</div>' . "\n";
@@ -166,7 +121,7 @@ class toolbar {
   }
 
   function add_date($cal_props) {
-	$output = '<div id="tb_date_' . $this->id . '" class="toolbar_right">' . "\n";
+	$output = '<div id="tb_date_' . $this->id . '" class="ui-state-hover" style="float:right; border:0px;">' . "\n";
 	$output .= TEXT_DATE . '<br />' . "\n";
 	$output .= html_calendar_field($cal_props) . "\n";
 	$output .= '</div>' . "\n";
@@ -320,15 +275,13 @@ class objectInfo {
 
     function add($message, $type = 'error') {
       if ($type == 'error') {
-        $this->errors[] = array('params' => 'class="messageStackError"', 'text' => html_icon('emblems/emblem-unreadable.png', TEXT_ERROR) . '&nbsp;' . $message);
-      } elseif ($type == 'warning') {
-        $this->errors[] = array('params' => 'class="messageStackWarning"', 'text' => html_icon('emblems/emblem-important.png', TEXT_CAUTION) . '&nbsp;' . $message);
+        $this->errors[] = array('params' => 'class="ui-state-error"', 'text' => html_icon('emblems/emblem-unreadable.png', TEXT_ERROR) . '&nbsp;' . $message);
       } elseif ($type == 'success') {
-	    if (!HIDE_SUCCESS_MESSAGES) $this->errors[] = array('params' => 'class="messageStackSuccess"', 'text' => html_icon('emotes/face-smile.png', TEXT_SUCCESS) . '&nbsp;' . $message);
-      } elseif ($type == 'caution') {
-        $this->errors[] = array('params' => 'class="messageStackCaution"', 'text' => html_icon('emblems/emblem-important.png', TEXT_CAUTION) . '&nbsp;' . $message);
+	    if (!HIDE_SUCCESS_MESSAGES) $this->errors[] = array('params' => 'class="ui-state-active"', 'text' => html_icon('emotes/face-smile.png', TEXT_SUCCESS) . '&nbsp;' . $message);
+      } elseif ($type == 'caution' || $type == 'warning') {
+        $this->errors[] = array('params' => 'class="ui-state-highlight"', 'text' => html_icon('emblems/emblem-important.png', TEXT_CAUTION) . '&nbsp;' . $message);
       } else {
-        $this->errors[] = array('params' => 'class="messageStackError"', 'text' => $message);
+        $this->errors[] = array('params' => 'class="ui-state-error"', 'text' => $message);
       }
       $this->size++;
 	  return true;
@@ -350,11 +303,11 @@ class objectInfo {
 
     function output() {
 	  $output = NULL;
-      $this->table_data_parameters = 'class="messageBox"';
+      $this->table_data_parameters = '';
 	  if (sizeof($this->errors) > 0) {
-	    $output .= '<table border="0" width="100%" cellspacing="0" cellpadding="2" class="messageBox">' . chr(10);
+	    $output .= '<table style="border-collapse:collapse;width:100%">' . chr(10);
 		foreach ($this->errors as $value) {
-		  $output .= '<tr><td ' . $value['params'] . '>' . $value['text'] . '</td></tr>' . chr(10);
+		  $output .= '<tr><td ' . $value['params'] . ' style="width:100%">' . $value['text'] . '</td></tr>' . chr(10);
 		}
 		$output .= '</table>' . chr(10);
 	  }
@@ -371,6 +324,7 @@ class objectInfo {
 	function debug($txt) {
 	  global $db;
 	  if (substr($txt, 0, 1) == "\n") {
+//echo "\nTime: " . (int)(1000 * (microtime(true) - PAGE_EXECUTION_START_TIME)) . " ms, " . $db->count_queries . " SQLs " . (int)($db->total_query_time * 1000)." ms => " . substr($txt, 1) . '<br>';
 	    $this->debug_info .= "\nTime: " . (int)(1000 * (microtime(true) - PAGE_EXECUTION_START_TIME)) . " ms, " . $db->count_queries . " SQLs " . (int)($db->total_query_time * 1000)." ms => ";
 	    $this->debug_info .= substr($txt, 1);
 	  } else {
@@ -400,35 +354,36 @@ class ctl_panel {
 
   function build_div($title, $contents, $controls) {
 	$output = '<!--// start: ' . $this->dashboard_id . ' //-->' . chr(10);
-	$output .= '<div id="' . $this->dashboard_id . '" class="modbox" style="position:relative;">' . chr(10);
-	$output .= '<table width="100%" class="mhdr" cellspacing="0" cellpadding="0">' . chr(10);
+	$output .= '<div id="' . $this->dashboard_id . '" style="position:relative;">' . chr(10);
+	$output .= '<table class="ui-widget" style="border-collapse:collapse;width:100%">' . chr(10);
+	$output .= '<thead class="ui-widget-header">' . chr(10);
 	$output .= '<tr>' . chr(10);
 	// heading text
-	$output .= '<td width="90%" class="mttl">' . $title . '&nbsp;</td>' . chr(10);
+	$output .= '<td style="width:90%">' . $title . '&nbsp;</td>' . chr(10);
 	// edit/cancel image (text)
-	$output .= '<td class="medit">' . chr(10);
-	$output .= '  <a href="javascript:void(0)" class="el" onclick ="return box_edit(\'' . $this->dashboard_id . '\');">';
-	$output .= html_icon('categories/preferences-system.png', TEXT_PROPERTIES, $size = 'small', '', '16', '16', $this->dashboard_id . '_add');
-	$output .= '  </a>' . chr(10);
-	$output .= '  <a href="javascript:void(0)" class="csl" onclick ="return box_cancel(\'' . $this->dashboard_id . '\');">';
-	$output .= html_icon('status/dialog-error.png', TEXT_CANCEL, $size = 'small', '', '16', '16', $this->dashboard_id . '_can');
-	$output .= '  </a>' . chr(10);
+	$output .= '<td>' . chr(10);
+	$output .= '  <div id="'.$this->dashboard_id.'_add"><a href="javascript:void(0)" onclick ="return box_edit(\''.$this->dashboard_id.'\');">';
+	$output .= html_icon('categories/preferences-system.png', TEXT_PROPERTIES, $size = 'small', '', '16', '16');
+	$output .= '  </a></div>' . chr(10);
+	$output .= '  <div id="'.$this->dashboard_id . '_can" style="display:none"><a href="javascript:void(0)" onclick ="return box_cancel(\'' . $this->dashboard_id . '\');">';
+	$output .= html_icon('status/dialog-error.png', TEXT_CANCEL, $size = 'small', '', '16', '16');
+	$output .= '  </a></div>' . chr(10);
 	$output .= '</td>' . chr(10);
 	// minimize/maximize image
-	$output .= '<td class="mttlz">' . chr(10);
-	$output .= '<a href="javascript:void(0)" class="box minbox" id="' . $this->dashboard_id . '_min" onclick="this.blur(); return min_box(\'' . $this->dashboard_id . '\')">' . chr(10);
+	$output .= '<td>' . chr(10);
+	$output .= '<a href="javascript:void(0)" id="' . $this->dashboard_id . '_min" onclick="this.blur(); return min_box(\'' . $this->dashboard_id . '\')">' . chr(10);
 	$output .= html_icon('actions/list-remove.png', TEXT_COLLAPSE, $size = 'small', '', '16', '16', $this->dashboard_id . '_exp');
 	$output .= '</a></td>' . chr(10);
 	// delete image
-	$output .= '<td class="mttld">' . chr(10);
-	$output .= '<a href="javascript:void(0)" class="box delbox" id="' . $this->dashboard_id . '_del" onclick="return del_box(\'' . $this->dashboard_id . '\')">';
+	$output .= '<td>' . chr(10);
+	$output .= '<a href="javascript:void(0)" id="' . $this->dashboard_id . '_del" onclick="return del_box(\'' . $this->dashboard_id . '\')">';
 	$output .= html_icon('emblems/emblem-unreadable.png', TEXT_REMOVE, $size = 'small');
 	$output .= '</a>' . chr(10);
-	$output .= '</td></tr></table>' . chr(10);
-	// box properties section
-	$output .= '<table class="mehdr" cellspacing="0" cellpadding="0">' . chr(10);
-	$output .= '<tr class="es">' . chr(10);
-	$output .= '<td class="meditbox">' . chr(10);
+	$output .= '</td></tr>' . chr(10);
+	$output .= '</thead>' . chr(10);
+	// properties contents
+	$output .= '<tbody class="ui-widget-content">' . chr(10);
+	$output .= '<tr id="' . $this->dashboard_id . '_prop" style="display:none"><td colspan="4">' . chr(10);
 	$output .= html_form($this->dashboard_id . '_frm', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 	$output .= $this->build_move_buttons($this->column_id, $this->row_id);
 	$output .= $controls . chr(10);
@@ -436,11 +391,14 @@ class ctl_panel {
 	$output .= '<input type="hidden" name="column_id" value="' . $this->column_id . '" />' . chr(10);
 	$output .= '<input type="hidden" name="row_id" value="' . $this->row_id . '" />' . chr(10);
 	$output .= '<input type="hidden" name="todo" id="' . $this->dashboard_id . '_action" value="save" />' . chr(10);
-	$output .= '</form></td></tr></table>' . chr(10);
-	// box Contents
-	$output .= '<div class="row" id="' . $this->dashboard_id . '_body" style="overflow:hidden;">' . chr(10);
+	$output .= '</form></td></tr>' . chr(10);
+	$output .= '<tr id="' . $this->dashboard_id . '_hr" style="display:none"><td colspan="4"><hr /></td></tr>' . chr(10);
+	// box contents
+	$output .= '<tr><td colspan="4">' . chr(10);
+	$output .= '<div id="' . $this->dashboard_id . '_body">' . chr(10);
 	$output .= $contents;
 	$output .= '</div>';
+	$output .= '</td></tr></tbody></table>' . chr(10);
 	// finish it up
 	$output .= '</div>' . chr(10);
 	$output .= '<!--// end: ' . $this->dashboard_id . ' //--><br />' . chr(10) . chr(10);
@@ -448,35 +406,35 @@ class ctl_panel {
   }
 
   function build_move_buttons($column_id, $row_id) {
-	$output = '<table cellspacing="0" cellpadding="0"><tr>' . chr(10);
+	$output = '<table style="border-collapse:collapse"><tr>' . chr(10);
 	// move button - Left
 	if ($column_id > 1) {
-	  $output .= '<td class="mttlz">' . chr(10);
-	  $output .= '<a href="javascript:void(0)" class="box minbox" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_left\')">';
+	  $output .= '<td>' . chr(10);
+	  $output .= '<a href="javascript:void(0)" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_left\')">';
 	  $output .= html_icon('actions/go-previous.png', TEXT_MOVE_LEFT, $size = 'small');
 	  $output .= '</a>' . chr(10);
 	  $output .= '</td>' . chr(10);
 	}
 	// move button - Right
 	if ($column_id < MAX_CP_COLUMNS) {
-	  $output .= '<td class="mttlz">' . chr(10);
-	  $output .= '<a href="javascript:void(0)" class="box minbox" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_right\')">';
+	  $output .= '<td>' . chr(10);
+	  $output .= '<a href="javascript:void(0)" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_right\')">';
 	  $output .= html_icon('actions/go-next.png', TEXT_MOVE_RIGHT, $size = 'small');
 	  $output .= '</a>' . chr(10);
 	  $output .= '</td>' . chr(10);
 	}
 	// move button - Up
 	if ($row_id > 1) {
-	  $output .= '<td class="mttlz">' . chr(10);
-	  $output .= '<a href="javascript:void(0)" class="box minbox" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_up\')">';
+	  $output .= '<td>' . chr(10);
+	  $output .= '<a href="javascript:void(0)" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_up\')">';
 	  $output .= html_icon('actions/go-up.png', TEXT_MOVE_UP, $size = 'small');
 	  $output .= '</a>' . chr(10);
 	  $output .= '</td>' . chr(10);
 	}
 	// move button - Down
 	if ($row_id < $this->get_next_row($column_id) - 1) {
-	  $output .= '<td class="mttlz">' . chr(10);
-	  $output .= '<a href="javascript:void(0)" class="box minbox" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_down\')">';
+	  $output .= '<td>' . chr(10);
+	  $output .= '<a href="javascript:void(0)" onclick="return move_box(\'' . $this->dashboard_id . '\', \'move_down\')">';
 	  $output .= html_icon('actions/go-down.png', TEXT_MOVE_DOWN, $size = 'small');
 	  $output .= '</a>' . chr(10);
 	  $output .= '</td>' . chr(10);

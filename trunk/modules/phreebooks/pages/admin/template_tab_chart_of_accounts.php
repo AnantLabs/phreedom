@@ -24,13 +24,10 @@ $chart_of_accounts_toolbar->icon_list['save']['show']   = false;
 $chart_of_accounts_toolbar->icon_list['delete']['show'] = false;
 $chart_of_accounts_toolbar->icon_list['print']['show']  = false;
 if ($security_level > 1) $chart_of_accounts_toolbar->add_icon('new', 'onclick="loadPopUp(\'chart_of_accounts_new\', 0)"', $order = 10);
-
 ?>
-
-<div id="chart_of_accounts" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_CHART_OF_ACCOUNTS_TABS; ?></h2>
+<div id="tab_chart_of_accounts">
   <?php echo $chart_of_accounts_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $chart_of_accounts->title; ?></div>
+  <h1><?php echo $chart_of_accounts->title; ?></h1>
   <div align="center">
     <?php echo GL_SELECT_STD_CHART . html_pull_down_menu('std_chart', $sel_chart); ?>
     <?php echo GL_CHART_IMPORT_DESC . html_file_field('file_name') . '<br />'; ?>

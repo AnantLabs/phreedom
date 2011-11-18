@@ -17,15 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/pages/popup_phreefrom/tab_security_setup.php
 //
-
 ?>
-<div id="pf_prop" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_PROPERTIES; ?></h2>
-  <h2 align="center"><?php echo TEXT_PROPERTIES; ?></h2>
-  <table align="center" cellspacing="1">
-    <tr>
-      <th colspan="2"><?php echo TEXT_REPORT_PROPERTIES; ?></th>
-    </tr>
+<div id="tab_prop">
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+ <thead class="ui-widget-header">
+    <tr><th colspan="2"><?php echo TEXT_REPORT_PROPERTIES; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
 <?php if ($report->reporttype == 'rpt') { ?>
 	<tr>
 	  <td><?php echo TEXT_TRUNC; ?></td>
@@ -67,12 +65,13 @@
       <td><?php echo '&nbsp;'; ?></td>
 	  <td><?php echo TEXT_SOURCE_FIELD . html_pull_down_menu('filename_field', $kFields, $report->filenamefield, 'onclick="updateFieldList(this)"'); ?></td>
     </tr>
-  </table>
-  <table align="center" cellspacing="1">
-    <tr>
-      <th><?php echo TEXT_USERS;  ?></th>
-	  <th><?php echo TEXT_GROUPS; ?></th>
-    </tr>
+  </tbody>
+</table>
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+ <thead class="ui-widget-header">
+    <tr><th><?php echo TEXT_USERS;  ?></th><th><?php echo TEXT_GROUPS; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
     <tr>
 	  <td align="center"><?php echo html_checkbox_field('user_all',  '1', (in_array('0', $security['u'], true) ? true : false)) . ' ' . TEXT_ALL_USERS; ?></td>
 	  <td align="center"><?php echo html_checkbox_field('group_all', '1', (in_array('0', $security['g'], true) ? true : false)) . ' ' . TEXT_ALL_GROUPS; ?></td>
@@ -81,6 +80,7 @@
 	  <td width="50%" align="center"><?php echo html_pull_down_menu('users[]',  gen_get_pull_down(TABLE_USERS,  true, '1', 'admin_id', 'display_name'), $security['u'], 'multiple="multiple" size="20"'); ?></td>
 	  <td width="50%" align="center"><?php echo html_pull_down_menu('groups[]', gen_get_pull_down(TABLE_DEPARTMENTS, true, '1'), $security['g'], 'multiple="multiple" size="20"'); ?></td>
     </tr>
-  </table>
+  </tbody>
+</table>
   <?php echo $notes; ?>
 </div>

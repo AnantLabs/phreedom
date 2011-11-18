@@ -93,18 +93,16 @@
 	return $method;
   }
 
-
   function write_configure($constant, $value = '') {
     global $db;
 	if (!$constant) return false;
 	$result = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = '" . $constant . "'");
 	if ($result->RecordCount() == 0) {
-	  $result = $db->Execute("insert into " . TABLE_CONFIGURATION . " set configuration_key = '" . $constant . "', 
-	  	configuration_value = '" . $value . "'");
+	  $sql_array = array('configuration_key'  => $constant, 'configuration_value'=> $value);
+	  db_perform(TABLE_CONFIGURATION,  $sql_array);
 	  define($constant, $value);
 	} elseif ($result->fields['configuration_value'] <> $value) {
-	  $result = $db->Execute("update " . TABLE_CONFIGURATION . " set configuration_value = '" . $value . "' 
-	    where configuration_key = '" . $constant . "'");
+	  db_perform(TABLE_CONFIGURATION, array('configuration_value'=>$value), 'update', "configuration_key = '".$constant."'");
 	}
 	return true;
   }
@@ -227,7 +225,7 @@
     global $db;
 	$params = array();
     $output = array();
-	$sql    = "select id, description from " . TABLE_CHART_OF_ACCOUNTS;
+	$sql    = "select id, description, account_type from " . TABLE_CHART_OF_ACCOUNTS;
 	if ($hide_inactive)  $params[] = "account_inactive = '0'";
 	if (!$show_all)      $params[] = "heading_only = '0'";
 	if ($restrict_types) $params[] = "account_type in (" . implode(',', $restrict_types) . ")";
@@ -242,7 +240,7 @@
 	    case '1': $text_value = $result->fields['description']; break;
 		case '2': $text_value = $result->fields['id'].' : '.$result->fields['description']; break;
 	  }
-      $output[] = array('id' => $result->fields['id'], 'text' => $text_value);
+      $output[] = array('id' => $result->fields['id'], 'text' => $text_value, 'type' => $result->fields['account_type']);
       $result->MoveNext();
     }
     return $output;
@@ -498,6 +496,23 @@
     }
     return $get_url;
   }
+
+function saveUploadZip($file_field, $dest_dir, $dest_name) {
+	global $messageStack;
+	if ($_FILES[$file_field]['error']) { // php error uploading file
+		$messageStack->add(TEXT_IMP_ERMSG5 . $_FILES[$file_field]['error'], 'error');
+	} elseif ($_FILES[$file_field]['size'] > 0) {
+		require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+		$backup              = new backup();
+		$backup->source_dir  = $_FILES[$file_field]['tmp_name'];
+		$backup->source_file = '';
+		$backup->dest_dir    = $dest_dir;
+		$backup->dest_file   = $dest_name;
+		if (file_exists($dest_dir . $dest_name)) @unlink($dest_dir . $dest_name);
+		$backup->make_zip('file', $_FILES[$file_field]['name']);
+		@unlink($backup->source_dir);
+	}
+}
 
   function dircopy($src_dir, $dst_dir, $verbose = false, $use_cached_dir_trees = false) {    
 	static $cached_src_dir;
@@ -768,7 +783,9 @@ function gen_db_date($raw_date = '', $separator = '/') {
     } else {
       $xmlStr = file_get_contents(DIR_FS_MODULES . 'phreedom/language/en_us/locales.xml');
     }
-	return xml_to_object($xmlStr);
+	$locales =  xml_to_object($xmlStr);
+    if (isset($locales->data)) $locales = $locales->data;
+	return $locales;
   }
 
   function gen_get_country_iso_2_from_3($iso3 = COMPANY_COUNTRY, $countries = false) {
@@ -899,7 +916,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 /**************************************************************************************************************/
 // Section 2. Database Functions
 /**************************************************************************************************************/
-  function db_perform($table, $data, $action = 'insert', $parameters = '', $link = 'db_link') {
+  function db_perform($table, $data, $action = 'insert', $parameters = '') {
     global $db;
     reset($data);
     if ($action == 'insert') {
@@ -1010,7 +1027,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
   }
 
   function html_image($src, $alt = '', $width = '', $height = '', $params = '') {
-    $image = '<img src="' . $src . '" border="0" alt="' . $alt . '"';
+    $image = '<img src="' . $src . '" alt="' . $alt . '" style="border:none"';
     if (gen_not_null($alt))    $image .= ' title="' . $alt . '"';
     if ($width > 0)            $image .= ' width="' . $width . '"';
     if ($height > 0)           $image .= ' height="' . $height . '"';
@@ -1027,7 +1044,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 		case 'large':  $subdir = '32x32/'; $height='32'; break;
 		case 'svg' :   $subdir = 'scalable/';            break;
 	}
-    $image_html = '<img src="' . DIR_WS_ICONS . $subdir . $image . '" border="0" alt="' . $alt . '"';
+    $image_html = '<img src="' . DIR_WS_ICONS . $subdir . $image . '" alt="' . $alt . '" style="border:none;"';
     if (gen_not_null($alt))    $image_html .= ' title="'  . $alt    . '"';
     if (gen_not_null($id))     $image_html .= ' id="'     . $id     . '"';
     if ($width > 0)            $image_html .= ' width="'  . $width  . '"';
@@ -1059,7 +1076,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
     }
     $field = '<input type="' . $type . '" name="' . $name . '"';
 	if ($id)                       $field .= ' id="'    . $id    . '"';
-    if (gen_not_null($value))      $field .= ' value="' . $value . '"';
+    if (gen_not_null($value))      $field .= ' value="' . str_replace('"', '&quot;', $value) . '"';
     if (gen_not_null($parameters)) $field .= ' ' . $parameters;
     $field .= ' />';
     if ($required == true) $field .= TEXT_FIELD_REQUIRED;
@@ -1070,8 +1087,8 @@ function gen_db_date($raw_date = '', $separator = '/') {
     return html_input_field($name, $value, $parameters, false, 'hidden', false);
   }
 
-  function html_password_field($name, $value = '', $required = false) {
-    return html_input_field($name, $value, 'maxlength="40"', $required, 'password', false);
+  function html_password_field($name, $value = '', $required = false, $parameters = '') {
+    return html_input_field($name, $value, 'maxlength="40" ' . $parameters, $required, 'password', false);
   }
 
   function html_file_field($name, $required = false) {
@@ -1083,7 +1100,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
   }
 
   function html_button_field($name, $value, $parameters = '') {
-  	return html_input_field($name, $value, $parameters . ' style="cursor:pointer;"', false, 'button', false);
+  	return '<a href="#" id="'.$name.'" class="ui-state-default ui-corner-all" '.$parameters.'>'.$value.'</a>';
   }
 
   function html_selection_field($name, $type, $value = '', $checked = false, $compare = '', $parameters = '') {
@@ -1180,6 +1197,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 	return $field;
   }
 
+  // function html_heading_bar will be deprecated in Phreedom Release 3.3
   function html_heading_bar($heading_array, $list_order = '', $extra_headings = array(TEXT_ACTION)) {
 	global $PHP_SELF;
 	$result = array();
@@ -1195,29 +1213,57 @@ function gen_db_date($raw_date = '', $separator = '/') {
 	  }
 	  if ($key == $list_order) $result['disp_order'] = $key;
 	  if ($key_desc == $list_order) $result['disp_order'] = $disp_desc;
-	  $output .= '<td class="dataTableHeadingContent">' . chr(10);
-	  $output .= (($list_order == $key || $list_order == $key_desc) ? ('<span class="SortOrderHeader">' . $value . '</span>') : $value);
-	  $output .= '<br />' . chr(10);
-	  if ($value <> '') {
-		$output .= '<a href="' . html_href_link($href_path, gen_get_all_get_params(array('action', 'list_order')) . '&amp;list_order=' . $key, 'SSL') . '">' . ($list_order == $key ? '<span class="SortOrderHeader">' : '<span class="SortOrderHeaderLink">') . TEXT_ASC . '</span></a>&nbsp;' . chr(10);
-		$output .= '<a href="' . html_href_link($href_path, gen_get_all_get_params(array('action', 'list_order')) . '&amp;list_order=' . $key_desc, 'SSL') . '">' . ($list_order == $key_desc ? '<span class="SortOrderHeader">' : '<span class="SortOrderHeaderLink">') . TEXT_DESC . '</span></a>' . chr(10);
+	  $output .= '<th nowrap="nowrap">' . chr(10);
+		  if ($value) {
+		$output .= '<a href="' . html_href_link($href_path, gen_get_all_get_params(array('action', 'list_order')) . '&amp;list_order=' . $key, 'SSL') . '">';
+		$output .= html_image(DIR_WS_IMAGES . ($list_order== $key ? 'sort_asc.png' : 'sort_asc_disabled.png') , TEXT_ASC, $width = '', $height = '', $params = '') . '</a>' . chr(10);
 	  }
-	  $output .= '</td>' . chr(10);
+	  $output .= $value;
+	  if ($value) {
+		$output .= '<a href="' . html_href_link($href_path, gen_get_all_get_params(array('action', 'list_order')) . '&amp;list_order=' . $key_desc, 'SSL') . '">';
+		$output .= html_image(DIR_WS_IMAGES . ($list_order== $key_desc ? 'sort_desc.png' : 'sort_desc_disabled.png') , TEXT_DESC, $width = '', $height = '', $params = '') . '</a>' . chr(10);
+	  }
+	  $output .= '</th>' . chr(10);
 	}
 	if (sizeof($extra_headings) > 0) foreach ($extra_headings as $value) {
-	  $output .= '<td class="dataTableHeadingContentXtra">' . $value . '</td>' . chr(10);
+	  $output .= '<th nowrap="nowrap">' . $value . '</th>' . chr(10);
 	}
 	$result['html_code'] = $output;
 	return $result;
   }
 
+  function html_datatable($id, $content = NULL) {
+	$head_bar  = '   <tr>'."\n";
+	foreach ($content['thead']['value'] as $heading) $head_bar .= '    <th nowrap="nowrap">'.htmlspecialchars($heading).'</th>'."\n";
+	$head_bar .= '   </tr>'."\n";
+	$output    = '<table class="ui-widget" id="'.$id.'" '.$content['thead']['params'].'>'."\n";
+	$output   .= '  <thead class="ui-widget-header">'."\n".$head_bar.'  </thead>'."\n";
+	$output   .= '  <tbody class="ui-widget-content">'."\n";
+    if (is_array($content['tbody'])) {
+	  foreach ($content['tbody'] as $row) {
+	    $output .= '  <tr>'."\n";
+	    foreach ($row as $element) $output .= '    <td nowrap="nowrap" '.$element['params'].'>'.$element['value'].'</td>'."\n";
+        $output .= '  </tr>'."\n";
+	  }
+	} else {
+	  $output .= '  <tr>'."\n";
+	  $output .= '    <td nowrap="nowrap">'.TEXT_NO_DATA.'</td>'."\n";
+	  for ($i = 1; $i < sizeof($content['thead']['value']); $i++) $output .= '    <td>&nbsp;</td>'."\n";
+	  $output .= '  </tr>'."\n";
+	}
+ 	$output .= '  </tbody>'."\n";
+ 	$output .= '  <tfoot class="ui-widget-header">'."\n".$head_bar.'  </tfoot>'."\n";
+ 	$output .= '</table>'."\n";
+    return $output;
+  }
+
   function add_tab_list($name, $text, $active = false) {
-	return '<li><a href="#' . $name . '"' . ($active ? ' class="active"' : '') . '>' . $text . '</a></li>' . chr(10);
+	return '<li><a href="#' . $name . '">' . $text . '</a></li>' . chr(10);
   }
 
   function build_dir_html($name, $full_array) {
 	$entry_string  = NULL;
-//	$entry_string  .= '<table id="' . $name . '" border="0" cellpadding="0" cellspacing="0">' . chr(10);
+//	$entry_string  .= '<table id="' . $name . '" cellpadding="0" cellspacing="0">' . chr(10);
 	$entry_string .= build_dir_tree($name, $full_array, $index = -1, $level = 0, $cont_level = array());
 //	$entry_string .= '</table>' . chr(10);
 	return $entry_string;
@@ -1229,7 +1275,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 	  $new_ref   = $index . '_' . $full_array[$index][$j]['id'];
 	  $cont_temp = array_keys($cont_level);
 	  $entry_string .= '<div style="height:16px;">' . chr(10);
-//	  $entry_string .= '<table border="0" cellpadding="0" cellspacing="0">' . chr(10);
+//	  $entry_string .= '<table cellpadding="0" cellspacing="0">' . chr(10);
 //	  $entry_string .= '<tr><td nowrap="nowrap">' . chr(10);
 	  for ($i = 0; $i < $level; $i++) {
 	    if (false) {
@@ -1246,7 +1292,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 	  // change title to language if constant is defined
 	  if (defined($full_array[$index][$j]['doc_title'])) $full_array[$index][$j]['doc_title'] = constant($full_array[$index][$j]['doc_title']); 
 	  if ($full_array[$index][$j]['doc_type'] == '0') {  // folder
-		$entry_string .= '<a id="imgdc_' . $new_ref . '" href="javascript:Toggle(\'dc_' . $new_ref . '\');">' . html_icon('places/folder.png', TEXT_OPEN, 'small', 'class="draggable"', '', '', 'icndc_' . $new_ref) . '</a>';
+		$entry_string .= '<a id="imgdc_' . $new_ref . '" href="javascript:Toggle(\'dc_' . $new_ref . '\');">' . html_icon('places/folder.png', TEXT_OPEN, 'small', '', '', '', 'icndc_' . $new_ref) . '</a>';
 	  } else {
 		$entry_string .= html_icon('mimetypes/text-x-generic.png', $full_array[$index][$j]['doc_title'], 'small');
 	  }
@@ -1307,17 +1353,17 @@ function charConv($string, $in, $out) {
   function strtolower_utf8($string){
     $convert_from = array(
       "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
-      "V", "W", "X", "Y", "Z", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï",
-      "Ð", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж",
-      "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ъ",
-      "Ь", "Э", "Ю", "Я"
+      "V", "W", "X", "Y", "Z", "Ã€", "Ã�", "Ã‚", "Ãƒ", "Ã„", "Ã…", "Ã†", "Ã‡", "Ãˆ", "Ã‰", "ÃŠ", "Ã‹", "ÃŒ", "Ã�", "ÃŽ", "Ã�",
+      "Ã�", "Ã‘", "Ã’", "Ã“", "Ã”", "Ã•", "Ã–", "Ã˜", "Ã™", "Ãš", "Ã›", "Ãœ", "Ã�", "Ð�", "Ð‘", "Ð’", "Ð“", "Ð”", "Ð•", "Ð�", "Ð–",
+      "Ð—", "Ð˜", "Ð™", "Ðš", "Ð›", "Ðœ", "Ð�", "Ðž", "ÐŸ", "Ð ", "Ð¡", "Ð¢", "Ð£", "Ð¤", "Ð¥", "Ð¦", "Ð§", "Ð¨", "Ð©", "Ðª", "Ðª",
+      "Ð¬", "Ð­", "Ð®", "Ð¯"
     );
     $convert_to = array(
       "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-      "v", "w", "x", "y", "z", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï",
-      "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "ø", "ù", "ú", "û", "ü", "ý", "а", "б", "в", "г", "д", "е", "ё", "ж",
-      "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы",
-      "ь", "э", "ю", "я"
+      "v", "w", "x", "y", "z", "Ã ", "Ã¡", "Ã¢", "Ã£", "Ã¤", "Ã¥", "Ã¦", "Ã§", "Ã¨", "Ã©", "Ãª", "Ã«", "Ã¬", "Ã­", "Ã®", "Ã¯",
+      "Ã°", "Ã±", "Ã²", "Ã³", "Ã´", "Ãµ", "Ã¶", "Ã¸", "Ã¹", "Ãº", "Ã»", "Ã¼", "Ã½", "Ð°", "Ð±", "Ð²", "Ð³", "Ð´", "Ðµ", "Ñ‘", "Ð¶",
+      "Ð·", "Ð¸", "Ð¹", "Ðº", "Ð»", "Ð¼", "Ð½", "Ð¾", "Ð¿", "Ñ€", "Ñ�", "Ñ‚", "Ñƒ", "Ñ„", "Ñ…", "Ñ†", "Ñ‡", "Ñˆ", "Ñ‰", "ÑŠ", "Ñ‹",
+      "ÑŒ", "Ñ�", "ÑŽ", "Ñ�"
     );
     return str_replace($convert_from, $convert_to, $string);
   }
@@ -1325,17 +1371,17 @@ function charConv($string, $in, $out) {
   function strtoupper_utf8($string){
     $convert_from = array(
       "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
-      "v", "w", "x", "y", "z", "à", "á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï",
-      "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "ø", "ù", "ú", "û", "ü", "ý", "а", "б", "в", "г", "д", "е", "ё", "ж",
-      "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы",
-      "ь", "э", "ю", "я"
+      "v", "w", "x", "y", "z", "Ã ", "Ã¡", "Ã¢", "Ã£", "Ã¤", "Ã¥", "Ã¦", "Ã§", "Ã¨", "Ã©", "Ãª", "Ã«", "Ã¬", "Ã­", "Ã®", "Ã¯",
+      "Ã°", "Ã±", "Ã²", "Ã³", "Ã´", "Ãµ", "Ã¶", "Ã¸", "Ã¹", "Ãº", "Ã»", "Ã¼", "Ã½", "Ð°", "Ð±", "Ð²", "Ð³", "Ð´", "Ðµ", "Ñ‘", "Ð¶",
+      "Ð·", "Ð¸", "Ð¹", "Ðº", "Ð»", "Ð¼", "Ð½", "Ð¾", "Ð¿", "Ñ€", "Ñ�", "Ñ‚", "Ñƒ", "Ñ„", "Ñ…", "Ñ†", "Ñ‡", "Ñˆ", "Ñ‰", "ÑŠ", "Ñ‹",
+      "ÑŒ", "Ñ�", "ÑŽ", "Ñ�"
     );
     $convert_to = array(
       "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U",
-      "V", "W", "X", "Y", "Z", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï",
-      "Ð", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж",
-      "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ъ",
-      "Ь", "Э", "Ю", "Я"
+      "V", "W", "X", "Y", "Z", "Ã€", "Ã�", "Ã‚", "Ãƒ", "Ã„", "Ã…", "Ã†", "Ã‡", "Ãˆ", "Ã‰", "ÃŠ", "Ã‹", "ÃŒ", "Ã�", "ÃŽ", "Ã�",
+      "Ã�", "Ã‘", "Ã’", "Ã“", "Ã”", "Ã•", "Ã–", "Ã˜", "Ã™", "Ãš", "Ã›", "Ãœ", "Ã�", "Ð�", "Ð‘", "Ð’", "Ð“", "Ð”", "Ð•", "Ð�", "Ð–",
+      "Ð—", "Ð˜", "Ð™", "Ðš", "Ð›", "Ðœ", "Ð�", "Ðž", "ÐŸ", "Ð ", "Ð¡", "Ð¢", "Ð£", "Ð¤", "Ð¥", "Ð¦", "Ð§", "Ð¨", "Ð©", "Ðª", "Ðª",
+      "Ð¬", "Ð­", "Ð®", "Ð¯"
     );
     return str_replace($convert_from, $convert_to, $string);
   }
@@ -1344,31 +1390,31 @@ function charConv($string, $in, $out) {
 // Section 5. Extra Fields Functions
 /**************************************************************************************************************/
   function xtra_field_build_entry($param_array, $cInfo) {
-	$output = '<tr><td class="main">' . $param_array['description'] . '</td>';
+	$output = '<tr><td>' . $param_array['description'] . '</td>';
 	$params = unserialize($param_array['params']);
 	switch ($params['type']) {
 		case 'text':
 		case 'html':
 			if ($params['length'] < 256) {
 				$length = ($params['length'] > 120) ? 'size="120"' : ('size="' . $params['length'] . '"');
-				$output .= '<td class="main">' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], $length) . '</td></tr>';
+				$output .= '<td>' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], $length) . '</td></tr>';
 			} else {
-				$output .= '<td class="main">' . html_textarea_field($param_array['field_name'], DEFAULT_INPUT_FIELD_LENGTH, 4, $cInfo->$param_array['field_name']) . '</td></tr>';
+				$output .= '<td>' . html_textarea_field($param_array['field_name'], DEFAULT_INPUT_FIELD_LENGTH, 4, $cInfo->$param_array['field_name']) . '</td></tr>';
 			}
 			break;
 		case 'hyperlink':
 		case 'image_link':
 		case 'inventory_link':
-			$output .= '<td class="main">' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="' . DEFAULT_INPUT_FIELD_LENGTH . '"') . '</td></tr>';
+			$output .= '<td>' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="' . DEFAULT_INPUT_FIELD_LENGTH . '"') . '</td></tr>';
 			break;
 		case 'integer':
 		case 'decimal':
-			$output .= '<td class="main">' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="13" maxlength="12" style="text-align:right"') . '</td></tr>';
+			$output .= '<td>' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="13" maxlength="12" style="text-align:right"') . '</td></tr>';
 			break;
 		case 'date':
 		case 'time':
 		case 'date_time':
-			$output .= '<td class="main">' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="21" maxlength="20"') . '</td></tr>';
+			$output .= '<td>' . html_input_field($param_array['field_name'], $cInfo->$param_array['field_name'], 'size="21" maxlength="20"') . '</td></tr>';
 			break;
 		case 'drop_down':
 		case 'enum':
@@ -1380,10 +1426,10 @@ function charConv($string, $in, $out) {
 				$pull_down_selection[] = array('id' => $values[0], 'text' => $values[1]);
 				if ($cInfo->$param_array['field_name'] == $values[0]) $default_selection = $values[0];
 			}
-			$output .= '<td class="main">' . html_pull_down_menu($param_array['field_name'], $pull_down_selection, $default_selection) . '</td></tr>';
+			$output .= '<td>' . html_pull_down_menu($param_array['field_name'], $pull_down_selection, $default_selection) . '</td></tr>';
 			break;
 		case 'radio':
-			$output .= '<td class="main">';
+			$output .= '<td>';
 			$choices = explode(',',$params['default']);
 			while ($choice = array_shift($choices)) {
 				$values = explode(':',$choice);
@@ -1393,7 +1439,7 @@ function charConv($string, $in, $out) {
 			$output .= '</td></tr>';
 			break;
 		case 'multi_check_box':	
-			$output  .= '<td class="main">';
+			$output  .= '<td>';
 			$output  .= '<table frame="border"><tr>';
 			$choices  = explode(',',$params['default']);
 			$selected = explode(',',$cInfo->$param_array['field_name']);
@@ -1413,7 +1459,7 @@ function charConv($string, $in, $out) {
 			$output .= '</td></tr>';
 			break;	
 		case 'check_box':
-			$output .= '<td class="main">' . html_checkbox_field($param_array['field_name'], '1', ($cInfo->$param_array['field_name']==1) ? true : false) . '</td></tr>';
+			$output .= '<td>' . html_checkbox_field($param_array['field_name'], '1', ($cInfo->$param_array['field_name']==1) ? true : false) . '</td></tr>';
 			break;
 		case 'time_stamp':
 		default:
@@ -1433,6 +1479,15 @@ function validate_user($token = 0, $user_active = false) {
     gen_redirect(html_href_link(FILENAME_DEFAULT, '', 'SSL'));
   }
   return $user_active ? 1 : $security_level;
+}
+
+function validate_security($security_level = 0, $required_level = 1) {
+  global $messageStack;
+  if ($security_level < $required_level) {
+	$messageStack->add_session(ERROR_NO_PERMISSION, 'error');
+	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+  }
+  return true;
 }
 
 function validate_ajax_user($token = 0) {
@@ -1773,17 +1828,24 @@ function xml_to_object($xml = '') {
   return $output;
 }
 
-function object_to_xml($params, $multiple = false, $multiple_key = '') {
+function object_to_xml($params, $multiple = false, $multiple_key = '', $level = 0) {
   $output = NULL;
   if (!is_array($params) && !is_object($params)) return;
   foreach ($params as $key => $value) {
 	$xml_key = $multiple ? $multiple_key : $key;
     if       (is_array($value)) {
-	  $output .= object_to_xml($value, true, $key);
+	  $output .= object_to_xml($value, true, $key, $level);
     } elseif (is_object($value)) {
-	  $output .= "<" . $xml_key . ">\n" . object_to_xml($value) . "</" . $xml_key . ">\n";
+	  for ($i=0; $i<$level; $i++) $output .= "\t";
+	  $output .= "<" . $xml_key . ">\n";
+	  $output .= object_to_xml($value, '', '', $level+1);
+	  for ($i=0; $i<$level; $i++) $output .= "\t";
+	  $output .= "</" . $xml_key . ">\n";
 	} else {
-	  if ($value <> '') $output .= xmlEntry($xml_key, $value);
+	  if ($value <> '') {
+	    for ($i=0; $i<$level-1; $i++) $output .= "\t";
+	    $output .= xmlEntry($xml_key, $value);
+	  }
 	}
   }
   return $output;

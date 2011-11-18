@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/classes/form_generator.php
 //
-
 if (PDF_APP == 'TCPDF') { 
   define ('K_PATH_MAIN', DIR_FS_MODULES . 'phreeform/includes/tcpdf/');
   define ('K_PATH_URL',  DIR_WS_MODULES . 'phreeform/includes/tcpdf/');
@@ -27,7 +26,6 @@ if (PDF_APP == 'TCPDF') {
 }
 
 class PDF extends TCPDF {
-
 	var $y0;             // current y position
 	var $x0;             // current x position
 	var $pageY;          // y value of bottom of page less bottom margin
@@ -277,7 +275,7 @@ class PDF extends TCPDF {
 
 	function ShowTableRow($Params, $myrow, $FillThisRow, $FC, $Heading = false) {
 	  $MaxBoxY = $Params->ordinate + $Params->height; // figure the max y position on page
-	  $fillReq = $Heading ? $Params->fillshow : $Params->fillshow;
+	  $fillReq = $Heading ? $Params->hfillshow : $Params->fillshow;
 	  if ($FillThisRow && $fillReq) {
 	    $this->SetFillColor($FC[0], $FC[1], $FC[2]); 
 	  } else {
@@ -289,10 +287,10 @@ class PDF extends TCPDF {
 	  $NextXPos = $Params->abscissa;
 	  foreach ($myrow as $key => $value) {
 	    if (substr($key, 0, 1) == 'r') $key = substr($key, 1);  
-		$font  = ($Heading && $Params->headingfont  <> '') ? $Params->headingfont  : $Params->boxfield[$key]->font;
-		$size  = ($Heading && $Params->headingsize  <> '') ? $Params->headingsize  : $Params->boxfield[$key]->size;
-		$color = ($Heading && $Params->headingcolor <> '') ? $Params->headingcolor : $Params->boxfield[$key]->color;
-		$align = ($Heading && $Params->headingalign <> '') ? $Params->headingalign : $Params->boxfield[$key]->align;
+		$font  = ($Heading && $Params->hfont  <> '') ? $Params->hfont  : $Params->boxfield[$key]->font;
+		$size  = ($Heading && $Params->hsize  <> '') ? $Params->hsize  : $Params->boxfield[$key]->size;
+		$color = ($Heading && $Params->hcolor <> '') ? $Params->hcolor : $Params->boxfield[$key]->color;
+		$align = ($Heading && $Params->halign <> '') ? $Params->halign : $Params->boxfield[$key]->align;
 		$this->SetLeftMargin($NextXPos);
 		$this->SetXY($NextXPos, $this->y0);
 		$this->SetFont($font, '', $size);

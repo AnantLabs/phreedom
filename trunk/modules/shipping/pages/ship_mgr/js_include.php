@@ -26,6 +26,10 @@
 <?php echo js_calendar_init($cal_ship); ?>
 
 function init() {
+	$(function() {
+		$('#shippingtabs').tabs();
+	});
+	document.getElementById('search_date').onchange = calendarPage;
 }
 
 function check_form() {

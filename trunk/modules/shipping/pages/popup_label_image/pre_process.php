@@ -19,12 +19,11 @@
 //
 $security_level = validate_user(0, true);
 /**************   page specific initialization  *************************/
-
+require_once(DIR_FS_WORKING . 'defaults.php');
 $todo   = $_GET['todo'];
 $method = $_GET['method'];
 $date   = explode('-',$_GET['date']);
-$label = $_GET['label'];
-
+$label  = $_GET['label'];
 switch ($todo) {
   case 'notify':
   default:
@@ -32,12 +31,12 @@ switch ($todo) {
 	// show the form with a button to download
 	break;
   case 'download':
-	$file_path = DIR_FS_MY_FILES . $_SESSION['company'] . '/shipping/labels/' . $method . '/' . $date[0] . '/' . $date[1] . '/' . $date[2] . '/';
+	$file_path = SHIPPING_DEFAULT_LABEL_DIR.$method.'/'.$date[0].'/'.$date[1].'/'.$date[2].'/';
 	$file_name = $label . '.lpt';
 	if (file_exists($file_path . $file_name)) {
 	  $file_size = filesize($file_path . $file_name);
-	  $handle = fopen($file_path . $file_name, "r");
-	  $image = fread($handle, $file_size);
+	  $handle    = fopen($file_path . $file_name, "r");
+	  $image     = fread($handle, $file_size);
 	  fclose($handle);
 	  header('Content-type: application/octet-stream');
 	  header('Content-Length: ' . $file_size);
@@ -52,12 +51,10 @@ switch ($todo) {
 	}
 	break;
 }
-
 $custom_html      = true;
 $include_header   = false;
 $include_footer   = false;
 $include_tabs     = false;
 $include_calendar = false;
 $include_template = 'template_main.php';
-
 ?>

@@ -68,32 +68,27 @@ class dept_types {
 
   function build_main_html() {
   	global $db, $messageStack;
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-	$heading_array = array('description' => SETUP_INFO_DEPT_TYPES_NAME);
-	$result = html_heading_bar($heading_array, $_GET['list_order']);
-	$output .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output .= '  </tr>' . chr(10);
-	// Build field data
-    $query_raw = "select id, description from " . $this->db_table . " order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $result = $db->Execute($query_raw);
-    while (!$result->EOF) {
-      $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'dept_types_edit\', \'' . $result->fields['id'] . '\')">' . htmlspecialchars($result->fields['description']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($this->security_id > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'dept_types_edit\', \'' . $result->fields['id'] . '\')"') . chr(10);
-	  if ($this->security_id > 3) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_DEPT_TYPES_DELETE_INTRO . '\')) subjectDelete(\'dept_types\', ' . $result->fields['id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
+    $content = array();
+	$content['thead'] = array(
+	  'value' => array(SETUP_INFO_DEPT_TYPES_NAME, TEXT_ACTION),
+	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
+	);
+    $result = $db->Execute("select id, description from " . $this->db_table);
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $actions = '';
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'dept_types_edit\', \'' . $result->fields['id'] . '\')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_DEPT_TYPES_DELETE_INTRO . '\')) subjectDelete(\'dept_types\', ' . $result->fields['id'] . ')"') . chr(10);
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => htmlspecialchars($result->fields['description']),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'dept_types_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> 'align="right"'),
+	  );
       $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'dept_types_list', 'dept_types') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER_OF_DEPT_TYPES) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('dept_type_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -105,17 +100,21 @@ class dept_types {
 	} else {
       $cInfo = new objectInfo($result->fields);
 	}
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow">' . chr(10);
+	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
+	$output .= '  <thead class="ui-widget-header">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <th colspan="2">' . ($action=='new' ? SETUP_INFO_HEADING_NEW_DEPT_TYPES : SETUP_INFO_HEADING_EDIT_DEPT_TYPES) . '</th>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
+    $output .= '  <tr>' . chr(10);
 	$output .= '    <td colspan="2">' . ($action=='new' ? SETUP_DEPT_TYPES_INSERT_INTRO : HR_EDIT_INTRO) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_DEPT_TYPES_NAME . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('description', $cInfo->description) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
+	$output .= '  </tbody>' . "\n";
     $output .= '</table>' . chr(10);
     return $output;
   }

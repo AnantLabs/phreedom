@@ -17,15 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/admin/template_main.php
 //
-
-// start the form
 echo html_form('admin', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo',   '') . chr(10);
 echo html_hidden_field('subject','') . chr(10);
 echo html_hidden_field('rowSeq', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=admin', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -35,25 +31,24 @@ $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 echo $toolbar->build_toolbar();
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-
-<ul class="tabset_tabs">
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div id="admintabs">
+<ul>
 <?php
-  echo add_tab_list('general',           TEXT_GENERAL,              !$def_tab                      ? true : false);
-  echo add_tab_list('customers',         MENU_HEADING_CUSTOMERS,     $def_tab=='customers'         ? true : false);
-  echo add_tab_list('vendors',           MENU_HEADING_VENDORS,       $def_tab=='vendors'           ? true : false);
-  echo add_tab_list('chart_of_accounts', GL_POPUP_WINDOW_TITLE,      $def_tab=='chart_of_accounts' ? true : false);
-  echo add_tab_list('tax_auths',         SETUP_TITLE_TAX_AUTHS,      $def_tab=='tax_auths'         ? true : false);
-  echo add_tab_list('tax_auths_vend',    SETUP_TITLE_TAX_AUTHS_VEND, $def_tab=='tax_auths_vend'    ? true : false);
-  echo add_tab_list('tax_rates',         SETUP_TITLE_TAX_RATES,      $def_tab=='tax_rates'         ? true : false);
-  echo add_tab_list('tax_rates_vend',    SETUP_TITLE_TAX_RATES_VEND, $def_tab=='tax_rates_vend'    ? true : false);
+  echo add_tab_list('tab_general',           TEXT_GENERAL);
+  echo add_tab_list('tab_customers',         MENU_HEADING_CUSTOMERS);
+  echo add_tab_list('tab_vendors',           MENU_HEADING_VENDORS);
+  echo add_tab_list('tab_chart_of_accounts', GL_POPUP_WINDOW_TITLE);
+  echo add_tab_list('tab_tax_auths',         SETUP_TITLE_TAX_AUTHS);
+  echo add_tab_list('tab_tax_auths_vend',    SETUP_TITLE_TAX_AUTHS_VEND);
+  echo add_tab_list('tab_tax_rates',         SETUP_TITLE_TAX_RATES);
+  echo add_tab_list('tab_tax_rates_vend',    SETUP_TITLE_TAX_RATES_VEND);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
-    echo add_tab_list('custom',   TEXT_CUSTOM_TAB,                   $def_tab=='custom'            ? true : false);
+    echo add_tab_list('tab_custom',   TEXT_CUSTOM_TAB);
   }
-  echo add_tab_list('statistics', TEXT_STATISTICS,                   $def_tab=='statistics'        ? true : false);
+  echo add_tab_list('tab_stats',             TEXT_STATISTICS);
 ?>
 </ul>
-
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_general.php');
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_customers.php');
@@ -68,5 +63,5 @@ echo $toolbar->build_toolbar();
   }
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_stats.php');
 ?>
-
+</div>
 </form>

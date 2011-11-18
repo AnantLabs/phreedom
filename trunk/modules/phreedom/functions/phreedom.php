@@ -66,21 +66,36 @@ function load_language_dropdown($language_directory = 'modules/phreedom/language
 }
 
 function load_theme_dropdown() {
-  $output   = array();
-  $contents = scandir(DIR_FS_THEMES);
-  foreach ($contents as $theme) {
-	if ($theme <> '.' && $theme <> '..' && file_exists(DIR_FS_THEMES . $theme . '/config.php')) {
-	  if ($config_file = file(DIR_FS_THEMES . $theme . '/config.php')) {
-		foreach ($config_file as $line) {
-		  if (strstr($line,'\'THEME_NAME\'') !== false) {
-			$start_pos  = strpos($line, ',') + 2;
-			$end_pos    = strrpos($line, '\'');
-			$theme_name = trim(substr($line, $start_pos, $end_pos - $start_pos));
-			break;
-		  }
-		}
-		$output[$theme] = array('id' => $theme, 'text' => $theme_name);
+  $include_header  = false;
+  $include_calendar= false;
+  $output          = array();
+  $contents        = scandir(DIR_FS_THEMES);
+  foreach ($contents as $value) {
+	if ($value <> '.' && $value <> '..' && is_dir(DIR_FS_THEMES . $value)) {
+	  if (file_exists(DIR_FS_THEMES . $value . '/config.php')) {
+		include(DIR_FS_THEMES . $value . '/config.php');
+		$output[$value] = array('id' => $value, 'text' => $theme['name']);
 	  }
+	}
+  }
+  return $output;
+}
+
+function load_menu_dropdown() {
+  $output = array();
+  if (file_exists(DIR_FS_ADMIN . DIR_WS_THEMES . 'config.php')) {
+	include(DIR_FS_ADMIN . DIR_WS_THEMES . 'config.php');
+	foreach ($theme_menu_options as $key => $value) $output[] = array('id' => $key, 'text' => $value);
+  }
+  return $output;
+}
+
+function load_colors_dropdown() {
+  $output   = array();
+  $contents = scandir(DIR_FS_ADMIN . DIR_WS_THEMES .'/css/');
+  foreach ($contents as $color) {
+	if ($color <> '.' && $color <> '..' && is_dir(DIR_FS_ADMIN . DIR_WS_THEMES . '/css/'.$color)) {
+	  $output[$color] = array('id' => $color, 'text' => $color);
 	}
   }
   return $output;

@@ -18,24 +18,21 @@
 //  Path: /modules/contacts/pages/main/template_c_addbook.php
 //
 ?>
-<div id="cat_addbook" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_GENERAL; ?></h2>
-
+<div id="tab_addbook">
 <?php // *********************** SHIPPING ADDRESSES  *************************************
   if (defined('MODULE_SHIPPING_STATUS')) { // show shipping address for customers and vendors
-    echo '  <fieldset class="formAreaTitle">';
+    echo '  <fieldset>';
     echo '    <legend>' . ACT_CATEGORY_S_ADDRESS . '</legend>';
-    echo '    <table border="0" width="100%" cellspacing="2" cellpadding="2">';
+    echo '    <table class="ui-widget" style="border-style:none;width:100%;">';
     echo '      <tr><td>' . ACT_SHIPPING_MESSAGE . '</td></tr>';
     echo draw_address_fields($cInfo, $type . 's', true);
     echo '    </table>';
     echo '  </fieldset>';
   }
-
   // *********************** BILLING/BRANCH ADDRESSES  *********************************
-    echo '<fieldset class="formAreaTitle">';
+    echo '<fieldset>';
     echo '  <legend>' . ACT_CATEGORY_B_ADDRESS . '</legend>'; 
-    echo '  <table border="0" width="100%" cellspacing="2" cellpadding="2">';
+    echo '  <table class="ui-widget" style="border-collapse:collapse;width:100%;">';
     echo '    <tr><td>' . ACT_BILLING_MESSAGE . '</td></tr>';
     echo draw_address_fields($cInfo, $type . 'b', true);
     echo '  </table>';

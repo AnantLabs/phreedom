@@ -17,17 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/pages/popup_build/template_import.php
 //
-
-// start the form
 echo html_form('popup_build', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"') . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo',        '') . chr(10);
 echo html_hidden_field('id',          $id) . chr(10);
 echo html_hidden_field('parent_id',   $parent_id) . chr(10);
 echo html_hidden_field('doc_title',   '') . chr(10); // placeholder
 echo html_hidden_field('folder_path', '/');
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="self.close();"';
 $toolbar->icon_list['open']['show']     = false;
@@ -36,14 +32,11 @@ $toolbar->icon_list['print']['show']    = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->add_help('11.01.01');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<h2 align="center"><?php echo PAGE_TITLE; ?></h2>
-  <table align="center" border="0" cellspacing="1" cellpadding="1">
-    <tr>
-      <th colspan="2"><?php echo '&nbsp;'; ?></th>
-    </tr>
+<h1><?php echo PAGE_TITLE; ?></h1>
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+ <tbody class="ui-widget-content">
     <tr>
       <td colspan="2">
 	    <?php echo TEXT_ENTER_SEARCH_PARAMS_A; ?>
@@ -54,7 +47,7 @@ echo $toolbar->build_toolbar();
 		<?php echo html_button_field('refresh_dir', TEXT_SEARCH, 'onclick="submitToDo(\'refresh_dir\')"'); ?>
 	  </td>
     </tr>
-	<tr>
+	<tr  class="ui-widget-header">
       <th colspan="2"><?php echo PHREEFORM_DEFIMP; ?></th>
     </tr>
     <tr>
@@ -74,7 +67,7 @@ echo $toolbar->build_toolbar();
 		<?php echo html_button_field('import_one', TEXT_IMPORT_ONE, 'onclick="submitToDo(\'import_one\')"') . chr(10); ?>
 	  </td>
 	</tr>
-    <tr>
+    <tr class="ui-widget-header">
       <th colspan="2"><?php echo '&nbsp;'; ?></th>
     </tr>
 	<tr>
@@ -83,5 +76,6 @@ echo $toolbar->build_toolbar();
 		<?php echo html_button_field('import_all', TEXT_IMPORT_ALL, 'onclick="submitToDo(\'import_all\')"') . chr(10); ?>
 	  </td>
     </tr>
-  </table>
+  </tbody>
+</table>
 </form>

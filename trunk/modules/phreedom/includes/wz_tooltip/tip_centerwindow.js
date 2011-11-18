@@ -24,8 +24,8 @@ optionally even if the window is being scrolled or resized.
 // created.
 
 //===================  GLOBAL TOOPTIP CONFIGURATION  =========================//
-config. CenterWindow = false	// true or false - set to true if you want this to be the default behaviour
-config. CenterAlways = false	// true or false - recenter if window is resized or scrolled
+config. CenterWindow = false;	// true or false - set to true if you want this to be the default behaviour
+config. CenterAlways = false;	// true or false - recenter if window is resized or scrolled
 //=======  END OF TOOLTIP CONFIG, DO NOT CHANGE ANYTHING BELOW  ==============//
 
 

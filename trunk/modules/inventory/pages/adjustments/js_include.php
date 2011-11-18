@@ -17,101 +17,158 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/adjustments/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-var adj_qty                = 0;
-var unit_price_placeholder = false;
-var unit_price_note        = '<?php echo JS_COGS_AUTO_CALC; ?>';
-var securityLevel          = <?php echo $security_level; ?>;
+var securityLevel = <?php echo $security_level; ?>;
+var text_search   = '<?php echo TEXT_SEARCH; ?>';
 <?php echo js_calendar_init($cal_adj); ?>
 
 function init() {
-  document.getElementById('sku_1').focus();
 <?php if ($action == 'edit') echo '  EditAdjustment(' . $oID . ')'; ?>
-
 }
 
 function check_form() {
-  var error = 0;
-  var error_message = '<?php echo JS_ERROR; ?>';
-
-  var sku = document.getElementById('sku_1').value;
-  if (sku == '') { // check for sku not blank
-  	error_message += '<?php echo JS_NO_SKU_ENTERED; ?>';
-	error = 1;
-  }
-
-  var qty = document.getElementById('adj_qty').value;
-  if (qty == '' || qty == '0') { // check for quantity non-zero
-  	error_message += '<?php echo JS_ADJ_VALUE_ZERO; ?>';
-	error = 1;
-  }
-
-  if (error == 1) {
-    alert(error_message);
-    return false;
-  }
   return true;
 }
 
-// Insert other page specific functions here.
 function clearForm() {
   document.getElementById('id').value                  = 0;
-  document.getElementById('store_id').value            = 0;
+  document.getElementById('store_id').value            = <?php echo $_SESSION['admin_prefs']['def_store_id']; ?>;
   document.getElementById('purchase_invoice_id').value = '';
-  document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT, time()); ?>';
+  document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT); ?>';
   document.getElementById('adj_reason').value          = '';
-  document.getElementById('acct_1').value              = '';
-  document.getElementById('sku_1').value               = '';
-  document.getElementById('serial_1').value            = '';
-  document.getElementById('desc_1').value              = '';
-  document.getElementById('stock_1').value             = '0';
-  document.getElementById('price_1').value             = '';
-  document.getElementById('adj_qty').value             = '';
-  document.getElementById('balance').value             = '';
+  while (document.getElementById('item_table').rows.length > 0) removeInvRow(1);
+  addInvRow();
 }
 
 function InventoryList(rowCnt) {
   var bID = document.getElementById('store_id').value;
-  var sku = document.getElementById('sku_1').value;
-  window.open("index.php?module=inventory&page=popup_inv&list=1&type=v&storeID="+bID+"&search_text="+sku,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
+  var sku = document.getElementById('sku_'+rowCnt).value;
+  window.open("index.php?module=inventory&page=popup_inv&rowID="+rowCnt+"&type=v&storeID="+bID+"&search_text="+sku,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
+}
+
+function serialList(rowID) {
+  var choice    = document.getElementById('serial_'+rowID).value;
+  var newChoice = prompt('<?php echo 'Enter Serial Number:'; ?>', choice);
+  if (newChoice) document.getElementById('serial_'+rowID).value = newChoice;
+}
+
+function loadSkuDetails(iID, rowCnt) {
+  var bID = document.getElementById('store_id').value;
+  var sku = iID==0 ? document.getElementById('sku_'+rowCnt).value : '';
+  if (sku == text_search) return;
+  $.ajax({
+	type: "GET",
+	contentType: "application/json; charset=utf-8",
+	url: 'index.php?module=inventory&page=ajax&op=inv_details&iID='+iID+'&sku='+sku+'&bID='+bID+'&rID='+rowCnt,
+	dataType: ($.browser.msie) ? "text" : "xml",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	},
+	success: processSkuStock
+  });
+}
+
+function processSkuStock(sXml) {
+  var stock;
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  if (!$(xml).find("rID").text()) return; // no results
+  var rCnt = $(xml).find("rID").text();
+  var rQty = parseFloat(document.getElementById('qty_'+rCnt).value);
+  if (isNaN(rQty)) {
+    rQty = 1;
+    document.getElementById('qty_'+rCnt).value = rQty;
+  }
+  document.getElementById('sku_'+rCnt).value      = $(xml).find("sku").text();
+  document.getElementById('sku_'+rCnt).style.color= '';
+  document.getElementById('stock_'+rCnt).value    = parseFloat($(xml).find("branch_qty_in_stock").text());
+  document.getElementById('price_'+rCnt).value    = $(xml).find("item_cost").text();
+  document.getElementById('serial_'+rCnt).value   = '';
+  document.getElementById('acct_'+rCnt).value     = $(xml).find("account_inventory_wage").text();
+  document.getElementById('def_cost_'+rCnt).value = $(xml).find("item_cost").text();
+  document.getElementById('desc_'+rCnt).value     = $(xml).find("description_short").text();
+  if ($(xml).find("inventory_type").text() == 'sr') document.getElementById('imgSerial_'+rCnt).style.display = '';
+  updateBalance();
+  rowCnt  = document.getElementById('item_table').rows.length;
+  var qty = document.getElementById('qty_'+rowCnt).value;
+  var sku = document.getElementById('sku_'+rowCnt).value;
+  if (qty != '' && sku != '' && sku != text_search) rowCnt = addInvRow();
+}
+
+function updateBalance() {
+  for (var i=1; i<document.getElementById('item_table').rows.length+1; i++) {
+    var stock = parseFloat(document.getElementById('stock_'+i).value);
+	if (isNaN(stock)) stock = 0;
+    var adj   = parseFloat(document.getElementById('qty_'+i).value);
+	if (isNaN(adj)) adj = 0;
+    if (adj < 0) {
+	  document.getElementById('price_'+i).value = '';
+	  document.getElementById('price_'+i).readOnly = true;
+    } else {
+	  if (document.getElementById('price_'+i).value == '') document.getElementById('price_'+i).value = document.getElementById('def_cost_'+i).value;
+	  document.getElementById('price_'+i).readOnly = false;	
+    }
+    document.getElementById('bal_'+i).value = stock + adj;
+  }
+}
+
+function addInvRow() {
+  var wrap   = new Array();
+  var cell   = new Array();
+  var newRow = document.getElementById("item_table").insertRow(-1);
+  var rowCnt = newRow.rowIndex;
+  // NOTE: any change here also need to be intemplate form for reload if action fails
+  cell[0]  = buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', '<?php echo TEXT_DELETE; ?>', 'style="cursor:pointer" onclick="if (confirm(\'<?php echo TEXT_ROW_DELETE_ALERT; ?>\')) removeInvRow('+rowCnt+');"');
+  cell[1]  = '    <input type="text" name="sku_'+rowCnt+'" id="sku_'+rowCnt+'" value="'+text_search+'" size="<?php echo (MAX_INVENTORY_SKU_LENGTH + 1); ?>" maxlength="<?php echo MAX_INVENTORY_SKU_LENGTH; ?>" onfocus="clearField(\'sku_'+rowCnt+'\', \''+text_search+'\')" onblur="setField(\'sku_'+rowCnt+'\', \''+text_search+'\'); loadSkuDetails(0, '+rowCnt+')">';
+  cell[1] += buildIcon(icon_path+'16x16/actions/system-search.png', '<?php echo TEXT_SEARCH; ?>', 'style="cursor:pointer" onclick="InventoryList('+rowCnt+')"');
+  cell[1] += buildIcon(icon_path+'16x16/actions/tab-new.png', '<?php echo TEXT_SERIAL_NUMBER; ?>', 'id="imgSerial_'+rowCnt+'" style="cursor:pointer; display:none;" onclick="serialList('+rowCnt+')"');
+// Hidden fields
+  cell[1] += '<input type="hidden" name="serial_'+rowCnt+'" id="serial_'+rowCnt+'" value="" />';
+  cell[1] += '<input type="hidden" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="" />';
+  cell[1] += '<input type="hidden" name="def_cost_'+rowCnt+'" id="def_cost_'+rowCnt+'" value="" />';
+// End hidden fields
+  cell[2]  = '    <input type="text" name="stock_'+rowCnt+'" id="stock_'+rowCnt+'" readonly="readonly" style="text-align:right" size="6" maxlength="5">';
+  cell[3]  = '    <input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'" style="text-align:right" size="6" maxlength="5" onchange="updateBalance('+rowCnt+')">';
+  cell[4]  = '    <input type="text" name="price_'+rowCnt+'" id="price_'+rowCnt+'" style="text-align:right" size="10" maxlength="9">';
+  cell[5]  = '    <input type="text" name="bal_'+rowCnt+'" id="bal_'+rowCnt+'" readonly="readonly" style="text-align:right" size="6" maxlength="5">';
+  cell[6]  = '    <input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="64" maxlength="63">';
+  wrap[1]  = 'nowrap';
+  for (var i=0; i<cell.length; i++) {
+	newCell = newRow.insertCell(-1);
+	newCell.innerHTML = cell[i];
+	if (wrap[i]) newCell.style.whiteSpace = wrap[i];
+  }
+  setField('sku_'+rowCnt, text_search);
+  return rowCnt;
+}
+
+function removeInvRow(delRowCnt) {
+  var glIndex = delRowCnt;
+  for (var i=delRowCnt; i<document.getElementById("item_table").rows.length; i++) {
+	document.getElementById('sku_'+i).value      = document.getElementById('sku_'+(i+1)).value;
+// Hidden fields
+	document.getElementById('serial_'+i).value   = document.getElementById('serial_'+(i+1)).value;
+	document.getElementById('acct_'+i).value     = document.getElementById('acct_'+(i+1)).value;
+	document.getElementById('def_cost_'+i).value = document.getElementById('def_cost_'+(i+1)).value;
+// End hidden fields
+	document.getElementById('stock_'+i).value    = document.getElementById('stock_'+(i+1)).value;
+	document.getElementById('qty_'+i).value      = document.getElementById('qty_'+(i+1)).value;
+	document.getElementById('price_'+i).value    = document.getElementById('price_'+(i+1)).value;
+	document.getElementById('bal_'+i).value      = document.getElementById('bal_'+(i+1)).value;
+	document.getElementById('desc_'+i).value     = document.getElementById('desc_'+(i+1)).value;
+	document.getElementById('sku_'+i).style.color = (document.getElementById('sku_'+i).value == text_search) ? inactive_text_color : '';
+	glIndex++; // increment the row counter (two rows per entry)
+  }
+  document.getElementById("item_table").deleteRow(-1);
+  updateBalance();
 }
 
 function OpenAdjList() {
-  clearForm();
   window.open("index.php?module=inventory&page=popup_adj&list=1&form=inv_adj","inv_adj_open","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
-}
-
-function loadSkuDetails(iID) {
-  var bID = document.getElementById('store_id').value;
-    $.ajax({
-      type: "GET",
-      contentType: "application/json; charset=utf-8",
-	  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&iID='+iID+'&bID='+bID,
-      dataType: ($.browser.msie) ? "text" : "xml",
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-      },
-	  success: processSkuDetails
-    });
-}
-
-function processSkuDetails(sXml) { // call back function
-  var text = '';
-  var xml = parseXml(sXml);
-  if (!xml) return;
-  document.getElementById('price_1').value     = formatPrecise($(xml).find("item_cost").text());
-  document.getElementById('acct_1').value      = $(xml).find("account_cost_of_sales").text();
-  document.getElementById('stock_1').value     = $(xml).find("branch_qty_in_stock").text();
-  document.getElementById('sku_1').value       = $(xml).find("sku").text();
-  document.getElementById('sku_1').style.color = '';
-  document.getElementById('desc_1').value      = $(xml).find("description_purchase").text();
-  var type = $(xml).find("inventory_type").text();
-  if (type=='sr' || type=='sa') document.getElementById('serial_row').style.display = '';
 }
 
 function EditAdjustment(rID) {
@@ -139,73 +196,28 @@ function processEditAdjustment(sXml) {
   // turn off some icons
   if (id && securityLevel < 3) removeElement('tb_main_0', 'tb_icon_save');
   // fill item rows
+  var rowCnt = 1;
   $(xml).find("items").each(function() {
 	var type = $(this).find("gl_type").text();
 	switch (type) {
 	  case 'ttl':
 		document.getElementById('adj_reason').value = $(this).find("description").text();
-		document.getElementById('acct_1').value     = $(this).find("gl_account").text();
+		document.getElementById('gl_acct').value    = $(this).find("gl_account").text();
 	    break;
 	  case 'adj':
 		sku = $(this).find("sku").text();
 		qty = $(this).find("qty").text();
-		document.getElementById('sku_1').value      = sku;
-		document.getElementById('serial_1').value   = $(this).find("serialize").text();
-		document.getElementById('desc_1').value     = $(this).find("description").text();
-		document.getElementById('price_1').value    = formatPrecise($(this).find("debit_amount").text() / qty);
-		document.getElementById('adj_qty').value    = qty;
-		adj_qty = qty;
-	  default: // do nothing
+		document.getElementById('sku_'+rowCnt).value      = sku;
+		document.getElementById('sku_'+rowCnt).style.color= (document.getElementById('sku_'+rowCnt).value == text_search) ? inactive_text_color : '';
+		document.getElementById('serial_'+rowCnt).value   = $(this).find("serialize_number").text();
+		document.getElementById('qty_'+rowCnt).value      = qty;
+		document.getElementById('price_'+rowCnt).value    = formatPrecise($(this).find("debit_amount").text() / qty);
+		document.getElementById('desc_'+rowCnt).value     = $(this).find("description").text();
+		loadSkuDetails(0, rowCnt);
+		rowCnt = addInvRow();
+	  default:
 	}
   });
-  loadSkuStock(sku);
-}
-
-function loadSkuStock(sku) {
-  var bID = document.getElementById('store_id').value;
-	$.ajax({
-	  type: "GET",
-	  contentType: "application/json; charset=utf-8",
-	  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuStock&sku='+sku+'&bID='+bID,
-	  dataType: ($.browser.msie) ? "text" : "xml",
-	  error: function(XMLHttpRequest, textStatus, errorThrown) {
-		alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-	  },
-	  success: processSkuStock
-	});
-  updateBalance()
-}
-
-function processSkuStock(sXml) { // call back function
-  var text = '';
-  var xml = parseXml(sXml);
-  if (!xml) return;
-  document.getElementById('stock_1').value = $(xml).find("branch_qty_in_stock").text() - adj_qty;
-  updateBalance();
-}
-
-function updateBalance() {
-  var stock = parseFloat(document.getElementById('stock_1').value);
-  var adj   = parseFloat(document.getElementById('adj_qty').value);
-  document.getElementById('balance').value = stock + adj;
-  if (adj < 0) {
-	unit_price_placeholder = document.getElementById('price_1').value;
-	document.getElementById('price_1').value = '';
-	document.getElementById('price_1').readOnly = true;
-	if (document.all) { // IE browsers
-	  document.getElementById('unit_price_id').innerText = unit_price_note;
-	} else { //firefox
-	  document.getElementById('unit_price_id').textContent = unit_price_note;
-	}
-  } else {
-	if (unit_price_placeholder) document.getElementById('price_1').value = unit_price_placeholder;
-	document.getElementById('price_1').readOnly = false;	
-	if(document.all) { // IE browsers
-	  document.getElementById('unit_price_id').innerText = '';
-	} else { //firefox
-	  document.getElementById('unit_price_id').textContent = '';
-	}
-  }
 }
 
 // -->

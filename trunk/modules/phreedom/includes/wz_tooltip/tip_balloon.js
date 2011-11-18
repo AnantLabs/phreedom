@@ -23,12 +23,12 @@ Implements balloon tooltips.
 // created.
 
 //===================  GLOBAL TOOPTIP CONFIGURATION  =========================//
-config. Balloon = true				// true or false - set to true if you want this to be the default behaviour
-config. BalloonImgPath = "modules/phreedom/includes/wz_tooltip/tip_balloon/" // Path to images (border, corners, stem), in quotes. Path must be relative to your HTML file.
+config. Balloon = true;				// true or false - set to true if you want this to be the default behaviour
+config. BalloonImgPath = "modules/phreedom/includes/wz_tooltip/tip_balloon/"; // Path to images (border, corners, stem), in quotes. Path must be relative to your HTML file.
 // Sizes of balloon images
-config. BalloonEdgeSize = 5			// Integer - sidelength of quadratic corner images
-config. BalloonStemWidth = 15		// Integer
-config. BalloonStemHeight = 19		// Integer
+config. BalloonEdgeSize = 5;			// Integer - sidelength of quadratic corner images
+config. BalloonStemWidth = 15;		// Integer
+config. BalloonStemHeight = 19;		// Integer
 //=======  END OF TOOLTIP CONFIG, DO NOT CHANGE ANYTHING BELOW  ==============//
 
 
@@ -78,7 +78,7 @@ balloon.OnCreateContentString = function()
 	sCssImg = 'padding:0px;margin:0px;border:0px;';
 	sImgZ = '" style="' + sCssImg + '" />';
 	
-	tt_sContent = '<table border="0" cellpadding="0" cellspacing="0" style="width:auto;padding:0px;margin:0px;left:0px;top:0px;"><tr>'
+	tt_sContent = '<table cellpadding="0" cellspacing="0" style="width:auto;padding:0px;margin:0px;left:0px;top:0px;"><tr>'
 				// Left-top corner
 				+ '<td' + sCssCrn + ' valign="bottom">'
 				+ '<img src="' + aImg[1].src + '" width="' + tt_aV[BALLOONEDGESIZE] + '" height="' + tt_aV[BALLOONEDGESIZE] + sImgZ

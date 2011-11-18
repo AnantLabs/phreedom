@@ -42,34 +42,34 @@ echo $toolbar->build_toolbar();
 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo MODULE_SHIPPING_ITEM_TEXT_TITLE; ?></div>
+<h1><?php echo MODULE_SHIPPING_ITEM_TEXT_TITLE; ?></h1>
 <div>
 <fieldset id="recp">
 <legend><?php echo SHIPPING_SHIPMENT_DETAILS; ?></legend>
-<table border="0" cellspacing="0" cellpadding="2">
+<table>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_TEXT_REFERENCE_ID; ?></td>
-		<td class="dataTableContent"><?php echo html_input_field('purchase_invoice_id', $sInfo->purchase_invoice_id); ?></td>
+		<td><?php echo SHIPPING_TEXT_REFERENCE_ID; ?></td>
+		<td><?php echo html_input_field('purchase_invoice_id', $sInfo->purchase_invoice_id); ?></td>
 	</tr>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_SERVICE_TYPE; ?></td>
-		<td class="dataTableContent"><?php echo html_pull_down_menu('ship_method', gen_build_pull_down($shipping_methods), $sInfo->ship_method); ?></td>
+		<td><?php echo SHIPPING_SERVICE_TYPE; ?></td>
+		<td><?php echo html_pull_down_menu('ship_method', gen_build_pull_down($shipping_methods), $sInfo->ship_method); ?></td>
 	</tr>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_TEXT_SHIPMENT_DATE; ?></td>
-		<td class="dataTableContent"><?php echo html_calendar_field($cal_ship); ?></td>
+		<td><?php echo SHIPPING_TEXT_SHIPMENT_DATE; ?></td>
+		<td><?php echo html_calendar_field($cal_ship); ?></td>
 	</tr>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_TEXT_EXPECTED_DATE; ?></td>
-		<td class="dataTableContent"><?php echo html_calendar_field($cal_exp); ?></td>
+		<td><?php echo SHIPPING_TEXT_EXPECTED_DATE; ?></td>
+		<td><?php echo html_calendar_field($cal_exp); ?></td>
 	</tr>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_TEXT_TRACKING_NUM; ?></td>
-		<td class="dataTableContent"><?php echo html_input_field('tracking_id', $sInfo->tracking_id, 'size="25" maxlength="24"'); ?></td>
+		<td><?php echo SHIPPING_TEXT_TRACKING_NUM; ?></td>
+		<td><?php echo html_input_field('tracking_id', $sInfo->tracking_id, 'size="25" maxlength="24"'); ?></td>
 	</tr>
 	<tr>
-		<td class="dataTableContent"><?php echo SHIPPING_TEXT_COST; ?></td>
-		<td class="dataTableContent"><?php echo html_input_field('cost', $currencies->format($sInfo->cost), 'size="15" maxlength="14" style="text-align:right"'); ?></td>
+		<td><?php echo SHIPPING_TEXT_COST; ?></td>
+		<td><?php echo html_input_field('cost', $currencies->format($sInfo->cost), 'size="15" maxlength="14" style="text-align:right"'); ?></td>
 	</tr>
 </table>
 </fieldset>

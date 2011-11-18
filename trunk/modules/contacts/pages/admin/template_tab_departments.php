@@ -17,7 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/template_tab_departments.php
 //
-$departments_toolbar = new toolbar;
+$departments_toolbar = new toolbar('departments');
 $departments_toolbar->icon_list['cancel']['show'] = false;
 $departments_toolbar->icon_list['open']['show']   = false;
 $departments_toolbar->icon_list['save']['show']   = false;
@@ -27,9 +27,8 @@ if ($security_level > 1) $departments_toolbar->add_icon('new', 'onclick="loadPop
 if ($departments->extra_buttons) $departments->customize_buttons($departments_toolbar);
 
 ?>
-<div id="departments" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_DEPARTMENTS_TABS; ?></h2>
+<div id="tab_departments">
   <?php echo $departments_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $departments->title; ?></div>
+  <h1><?php echo $departments->title; ?></h1>
   <div id="departments_content"><?php echo $departments->build_main_html(); ?></div>
 </div>

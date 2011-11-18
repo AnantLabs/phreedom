@@ -220,6 +220,15 @@ function fill_paid_invoice_array($id, $account_id, $type = 'c') {
 	  );
 	  $index++;
 	}
+	switch(PHREEBOOKS_DEFAULT_BILL_SORT) {
+	  case 'due_date': // sort the open invoice array to order by preference
+		foreach ($item_list as $key => $row) {
+			$net_date[$key]   = $row['net_date'];
+			$invoice_id[$key] = $row['purchase_invoice_id'];
+		}
+		array_multisort($net_date, SORT_ASC, $invoice_id, SORT_ASC, $item_list);
+	  default: // sort by invoice number
+	}
     return array('balance' => $balance, 'payment_fields' => $payment_fields, 'invoices' => $item_list);
 }
 

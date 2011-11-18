@@ -17,36 +17,26 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/popup_bar_code/template_main.php
 //
-
-// start the form
 echo html_form('bar_code', FILENAME_DEFAULT) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="self.close()"';
 $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo POPUP_BAR_CODE_TITLE; ?></div>
-<table border="0" align="center" cellspacing="1" cellpadding="1">
-  <tr>
-	<th colspan="2"><?php echo ORD_BAR_CODE_INTRO; ?></th>
-  </tr>
+<h1><?php echo POPUP_BAR_CODE_TITLE; ?></h1>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
+  <tr><th colspan="2"><?php echo ORD_BAR_CODE_INTRO; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
   <tr>
 	<td align="right"><?php echo TEXT_QUANTITY; ?></td>
 	<td><?php echo html_input_field('qty', '1', 'size="6"'); ?></td>
@@ -58,5 +48,6 @@ echo $toolbar->build_toolbar();
 	  <?php echo html_icon('devices/media-floppy.png', TEXT_SAVE, 'small', 'onclick="setReturnItem(true)"'); ?>
 	</td>
   </tr>
+ </tbody>
 </table>
 </form>

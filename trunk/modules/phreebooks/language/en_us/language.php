@@ -58,6 +58,7 @@ define('ORD_DISCOUNT_PERCENT','Discount Percent (%)');
 define('ORD_DROP_SHIP', 'Drop Ship');
 define('ORD_EXPECTED_DATES','Expected Delivery Dates - ');
 define('TEXT_EXPIRATION_DATE','Expiration Date');
+define('GL_FISCAL_YEAR','Fiscal Year');
 define('ORD_FREIGHT', 'Freight');
 define('ORD_FREIGHT_ESTIMATE', 'Freight Estimate');
 define('TEXT_JOURNAL_TYPE', 'Journal Type');
@@ -104,9 +105,7 @@ define('ORD_CONVERT_TO_INV','Convert to Invoice ');
 define('ORD_PO_MESSAGE','Leave the Purchase Order number blank to let the system assign a number.');
 define('ORD_CONVERT_TO_RFQ_PO','Convert to Purchase Order');
 define('ORD_CONVERT_TO_SO_INV','Convert to Sales Order/Invoice');
-define('ORD_CONVERT_TO_PO','Auto Generate Purchase Order ');
 define('TEXT_TRANSACTION_AMOUNT','Transaction Amount');
-define('TEXT_REFERENCE_NUMBER','Invoice/Order Number');
 define('TEXT_CUST_VEND_ACCT','Customer/Vendor Contact');
 define('TEXT_INVENTORY_ITEM','Inventory Item');
 define('TEXT_GENERAL_LEDGER_ACCOUNT','General Ledger Account');
@@ -247,7 +246,7 @@ define('ORD_JS_RECUR_NO_INVOICE','For a recurring transaction, a starting invoic
 define('ORD_JS_RECUR_ROLL_REQD','This is a recurring entry. Do you want to update future entries as well? (Press Cancel to update only this entry)');
 define('ORD_JS_RECUR_DEL_ROLL_REQD','This is a recurring entry. Do you want to delete future entries as well? (Press Cancel to delete only this entry)');
 define('ORD_JS_WAITING_FOR_PAYMENT','Either Waiting for Invoice needs to be checked or an invoice number needs to be entered.');
-define('ORD_JS_SERIAL_NUM_PROMPT','Enter the serial number for this line item. NOTE: The quantiy must be 1 for serialized items.');
+define('ORD_JS_SERIAL_NUM_PROMPT','Enter the serial number for this line item. NOTE: The quantity must be 1 for serialized items.');
 define('ORD_JS_NO_STOCK_A','Caution! There is not enough of item SKU ');
 define('ORD_JS_NO_STOCK_B',' in stock to fill the order.\nThe number of items in stock is: ');
 define('ORD_JS_NO_STOCK_C','\n\nPress OK to continue or Cancel to return to the order form.');
@@ -262,7 +261,6 @@ define('LOW_STOCK_NO_PRODUCTS','There are no products that need to be orderd for
 define('LOW_STOCK_NO_VENDOR','No vendor found');
 define('LOW_STOCK_ALREADY_EXECUTED','This action was executed before and is now blocked to prevent double entry. Reload the form to try again!');
 // Audit Log Messages
-define('ORD_DELIVERY_DATES','PO/SO Delivery Dates - ');
 define('BNK_LOG_ACCT_RECON','Account Reconciliation, period: ');
 define('GL_LOG_ADD_JOURNAL','General Journal Entry - ');
 define('GL_LOG_FY_UPDATE','General Journal Fiscal Year - ');
@@ -307,5 +305,11 @@ define('GENERAL_JOURNAL_12_ERROR_6','SI - An invoice cannot be deleted if there 
 define('GENERAL_JOURNAL_13_ERROR_6','CCM - An credit memo cannot be deleted if there has been a payment applied!');
 define('GENERAL_JOURNAL_18_ERROR_6','CR - An receipt cannot be deleted if the entry has been reconciled with the bank!');
 define('GENERAL_JOURNAL_20_ERROR_6','VP - A payment cannot be deleted if the entry has been reconciled with the bank!');
+// credit limit overlay
+define('TEXT_CREDIT_LIMIT_TITLE','!!! Over Credit Limit !!!');
+define('TEXT_CREDIT_LIMIT_DESC','This order will exceed the customers credit limit! Authorization is necessary to continue.');
+define('TEXT_ADMIN_USER','Enter Admim Username');
+define('TEXT_ADMIN_PASS','Enter Admim Password');
+define('TEXT_ADMIN_NOT_VALIDATED','The override username and password was not valid. Please try again.');
 
 ?>

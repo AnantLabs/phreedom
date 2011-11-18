@@ -179,110 +179,95 @@ switch ($action) {
 		break;
 	}
 	$tolerance    = 1 / pow(10, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']); // i.e. 1 cent in USD
+	// pull fiscal years
 	$fiscal_years = array();
-	$sql = "select distinct fiscal_year, min(period) as first_period, max(period) as last_period
-	  from " . TABLE_ACCOUNTING_PERIODS . " group by fiscal_year order by fiscal_year ASC";
-	$result = $db->Execute($sql);
+	$result = $db->Execute("select distinct fiscal_year, max(period) as last_period
+	  from " . TABLE_ACCOUNTING_PERIODS . " group by fiscal_year order by fiscal_year ASC");
+	$max_periods = array();
 	while (!$result->EOF) {
-	  $fiscal_years[] = array(
-	    'fiscal_year'  => $result->fields['fiscal_year'],
-		'first_period' => $result->fields['first_period'],
-		'last_period'  => $result->fields['last_period']);
+	  $max_periods[] = $result->fields['last_period'];
+	  $max_period    = $result->fields['last_period'];
 	  $result->MoveNext();
 	}
-	$result = $db->Execute("select id from " . TABLE_CHART_OF_ACCOUNTS . " where account_type = 44");
-	$retained_earnings_acct = $result->fields['id'];
 
-	$beg_bal      = array();
+	// select list of accounts that need to be closed, adjusted
+	$sql = "select id, account_type from " . TABLE_CHART_OF_ACCOUNTS . " where account_type in (30, 32, 34, 42, 44)";
+	$result = $db->Execute($sql);
+	$acct_list = array();
+	while(!$result->EOF) {
+	  $acct_list[] = $result->fields['id'];
+	  if ($result->fields['account_type'] == 44) $retained_earnings_acct = $result->fields['id'];
+	  $result->MoveNext();
+	}
+	$history = array();
 	$bad_accounts = array();
-	foreach ($fiscal_years as $fiscal_year) {
-	  $sql = "select account_id, period, beginning_balance, debit_amount, credit_amount, 
-	      (beginning_balance + debit_amount - credit_amount) as next_beg_bal
-		from " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " 
-		where period >= " . $fiscal_year['first_period'] . " and period <= " . $fiscal_year['last_period'] . " 
-		order by period, account_id";
-	  $result = $db->Execute($sql);
-	  while (!$result->EOF) {
-	    if ($result->fields['account_id'] == $retained_earnings_acct) { // skip rounding account since it can change
-		  $result->MoveNext();
-		  continue;
-		}
-		$period       = $result->fields['period'];
-		$gl_account   = $result->fields['account_id'];
+	$result = $db->Execute("select period, account_id, beginning_balance, debit_amount, credit_amount 
+	    from " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " order by account_id, period");
+	while(!$result->EOF) {
+	  $history[$result->fields['account_id']][$result->fields['period']] = array(
+	    'beg_bal' => $result->fields['beginning_balance'],
+	    'debit'   => $result->fields['debit_amount'],
+	    'credit'  => $result->fields['credit_amount'],
+	  );
+	  $result->MoveNext();	
+	}
+	// check beginning balances
+	$first_error_period = 9999;
+	foreach ($history as $acct => $activity) {
+	  foreach ($activity as $period => $data) {
+	    if ($period == $max_period || $acct == $retained_earnings_acct) continue; // skip the last period, retained earnings account
+		// read and check with journal
 		$posted = $db->Execute("select sum(debit_amount) as debit, sum(credit_amount) as credit 
 		  from " . TABLE_JOURNAL_MAIN . " m join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-		  where period = " . $period . " and gl_account = '" . $gl_account . "' 
+		  where period = " . $period . " and gl_account = '" . $acct . "' 
 		  and journal_id in (2, 6, 7, 12, 13, 14, 16, 18, 19, 20, 21)");
-		if ($posted->RecordCount() == 0) { // no records posted during this period, set credits and debits to zero
-		  $posted->fields['debit']  = 0;
-		  $posted->fields['credit'] = 0;
-		}
-		$next_period  = $period + 1;
-		$beg_balance  = $currencies->format($result->fields['beginning_balance']);
-		$next_beg_bal = $currencies->format($result->fields['next_beg_bal']);
-		$beg_bal[$next_period][$gl_account] = $next_beg_bal;
-		if ($period <> 1 && $beg_bal[$period][$gl_account] <> $beg_balance) {
-		  if ($action <> 'coa_hist_fix') $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, $period, $gl_account, $beg_bal[$period][$gl_account], $beg_balance),'caution');
-		  $bad_accounts[$period][$gl_account] = array('sync' => '1');
-		}
-		// check posted transactions to account to see if they match
-		$diff_debit  = $currencies->format($result->fields['debit_amount']  - $posted->fields['debit']);
-		$diff_credit = $currencies->format($result->fields['credit_amount'] - $posted->fields['credit']);
+		$posted->fields['debit']  = $posted->fields['debit']  ? $posted->fields['debit']  : 0;
+		$posted->fields['credit'] = $posted->fields['credit'] ? $posted->fields['credit'] : 0;
+		$diff_debit   = $currencies->format($history[$acct][$period]['debit']  - $posted->fields['debit']);
+		$diff_credit  = $currencies->format($history[$acct][$period]['credit'] - $posted->fields['credit']);
+		$posted_bal   = $currencies->format($history[$acct][$period]['beg_bal'] + $history[$acct][$period]['debit'] - $history[$acct][$period]['credit']);
+		$next_beg_bal = $history[$acct][$period]['beg_bal'] + $posted->fields['debit'] - $posted->fields['credit'];
+		if (in_array($acct, $acct_list) && in_array($period, $max_periods)) $next_beg_bal = 0;
 		if (abs($diff_debit) > $tolerance || abs($diff_credit) > $tolerance) {
-		  if ($action <> 'coa_hist_fix') {
-			$posted_bal = $currencies->format($result->fields['beginning_balance'] + $posted->fields['debit'] - $posted->fields['credit']);
-		    $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, $period, $gl_account, $posted_bal, $next_beg_bal),'caution');
+		  if ($action == 'coa_hist_test') {
+		    $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, 'gl '.$period, $acct, $posted_bal, $currencies->format($next_beg_bal)), 'caution');
 		  }
-		  $bad_accounts[$period][$gl_account] = array(
-		    'sync'   => '1',
-		    'debit'  => $posted->fields['debit'],
-		    'credit' => $posted->fields['credit'],
-		  );
+		  $bad_accounts[$acct][$period]['debit_amount']  = $posted->fields['debit'];
+		  $bad_accounts[$acct][$period]['credit_amount'] = $posted->fields['credit'];
+		  $history[$acct][$period]['debit']     = $posted->fields['debit'];
+		  $history[$acct][$period]['credit']    = $posted->fields['credit'];
+		  $first_error_period = min($first_error_period, $period);
 		}
-		$result->MoveNext();
+		if ($currencies->format(abs($next_beg_bal - $history[$acct][$period+1]['beg_bal'])) > $tolerance) {
+		  if ($action == 'coa_hist_test') {
+		    $messageStack->add(sprintf(GEN_ADM_TOOLS_REPAIR_ERROR_MSG, 'bb '.$period, $acct, $posted_bal, $currencies->format($next_beg_bal)), 'caution');
+		  }
+		  $bad_accounts[$acct][$period+1]['beginning_balance'] = $next_beg_bal;
+		  $history[$acct][$period+1]['beg_bal'] = $next_beg_bal;
+		  $first_error_period = min($first_error_period, $period);
+		}
+		$totals[$period]['beg_bal'] += $history[$acct][$period]['beg_bal'];
+		$totals[$period]['debit']   += $history[$acct][$period]['debit'];
+		$totals[$period]['credit']  += $history[$acct][$period]['credit'];
+		// read and check history db values
 	  }
-	  // roll the fiscal year balances
-	  // select list of accounts that need to be closed, adjusted
-	  $sql = "select id from " . TABLE_CHART_OF_ACCOUNTS . " where account_type in (30, 32, 34, 42, 44)";
-	  $result = $db->Execute($sql);
-	  $acct_list = array();
-	  while(!$result->EOF) {
-		$beg_bal[$next_period][$result->fields['id']] = 0;
-		$acct_list[] = $result->fields['id'];
-		$result->MoveNext();
-	  }
-	  // fetch the totals for the closed accounts
-	  $sql = "select sum(beginning_balance + debit_amount - credit_amount) as retained_earnings 
-		from " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " 
-		where account_id in ('" . implode("','",$acct_list) . "') and period = " . $period;
-	  $result = $db->Execute($sql);
-	  $beg_bal[$next_period][$retained_earnings_acct] = $currencies->format($result->fields['retained_earnings']);
 	}
-	if ($action == 'coa_hist_fix') {
-	  // find the affected accounts
-	  if (sizeof($bad_accounts) > 0) {
+	if ($action == 'coa_hist_fix' && sizeof($bad_accounts) > 0) {
 		// *************** START TRANSACTION *************************
 		$db->transStart();
 	    $glEntry = new journal();
-		$min_period = 999999;
-		foreach ($bad_accounts as $period => $acct_array) {
-		  foreach ($acct_array as $gl_acct => $value) {
-			$min_period = min($period, $min_period); // find first period that has an error
-			$glEntry->affected_accounts[$gl_acct] = 1;
-			if (isset($value['debit'])) { // the history doesn't match posted data, repair
-			  $db->Execute("update " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " 
-			    set debit_amount = " . $value['debit'] . ", credit_amount = " . $value['credit'] . " 
-			    where period = " . $period . " and account_id = '" . $gl_acct . "'");
-			}
+		foreach ($bad_accounts as $gl_acct => $acct_array) {
+		  $glEntry->affected_accounts[$gl_acct] = 1;
+		  foreach ($acct_array as $period => $sql_data_array) {
+			db_perform(TABLE_CHART_OF_ACCOUNTS_HISTORY, $sql_data_array, 'update', "account_id='".$gl_acct."' and period=".$period);
 		  }
 		}
-		$min_period = max($min_period, 2); // avoid a crash if min_period is the first period
+		$min_period = max($first_error_period, 2); // avoid a crash if min_period is the first period
 		if ($glEntry->update_chart_history_periods($min_period - 1)) { // from prior period than the error account
 			$db->transCommit();
 			$messageStack->add_session(GEN_ADM_TOOLS_REPAIR_COMPLETE,'success');
 			gen_add_audit_log(GEN_ADM_TOOLS_REPAIR_LOG_ENTRY);
 		}
-	  }
 	}
 	if (sizeof($bad_accounts) == 0) {
 	  $messageStack->add(GEN_ADM_TOOLS_REPAIR_SUCCESS,'success');
@@ -296,29 +281,23 @@ switch ($action) {
 }
 
 /*****************   prepare to display templates  *************************/
-$result = $db->Execute("select period, start_date, end_date from " . TABLE_ACCOUNTING_PERIODS . " where fiscal_year = " . $fy);
 $fy_array = array();
+$cal_end   = array();
+$i = 0;
+$result = $db->Execute("select period, start_date, end_date from " . TABLE_ACCOUNTING_PERIODS . " where fiscal_year = " . $fy);
 while(!$result->EOF) {
   $fy_array[$result->fields['period']] = array('start' => $result->fields['start_date'], 'end' => $result->fields['end_date']);
+  $cal_end[$i] = array(
+    'name'      => 'endDate',
+    'form'      => 'admin_tools',
+    'fieldname' => 'end_date_'.$i,
+    'imagename' => 'btn_date_2',
+    'default'   => gen_locale_date($result->fields['end_date']),
+    'params'    => array('align' => 'left'),
+  );
+  $i++;
   $result->MoveNext();
 }
-
-$cal_start = array(
-  'name'      => 'startDate',
-  'form'      => 'admin_tools',
-  'fieldname' => 'start_date',
-  'imagename' => 'btn_date_1',
-  'default'   => isset($start_date) ? gen_locale_date($start_date) : date(DATE_FORMAT),
-  'params'    => array('align' => 'left'),
-);
-$cal_end = array(
-  'name'      => 'endDate',
-  'form'      => 'admin_tools',
-  'fieldname' => 'end_date',
-  'imagename' => 'btn_date_2',
-  'default'   => isset($end_date) ? gen_locale_date($end_date) : date(DATE_FORMAT),
-  'params'    => array('align' => 'left'),
-);
 
 $include_header   = true;
 $include_footer   = true;

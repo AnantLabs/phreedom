@@ -18,12 +18,11 @@
 //  Path: /modules/phreedom/pages/admin/template_tab_tools.php
 //
 ?>
-<div id="tools" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_TOOLS; ?></h2>
+<div id="tab_tools">
 <fieldset>
 <legend><?php echo GEN_ADM_TOOLS_SEQ_HEADING; ?></legend>
 <p><?php echo GEN_ADM_TOOLS_SEQ_DESC; ?></p>
-  <table align="center" border="0" cellspacing="2" cellpadding="1">
+  <table>
 <?php 
   foreach ($status_fields as $field_name) {
     $desc = strtoupper($field_name) . '_DESC';

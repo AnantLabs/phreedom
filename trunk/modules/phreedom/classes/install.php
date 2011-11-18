@@ -202,7 +202,8 @@ class phreedom_admin {
 		if (sizeof($mod_init->keys) > 0) foreach ($mod_init->keys as $key => $value) {
 		  if (!defined($key)) write_configure($key, $value);
 		}
-	    if (method_exists($mod_init, 'update'))   $mod_init->update($module);
+		admin_install_dirs($mod_init->dirlist, DIR_FS_MY_FILES.$_SESSION['company'].'/');
+	    if (method_exists($mod_init, 'update')) $mod_init->update($module);
 	  }
 	  if (method_exists($mod_init, 'initialize')) $mod_init->initialize($module);
 	}

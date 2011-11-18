@@ -29,10 +29,11 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
 	  $$value  = $properties->$temp;
 	}
   $output  = NULL;
-  $output .= '<table align="center" cellspacing="0">' . nl;
-  $output .= ' <tr>'  . nl;
-  $output .= '  <th colspan="5">' . ($title ? $title : TEXT_ATTRIBUTES) . '</th>' . nl;
-  $output .= ' </tr>' . nl;
+  $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+  $output .= ' <thead class="ui-widget-header">'  . nl;
+  $output .= '  <tr><th colspan="5">' . ($title ? $title : TEXT_ATTRIBUTES) . '</th></tr>' . nl;
+  $output .= ' </thead>' . nl;
+  $output .= ' <tbody class="ui-widget-content">' . nl;
   if ($showtrunc) {
     $output .= ' <tr>'  . nl;
     $output .= '  <td colspan="2">' . TEXT_TRUNCATE   . html_radio_field($pre.'box_trun_' . $i, '0', (!$properties->truncate) ? true : false) . TEXT_NO . html_radio_field($pre.'box_trun_' . $i, '1', ($properties->truncate) ? true : false) . TEXT_YES . '</td>' . nl;
@@ -40,7 +41,7 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
     $output .= ' </tr>' . nl;
   }
   if ($showfont) {
-    $output .= ' <tr>'  . nl;
+    $output .= ' <tr class="ui-widget-header">'  . nl;
     $output .= '  <th>' . '&nbsp;'   . '</th>' . nl;
     $output .= '  <th>' . TEXT_STYLE . '</th>' . nl;
     $output .= '  <th>' . TEXT_SIZE  . '</th>' . nl;
@@ -56,7 +57,7 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
     $output .= '    <div id="' . $pre.'box_whl_' . $i . '" 
 	  onmousemove="moved(event, \''.$pre.'box_whl_' . $i . '\', \''.$pre.'box_td_' . $i . '\', \''.$pre.'box_clr_' . $i . '\')" 
 	  onclick="setCustom(\''.$pre.'box_whl_' . $i . '\', \''.$pre.'sel_clr_' . $i . '\')" style="position:absolute; display:none; top:0px; left:0px; z-index:10000">
-	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" border="0" alt="" />' . nl;
+	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" alt="" />' . nl;
     $output .= '  </div>' . nl;
     $output .= html_hidden_field($pre.'box_clr_' . $i, $color ? $color : '0:0:0') . nl;
     $output .= html_pull_down_menu($pre.'sel_clr_' . $i, $kFontColors, $color ? $color : '0:0:0', 'onchange="colorSet(\''.$pre.'sel_clr_' . $i . '\', \''.$pre.'box_td_' . $i . '\', \''.$pre.'box_clr_' . $i . '\')"') . nl;
@@ -74,7 +75,7 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
     $output .= '    <div id="'.$pre.'box_bwhl_' . $i . '" 
 	  onmousemove="moved(event, \''.$pre.'box_bwhl_' . $i . '\', \''.$pre.'box_btd_' . $i . '\', \''.$pre.'box_bclr_' . $i . '\')" 
 	  onclick="setCustom(\''.$pre.'box_bwhl_' . $i . '\', \''.$pre.'sel_bclr_' . $i . '\')" style="position:absolute; display:none; top:0px; left:0px; z-index:10000">
-	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" border="0" alt="" />' . nl;
+	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" alt="" />' . nl;
     $output .= '  </div>' . nl;
     $output .= html_hidden_field($pre.'box_bclr_' . $i, $bordercolor ? $bordercolor : '0:0:0') . nl;
     $output .= html_pull_down_menu($pre.'sel_bclr_' . $i, $kFontColors, $bordercolor ? $bordercolor : '0:0:0', 'onchange="colorSet(\''.$pre.'sel_bclr_' . $i . '\', \''.$pre.'box_btd_' . $i . '\', \''.$pre.'box_bclr_' . $i . '\')"') . nl;
@@ -92,7 +93,7 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
     $output .= '    <div id="'.$pre.'box_fwhl_' . $i . '" 
 	  onmousemove="moved(event, \''.$pre.'box_fwhl_' . $i . '\', \''.$pre.'box_ftd_' . $i . '\', \''.$pre.'box_fclr_' . $i . '\')" 
 	  onclick="setCustom(\''.$pre.'box_fwhl_' . $i . '\', \''.$pre.'sel_fclr_' . $i . '\')" style="position:absolute; display:none; top:0px; left:0px; z-index:10000">
-	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" border="0" alt="" />' . nl;
+	  <img src="'.DIR_WS_MODULES.'phreeform/images/colorwheel.jpg" width="256" height="256" alt="" />' . nl;
     $output .= '  </div>' . nl;
     $output .= html_hidden_field($pre.'box_fclr_' . $i, $fillcolor ? $fillcolor : '0:0:0') . nl;
     $output .= html_pull_down_menu($pre.'sel_fclr_' . $i, $kFontColors, $fillcolor ? $fillcolor : '0:0:0', 'onchange="colorSet(\''.$pre.'sel_fclr_' . $i . '\', \''.$pre.'box_ftd_' . $i . '\', \''.$pre.'box_fclr_' . $i . '\')"') . nl;
@@ -100,7 +101,7 @@ function box_build_attributes($properties, $i, $showtrunc = true, $showfont = tr
     $output .= '  </td>'. nl;
     $output .= '</tr>'  . nl;
   }
-  $output .= '</table>' . nl;
+  $output .= '</tbody></table>' . nl;
   return $output;
 }
 
@@ -110,32 +111,36 @@ function box_build($properties, $i) {
   $output  = NULL;
   switch ($properties->type) {
     case 'BarCode':
-      $output  = '<table align="center" cellspacing="0">' . nl;
+      $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <th>' . TEXT_FIELDNAME . '</th>' . nl;
       $output .= '    <th>' . TEXT_BAR_CODE_TYPE . '</th>' . nl;
       $output .= '   </tr>' . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '   <tr>' . nl;
       $output .= '    <td>' . html_combo_box     ('box_fld_'  . $i . '[]', $kFields, $properties->boxfield[0]->fieldname, 'onclick="updateFieldList(this)"') . '</td>' . nl;
       $output .= '    <td>' . html_pull_down_menu('box_proc_' . $i . '[]', gen_build_pull_down($BarCodeTypes), $properties->boxfield[0]->processing) . '</td>' . nl;
       $output .= '  </tr>' . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  $output .= box_build_attributes($properties, $i);
 	  break;
     case 'CBlk':
-      $output .= '<table align="center" cellspacing="0"><tr><td>' . nl;
-      $output .= '  <table id="box_Cblk' . $i . '" width="100%" cellspacing="0"><thead>' . nl;
-      $output .= '    <tr><th colspan="3">' . TEXT_FIELD_LIST .'</th></tr>' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><tr><td>' . nl;
+      $output .= '  <table id="box_Cblk' . $i . '" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><thead class="ui-widget-header">' . nl;
+      $output .= '    <tr><th colspan="4">' . TEXT_FIELD_LIST .'</th></tr>' . nl;
       $output .= '    <tr>' . nl;
       $output .= '      <th>' . TEXT_FIELDNAME . '</th>' . nl;
       $output .= '      <th>' . TEXT_SEPARATOR . '</th>' . nl;
+      $output .= '      <th>' . TEXT_PROCESSING. '</th>' . nl;
       $output .= '      <th>' . TEXT_ACTION    . '</th>' . nl;
       $output .= '    </tr>' . nl;
-      $output .= '	</thead><tbody>' . nl;
+      $output .= '	</thead><tbody class="ui-widget-content">' . nl;
       for ($j = 0; $j < sizeof($properties->boxfield); $j++) {
         $output .= '		  <tr>' . nl;
-        $output .= '		    <td>' . html_pull_down_menu('box_fld_' . $i . '[]', $cFields,     $properties->boxfield[$j]->fieldname) . '</td>' . nl;
-        $output .= '		    <td>' . html_pull_down_menu('box_proc_'. $i . '[]', $tProcessing, $properties->boxfield[$j]->processing) . '</td>' . nl;
+        $output .= '		    <td>' . html_pull_down_menu('box_fld_' . $i . '[]', $cFields,    $properties->boxfield[$j]->fieldname) . '</td>' . nl;
+        $output .= '		    <td>' . html_pull_down_menu('box_proc_'. $i . '[]', $tProcessing,$properties->boxfield[$j]->processing) . '</td>' . nl;
+        $output .= '		    <td>' . html_pull_down_menu('box_fmt_' . $i . '[]', $pFields,    $properties->boxfield[$j]->formatting) . '</td>' . nl;
         $output .= '		    <td nowrap="nowrap" align="right">';
 		$output .= html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_cblk_' . $i . '_' . $j) . chr(10);
         $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'box_Cblk\', \'delete\', ' . $i . ')"');
@@ -150,31 +155,36 @@ function box_build($properties, $i) {
 	  $output .= '<script type="text/javascript">tableInit[tableCount] = \'box_Cblk' . $i . '\'; tableCount++;</script>' . nl;
 	  break;
     case 'CDta':
-      $output  = '<table align="center" cellspacing="0">' . nl;
+      $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <th>' . TEXT_FIELDNAME . '</th>' . nl;
       $output .= '  </tr>' . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <td align="center">' . html_pull_down_menu('box_fld_' . $i . '[]', $cFields, $properties->boxfield[0]->fieldname) . '</td>' . nl;
       $output .= '  </tr>' . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  $output .= box_build_attributes($properties, $i);
 	  break;
 	case 'Data':
-      $output  = '<table align="center" cellspacing="0">' . nl;
+      $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>'   . nl;
       $output .= '    <th>' . PHREEFORM_TBLFNAME . '</th>' . nl;
       $output .= '    <th>' . TEXT_PROCESSING . '</th>' . nl;
       $output .= '  </tr>'  . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>'   . nl;
       $output .= '    <td>' . html_combo_box     ('box_fld_'  . $i . '[]', $kFields, $properties->boxfield[0]->fieldname, 'onclick="updateFieldList(this)"')  . '</td>' . nl;
       $output .= '    <td>' . html_pull_down_menu('box_proc_' . $i . '[]', $pFields, $properties->boxfield[0]->processing) . '</td>' . nl;
       $output .= '  </tr>'  . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  $output .= box_build_attributes($properties, $i);
 	  break;
 	case 'Img':
-      $output  = '<table align="center" cellspacing="0">' . nl;
+      $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <td>' . TEXT_CURRENT_IMAGE . '</td>' . nl;
       $output .= '    <td align="center">' . nl;
@@ -184,6 +194,7 @@ function box_build($properties, $i) {
       $output .= '  <tr>'   . nl;
       $output .= '    <th colspan="2">' . PHREEFORM_IMAGESEL . '</th>' . nl;
       $output .= '  </tr>'  . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>'   . nl;
       $output .= '    <td>' . html_radio_field('img_sel_' . $i, 'U', false) . TEXT_UPLOAD_MAGE . '</td>' . nl;
       $output .= '    <td>' . html_file_field ('img_upload_' . $i) . '</td>' . nl;
@@ -192,19 +203,21 @@ function box_build($properties, $i) {
       $output .= '    <td>' . html_radio_field   ('img_sel_' . $i, 'S', true) . TEXT_STORED_IMAGES . '</td>' . nl;
       $output .= '    <td>' . html_pull_down_menu('img_file_' . $i, ReadImages(), $properties->filename, 'size="6"') . '</td>' . nl;
       $output .= '  </tr>'  . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  break;
 	case 'Line':
-      $output  = '<table align="center" cellspacing="0">' . nl;
+      $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>'   . nl;
       $output .= '    <th colspan="3">' . PHREEFORM_LINE_TYPE . '</th>' . nl;
       $output .= '  </tr>'  . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>'   . nl;
       $output .= '    <td>' . html_radio_field('box_ltype_' . $i, 'H', (!$properties->linetype || $properties->linetype == 'H') ? true : false) . TEXT_HORIZONTAL . '</td>' . nl;
       $output .= '    <td>' . html_radio_field('box_ltype_' . $i, 'V', ($properties->linetype == 'V') ? true : false) . TEXT_VERTICAL . '</td>' . nl;
       $output .= '    <td>' . TEXT_LENGTH . ' ' . html_input_field('box_len_' . $i, $properties->length, 'size="4" maxlength="3"') . '</td>' . nl;
       $output .= '  </tr>'  . nl;
-      $output .= '  <tr>'   . nl;
+      $output .= '  <tr class="ui-widget-header">'   . nl;
       $output .= '    <th colspan="3">' . PHREEFORM_ENDPOS . '</th>' . nl;
       $output .= '  </tr>'  . nl;
       $output .= '  <tr>'   . nl;
@@ -212,7 +225,7 @@ function box_build($properties, $i) {
       $output .= '    <td>' . TEXT_ABSCISSA . html_input_field('box_eabs_' . $i, $properties->endabscissa, 'size="4" maxlength="3"') . '</td>' . nl;
       $output .= '    <td>' . TEXT_ORDINATE . html_input_field('box_eord_' . $i, $properties->endordinate, 'size="4" maxlength="3"') . '</td>' . nl;
       $output .= '  </tr>' . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  $output .= box_build_attributes($properties, $i, false, false, true, false);
 	  break;
 	case 'PgNum':
@@ -222,8 +235,8 @@ function box_build($properties, $i) {
 	  $output .= box_build_attributes($properties, $i, false, false, true, true);
 	  break;
 	case 'Tbl':
-      $output .= '<table align="center" cellspacing="0"><tr><td>' . nl;
-      $output .= '  <table id="box_Tbl' . $i . '" width="100%" cellspacing="0"><thead>' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><tr><td>' . nl;
+      $output .= '  <table id="box_Tbl' . $i . '" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><thead class="ui-widget-header">' . nl;
       $output .= '    <tr><th colspan="9">' . TEXT_FIELD_LIST . '</th></tr>' . nl;
       $output .= '    <tr>' . nl;
       $output .= '      <th>' . TEXT_FIELDNAME   . '</th>' . nl;
@@ -236,7 +249,7 @@ function box_build($properties, $i) {
       $output .= '      <th>' . TEXT_WIDTH       . '</th>' . nl;
       $output .= '      <th>' . '&nbsp;'         . '</th>' . nl;
       $output .= '    </tr>' . nl;
-      $output .= '	</thead><tbody>' . nl;
+      $output .= '	</thead><tbody class="ui-widget-content">' . nl;
       for ($j = 0; $j < sizeof($properties->boxfield); $j++) {
         $output .= '	  <tr>' . nl;
         $output .= '	    <td nowrap="nowrap">' . html_combo_box('box_fld_' . $i . '[]', $kTblFields, $properties->boxfield[$j]->fieldname, 'onclick="updateFieldList(this)"', '220px', '', 'box_fld_' . $i . $j) . '</td>' . nl;
@@ -263,19 +276,21 @@ function box_build($properties, $i) {
 	  $output .= '<script type="text/javascript">tableInit[tableCount] = \'box_Tbl'  . $i . '\'; tableCount++;</script>' . nl;
 	  break;
 	case 'TBlk':
-      $output .= '<table align="center" cellspacing="0"><tr><td>' . nl;
-      $output .= '  <table id="box_Tblk' . $i . '" width="100%" cellspacing="0"><thead>' . nl;
-      $output .= '    <tr><th colspan="3">' . TEXT_FIELD_LIST . '</th></tr>' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><tr><td>' . nl;
+      $output .= '  <table id="box_Tblk' . $i . '" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><thead class="ui-widget-header">' . nl;
+      $output .= '    <tr><th colspan="4">' . TEXT_FIELD_LIST . '</th></tr>' . nl;
       $output .= '    <tr>' . nl;
       $output .= '      <th>' . PHREEFORM_TBLFNAME . '</th>' . nl;
       $output .= '      <th>' . TEXT_SEPARATOR  . '</th>' . nl;
+      $output .= '      <th>' . TEXT_PROCESSING  . '</th>' . nl;
       $output .= '      <th>' . TEXT_ACTION     . '</th>' . nl;
       $output .= '    </tr>' . nl;
-      $output .= '</thead><tbody>' . nl;
+      $output .= '</thead><tbody class="ui-widget-content">' . nl;
       for ($j = 0; $j < sizeof($properties->boxfield); $j++) {
         $output .= '  <tr>' . nl;
-        $output .= '    <td>' . html_combo_box     ('box_fld_' . $i . '[]',  $kFields,    $properties->boxfield[$j]->fieldname, 'onclick="updateFieldList(this)"', '220px', '', 'box_fld_' . $i . '_' . $j) . '</td>' . nl;
-        $output .= '    <td>' . html_pull_down_menu('box_proc_'. $i . '[]', $tProcessing, $properties->boxfield[$j]->processing) . '</td>' . nl;
+        $output .= '    <td>' . html_combo_box     ('box_fld_' . $i . '[]', $kFields,    $properties->boxfield[$j]->fieldname, 'onclick="updateFieldList(this)"', '220px', '', 'box_fld_' . $i . '_' . $j) . '</td>' . nl;
+        $output .= '    <td>' . html_pull_down_menu('box_proc_'. $i . '[]', $tProcessing,$properties->boxfield[$j]->processing) . '</td>' . nl;
+        $output .= '	<td>' . html_pull_down_menu('box_fmt_' . $i . '[]', $pFields,    $properties->boxfield[$j]->formatting) . '</td>' . nl;
         $output .= '    <td nowrap="nowrap" align="right">' . nl;
 		$output .= html_icon('actions/view-fullscreen.png',   TEXT_MOVE,   'small', 'style="cursor:move"', '', '', 'move_tblk_' . $i . '_' . $j) . chr(10);
 		$output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'box_Tblk\', \'delete\', ' . $i . ')"');
@@ -290,33 +305,36 @@ function box_build($properties, $i) {
 	  $output .= '<script type="text/javascript">tableInit[tableCount] = \'box_Tblk' . $i . '\'; tableCount++;</script>' . nl;
 	  break;
 	case 'TDup':
-      $output .= '<table align="center" cellspacing="0">' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <td align="center">' . TEXT_NO_PROPERTIES . '</td>' . nl;
       $output .= '  </tr>' . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  break;
 	case 'Text':
-      $output .= '<table align="center" cellspacing="0">' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <th>' . PHREEFORM_TEXTDISP . '</th>' . nl;
       $output .= '  </tr>' . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <td>' . html_textarea_field('box_txt_' . $i, '50', '3', $properties->text) . '</td>' . nl;
       $output .= '  </tr>' . nl;
-      $output .= '</table>' . nl;
+      $output .= ' </tbody></table>' . nl;
 	  $output .= box_build_attributes($properties, $i);
 	  break;
 	case 'Ttl':
-      $output .= '<table align="center" cellspacing="0"><tr><td>' . nl;
-      $output .= '  <table id="box_Ttl' . $i . '" width="100%" cellspacing="0"><thead>' . nl;
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><tr><td>' . nl;
+      $output .= '  <table id="box_Ttl' . $i . '" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><thead class="ui-widget-header">' . nl;
       $output .= '    <tr><th colspan="3">' . TEXT_FIELD_LIST . '</th></tr>' . nl;
       $output .= '    <tr>' . nl;
       $output .= '      <th>' . PHREEFORM_TBLFNAME . '</th>' . nl;
       $output .= '      <th>' . TEXT_PROCESSING . '</th>' . nl;
       $output .= '      <th>' . TEXT_ACTION     . '</th>' . nl;
       $output .= '    </tr>' . nl;
-      $output .= '</thead><tbody>' . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       for ($j = 0; $j < sizeof($properties->boxfield); $j++) {
         $output .= '  <tr>' . nl;
         $output .= '    <td>' . html_combo_box     ('box_fld_' . $i . '[]', $kFields, $properties->boxfield[$j]->fieldname, 'onclick="updateFieldList(this)"', '220px', '', 'box_fld_' . $i . $j) . '</td>' . nl;

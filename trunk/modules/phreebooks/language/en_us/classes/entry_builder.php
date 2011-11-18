@@ -107,5 +107,6 @@ define('RW_EB_INV_DISCOUNT','invoice_discount');
 define('RW_EB_INV_PRICE','invoice_price');
 define('RW_EB_INV_SKU','invoice_sku');
 define('RW_EB_INV_SERIAL_NUM','invoice_serial_num');
+define('RW_EB_INV_LINE_TAX','invoice_line_tax');
 
 ?>

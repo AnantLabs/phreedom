@@ -17,14 +17,21 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-
 function init() {
+  $(function() { // initialize tables
+	$('#admintabs').tabs();
+    $('#tab_table').dataTable();
+    $('#field_table').dataTable();
+    $('#dept_table').dataTable();
+    $('#dept_type_table').dataTable();
+    $('#proj_cost_table').dataTable();
+    $('#proj_phase_table').dataTable();
+  });
 }
 
 function check_form() {

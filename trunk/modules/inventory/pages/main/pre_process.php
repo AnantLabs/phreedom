@@ -29,6 +29,7 @@ $criteria    = array();
 $cInfo       = new objectInfo();
 $search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
+if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
 $action      = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
 $first_entry = isset($_GET['add']) ? true : false;
@@ -513,7 +514,7 @@ $purch_tax_rates  = inv_calculate_tax_drop_down('v');
 $gl_array_list    = gen_coa_pull_down();
 $include_header   = true;
 $include_footer   = true;
-$include_tabs     = false;
+$include_tabs     = true;
 $include_calendar = false;
 
 switch ($action) {
@@ -524,7 +525,7 @@ switch ($action) {
 	break;
   case 'edit':
     define('PAGE_TITLE', BOX_INV_MAINTAIN);
-    $include_tabs = true;
+    $include_tabs     = true;
     $include_template = 'template_detail.php';
     break;
   case 'properties':

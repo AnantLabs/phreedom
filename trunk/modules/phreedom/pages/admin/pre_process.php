@@ -148,7 +148,7 @@ switch ($action) {
     }
 	$messageStack->add(GENERAL_CONFIG_SAVED,'success');
 //	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	$def_tab = 'company';
+	$default_tab_id = 'company';
     break;
   case 'delete':
 	if ($security_level < 4) {
@@ -264,7 +264,7 @@ switch ($action) {
 	  $db = new queryFactory;
 	  $db->connect(DB_SERVER_HOST, DB_SERVER_USERNAME, DB_SERVER_PASSWORD, DB_DATABASE);
 	}
-	$def_tab = 'manager';
+	$default_tab_id = 'manager';
 	break;
   case 'delete_co':
 	$db_name = $_SESSION['companies'][$_POST['del_company']];
@@ -300,7 +300,7 @@ switch ($action) {
 	    $messageStack->add(SETUP_CO_MGR_DELETE_SUCCESS, 'success');
 	  }
 	}
-	$def_tab = 'manager';
+	$default_tab_id = 'manager';
 	break;
   case 'ordr_nums':
 	if ($security_level < 3) {
@@ -321,7 +321,7 @@ switch ($action) {
 	  $messageStack->add(GEN_ADM_TOOLS_POST_SEQ_SUCCESS,'success');
 	  gen_add_audit_log(GEN_ADM_TOOLS_AUDIT_LOG_SEQ);
 	}
-	$def_tab = 'tools';
+	$default_tab_id = 'tools';
 	break;
   default:
 }

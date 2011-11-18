@@ -33,10 +33,8 @@ define('ORD_TEXT_12_WINDOW_TITLE','Sales/Invoices');
 define('ORD_TEXT_13_WINDOW_TITLE','Customer Credit Memos');
 define('ORD_TEXT_18_WINDOW_TITLE','Cash Receipts');
 define('ORD_TEXT_20_WINDOW_TITLE','Cash Distributions');
-define('ORD_TEXT_18_WINDOW_TITLE','Cash Receipts');
 define('ORD_TEXT_18_C_WINDOW_TITLE','Customer Receipts');
 define('ORD_TEXT_18_V_WINDOW_TITLE','Vendor Refunds');
-define('ORD_TEXT_20_WINDOW_TITLE','Cash Distributions');
 define('ORD_TEXT_20_C_WINDOW_TITLE','Customer Refunds');
 define('ORD_TEXT_20_V_WINDOW_TITLE','Pay Bills');
 

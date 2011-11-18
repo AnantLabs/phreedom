@@ -79,7 +79,7 @@ define('SHIPPING_BILL_CHARGES_TO','Bill charges to');
 define('SHIPPING_THIRD_PARTY','Recpt/Third Party Acct #');
 define('SHIPPING_THIRD_PARTY_ZIP','Third Party Postal Code');
 define('SHIPPING_LTL_FREIGHT_CLASS','LTL Freight Class');
-define('SHIPPING_DEFAULT_LTL_CLASS','125');
+define('SHIPPING_NUM_PIECES','Number of Pieces');
 define('SHIPPNIG_SUMMARY','Shipment Summary');
 define('SHIPPING_SHIPMENT_DETAILS','Shipment Details');
 define('SHIPPING_PACKAGE_DETAILS','Package Details');

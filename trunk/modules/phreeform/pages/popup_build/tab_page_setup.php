@@ -19,17 +19,16 @@
 //
 
 ?>
-<div id="pf_page" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_PAGE_SETUP; ?></h2>
-  <h2 align="center"><?php echo TEXT_PAGE_SETUP; ?></h2>
-  <table align="center" cellspacing="1">
-    <tr>
-	  <th colspan="3"><?php echo TEXT_TITLE; ?></th>
-    </tr>
+<div id="tab_page">
+  <table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+   <thead class="ui-widget-header">
+    <tr><th colspan="3"><?php echo TEXT_TITLE; ?></th></tr>
+   </thead>
+   <tbody class="ui-widget-content">
     <tr>
 	  <td colspan="3" align="center"><?php echo html_input_field('title', $report->title, 'size="60"'); ?></td>
     </tr>
-    <tr>
+    <tr class="ui-widget-header">
       <th><?php echo TEXT_DETAIL_DESCRIPTION; ?></th>
       <th colspan="2"><?php echo PHREEFORM_PGLAYOUT; ?></th>
     </tr>
@@ -45,9 +44,9 @@
 	  	<?php echo html_radio_field('paperorientation', 'L', ($report->page->orientation == 'L') ? true : false) . ' ' . TEXT_LANDSCAPE; ?>
 	  </td>
     </tr>
-    <tr>
+    <tr class="ui-widget-header">
       <th><?php echo TEXT_EMAIL_MSG_DETAIL; ?></th>
-      <th><?php echo PHREEFORM_PGMARGIN; ?></th>
+      <th colspan="2"><?php echo PHREEFORM_PGMARGIN; ?></th>
     </tr>
     <tr>
       <td rowspan="4"><?php echo html_textarea_field('emailmessage', 80, 3, $report->emailmessage, ''); ?></td>
@@ -66,20 +65,22 @@
       <td align="right"><?php echo TEXT_RIGHT; ?></td>
       <td><?php echo html_input_field('marginright',  $report->page->margin->right,  'size="5" maxlength="3" style="text-align:right"') . ' ' . TEXT_MM; ?></td>
     </tr>
+    </tbody>
   </table>
 <?php if ($report->reporttype == 'rpt') { ?>
-  <table align="center" cellspacing="0">
-    <tr>
-	  <th colspan="8"><?php echo PHREEFORM_PGHEADER; ?></th>
-	</tr>
+  <table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
+   <thead class="ui-widget-header">
+    <tr><th colspan="8"><?php echo PHREEFORM_PGHEADER; ?></th></tr>
     <tr>
       <th>&nbsp;</th>
-      <th align="center"><?php echo TEXT_SHOW; ?></th>
-      <th align="center"><?php echo TEXT_FONT; ?></th>
-      <th align="center"><?php echo TEXT_SIZE; ?></th>
-      <th align="center"><?php echo TEXT_COLOR; ?></th>
-      <th align="center"><?php echo TEXT_ALIGN; ?></th>
+      <th><?php echo TEXT_SHOW;  ?></th>
+      <th><?php echo TEXT_FONT;  ?></th>
+      <th><?php echo TEXT_SIZE;  ?></th>
+      <th><?php echo TEXT_COLOR; ?></th>
+      <th><?php echo TEXT_ALIGN; ?></th>
     </tr>
+   </thead>
+   <tbody class="ui-widget-content">
     <tr>
       <td><?php echo TEXT_PGCOYNM; ?></td>
 	  <td align="center"><?php echo html_checkbox_field('headingshow', '1', ($report->page->heading->show == '1') ? true : false); ?></td>
@@ -125,6 +126,7 @@
       <td align="center"><?php echo html_pull_down_menu('totalscolor', $kFontColors, $report->page->totals->color); ?></td>
       <td align="center"><?php echo html_pull_down_menu('totalsalign', $kFontAlign,  $report->page->totals->align); ?></td>
     </tr>
+    </tbody>
   </table>
 <?php } ?>
 </div>

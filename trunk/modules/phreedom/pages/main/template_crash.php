@@ -17,38 +17,27 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/crash/template_main.php
 //
-
-// start the form
 echo html_form('crash', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['print']['show']    = false;
-
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('');
 echo $toolbar->build_toolbar(); 
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo HEADING_TITLE_CRASH_TITLE; ?></div>
-<table width="400" align="center" border="0" cellspacing="10" cellpadding="10">
-  <tr>
-	<td><?php echo HEADING_TITLE_CRASH_INFORMATION; ?></td>
-  </tr>
+<h1><?php echo HEADING_TITLE_CRASH_TITLE; ?></h1>
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto">
+ <tbody class="ui-widget-content">
+  <tr><td><?php echo HEADING_TITLE_CRASH_INFORMATION; ?></td></tr>
   <tr>
 	<td align="center"><?php echo html_button_field('download', HEADING_TITLE_CRASH_BUTTON, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=debug', 'SSL') . '\'"'); ?></td>
   </tr>
+ </tbody>
 </table>
 </form>

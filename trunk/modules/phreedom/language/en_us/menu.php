@@ -17,12 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/language/en_us/menu.php
 //
-
 // Enter the new menu category heading if necessary
-define('HEADER_TITLE_TOP', 'Home');
-define('HEADER_TITLE_LOGOFF', 'Logoff');
+define('TEXT_HOME', 'Home');
+define('TEXT_LOGOUT','Log Out');
 define('MENU_HEADING_COMPANY','Company');
 define('MENU_HEADING_TOOLS','Tools');
+define('BOX_HEADING_PROFILE','My Profile');
 define('HEADING_TITLE_USERS','Users');
 define('BOX_HEADING_ROLES','Roles');
 define('MENU_HEADING_MODULES','Modules');
@@ -36,5 +36,4 @@ define('BOX_HEADING_ADMIN_TOOLS', 'Administrative Tools');
 define('BOX_HEADING_CONFIGURATION','Module Administration');
 define('BOX_GENERAL_ADMIN','General Settings');
 define('BOX_HEADING_DEBUG_DL','Download Debug File');
-
 ?>

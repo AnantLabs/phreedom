@@ -38,131 +38,202 @@ if (file_exists($custom_path)) { include($custom_path); }
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
-	if ($security_level < 2) { // security check
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+	validate_security($security_level, 2); // security check
 	// retrieve and clean input values
 	$source_store_id = $_POST['source_store_id'];
 	$dest_store_id   = $_POST['dest_store_id'];
-	$skus = array();
-	$i    = 1;
+	$skus            = array();
+	$rowCnt          = 1;
 	while (true) {
-	  if (!isset($_POST['sku_'.$i])) break;
-	  $sku   = db_prepare_input($_POST['sku_'.$i]);
-	  $qty   = db_prepare_input($_POST['qty_'.$i]);
-	  $stock = db_prepare_input($_POST['stock_'.$i]);
+	  if (!isset($_POST['sku_'.$rowCnt])) break;
+	  $sku   = db_prepare_input($_POST['sku_'.$rowCnt]);
+	  $qty   = db_prepare_input($_POST['qty_'.$rowCnt]);
+	  $stock = db_prepare_input($_POST['stock_'.$rowCnt]);
 	  if ($stock < $qty) {
 	    $error = $messageStack->add(sprintf(INV_XFER_ERROR_NOT_ENOUGH_SKU, $sku), 'error');
 		$qty = 0;
 	  }
-	  if ($qty > 0 && $sku <> '' && $sku <> TEXT_SEARCH) {
+	  if ($qty && $sku <> '' && $sku <> TEXT_SEARCH) {
 	    $skus[] = array(
 		  'qty'     => $qty,
-		  'serial'  => db_prepare_input($_POST['serial_'.$i]),
+		  'serial'  => db_prepare_input($_POST['serial_'.$rowCnt]),
 		  'sku'     => $sku,
-		  'desc'    => db_prepare_input($_POST['desc_'.$i]),
-		  'gl_acct' => db_prepare_input($_POST['acct_'.$i]),
+		  'desc'    => db_prepare_input($_POST['desc_'.$rowCnt]),
+		  'gl_acct' => db_prepare_input($_POST['acct_'.$rowCnt]),
 	    );
 	  }
-	  $i++;
+	  $rowCnt++;
 	}
 	// test for errors
 	if ($source_store_id == $dest_store_id) $error = $messageStack->add(INV_XFER_ERROR_SAME_STORE_ID, 'error');
 	// process the request, first subtract from the source store
 	if (!$error) {
-	  // *************** START TRANSACTION *************************
-	  $db->transStart();
-	  foreach ($skus as $oneline) {
-	    $sku    = $oneline['sku'];
-		$qty    = $oneline['qty'];
-		$serial = $oneline['serial'];
-		$desc   = $oneline['desc'];
-		$acct   = $oneline['gl_acct'];
-	    $glEntry                      = new journal();
-	    $glEntry->id                  = ''; // all transactions are considered new
-	    $glEntry->journal_id          = JOURNAL_ID;
-	    $glEntry->post_date           = $post_date;
-	    $glEntry->period              = $period;
-	    $glEntry->store_id            = $source_store_id;
-	    $glEntry->admin_id            = $_SESSION['admin_id'];
-	    $glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
-	    $glEntry->closed              = '1'; // closes by default
-
-	    $glEntry->journal_main_array  = $glEntry->build_journal_main_array();
-	    $glEntry->journal_rows[]      = array(
-		  'sku'              => $sku,
-		  'qty'              => -$qty,
-		  'gl_type'          => 'adj',
-		  'serialize_number' => $serial,
-		  'gl_account'       => $acct,
-		  'description'      => $desc,
-		  'credit_amount'    => '',
-	    );
-	    $glEntry->journal_rows[]      = array(
-		  'sku'              => '',
-		  'qty'              => '',
-		  'gl_type'          => 'ttl',
-		  'gl_account'       => $acct,
-		  'description'      => sprintf(INV_LOG_TRANSFER, $source_store_id, $dest_store_id),
-		  'debit_amount'     => '',
-	    );
-	    if (!$glEntry->Post('insert')) $error = true;
-	    // Extract the cost to use as the total amount for the next adjustment
-	    foreach ($glEntry->journal_rows as $value) {
-	      if ($value['gl_type'] == 'cog') $tot_amount = $value['credit_amount'] + $value['debit_amount'];
+	  $glEntry                      = new journal();
+	  $glEntry->id                  = isset($_POST['id']) ? $_POST['id'] : '';
+	  $glEntry->journal_id          = JOURNAL_ID;
+	  $glEntry->post_date           = $post_date;
+	  $glEntry->period              = gen_calculate_period($post_date);
+	  $glEntry->store_id            = $source_store_id;
+	  $glEntry->bill_acct_id        = $dest_store_id;
+	  $glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
+	  $glEntry->admin_id            = $_SESSION['admin_id'];
+	  $glEntry->closed              = '1'; // closes by default
+	  $glEntry->closed_date         = $post_date;
+	  $glEntry->currencies_code     = DEFAULT_CURRENCY;
+	  $glEntry->currencies_value    = 1;
+	  $adj_reason                   = db_prepare_input($_POST['adj_reason']);
+	  $adj_account                  = db_prepare_input($_POST['gl_acct']);
+	  // process the request
+	  $glEntry->journal_main_array  = $glEntry->build_journal_main_array();
+	  $rowCnt    = 1;
+	  $adj_total = 0;
+	  $adj_lines = 0;
+	  while (true) {
+	    if (!isset($_POST['sku_'.$rowCnt])) break;
+	    $sku              = db_prepare_input($_POST['sku_'.$rowCnt]);
+	    $qty              = db_prepare_input($_POST['qty_'.$rowCnt]);
+	    $serialize_number = db_prepare_input($_POST['serial_'.$rowCnt]);
+	    $desc             = db_prepare_input($_POST['desc_'.$rowCnt]);
+	    $acct             = db_prepare_input($_POST['acct_'.$rowCnt]);
+	    if ($sku && $sku <> TEXT_SEARCH) {
+	      $glEntry->journal_rows[] = array(
+		    'sku'              => $sku,
+		    'qty'              => -$qty,
+		    'gl_type'          => 'adj',
+		    'serialize_number' => $serialize_number,
+		    'gl_account'       => $acct,
+		    'description'      => $desc,
+		    'credit_amount'    => 0,
+		    'debit_amount'     => 0,
+		    'post_date'        => $post_date,
+	      );
+		  $adj_lines++;
 	    }
-	    // now make another adjustment to the new store (treat like purchase/receive)
-	    $glEntry                      = new journal();
-	    $glEntry->id                  = ''; // all transactions are considered new
-	    $glEntry->journal_id          = JOURNAL_ID;
-	    $glEntry->post_date           = $post_date;
-	    $glEntry->period              = $period;
-	    $glEntry->store_id            = $dest_store_id;
-	    $glEntry->admin_id            = $_SESSION['admin_id'];
-	    $glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
-	    $glEntry->closed              = '1'; // closes by default
-	    $glEntry->journal_main_array  = $glEntry->build_journal_main_array();
-	    $glEntry->journal_main_array['total_amount'] = $tot_amount;
-	    $glEntry->journal_rows[] = array(
-		  'sku'              => $sku,
-		  'qty'              => $qty,
-		  'gl_type'          => 'adj',
-		  'serialize_number' => $serial,
-		  'gl_account'       => $acct,
-		  'description'      => $desc,
-		  'debit_amount'     => $tot_amount,
-	    );
-	    $glEntry->journal_rows[] = array(
-		  'sku'              => '',
-		  'qty'              => '',
-		  'gl_type'          => 'ttl',
-		  'gl_account'       => $acct,
-		  'description'      => sprintf(INV_LOG_TRANSFER, $source_store_id, $dest_store_id),
-		  'credit_amount'    => $tot_amount,
-	    );
-	    if (!$glEntry->Post('insert')) $error = true;
+	    $rowCnt++;
 	  }
-	  if ($error) {
-		if (DEBUG) $messageStack->write_debug();
-	    $db->transRollback();
-		break;
+	  if ($adj_lines > 0) {
+	    $glEntry->journal_main_array['total_amount'] = 0;
+	    $glEntry->journal_rows[] = array(
+	      'sku'           => '',
+	      'qty'           => '',
+	      'gl_type'       => 'ttl',
+	      'gl_account'    => $adj_account,
+	      'description'   => $adj_reason,
+	      'debit_amount'  => 0,
+	      'credit_amount' => 0,
+		  'post_date'     => $post_date,
+        );
+	    // *************** START TRANSACTION *************************
+	    $db->transStart();
+	    $glEntry->override_cogs_acct = $adj_account; // force cogs account to be users specified account versus default inventory account
+	    if ($glEntry->Post($glEntry->id ? 'edit' : 'insert')) {
+		  $first_id = $glEntry->id;
+	      $glEntry                      = new journal();
+	  	  $glEntry->id                  = isset($_POST['ref_id']) ? $_POST['ref_id'] : '';
+	      $glEntry->so_po_ref_id        = $first_id; // id of original adjustment
+	      $glEntry->journal_id          = JOURNAL_ID;
+	      $glEntry->post_date           = $post_date;
+	      $glEntry->period              = $period;
+	      $glEntry->store_id            = $dest_store_id;
+	      $glEntry->admin_id            = $_SESSION['admin_id'];
+	      $glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
+	      $glEntry->closed              = '1'; // closes by default
+	      $glEntry->closed_date         = $post_date;
+	      $glEntry->currencies_code     = DEFAULT_CURRENCY;
+	      $glEntry->currencies_value    = 1;
+	      $glEntry->journal_main_array  = $glEntry->build_journal_main_array();
+		  $rowCnt     = 1;
+		  $tot_amount = 0;
+		  while (true) {
+			if (!isset($_POST['sku_'.$rowCnt])) break;
+			$sku              = db_prepare_input($_POST['sku_'.$rowCnt]);
+			$qty              = db_prepare_input($_POST['qty_'.$rowCnt]);
+			$serialize_number = db_prepare_input($_POST['serial_'.$rowCnt]);
+			$desc             = db_prepare_input($_POST['desc_'.$rowCnt]);
+			$acct             = db_prepare_input($_POST['acct_'.$rowCnt]);
+			// TBD - Extract the cost to use as the total amount for the next adjustment, for now use item_cost from inventory table
+			$result = $db->Execute("select item_cost from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
+			$item_cost = $result->fields['item_cost'];
+	 	    if ($sku && $sku <> TEXT_SEARCH) {
+			  $glEntry->journal_rows[] = array(
+				'sku'              => $sku,
+				'qty'              => $qty,
+				'gl_type'          => 'adj',
+				'serialize_number' => $serialize_number,
+				'gl_account'       => $acct,
+				'description'      => $desc,
+				'credit_amount'    => 0,
+				'debit_amount'     => $qty * $item_cost,
+				'post_date'        => $post_date,
+			  );
+			  $tot_amount += $qty * $item_cost;
+			}
+			$rowCnt++;
+		  }
+	      $glEntry->journal_main_array['total_amount'] = $tot_amount;
+	      $glEntry->journal_rows[] = array(
+	        'sku'           => '',
+	        'qty'           => '',
+	        'gl_type'       => 'ttl',
+	        'gl_account'    => $adj_account,
+	        'description'   => $adj_reason,
+	        'debit_amount'  => 0,
+	        'credit_amount' => $tot_amount,
+		    'post_date'     => $post_date,
+          );
+	      if (!$glEntry->Post($glEntry->id ? 'edit' : 'insert')) $error = true;
+		  // link first record to second record
+		  $db->Execute("update " . TABLE_JOURNAL_MAIN . " set so_po_ref_id = " . $glEntry->id . " where id = " . $first_id);
+	      $db->transCommit();	// post the chart of account values
+	      // *************** END TRANSACTION *************************
+		  gen_add_audit_log(sprintf(INV_LOG_TRANSFER, $source_store_id, $dest_store_id), $sku, $qty);
+	      $messageStack->add_session(INV_POST_SUCCESS . $glEntry->purchase_invoice_id, 'success');
+	      if (DEBUG) $messageStack->write_debug();
+	      gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+	    } else {
+		  $error = true;
+		}
 	  } else {
-		$db->transCommit();
-		gen_add_audit_log(sprintf(INV_LOG_TRANSFER, $source_store_id, $dest_store_id), $sku, $qty);
-		$messageStack->add_session(sprintf(INV_XFER_SUCCESS, $qty, $sku),'success');
-		if (DEBUG) $messageStack->write_debug();
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-		// *************** END TRANSACTION *************************
+	    $error = $messageStack->add(INV_ADJ_QTY_ZERO, 'error');
 	  }
 	}
+	if (DEBUG) $messageStack->write_debug();
+	$db->transRollback();
 	$messageStack->add(GL_ERROR_NO_POST, 'error');
 	$cInfo = new objectInfo($_POST);
 	break;
+
   case 'delete':
+	validate_security($security_level, 4); // security check
+	if ($id = $_POST['id']) {
+	  $delOrd = new journal($id);
+	  $xfer_to_id = $delOrd->so_po_ref_id; // save the matching adjust ID
+	  if (!$xfer_to_id) $error = $messageStack('cannot deltete there is no offsetting record to delete!','error');
+	  if (!$error) {
+	    // *************** START TRANSACTION *************************
+	    $db->transStart();
+	    if ($delOrd->unPost('delete')) {
+		  $delOrd = new journal($xfer_to_id);
+		  if ($delOrd->unPost('delete')) {
+		    $db->transCommit(); // if not successful rollback will already have been performed
+		    gen_add_audit_log(INV_LOG_ADJ . TEXT_DELETE, $delOrd->journal_rows[0]['sku'], $delOrd->journal_rows[0]['qty']);
+		    if (DEBUG) $messageStack->write_debug();
+		    gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+		    break;
+	      } else { $db->transRollback(); }
+		} else { $db->transRollback(); }
+	  }
+	}
+	$error = $messageStack->add(GL_ERROR_NO_DELETE, 'error');
+	$cInfo = new objectInfo($_POST);
+	break;
+
   case 'edit':
+	validate_security($security_level, 2); // security check
+    $oID = (int)$_GET['oID'];
+	// fall through like default
   default:
-	$cInfo = new objectInfo(array());
+	$cInfo = new objectInfo();
 }
 /*****************   prepare to display templates  *************************/
 $gl_array_list = gen_coa_pull_down();

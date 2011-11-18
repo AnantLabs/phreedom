@@ -17,6 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /install/pages/main/pre_process.php
 //
+define('DEBUG',false);
 /**************  include page specific files    *********************/
 // calculate server path info
 $virtual_path   = substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/install/')+1);
@@ -165,6 +166,7 @@ switch ($action) {
 	$_SESSION['company']  = $db_name;
 	$_SESSION['language'] = $lang;
 	// create the company directory
+	if (DEBUG) $messageStack->debug("\n  creating the company directory");
 	if (!file_exists(DIR_FS_ADMIN . PATH_TO_MY_FILES . $db_name)) {
 	  if (!@mkdir   (DIR_FS_ADMIN . PATH_TO_MY_FILES . $db_name)) $error = $messageStack->add(sprintf(MSG_ERROR_CREATE_MY_FILES, DIR_FS_ADMIN . PATH_TO_MY_FILES . $db_name),'error');
 	}
@@ -198,6 +200,7 @@ switch ($action) {
 	  // install core modules first
 	  $core_modules = array('phreedom','phreeform');
 	  foreach ($core_modules as $entry) {
+		if (DEBUG) $messageStack->debug("\n  installing core module = " . $entry);
 		if ($entry <> '.' && $entry <> '..' && is_dir(DIR_FS_MODULES . $entry)) {
 		  if (file_exists(DIR_FS_MODULES . $entry . '/config.php')) {
 			$error = false;
@@ -225,12 +228,14 @@ switch ($action) {
 		}
 	  }
 	  // load phreedom reports now since table exists
+	  if (DEBUG) $messageStack->debug("\n  installing phreedom.");
 	  $install_mod = new phreedom_admin;
 	  $install_mod->load_reports('phreedom');
 	  if ($error) {
 	    $messageStack->add(sprintf(MSG_ERROR_MODULE_INSTALL, $module), 'error');
 	  } else { // load all other modules and execute install script
 	    foreach ($contents as $entry) { // install each module
+		  if (DEBUG) $messageStack->debug("\n  installing additional module = " . $entry);
 	      if (in_array($entry, $core_modules)) continue; // core module, already installed
 		  if ($entry <> '.' && $entry <> '..' && is_dir(DIR_FS_MODULES . $entry)) {
 		    if (file_exists(DIR_FS_MODULES . $entry . '/config.php')) {
@@ -261,11 +266,13 @@ switch ($action) {
 	  }
 	}
 	if (!$error) {
+	  if (DEBUG) $messageStack->debug("\n  installing reports");
 	  foreach ($contents as $entry) { // install reports now that categories are set up
 	    if ($entry <> '.' && $entry <> '..' ) admin_add_reports($entry, DIR_FS_MY_FILES . $_SESSION['company'] . '/phreeform/');
 	  }
 	}
 	if (!$error) { // input admin username record, clear the tables first
+	  if (DEBUG) $messageStack->debug("\n  installing users");
 	  $db->Execute("TRUNCATE TABLE " . TABLE_USERS);
 	  $db->Execute("TRUNCATE TABLE " . TABLE_USERS_PROFILES);
       $security = load_full_access_security();
@@ -282,6 +289,7 @@ switch ($action) {
 	  }
 	}
 	if (!$error) { // install fiscal year, default chart of accounts
+	  if (DEBUG) $messageStack->debug("\n  installing fiscal year.");
 	  require_once('../modules/phreebooks/functions/phreebooks.php');
 	  $db->Execute("TRUNCATE TABLE " . TABLE_ACCOUNTING_PERIODS);
 	  $current_year = date('Y');
@@ -290,13 +298,12 @@ switch ($action) {
 	  $runaway = 0;
 	  while ($start_year <= $current_year) {
 	    validate_fiscal_year($start_year, $start_period, $start_year.'-'.$fy_month.'-01');
-	    build_and_check_account_history_records();
-	    gen_auto_update_period(false);
 		$start_year++;
 		$start_period = $start_period + 12;
 	    $runaway++;
-	    if ($runaway > 3) break;
+	    if ($runaway > 10) break;
 	  }
+	  if (DEBUG) $messageStack->debug("\n  loading chart of accounts");
 	  // load the retail chart as default if the chart of accounts table is empty
 	  $result = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " limit 1");
 	  $entries_exist = $result->RecordCount() > 0 ? true : false;
@@ -316,10 +323,14 @@ switch ($action) {
 		  );
 		  db_perform(TABLE_CHART_OF_ACCOUNTS, $sql_data_array, 'insert');
 		}
-	    build_and_check_account_history_records();
 	  }
+	  if (DEBUG) $messageStack->debug("\n  building and checking chart history");
+	  build_and_check_account_history_records();
+	  if (DEBUG) $messageStack->debug("\n  updating current period");
+	  gen_auto_update_period(false);
 	}
 	if (!$error) { // write the includes/configure.php file
+	  if (DEBUG) $messageStack->debug("\n  writing configure.php file");
 	  $config_contents = str_replace('DEFAULT_HTTP_SERVER',      $srvr_http,   $config_contents);
 	  $config_contents = str_replace('DEFAULT_HTTPS_SERVER',     $srvr_https,  $config_contents);
 	  $config_contents = str_replace('DEFAULT_ENABLE_SSL_ADMIN', $use_ssl,     $config_contents);
@@ -345,11 +356,11 @@ switch ($action) {
       $_SESSION['admin_id']       = $user_id;
 	  $_SESSION['admin_prefs']    = '';
       $_SESSION['language']       = $lang;
-      $_SESSION['theme']          = 'default';
 	  $_SESSION['account_id']     = '';
       $_SESSION['admin_security'] = gen_parse_permissions($security);
       $include_template = 'template_finish.php';
 	  define('PAGE_TITLE', TITLE_FINISH);
+	  if (DEBUG) $messageStack->write_debug();
 	} else {
       $include_template = 'template_install.php';
 	  define('PAGE_TITLE', TITLE_INSTALL);
@@ -389,14 +400,10 @@ $sel_fy_month = array(
 );
 
 $sel_fy_year = array();
-for ($i = 0; $i < 8; $i++) {
-  $sel_fy_year[] = array('id' => date('Y')+$i-2, 'text' => date('Y')+$i-2);
-}
-
+for ($i = 0; $i < 6; $i++) $sel_fy_year[] = array('id' => date('Y')+$i-5, 'text' => date('Y')+$i-5);
 // Determine http path
 $srvr_http  = 'http://'  . $_SERVER['HTTP_HOST'];
 $srvr_https = 'https://' . $_SERVER['HTTP_HOST'];
-
 // find the license
 if (file_exists('../modules/phreedom/language/' . $lang . '/manual/ch01-Introduction/license.html')) {
   $license_path = '../modules/phreedom/language/' . $lang . '/manual/ch01-Introduction/license.html';

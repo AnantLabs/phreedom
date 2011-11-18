@@ -17,7 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/template_tab_dept_types.php
 //
-$dept_types_toolbar = new toolbar;
+$dept_types_toolbar = new toolbar('dept_types');
 $dept_types_toolbar->icon_list['cancel']['show'] = false;
 $dept_types_toolbar->icon_list['open']['show']   = false;
 $dept_types_toolbar->icon_list['save']['show']   = false;
@@ -27,9 +27,8 @@ if ($security_level > 1) $dept_types_toolbar->add_icon('new', 'onclick="loadPopU
 if ($dept_types->extra_buttons) $dept_types->customize_buttons($dept_types_toolbar);
 
 ?>
-<div id="dept_types" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_DEPT_TYPES_TABS; ?></h2>
+<div id="tab_dept_types">
   <?php echo $dept_types_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $dept_types->title; ?></div>
+  <h1><?php echo $dept_types->title; ?></h1>
   <div id="dept_types_content"><?php echo $dept_types->build_main_html(); ?></div>
 </div>

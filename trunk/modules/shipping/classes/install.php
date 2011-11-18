@@ -22,8 +22,8 @@ class shipping_admin {
   function shipping_admin() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.2',
-	  'phreebooks' => '3.2',
+	  'phreedom'   => '3.3',
+	  'phreebooks' => '3.3',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -108,7 +108,6 @@ class shipping_admin {
 	  foreach ($properties->keys() as $key) write_configure($key['key'], $key['default']);
 	  if (method_exists($properties, 'install')) $properties->install();
 	}
-    return $error;
 	$db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_shipment_num VARCHAR(16) NOT NULL DEFAULT '1'");
     return $error;
   }

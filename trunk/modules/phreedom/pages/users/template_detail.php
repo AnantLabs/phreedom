@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/users/template_detail.php
 //
-// start the form
 echo html_form('users', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo',   '')        . chr(10);
@@ -32,43 +31,41 @@ if ($security_level > 2) {
 } else {
   $toolbar->icon_list['save']['show']   = false;
 }
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.08.07');
 echo $toolbar->build_toolbar(); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-  <fieldset class="formAreaTitle">
+<h1><?php echo PAGE_TITLE; ?></h1>
+  <fieldset>
   <legend><?php echo TEXT_GENERAL; ?></legend>
-  <table border="0" align="center" cellspacing="1" cellpadding="1">
-  <tr>
+  <table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+   <tbody class="ui-widget-content">
+   <tr>
     <td align="right"><?php echo GEN_USERNAME . ' '  . html_input_field('admin_name', $uInfo->admin_name, 'size="25"'); ?></td>
     <td><?php echo TEXT_INACTIVE . ' ' . html_checkbox_field('inactive', '1', ($uInfo->inactive ? true : false)); ?></td>
     <td><?php echo GEN_DISPLAY_NAME . ' ' . html_input_field('display_name', $uInfo->display_name, 'size="25"'); ?></td>
-  </tr>
-  <tr>
+   </tr>
+   <tr>
     <td align="right"><?php echo TEXT_PASSWORD . ' ' . html_password_field('password_new', ''); ?></td>
     <td><?php echo '&nbsp;'; ?></td>
     <td><?php echo GEN_EMAIL . ' ' . html_input_field('admin_email', $uInfo->admin_email, 'size="33"'); ?></td>
-  </tr>
-  <tr>
+   </tr>
+   <tr>
     <td align="right"><?php echo TEXT_CONFIRM_PASSWORD . ' ' . html_password_field('password_conf', ''); ?></td>
     <td><?php echo '&nbsp;'; ?></td>
     <td><?php echo GEN_ACCOUNT_LINK . ' ' . html_pull_down_menu('account_id', gen_get_contact_array_by_type('e'), $uInfo->account_id, ''); ?></td>
-  </tr>
-  <tr>
-    <td><?php echo TEXT_SELECT_ROLE . ' ' . html_pull_down_menu('fill_role', $fill_all_roles, '-1', 'onchange="submitToDo(\'fill_role\')"'); ?></td>
-  </tr>
+   </tr>
+   <tr>
+    <td><?php echo TEXT_SELECT_ROLE . ' ' . html_pull_down_menu('fill_role', $fill_all_roles, $uInfo->role, 'onchange="submitToDo(\'fill_role\')"'); ?></td>
+   </tr>
+   </tbody>
   </table>
   </fieldset>
 
-  <fieldset class="formAreaTitle">
+  <fieldset>
   <legend><?php echo TEXT_PROFILE; ?></legend>
-  <table border="0" align="center" cellspacing="1" cellpadding="1">
+  <table>
   <tr>
     <td><?php echo GEN_DEFAULT_STORE . ' ' . html_pull_down_menu('def_store_id',  gen_get_store_ids(), $error ? $_POST['def_store_id'] : $uInfo->def_store_id, ''); ?></td>
     <td><?php echo GEN_DEF_CASH_ACCT . ' ' . html_pull_down_menu('def_cash_acct', gen_coa_pull_down(), $error ? $_POST['def_cash_acct'] : $uInfo->def_cash_acct, ''); ?></td>
@@ -87,17 +84,15 @@ echo $toolbar->build_toolbar();
   </table>
   </fieldset>
 
-  <fieldset class="formAreaTitle">
+  <fieldset>
   <legend><?php echo TEXT_SECURITY_SETTINGS; ?></legend>
     <div><?php echo TEXT_FILL_ALL_LEVELS . ' ' . html_pull_down_menu('fill_all', $fill_all_values, '-1', 'onchange="submitToDo(\'fill_all\')"'); ?></div>
-    <ul class="tabset_tabs">
-<?php 
-	$show_active = false;
-	foreach ($pb_headings as $key => $value) {
-		$active = !$show_active ? ' class="active"' : '';
-		echo '<li><a href="#usr_' . $key . '"' . $active . '>' .  $value['text'] . '</a></li>' . chr(10);
-		$show_active = true;
-	}
+	<div id="accesstabs">
+	<ul>
+<?php foreach ($pb_headings as $key => $value) {
+  if ($value['text'] == TEXT_HOME || $value['text'] == TEXT_LOGOUT) continue;
+  echo add_tab_list('tab_' . $key, $value['text']) . chr(10);
+}
 ?>
     </ul>
 <?php
@@ -105,44 +100,49 @@ $settings     = gen_parse_permissions($uInfo->admin_security);
 $column_break = true;
 // array pb_headings is defined in /includes/header_navigation.php
 foreach ($pb_headings as $key => $menu_heading) {
-	echo '<div id="usr_' . $key . '" class="tabset_content">' . chr(10);
-	echo '<h2 class="tabset_label">' . $menu_heading['text'] . '</h2>' . chr(10);
-	echo '<table width="95%" border="0" align="center" cellspacing="0" cellpadding="0">' . chr(10);
-	echo '<tr valign="top">' . chr(10);
-	echo '<td width="50%">&nbsp;</td>' . chr(10);
-	echo '<td width="10%" align="center">' . TEXT_FULL      . '</td>' . chr(10);
-	echo '<td width="10%" align="center">' . TEXT_EDIT      . '</td>' . chr(10);
-	echo '<td width="10%" align="center">' . TEXT_ADD       . '</td>' . chr(10);
-	echo '<td width="10%" align="center">' . TEXT_READ_ONLY . '</td>' . chr(10);
-	echo '<td width="10%" align="center">' . TEXT_NONE      . '</td></tr>' . chr(10);
+  if ($menu_heading['text'] == TEXT_HOME || $menu_heading['text'] == TEXT_LOGOUT) continue;
+	echo '<div id="tab_' . $key . '">' . chr(10);
+	echo '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . chr(10);
+	echo '<thead class="ui-widget-header">' . chr(10);
+	echo '<tr>' . chr(10);
+	echo '<th width="50%">&nbsp;</th>' . chr(10);
+	echo '<th width="10%" nowrap="nowrap">' . TEXT_FULL      . '</th>' . chr(10);
+	echo '<th width="10%" nowrap="nowrap">' . TEXT_EDIT      . '</th>' . chr(10);
+	echo '<th width="10%" nowrap="nowrap">' . TEXT_ADD       . '</th>' . chr(10);
+	echo '<th width="10%" nowrap="nowrap">' . TEXT_READ_ONLY . '</th>' . chr(10);
+	echo '<th width="10%" nowrap="nowrap">' . TEXT_NONE      . '</th>' . chr(10);
+	echo '</tr>' . chr(10);
+	echo '</thead><tbody class="ui-widget-content">' . chr(10);
+	$odd = true;
 	foreach ($menu as $item)  {
-//echo 'item = '; print_r($item); echo '<br />';
-		if (isset($item['heading'])) {
-			if ($item['heading'] == $menu_heading['text']) {
-				if ($item['text'] == TEXT_REPORTS && $item['heading'] <> MENU_HEADING_TOOLS) continue;  // special case for reports listings not in Tools menu
-				$checked = array();
-				if ($item['hide'] === true) {
-					continue; // skip if menu only item
-				} elseif (isset($settings[$item['security_id']])) {
-					$checked[0] = false;
-					$checked[$settings[$item['security_id']]] = true;
-				} elseif ($error) {
-					$checked[0] = false;
-					$checked[$_POST['sID_' . $item['security_id']]] = true;
-				} else {
-					$checked[0] = true;	// default to no access
-				}
-				echo '<tr valign="top" class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">';
-				echo '<td>' . $item['text'] . '</td>' . chr(10);
-				echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '4', $checked[4]) . '</td>' . chr(10);
-				echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '3', $checked[3]) . '</td>' . chr(10);
-				echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '2', $checked[2]) . '</td>' . chr(10);
-				echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '1', $checked[1]) . '</td>' . chr(10);
-				echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '0', $checked[0]) . '</td></tr>' . chr(10);
+	  if (isset($item['heading'])) {
+		if ($item['heading'] == $menu_heading['text']) {
+			if ($item['text'] == TEXT_REPORTS && $item['heading'] <> MENU_HEADING_TOOLS) continue;  // special case for reports listings not in Tools menu
+			$checked = array();
+			if ($item['hide'] === true) {
+				continue; // skip if menu only item
+			} elseif (isset($settings[$item['security_id']])) {
+				$checked[0] = false;
+				$checked[$settings[$item['security_id']]] = true;
+			} elseif ($error) {
+				$checked[0] = false;
+				$checked[$_POST['sID_' . $item['security_id']]] = true;
+			} else {
+				$checked[0] = true;	// default to no access
 			}
+			echo '<tr valign="top" class="' . ($odd?'odd':'even') . '">';
+			echo '<td>' . $item['text'] . '</td>' . chr(10);
+			echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '4', $checked[4]) . '</td>' . chr(10);
+			echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '3', $checked[3]) . '</td>' . chr(10);
+			echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '2', $checked[2]) . '</td>' . chr(10);
+			echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '1', $checked[1]) . '</td>' . chr(10);
+			echo '<td align="center">' . html_radio_field('sID_' . $item['security_id'], '0', $checked[0]) . '</td></tr>' . chr(10);
+			$odd = !$odd;
 		}
+	  }
 	}
-	echo '</table></div>' . chr(10);
-} ?>
+	echo '</tbody></table></div>' . chr(10);
+	} ?>
+    </div>
   </fieldset>
 </form>

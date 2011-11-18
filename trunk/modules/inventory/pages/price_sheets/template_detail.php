@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/price_sheets/template_detail.php
 //
-// start the form
 echo html_form('pricesheet', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 $hidden_fields = NULL;
 // include hidden fields
@@ -33,43 +32,44 @@ if ($security_level > 1) {
 }
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.04.06');
 echo $toolbar->build_toolbar(); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE . $sheet_name . ' (' . TEXT_REVISION . ' ' . $revision . ')'; ?></div>
-<table align="center" width="400" border="0" cellspacing="2" cellpadding="2">
+<h1><?php echo PAGE_TITLE . $sheet_name . ' (' . TEXT_REVISION . ' ' . $revision . ')'; ?></h1>
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto">
+ <tbody class="ui-widget-content">
   <tr>
-    <td class="main"><?php echo PRICE_SHEET_NAME; ?></td>
-    <td class="main"><?php echo html_input_field('sheet_name', $sheet_name, '', false); ?></td>
-    <td class="main" align="right"><?php echo TEXT_REVISION; ?></td>
-    <td class="main"><?php echo html_input_field('revision', $revision, 'readonly="readonly" size="5"', false); ?></td>
+    <td><?php echo PRICE_SHEET_NAME; ?></td>
+    <td><?php echo html_input_field('sheet_name', $sheet_name, '', false); ?></td>
+    <td align="right"><?php echo TEXT_REVISION; ?></td>
+    <td><?php echo html_input_field('revision', $revision, 'readonly="readonly" size="5"', false); ?></td>
   </tr>
   <tr>
-    <td class="main"><?php echo TEXT_EFFECTIVE_DATE; ?></td>
-    <td class="main"><?php echo html_calendar_field($cal_ps); ?></td>
-    <td class="main" align="right"><?php echo TEXT_USE_AS_DEFAULT; ?></td>
-    <td class="main"><?php echo html_checkbox_field('default_sheet', '1', ($default_sheet) ? ' checked' : ''); ?></td>
+    <td><?php echo TEXT_EFFECTIVE_DATE; ?></td>
+    <td><?php echo html_calendar_field($cal_ps); ?></td>
+    <td align="right"><?php echo TEXT_USE_AS_DEFAULT; ?></td>
+    <td><?php echo html_checkbox_field('default_sheet', '1', ($default_sheet) ? ' checked' : ''); ?></td>
   </tr>
 <?php if (ENABLE_MULTI_CURRENCY) echo '<tr><td colspan="4" class="fieldRequired" align="center"> ' . sprintf(GEN_PRICE_SHEET_CURRENCY_NOTE, $currencies->currencies[DEFAULT_CURRENCY]['title']) . '</td></tr>'; ?>
   <tr>
-    <td colspan="4"><table width="100%" border="1" cellspacing="1" cellpadding="1">
-      <tr class="dataTableHeadingRow">
-        <td align="center"><?php echo TEXT_LEVEL;      ?></td>
-        <td align="center"><?php echo TEXT_QUANTITY;   ?></td>
-        <td align="center"><?php echo TEXT_SOURCE;     ?></td>
-        <td align="center"><?php echo TEXT_ADJUSTMENT; ?></td>
-        <td align="center"><?php echo INV_ADJ_VALUE;   ?></td>
-        <td align="center"><?php echo INV_ROUNDING;    ?></td>
-        <td align="center"><?php echo INV_RND_VALUE;   ?></td>
-        <td align="center"><?php echo TEXT_PRICE;      ?></td>
+    <td colspan="4">
+	 <table class="ui-widget" style="border-collapse:collapse;width:100%">
+	  <thead class="ui-widget-header">
+	   <tr>
+        <th><?php echo TEXT_LEVEL;      ?></th>
+        <th><?php echo TEXT_QUANTITY;   ?></th>
+        <th><?php echo TEXT_SOURCE;     ?></th>
+        <th><?php echo TEXT_ADJUSTMENT; ?></th>
+        <th><?php echo INV_ADJ_VALUE;   ?></th>
+        <th><?php echo INV_ROUNDING;    ?></th>
+        <th><?php echo INV_RND_VALUE;   ?></th>
+        <th><?php echo TEXT_PRICE;      ?></th>
       </tr>
-<?php
+	  </thead>
+	  <tbody class="ui-widget-content">
+      <?php
 	$price_levels = explode(';', $default_levels);
 	// remove the last element from the price level source array (Level 1 price source)
 	$first_source_list = $price_mgr_sources;
@@ -97,8 +97,9 @@ echo $toolbar->build_toolbar();
 	}
 	$hidden_fields = '<script type="text/javascript">initEditForm()</script>' . chr(10);
 ?>
-    </table></td>
+    </tbody></table></td>
   </tr>
+</tbody>
 </table>
 <?php // display the hidden fields that are not used in this rendition of the form
 echo $hidden_fields;

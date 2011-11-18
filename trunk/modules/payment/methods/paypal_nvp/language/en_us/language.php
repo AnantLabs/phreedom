@@ -27,6 +27,8 @@ define('MODULE_PAYMENT_PAYPAL_NVP_SIG_DESC','Signature issued by PayPal for acce
 define('MODULE_PAYMENT_PAYPAL_NVP_TESTMODE_DESC','Transaction mode used for processing orders');
 define('MODULE_PAYMENT_PAYPAL_NVP_AUTHORIZATION_TYPE_DESC','Do you want submitted credit card transactions to be authorized only, or authorized and captured?');
 define('MODULE_PAYMENT_PAYPAL_NVP_SORT_ORDER_DESC','Sort order of display. Lowest is displayed first.');
+// General
+define('MODULE_PAYMENT_PAYPAL_NVP_TEXT_CREDIT_CARD_OWNER','First / Last Name');
 // PayPal urls, wsdls
 define('MODULE_PAYMENT_PAYPAL_NVP_SANDBOX_SIG_URL','https://api-3t.sandbox.paypal.com/nvp');
 define('MODULE_PAYMENT_PAYPAL_NVP_SANDBOX_CERT_URL','https://api.sandbox.paypal.com/nvp');

@@ -22,8 +22,9 @@
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes, moved custom operation to modules
 // 3.2 => 2011-08-01 - Bug fixes
+// 3.3 => 2011-11-15 - Bug fixes, themeroller changes
 // Module software version information
-define('MODULE_PHREEFORM_VERSION',  '3.2');
+define('MODULE_PHREEFORM_VERSION',  '3.3');
 // Menu Sort Positions
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_PHREEFORM', 3); // same as SECURITY_ID_REPORTS

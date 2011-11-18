@@ -22,6 +22,7 @@ var ship_add = new Array(0);
 var force_clear = false;
 
 function ClearForm() {
+  var numRows = 0;
   clearAddress('bill');
   clearAddress('ship');
   document.getElementById('search').value             = text_search;
@@ -72,9 +73,9 @@ function ClearForm() {
 	  addInvRow();
 	} else {
 	  if (single_line_list == '1') {
-	    var numRows = document.getElementById('item_table').rows.length;
+	    numRows = document.getElementById('item_table').rows.length;
 	  } else {
-		var numRows = document.getElementById('item_table').rows.length/2;
+		numRows = document.getElementById('item_table').rows.length/2;
 	  }
 	  for (var i=1; i<=numRows; i++) {
 		document.getElementById('id_'+i).value = 0;
@@ -177,6 +178,7 @@ function orderFillAddress(xml, type, fill_address) {
 		insertValue('acct_1',          default_inv_acct);
 		insertValue('rep_id',          $(this).find("dept_rep_id").text());
 		insertValue('ship_gl_acct_id', $(this).find("ship_gl_acct_id").text());
+		custCreditLimit              = $(this).find("credit_remaining").text();
 		var rowCnt = 1;
 		while(true) {
 		  if (!document.getElementById('tax_'+rowCnt)) break;
@@ -232,6 +234,8 @@ function fillOrder(xml) {
 	  }
 	});
     // fix some special cases, checkboxes, and active fields
+    insertValue('bill_to_select', $(this).find("bill_address_id").text());
+    insertValue('ship_to_select', $(this).find("ship_address_id").text());
     document.getElementById('display_currency').value = $(this).find("currencies_code").text();
     document.getElementById('closed').checked         = $(this).find("cb_closed").text()    == '1' ? true : false;
     document.getElementById('waiting').checked        = $(this).find("cb_waiting").text()   == '1' ? true : false;
@@ -250,7 +254,8 @@ function fillOrder(xml) {
 	    case  '7':
 	    case '12':
 	    case '13':
-		  if (document.all) { // IE browsers
+	      document.getElementById('closed_text').setAttribute("class", "ui-state-error");
+	      if (document.all) { // IE browsers
 		    document.getElementById('closed_text').innerText = closed_text;
 		  } else { //firefox
 		    document.getElementById('closed_text').textContent = closed_text;
@@ -352,7 +357,7 @@ function accountGuess(force) {
 	  $.ajax({
 		type: "GET",
 		contentType: "application/json; charset=utf-8",
-		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess+'&jID='+journalID,
+		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -374,20 +379,20 @@ function processGuess(sXml) {
 }
 
 function AccountList(currObj) {
-  var fill;
+  var fill = '';
   switch (journalID) {
 	case '3':
 	case '4':
 	case '6':
 	case '7':
 	case '20':
-	case '21': var fill = 'bill'; break;
+	case '21': fill = 'bill'; break;
 	case '9':
 	case '10':
 	case '12':
 	case '13':
 	case '18':
-	case '19': var fill = 'both'; break;
+	case '19': fill = 'both'; break;
 	default:
   }
   window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&form=orders&fill="+fill+"&jID="+journalID+"&search_text="+document.getElementById('search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
@@ -514,7 +519,7 @@ function DropShipView(currObj) {
 
 function fillAddress(type) {
   var index = document.getElementById(type+'_to_select').value;
-  var address;
+  var address = '';
   if (type == "bill") address = bill_add;
   if (type == "ship") address = ship_add;
   if (index == '0') { // set to defaults
@@ -564,99 +569,109 @@ function copyAddress() {
 }
 
 function addInvRow() {
-  var newCell;
-  var cell;
-  var newRow    = document.getElementById('item_table').insertRow(-1);
+  var newCell = '';
+  var cell    = '';
+  var rowCnt  = 0;
+  var newRow  = document.getElementById('item_table').insertRow(-1);
+  var newRow2 = '';
   if (single_line_list == '1') {
-    var rowCnt  = newRow.rowIndex;
+    rowCnt  = newRow.rowIndex;
   } else {
-    var newRow2 = document.getElementById('item_table').insertRow(-1);
-    var rowCnt  = (newRow2.rowIndex - 1)/2;
+    newRow2 = document.getElementById('item_table').insertRow(-1);
+    rowCnt  = (newRow2.rowIndex - 1)/2;
   }
-
 // NOTE: any change here also need to be made to template form for reload if action fails
-//  cell = '<td rowspan="'+(single_line_list?1:2)+'" align="center">';
-  cell  = '<td align="center">';
-  cell += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"') + '</td>';
+  cell    = buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"');
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
   if (single_line_list != '1') newCell.rowSpan = 2;
-  cell = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'"'+(item_col_1_enable == '1' ? " " : " readonly=\"readonly\"")+' size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" /></td>';
+  cell    = '<input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'"'+(item_col_1_enable == '1' ? " " : " readonly=\"readonly\"")+' size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="pstd_'+rowCnt+'" id="pstd_'+rowCnt+'"'+(item_col_2_enable == '1' ? " " : " readonly=\"readonly\"")+' size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
+  cell    = '<input type="text" name="pstd_'+rowCnt+'" id="pstd_'+rowCnt+'"'+(item_col_2_enable == '1' ? " " : " readonly=\"readonly\"")+' size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
   switch (journalID) {
     case  '6':
 	case  '7':
 	case '12':
 	case '13':
-	case '18':
     case '19':
-	case '20':
     case '21':
-      cell += '&nbsp;' + buildIcon(icon_path+'16x16/actions/tab-new.png', image_ser_num, 'onclick="serialList(\'serial_'+rowCnt+'\')"');
+      cell += '&nbsp;' + buildIcon(icon_path+'16x16/actions/tab-new.png', image_ser_num, 'id="imgSerial_'+rowCnt+'" style="cursor:pointer; display:none;" onclick="serialList(\'serial_'+rowCnt+'\')"');
     default:
   }
-  cell += '</td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell  = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="sku_'+rowCnt+'" id="sku_'+rowCnt+'" size="'+(max_sku_len+1)+'" maxlength="'+max_sku_len+'" onfocus="clearField(\'sku_'+rowCnt+'\', \''+text_search+'\')" onblur="setField(\'sku_'+rowCnt+'\', \''+text_search+'\'); loadSkuDetails(0, '+rowCnt+')" />&nbsp;';
-  cell += buildIcon(icon_path+'16x16/actions/system-search.png', text_search, 'id="sku_open_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"');
-  cell += buildIcon(icon_path+'16x16/actions/document-properties.png', text_properties, 'id="sku_prop_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryProp('+rowCnt+')"');
-  cell += '</td>';
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
+  cell    = '<input type="text" name="sku_'+rowCnt+'" id="sku_'+rowCnt+'" size="'+(max_sku_len+1)+'" maxlength="'+max_sku_len+'" onfocus="clearField(\'sku_'+rowCnt+'\', \''+text_search+'\')" onblur="setField(\'sku_'+rowCnt+'\', \''+text_search+'\'); loadSkuDetails(0, '+rowCnt+')" />&nbsp;';
+  cell   += buildIcon(icon_path+'16x16/actions/system-search.png', text_search, 'id="sku_open_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"');
+  cell   += buildIcon(icon_path+'16x16/actions/document-properties.png', text_properties, 'id="sku_prop_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryProp('+rowCnt+')"');
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
   // for textarea uncomment below, (No control over input length, truncated to 255 by db) or ...
-//  cell = '<td class="main"><textarea name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" cols="'+((single_line_list=='1')?50:110)+'" rows="1" maxlength="255"></textarea></td>';
+//  cell = '<textarea name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" cols="'+((single_line_list=='1')?50:110)+'" rows="1" maxlength="255"></textarea>';
   // for standard controlled input, uncomment below
-  cell = '<td class="main"><input name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="'+((single_line_list=='1')?50:75)+'" maxlength="255" /></td>';
+  cell = '<input name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="'+((single_line_list=='1')?50:75)+'" maxlength="255" />';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
   if (single_line_list != '1') newCell.colSpan = 3;
   // Project field
   if (single_line_list != '1') {
-    cell = '<td class="main"><select name="proj_'+rowCnt+'" id="proj_'+rowCnt+'"></select></td>';
+    cell = '<select name="proj_'+rowCnt+'" id="proj_'+rowCnt+'"></select>';
     newCell = newRow.insertCell(-1);
     newCell.innerHTML = cell;
     newCell.colSpan = 2;
+    newCell.align   = 'center';
+    newCell.style.whiteSpace  = 'nowrap'; 
   }
   // second row ( or continued first row if option selected)
   if (single_line_list != '1') {
-//    cell = '<td><input type="text" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="'+default_inv_acct+'" readonly="readonly" size="11" /></td>';
-    cell = '<td><select name="acct_'+rowCnt+'" id="acct_'+rowCnt+'"></select></td>';
+    cell = '<select name="acct_'+rowCnt+'" id="acct_'+rowCnt+'"></select>';
     newCell = newRow2.insertCell(-1);
   } else {
-//    cell = '<td><input type="text" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="'+default_inv_acct+'" readonly="readonly" size="11" /></td>';
-	cell = '<td nowrap="nowrap">' + htmlComboBox('acct_'+rowCnt, values = '', default_inv_acct, 'size="10"', '220px', '') + '</td>';
+	cell = htmlComboBox('acct_'+rowCnt, values = '', default_inv_acct, 'size="10"', '220px', '');
     newCell = newRow.insertCell(-1);  }
-  newCell.innerHTML = cell;
-  if (single_line_list != '1') newCell.colSpan = 3;
-  if (single_line_list != '1') {
-    cell  = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="full_'+rowCnt+'" id="full_'+rowCnt+'" readonly="readonly" size="11" maxlength="10" style="text-align:right" /></td>';
+    newCell.innerHTML = cell;
+    newCell.align  = 'center';
+    newCell.style.whiteSpace = 'nowrap'; 
+    if (single_line_list != '1') newCell.colSpan = 3;
+    if (single_line_list != '1') {
+    cell  = '<input type="text" name="full_'+rowCnt+'" id="full_'+rowCnt+'" readonly="readonly" size="11" maxlength="10" style="text-align:right" />';
     newCell = newRow2.insertCell(-1);
     newCell.innerHTML = cell;
-    cell  = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" readonly="readonly" size="11" maxlength="10" style="text-align:right" /></td>';
+    newCell.align  = 'center';
+    newCell.style.whiteSpace = 'nowrap'; 
+    cell  = '<input type="text" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" readonly="readonly" size="11" maxlength="10" style="text-align:right" />';
     newCell = newRow2.insertCell(-1);
     newCell.innerHTML = cell;
+    newCell.align  = 'center';
+    newCell.style.whiteSpace = 'nowrap'; 
   }
-  cell  = '<td nowrap="nowrap" class="main" align="center"><input type="text" name="price_'+rowCnt+'" id="price_'+rowCnt+'" size="10" maxlength="15" onchange="updateRowTotal('+rowCnt+', false)" style="text-align:right" />&nbsp;';
-  cell += buildIcon(icon_path+'16x16/mimetypes/x-office-spreadsheet.png', text_price_manager, 'align="top" style="cursor:pointer" onclick="PriceManagerList('+rowCnt+')"') + '</td>';
+  cell  = '<input type="text" name="price_'+rowCnt+'" id="price_'+rowCnt+'" size="10" maxlength="15" onchange="updateRowTotal('+rowCnt+', false)" style="text-align:right" />&nbsp;';
+  cell += buildIcon(icon_path+'16x16/mimetypes/x-office-spreadsheet.png', text_price_manager, 'align="top" style="cursor:pointer" onclick="PriceManagerList('+rowCnt+')"');
   if (single_line_list != '1') {
     newCell = newRow2.insertCell(-1);
   } else {
     newCell = newRow.insertCell(-1);
   }
   newCell.innerHTML = cell;
-  cell  = '<td nowrap="nowrap" class="main"><select name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" onchange="updateRowTotal('+rowCnt+', false)"></select></td>';
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
+  cell  = '<select name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" onchange="updateRowTotal('+rowCnt+', false)"></select>';
   if (single_line_list != '1') {
     newCell = newRow2.insertCell(-1);
   } else {
     newCell = newRow.insertCell(-1);
   }
   newCell.innerHTML = cell;
-  cell  = '<td class="main" align="center">';
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
 // Hidden fields
-  cell += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="" />';
+  cell  = '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="so_po_item_ref_id_'+rowCnt+'" id="so_po_item_ref_id_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="weight_'+rowCnt+'" id="weight_'+rowCnt+'" value="0" />';
   cell += '<input type="hidden" name="stock_'+rowCnt+'" id="stock_'+rowCnt+'" value="NA" />';
@@ -670,13 +685,15 @@ function addInvRow() {
     cell += '<input type="hidden" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" value="" />';
   }
 // End hidden fields
-  cell += '<input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="11" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right" /></td>';
+  cell += '<input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="11" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right" />';
   if (single_line_list != '1') {
     newCell = newRow2.insertCell(-1);
   } else {
     newCell = newRow.insertCell(-1);
   }
   newCell.innerHTML = cell;
+  newCell.align  = 'center';
+  newCell.style.whiteSpace = 'nowrap'; 
 
   // populate the drop downs
   var selElement = (single_line_list == '1') ? ('comboselacct_'+rowCnt) : ('acct_'+rowCnt);
@@ -690,11 +707,12 @@ function addInvRow() {
 }
 
 function removeInvRow(index) {
-  var i, acctIndex, offset, newOffset;
+  var i, offset, newOffset;
+  var numRows;
   if (single_line_list == '1') {
-	var numRows = document.getElementById('item_table').rows.length;
+	numRows = document.getElementById('item_table').rows.length;
   } else {
-	var numRows = (document.getElementById('item_table').rows.length)/2;
+	numRows = (document.getElementById('item_table').rows.length)/2;
   }
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
@@ -728,6 +746,7 @@ function removeInvRow(index) {
 	document.getElementById('disc_'+i).value              = document.getElementById('disc_'+(i+1)).value;
 // End hidden fields
 	document.getElementById('total_'+i).value             = document.getElementById('total_'+(i+1)).value;
+	document.getElementById('sku_'+i).style.color         = (document.getElementById('sku_'+i).value == text_search) ? inactive_text_color : '';
   }
   document.getElementById('item_table').deleteRow(-1);
   if (single_line_list != '1') document.getElementById('item_table').deleteRow(-1);
@@ -735,6 +754,7 @@ function removeInvRow(index) {
 } 
 
 function updateRowTotal(rowCnt, useAjax) {
+	var qty = 0;
 	var unit_price = cleanCurrency(document.getElementById('price_'+rowCnt).value);
 	var full_price = cleanCurrency(document.getElementById('full_' +rowCnt).value);
 	switch (journalID) {
@@ -742,7 +762,7 @@ function updateRowTotal(rowCnt, useAjax) {
 		case  '4':
 		case  '9':
 		case '10': 
-		  var qty = parseFloat(document.getElementById('qty_'+rowCnt).value);
+		  qty = parseFloat(document.getElementById('qty_'+rowCnt).value);
 		  if (isNaN(qty)) qty = 0; // if blank or a non-numeric value is in the qty field, assume zero
 		  break;
 		case  '6':
@@ -753,7 +773,7 @@ function updateRowTotal(rowCnt, useAjax) {
 		case '19':
 		case '21':
 		case '20': 
-		  var qty = parseFloat(document.getElementById('pstd_'+rowCnt).value);
+		  qty = parseFloat(document.getElementById('pstd_'+rowCnt).value);
 		  if (isNaN(qty)) qty = 0; // if blank or a non-numeric value is in the pstd field, assume zero
 		  break;
 		default:
@@ -807,6 +827,7 @@ function processSkuPrice(sXml) { // call back function
 }
 
 function updateUnitPrice(rowCnt) {
+  var qty = 0;
   var total_line = cleanCurrency(document.getElementById('total_'+rowCnt).value);
   document.getElementById('total_'+rowCnt).value = formatCurrency(total_line);
   switch (journalID) {
@@ -814,7 +835,7 @@ function updateUnitPrice(rowCnt) {
 	case '4':
 	case '9':
 	case '10':
-	  var qty = parseFloat(document.getElementById('qty_'+rowCnt).value);
+	  qty = parseFloat(document.getElementById('qty_'+rowCnt).value);
 	  if (isNaN(qty)) {
 		qty = 1;
 		document.getElementById('qty_'+rowCnt).value = qty;
@@ -828,7 +849,7 @@ function updateUnitPrice(rowCnt) {
 	case '19':
 	case '20':
 	case '21':
-	  var qty = parseFloat(document.getElementById('pstd_'+rowCnt).value);
+	  qty = parseFloat(document.getElementById('pstd_'+rowCnt).value);
 	  if (isNaN(qty)) {
 		qty = 1;
 		document.getElementById('pstd_'+rowCnt).value = qty;
@@ -843,6 +864,7 @@ function updateUnitPrice(rowCnt) {
 }
 
 function updateTotalPrices() {
+  var numRows = 0;
   var discount = parseFloat(cleanCurrency(document.getElementById('discount').value));
   if (isNaN(discount)) discount = 0;
   var discountPercent = parseFloat(cleanCurrency(document.getElementById('disc_percent').value));
@@ -853,9 +875,9 @@ function updateTotalPrices() {
   var taxable_subtotal = 0;
   var lineTotal        = '';
   if (single_line_list == '1') {
-	var numRows = document.getElementById('item_table').rows.length;
+	numRows = document.getElementById('item_table').rows.length;
   } else {
-	var numRows = document.getElementById('item_table').rows.length/2;
+	numRows = document.getElementById('item_table').rows.length/2;
   }
   for (var i=1; i<numRows+1; i++) {
 	switch (journalID) {
@@ -919,6 +941,14 @@ function updateTotalPrices() {
   var new_total = subtotal - discount + freight + taxable_subtotal;
   var tot = new String(new_total);
   document.getElementById('total').value = formatCurrency(tot);
+  if (journalID == '12' && applyCreditLimit == '1') {
+	if (tot > custCreditLimit && document.getElementById('override_user').value == '') showOverride();
+  } else {
+    if (document.getElementById('tb_icon_save'))          document.getElementById('tb_icon_save').style.visibility          = "";
+    if (document.getElementById('tb_icon_print'))         document.getElementById('tb_icon_print').style.visibility         = "";
+    if (document.getElementById('tb_icon_post_previous')) document.getElementById('tb_icon_post_previous').style.visibility = "";
+    if (document.getElementById('tb_icon_post_next'))     document.getElementById('tb_icon_post_next').style.visibility     = "";
+  }
 }
 
 function calculateDiscountPercent() {
@@ -943,12 +973,51 @@ function calculateDiscount() {
   updateTotalPrices();
 }
 
+function showOverride() {
+  if (document.getElementById('tb_icon_save'))          document.getElementById('tb_icon_save').style.visibility          = "hidden";
+  if (document.getElementById('tb_icon_print'))         document.getElementById('tb_icon_print').style.visibility         = "hidden";
+  if (document.getElementById('tb_icon_post_previous')) document.getElementById('tb_icon_post_previous').style.visibility = "hidden";
+  if (document.getElementById('tb_icon_post_next'))     document.getElementById('tb_icon_post_next').style.visibility     = "hidden";
+  $('#override_order').dialog('open');
+}
+
+function checkOverride () {
+  var user = document.getElementById('override_user').value;
+  var pass = document.getElementById('override_pass').value;
+  $.ajax({
+	type: "GET",
+	contentType: "application/json; charset=utf-8",
+	url: 'index.php?module=phreedom&page=ajax&op=validate&u='+user+'&p='+pass+'&level=4',
+	dataType: ($.browser.msie) ? "text" : "xml",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	},
+	success: clearOverride
+  });
+}
+
+function clearOverride(sXml) {
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  var result = $(xml).find("result").text();
+  if (result == 'validated') {
+	$('#override_order').dialog('close');
+    if (document.getElementById('tb_icon_save'))          document.getElementById('tb_icon_save').style.visibility          = "";
+    if (document.getElementById('tb_icon_print'))         document.getElementById('tb_icon_print').style.visibility         = "";
+    if (document.getElementById('tb_icon_post_previous')) document.getElementById('tb_icon_post_previous').style.visibility = "";
+    if (document.getElementById('tb_icon_post_next'))     document.getElementById('tb_icon_post_next').style.visibility     = "";
+  } else {
+	alert(adminNotValidated);
+  }
+}
+
 function checkShipAll() {
+  var numRows = 0;
   var item_count;
   if (single_line_list == '1') {
-	var numRows = document.getElementById('item_table').rows.length;
+	numRows = document.getElementById('item_table').rows.length;
   } else {
-	var numRows = document.getElementById('item_table').rows.length/2;
+	numRows = document.getElementById('item_table').rows.length/2;
   }
   for (var i=1; i<numRows; i++) {
    	item_count = parseFloat(document.getElementById('qty_'+i).value);
@@ -1003,18 +1072,23 @@ function buildFreightDropdown() {
 }
 
 function recalculateCurrencies() {
-  var workingTotal, workingUnitValue, itemTotal, newTotal;
+  var workingTotal = 0;
+  var workingUnitValue = 0;
+  var itemTotal = 0;
+  var numRows = 0;
+  var newTotal = 0;
+  var newValue = 0;
   var currentCurrency = document.getElementById('currencies_code').value;
   var currentValue = parseFloat(document.getElementById('currencies_value').value);
   var desiredCurrency = document.getElementById('display_currency').value;
   for (var i=0; i<js_currency_codes.length; i++) {
-	if (js_currency_codes[i] == desiredCurrency) var newValue = js_currency_values[i];
+	if (js_currency_codes[i] == desiredCurrency) newValue = js_currency_values[i];
   }
   // update the line item table
   if (single_line_list == '1') {
-	var numRows = document.getElementById('item_table').rows.length;
+	numRows = document.getElementById('item_table').rows.length;
   } else {
-	var numRows = document.getElementById('item_table').rows.length/2;
+	numRows = document.getElementById('item_table').rows.length/2;
   }
   for (var i=1; i<numRows; i++) {
 	itemTotal = parseFloat(cleanCurrency(document.getElementById('total_'+i).value, currentCurrency));
@@ -1057,7 +1131,8 @@ function recalculateCurrencies() {
 
 // AJAX auto load SKU pair
 function loadSkuDetails(iID, rowCnt) {
-  var qty, sku;
+  var qty = 0;
+  var sku = '';
   if (!rowCnt) return;
   // if a sales order or purchase order exists, keep existing information.
   so_exists = document.getElementById('so_po_item_ref_id_'+rowCnt).value;
@@ -1098,7 +1173,8 @@ function loadSkuDetails(iID, rowCnt) {
 }
 
 function fillInventory(sXml) {
-  var qty_pstd;
+  var qty_pstd = 0;
+  var qty = 0;
   var text = '';
   var exchange_rate = document.getElementById('currencies_value').value;
   var xml = parseXml(sXml);
@@ -1108,7 +1184,7 @@ function fillInventory(sXml) {
   if (!sku) return;
   document.getElementById('sku_'     +rowCnt).value       = sku;
   document.getElementById('sku_'     +rowCnt).style.color = '';
-  document.getElementById('full_'    +rowCnt).value       = formatCurrency($(xml).find("full_price").text() * exchange_rate);
+  if ($(xml).find("inventory_type").text() == 'sr') document.getElementById('imgSerial_'+rowCnt).style.display = '';
   document.getElementById('weight_'  +rowCnt).value       = $(xml).find("item_weight").text();
   document.getElementById('stock_'   +rowCnt).value       = $(xml).find("branch_qty_in_stock").text(); // stock at this branch
 //document.getElementById('stock_'   +rowCnt).value       = $(xml).find("quantity_on_hand").text(); // to insert total stock available
@@ -1121,6 +1197,7 @@ function fillInventory(sXml) {
 	  document.getElementById('qty_'   +rowCnt).value     = $(xml).find("qty").first().text();
 	  document.getElementById('acct_'  +rowCnt).value     = $(xml).find("account_inventory_wage").text();
 	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+	  document.getElementById('full_'    +rowCnt).value   = formatCurrency($(xml).find("item_cost").text() * exchange_rate);
 	  document.getElementById('tax_'   +rowCnt).value     = $(xml).find("purch_taxable").text();
 	  if ($(xml).find("description_purchase").text()) {
 	    document.getElementById('desc_'  +rowCnt).value   = $(xml).find("description_purchase").text();
@@ -1135,6 +1212,7 @@ function fillInventory(sXml) {
 	  document.getElementById('pstd_'  +rowCnt).value     = $(xml).find("qty").first().text();
 	  document.getElementById('acct_'  +rowCnt).value     = $(xml).find("account_inventory_wage").text();
 	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+	  document.getElementById('full_'    +rowCnt).value   = formatCurrency($(xml).find("item_cost").text() * exchange_rate);
 	  document.getElementById('tax_'   +rowCnt).value     = $(xml).find("purch_taxable").text();
 	  if ($(xml).find("description_purchase").text()) {
 	    document.getElementById('desc_'  +rowCnt).value   = $(xml).find("description_purchase").text();
@@ -1148,6 +1226,7 @@ function fillInventory(sXml) {
 	  document.getElementById('qty_'   +rowCnt).value     = $(xml).find("qty").first().text();
 	  document.getElementById('acct_'  +rowCnt).value     = $(xml).find("account_sales_income").text();
 	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+	  document.getElementById('full_'    +rowCnt).value   = formatCurrency($(xml).find("full_price").text() * exchange_rate);
 	  document.getElementById('tax_'   +rowCnt).value     = $(xml).find("item_taxable").text();
 	  if ($(xml).find("description_sales").text()) {
 	    document.getElementById('desc_'  +rowCnt).value   = $(xml).find("description_sales").text();
@@ -1162,6 +1241,7 @@ function fillInventory(sXml) {
 	  document.getElementById('pstd_'  +rowCnt).value     = $(xml).find("qty").first().text();
 	  document.getElementById('acct_'  +rowCnt).value     = $(xml).find("account_sales_income").text();
 	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+	  document.getElementById('full_'    +rowCnt).value   = formatCurrency($(xml).find("full_price").text() * exchange_rate);
 	  document.getElementById('tax_'   +rowCnt).value     = $(xml).find("item_taxable").text();
 	  if ($(xml).find("description_sales").text()) {
 	    document.getElementById('desc_'  +rowCnt).value   = $(xml).find("description_sales").text();
@@ -1182,7 +1262,7 @@ function fillInventory(sXml) {
   } else {
 	rowCnt = parseInt((document.getElementById('item_table').rows.length/2));
   }
-  var qty = document.getElementById(qty_pstd+rowCnt).value;
+  qty = document.getElementById(qty_pstd+rowCnt).value;
   var sku = document.getElementById('sku_'+rowCnt).value;
   if (qty != '' && sku != '' && sku != text_search) rowCnt = addInvRow();
   document.getElementById('sku_'+rowCnt).focus();
@@ -1214,6 +1294,7 @@ function processSkuProp(sXml) {
 }
 
 function ContactProp() {
+  var type = '';
   var bill_acct_id = document.getElementById('bill_acct_id').value;
   switch (journalID) {
 	case  '3':
@@ -1222,7 +1303,7 @@ function ContactProp() {
 	case  '7':
 	case '20':
 	case '21':
-		var type = 'v';
+		type = 'v';
 		break;
 	case  '9':
 	case '10':
@@ -1230,7 +1311,7 @@ function ContactProp() {
 	case '13':
 	case '18':
 	case '19':
-		var type = 'c';
+		type = 'c';
 		break;
 	default:
   }
@@ -1242,6 +1323,7 @@ function ContactProp() {
 }
 
 function PreProcessLowStock() {
+  var rowCnt;
   if (!lowStockExecute) {
 	alert(lowStockExecuted);
 	return;
@@ -1253,9 +1335,9 @@ function PreProcessLowStock() {
   }
   var store  = document.getElementById('store_id').value;
   if (single_line_list == '1') {
-	var rowCnt = document.getElementById('item_table').rows.length;
+	rowCnt = document.getElementById('item_table').rows.length;
   } else {
-	var rowCnt = document.getElementById('item_table').rows.length/2;
+	rowCnt = document.getElementById('item_table').rows.length/2;
   }
   if (rowCnt<=1)    rowCnt = 1;
   if (isNaN(store)) store  = 0;

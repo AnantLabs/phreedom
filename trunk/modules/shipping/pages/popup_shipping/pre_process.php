@@ -41,7 +41,7 @@ foreach ($files as $choice) {
 }
 
 /***************   hook for custom actions  ***************************/
-$custom_path = DIR_FS_MODULES . 'custom/pages/popup_shipping/extra_actions.php';
+$custom_path = DIR_FS_WORKING . 'custom/pages/popup_shipping/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
 
 /***************   Act on the action request   *************************/
@@ -108,7 +108,7 @@ switch ($action) {
     define('PAGE_TITLE', SHIPPING_POPUP_WINDOW_RATE_TITLE);
 	break;
   default:
-	$currency_array = gen_get_currency_array();
+	$currency_array   = gen_get_currency_array();
     $include_template = 'template_main.php';
     define('PAGE_TITLE', SHIPPING_ESTIMATOR_OPTIONS);
 }

@@ -23,15 +23,12 @@ $security_level = validate_user(SECURITY_ID_BACKUP);
 gen_pull_language($module, 'admin');
 require_once(DIR_FS_WORKING . 'classes/backup.php');
 require_once(DIR_FS_WORKING . 'functions/phreedom.php');
-
 /**************   page specific initialization  *************************/
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 $error  = false;
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/backup/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':

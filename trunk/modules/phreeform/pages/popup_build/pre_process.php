@@ -22,11 +22,9 @@ $security_level = validate_user(SECURITY_ID_PHREEFORM);
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/phreeform.php');
 require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_MODULES . 'phreeform/custom/extra_phreeform.php';
 if (file_exists($custom_path)) { include_once($custom_path); }
-
 /**************   page specific initialization  *************************/
 $error       = false;
 $self_close  = false;
@@ -38,7 +36,6 @@ $def_lang    = $_POST['lang']          ? $_POST['lang']        : DEFAULT_LANGUAG
 $action      = (isset($_GET['action']) ? $_GET['action']       : $_POST['todo']);
 $import_path = "modules/$def_module/language/$def_lang/reports/";
 $report      = new objectInfo();
-
 // load the directory tree to java array (use for page display and error checking on update
 $js_dir = $db->Execute('select id, parent_id, doc_title from ' . TABLE_PHREEFORM . ' order by id');
 $dir_tree = array();
@@ -46,7 +43,6 @@ while (!$js_dir->EOF) {
   $dir_tree[$js_dir->fields['id']] = $js_dir->fields['parent_id'];
   $js_dir->MoveNext();
 }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
@@ -189,6 +185,7 @@ switch ($action) {
 		  if ($_POST['box_fld_' .$key]) $temp->fieldname          = $_POST['box_fld_'  .$key][$j];
 		  if ($_POST['box_desc_'.$key]) $temp->description        = $_POST['box_desc_' .$key][$j];
 		  if ($_POST['box_proc_'.$key]) $temp->processing         = $_POST['box_proc_' .$key][$j];
+		  if ($_POST['box_fmt_' .$key]) $temp->formatting         = $_POST['box_fmt_'  .$key][$j];
 		  if ($_POST['box_fnt_' .$key]) $temp->font               = $_POST['box_fnt_'  .$key][$j];
 		  if ($_POST['box_size_'.$key]) $temp->size               = $_POST['box_size_' .$key][$j];
 		  if ($_POST['box_aln_' .$key]) $temp->align              = $_POST['box_aln_'  .$key][$j];
@@ -209,7 +206,8 @@ switch ($action) {
 	if (isset($_POST['group_all'])) $groups = 'g:0';
 	elseif (isset($_POST['users']) && $_POST['groups'][0] <> '') $groups = 'g:' . implode(':', $_POST['groups']);
 	$report->security       = $users . ';' . $groups;
-	$report->datelist       = isset($_POST['periods_only']) ? 'z' : implode('', $_POST['date_range']);
+	$datelist = $_POST['date_range'] <> '' ? implode('', $_POST['date_range']) : ''; 
+	$report->datelist       = isset($_POST['periods_only']) ? 'z' : $datelist;
 	$report->datefield      = db_prepare_input($_POST['date_field']);
 	$report->datedefault    = db_prepare_input($_POST['date_default']);
 	$report->filenameprefix = db_prepare_input($_POST['filename_prefix']);
@@ -325,18 +323,15 @@ switch ($action) {
 	break;
   default:
 }
-
 /*****************   prepare to display templates  *************************/
 $sel_yes_no = array(
  array('id' => '0', 'text' => TEXT_NO),
  array('id' => '1', 'text' => TEXT_YES),
 );
-
 $include_header   = false;
 $include_footer   = false;
 $include_tabs     = false;
 $include_calendar = false;
-
 switch ($action) {
   case 'import':
   case 'import_one':

@@ -17,31 +17,21 @@
 // +-----------------------------------------------------------------+
 //  Path: /install/pages/main/template_finish.php
 //
-
 ?>
-
 <form name="install" id="install" action="index.php?action=open_company<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td align="center" valign="middle"><p>&nbsp;</p><p>&nbsp;</p>
-	  <table width="600" border="0" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
-        <tr>
-          <td align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></td>
-        </tr>
-        <tr>
-          <td bgcolor="#FFFFFF">
-		    <table width="100%" border="0" cellspacing="0" cellpadding="1">
-              <tr>
-                <td colspan="2"><?php echo INTRO_FINISHED; ?></td>
-              </tr>
-              <tr>
-                <td colspan="2" align="right"><?php echo html_button_field('submit_form', TEXT_GO_TO_COMPANY, 'onclick="submit()"'); ?></td>
-              </tr>
-            </table>
-	      </td>
-        </tr>
-      </table>
-    <p>&nbsp;</p></td>
-  </tr>
-</table>
+ <table class="ui-widget" style="margin-left:auto;margin-right:auto;width:800px">
+  <thead class="ui-widget-header">
+   <tr>
+    <th align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></th>
+   </tr>
+  </thead>
+  <tbody class="ui-widget-content">
+   <tr>
+    <td><?php echo INTRO_FINISHED; ?></td>
+   </tr>
+   <tr>
+    <td align="right"><?php echo html_button_field('submit_form', TEXT_GO_TO_COMPANY, 'onclick="document.forms[0].submit()"'); ?></td>
+   </tr>
+  </tbody>
+ </table>
 </form>

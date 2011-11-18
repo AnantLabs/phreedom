@@ -22,7 +22,7 @@ class phreeform_admin {
   function phreeform_admin() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'  => '3.2',
+	  'phreedom'  => '3.3',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(

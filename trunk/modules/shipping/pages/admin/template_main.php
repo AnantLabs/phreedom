@@ -17,13 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/admin/template_main.php
 //
-
-// start the form
 echo html_form('admin', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=admin', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -33,20 +29,19 @@ $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 echo $toolbar->build_toolbar();
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-
-<ul class="tabset_tabs">
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div id="admintabs">
+<ul>
 <?php
-  echo add_tab_list('methods',    TEXT_METHODS,    !$def_tab             ? true : false);
-  echo add_tab_list('general',    TEXT_GENERAL,    $def_tab=='general'   ? true : false);
-  echo add_tab_list('tools',      TEXT_TOOLS,      $def_tab=='tools'     ? true : false);
+  echo add_tab_list('tab_methods', TEXT_METHODS);
+  echo add_tab_list('tab_general', TEXT_GENERAL);
+  echo add_tab_list('tab_tools',   TEXT_TOOLS);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
-    echo add_tab_list('custom',   TEXT_CUSTOM_TAB, $def_tab=='custom'    ? true : false);    
+    echo add_tab_list('tab_custom',TEXT_CUSTOM_TAB);    
   }
-  echo add_tab_list('statistics', TEXT_STATISTICS, $def_tab=='statistics'? true : false);
+  echo add_tab_list('tab_stats',   TEXT_STATISTICS);
 ?>
 </ul>
-
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_methods.php');
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_general.php');
@@ -56,5 +51,5 @@ echo $toolbar->build_toolbar();
   }
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_stats.php');
 ?>
-
+</div>
 </form>

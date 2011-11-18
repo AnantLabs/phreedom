@@ -19,10 +19,9 @@
 //
 
 ?>
-<div id="add_book" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_ADDRESS_BOOK_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_add_book">
+  <fieldset>
+    <table>
 	  <tr><th colspan="2"><?php echo TEXT_BILLING_PREFS; ?></th></tr>
 	  <tr>
 	    <td><?php echo sprintf(CONTACT_BILL_FIELD_REQ, GEN_CONTACT); ?></td>

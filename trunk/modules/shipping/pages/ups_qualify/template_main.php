@@ -34,8 +34,8 @@ echo $toolbar->build_toolbar();
 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo 'UPS Label Certification'; ?></div>
-<table align="center" border="0" cellspacing="0" cellpadding="1">
+<h1><?php echo 'UPS Label Certification'; ?></h1>
+<table>
   <tr>
     <td><?php echo 'Press the \'Save\' icon to generate the UPS Certification files to send to UPS.'; ?></td>
   </tr>

@@ -17,25 +17,16 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/template_tab_fields.php
 //
-
-?>
-<div id="fields" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_EXTRA_FIELDS; ?></h2>
-<?php
-$field_toolbar = new toolbar();
+$field_toolbar = new toolbar('fields');
 $field_toolbar->icon_list['cancel']['show'] = false;
 $field_toolbar->icon_list['open']['show']   = false;
 $field_toolbar->icon_list['delete']['show'] = false;
 $field_toolbar->icon_list['save']['show']   = false;
 $field_toolbar->icon_list['print']['show']  = false;
 if ($security_level > 1) $field_toolbar->add_icon('new', 'onclick="loadPopUp(\'fields_new\', 0)"', $order = 10);
-echo $field_toolbar->build_toolbar(); 
-
 ?>
-
-<div id="field_main">
-  <div class="pageHeading"><?php echo $fields->title; ?></div>
+<div id="tab_fields">
+  <?php echo $field_toolbar->build_toolbar(); ?>
+  <h1><?php echo $fields->title; ?></h1>
   <div id="fields_content"><?php echo $fields->build_main_html(); ?></div>
-</div>
-
 </div>

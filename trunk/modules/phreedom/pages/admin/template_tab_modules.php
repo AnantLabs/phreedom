@@ -17,30 +17,30 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/admin/template_tab_modules.php
 //
-
 ?>
-<div id="modules" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_MODULE_ADMIN; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
-	  <tr><th colspan="4"><?php echo TEXT_AVAILABLE_MODULES; ?></th></tr>
-	  <tr>
-	    <th><?php echo TEXT_MODULE; ?></th>
-	    <th><?php echo TEXT_DESCRIPTION; ?></th>
-	    <th><?php echo TEXT_VERSION; ?></th>
-	    <th><?php echo TEXT_ACTION; ?></th>
-	  </tr>
+<div id="tab_modules">
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
+  <tr><th colspan="4"><?php echo TEXT_AVAILABLE_MODULES; ?></th></tr>
+  <tr>
+    <th><?php echo TEXT_MODULE; ?></th>
+    <th><?php echo TEXT_DESCRIPTION; ?></th>
+    <th><?php echo TEXT_VERSION; ?></th>
+    <th><?php echo TEXT_ACTION; ?></th>
+  </tr>
+ </thead>
+ <tbody class="ui-widget-content">
 <?php
 if (is_array($page_list)) foreach ($page_list as $key => $value) {
   $installed = defined('MODULE_' . strtoupper($key) . '_STATUS');
   echo '  <tr>';
-  echo '    <td' . ($installed ? ' style="background-color:lightgreen"' : '') . '>' . $value . '</td>';
-  echo '    <td' . ($installed ? ' style="background-color:lightgreen"' : '') . '>' . constant('MODULE_' . strtoupper($key) . '_DESCRIPTION') . '</td>';
+  echo '    <td' . ($installed ? ' class="ui-state-active"' : '') . '>' . $value . '</td>';
+  echo '    <td>' . constant('MODULE_' . strtoupper($key) . '_DESCRIPTION') . '</td>';
   if (!$installed && $security_level > 1) {
     echo '    <td>&nbsp;</td>';
 	echo '    <td align="center">' . html_button_field('btn_' . $key, TEXT_INSTALL, 'onclick="submitToDo(\'install_' . $key . '\')"') . '</td>' . chr(10);
   } else {
-    echo '    <td align="center" style="background-color:lightgreen">' . constant('MODULE_' . strtoupper($key) . '_STATUS') . '</td>';
+    echo '    <td align="center">' . constant('MODULE_' . strtoupper($key) . '_STATUS') . '</td>';
 	echo '    <td align="center" nowrap="nowrap">' . chr(10);
     if ($security_level > 3) echo html_button_field('btn_' . $key, TEXT_REMOVE, 'onclick="if (confirm(\'' . TEXT_REMOVE_MESSAGE . '\')) submitToDo(\'remove_' . $key . '\')"') . chr(10);
     // check to see if the module has special admin settings
@@ -53,6 +53,6 @@ if (is_array($page_list)) foreach ($page_list as $key => $value) {
   echo '<tr><td colspan="4"><hr /></td></tr>';
 }
 ?>
-	</table>
-  </fieldset>
+ </tbody>
+</table>
 </div>

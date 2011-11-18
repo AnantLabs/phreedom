@@ -17,13 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/pages/admin/template_main.php
 //
-
-// start the form
 echo html_form('admin', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-
 // customize the toolbar actions
 $toolbar->icon_list['cancel']['params'] = 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=admin', 'SSL') . '\'"';
 $toolbar->icon_list['open']['show']     = false;
@@ -46,17 +42,17 @@ if ($security_level > 3 && db_table_exists(DB_PREFIX.'reports')) {
 $toolbar->add_help('11.01.01');
 echo $toolbar->build_toolbar();
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-<ul class="tabset_tabs">
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div id="admintabs">
+<ul>
 <?php
-  echo add_tab_list('general',    TEXT_GENERAL,    true);
+  echo add_tab_list('tab_general', TEXT_GENERAL);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
-    echo add_tab_list('custom',   TEXT_CUSTOM_TAB, false); 
+    echo add_tab_list('tab_custom',TEXT_CUSTOM_TAB); 
   }
-  echo add_tab_list('statistics', TEXT_STATISTICS, false);
+  echo add_tab_list('tab_stats',   TEXT_STATISTICS);
 ?>
 </ul>
-
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_general.php');
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
@@ -64,5 +60,5 @@ echo $toolbar->build_toolbar();
   }
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_stats.php');
 ?>
-
+</div>
 </form>

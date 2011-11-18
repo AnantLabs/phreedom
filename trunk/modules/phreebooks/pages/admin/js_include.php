@@ -25,6 +25,14 @@
 // Include translations here as well.
 
 function init() {
+  $(function() { // initialize tables
+	$('#admintabs').tabs();
+    $('#coa_table').dataTable();
+    $('#tax_c_table').dataTable();
+    $('#tax_v_table').dataTable();
+    $('#tax_auth_c_table').dataTable();
+    $('#tax_auth_v_table').dataTable();
+  });
 }
 
 function check_form() {

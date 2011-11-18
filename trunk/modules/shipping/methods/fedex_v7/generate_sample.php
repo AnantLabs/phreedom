@@ -58,7 +58,7 @@ foreach ($shipto as $pkg) {
   }
   // fetch label
   $ext = (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') ? '.lpt' : '.pdf';
-  write_file($backup->source_dir . 'Label_' . $count . $ext, $shipment->returned_label));
+  write_file($backup->source_dir . 'Label_' . $count . $ext, $shipment->returned_label);
   $count++;
 }
 // convert session messages to current stack

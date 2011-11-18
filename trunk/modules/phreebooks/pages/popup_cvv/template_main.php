@@ -17,13 +17,8 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/popup_cvv/template_main.php
 //
-
 ?>
-<div id="header">
-  <h1><?php echo HEADING_CVV; ?></h1>
-</div>
-<div id="headerContent">
-  <?php echo sprintf(TEXT_CVV_HELP1, html_image(DIR_WS_IMAGES . 'cvv2visa.gif')); ?>
-  <?php echo sprintf(TEXT_CVV_HELP2, html_image(DIR_WS_IMAGES . 'cvv2amex.gif')); ?>
-</div>
+<h1><?php echo HEADING_CVV; ?></h1>
+<?php echo sprintf(TEXT_CVV_HELP1, html_image(DIR_WS_IMAGES . 'cvv2visa.gif')); ?>
+<?php echo sprintf(TEXT_CVV_HELP2, html_image(DIR_WS_IMAGES . 'cvv2amex.gif')); ?>
 <?php echo '<center><a href="javascript:window.close()">' . TEXT_CLOSE . '</a></center>'; ?>

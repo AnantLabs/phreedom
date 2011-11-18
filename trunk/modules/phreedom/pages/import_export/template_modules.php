@@ -17,8 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/import_export/template_modules.php
 //
-
-// start the form
 echo html_form('import_export', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
@@ -29,26 +27,22 @@ $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-  foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('10');
 echo $toolbar->build_toolbar(); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-
+<h1><?php echo PAGE_TITLE; ?></h1>
 <fieldset>
 <legend><?php echo TEXT_IMPORT_EXPORT_INFO; ?></legend>
-  <table width="100%" border="0" cellspacing="0" cellpadding="1">
-	<tr>
-	  <td><?php echo GEN_IMPORT_EXPORT_MESSAGE; ?></td>
-	</tr>
+  <table class="ui-widget" style="border-style:none;width:100%">
+	<tr><td><?php echo GEN_IMPORT_EXPORT_MESSAGE; ?></td></tr>
 	<tr><td>
-	  <table align="center" border="1" cellspacing="0" cellpadding="1">
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	    <tr><th colspan="4"><?php echo GEN_TABLES_AVAILABLE . TEXT_IMPORT . '/' . TEXT_EXPORT; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 <?php 
 foreach ($page_list as $mod => $params) { 
   if ($subject <> $mod) continue; // only this module
@@ -68,20 +62,22 @@ foreach ($page_list as $mod => $params) {
   }
 } 
 ?>
-	  </table>
+	  </tbody>
+	 </table>
 	</td></tr>
   </table>
 </fieldset>
 
 <fieldset>
 <legend><?php echo TEXT_IMPORT; ?></legend>
-  <table width="100%" border="0" cellspacing="0" cellpadding="1">
-	<tr>
-	  <td><?php echo GEN_IMPORT_MESSAGE; ?></td>
-	</tr>
+  <table class="ui-widget" style="border-style:none;width:100%">
+	<tr><td><?php echo GEN_IMPORT_MESSAGE; ?></td></tr>
 	<tr><td>
-	  <table align="center" border="1" cellspacing="0" cellpadding="1">
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	    <tr><th colspan="4"><?php echo GEN_TABLES_AVAILABLE . TEXT_IMPORT; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 <?php 
 foreach ($page_list as $mod => $params) { 
   if ($subject <> $mod) continue; // only this module
@@ -106,20 +102,22 @@ foreach ($page_list as $mod => $params) {
   }
 } 
 ?>
-	  </table>
+	  </tbody>
+	 </table>
 	</td></tr>
   </table>
 </fieldset>
 
 <fieldset>
 <legend><?php echo TEXT_EXPORT; ?></legend>
-  <table width="100%" border="0" cellspacing="0" cellpadding="1">
-	<tr>
-	  <td><?php echo GEN_EXPORT_MESSAGE; ?></td>
-	</tr>
+  <table class="ui-widget" style="border-style:none;width:100%">
+	<tr><td><?php echo GEN_EXPORT_MESSAGE; ?></td></tr>
 	<tr><td>
-	  <table align="center" border="1" cellspacing="0" cellpadding="1">
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	    <tr><th colspan="4"><?php echo GEN_TABLES_AVAILABLE . TEXT_EXPORT; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 <?php 
 foreach ($page_list as $mod => $params) { 
   if ($subject <> $mod) continue; // only this module
@@ -141,9 +139,9 @@ foreach ($page_list as $mod => $params) {
   }
 } 
 ?>
-	  </table>
+	  </tbody>
+	 </table>
 	</td></tr>
   </table>
 </fieldset>
-
 </form>

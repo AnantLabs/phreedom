@@ -134,7 +134,6 @@ define('ACT_INV_HIST','Invoice History (Most Recent %s Results)');
 define('ACT_SO_NUMBER','SO Number');
 define('ACT_PO_NUMBER','PO Number');
 define('ACT_INV_NUMBER','Invoice Number');
-define('ACT_NO_RESULTS','No Results Found');
 define('ACT_PAYMENT_MESSAGE','Enter the payment information to be stored in PhreeBooks.');
 define('ACT_CARDHOLDER_NAME','Cardholder Name');
 define('ACT_PAYMENT_CREDIT_CARD_NUMBER','Credit Card Number');

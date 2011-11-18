@@ -55,8 +55,8 @@ $_GET['sku_id']          = $_POST['sku_id']            ? db_prepare_input($_POST
 $_GET['sku_id_from']     = $_POST['sku_id_from']       ? db_prepare_input($_POST['sku_id_from'])     : $_GET['sku_id_from'];
 $_GET['sku_id_to']       = $_POST['sku_id_to']         ? db_prepare_input($_POST['sku_id_to'])       : $_GET['sku_id_to'];
 $_GET['amount_id']       = $_POST['amount_id']         ? db_prepare_input($_POST['amount_id'])       : $_GET['amount_id'];
-$_GET['amount_id_from']  = $_POST['amount_id_from']    ? db_prepare_input($_POST['amount_id_from'])  : $_GET['amount_id_from'];
-$_GET['amount_id_to']    = $_POST['amount_id_to']      ? db_prepare_input($_POST['amount_id_to'])    : $_GET['amount_id_to'];
+$_GET['amount_id_from']  = $_POST['amount_id_from']    ? $currencies->clean_value(db_prepare_input($_POST['amount_id_from'])) : $currencies->clean_value($_GET['amount_id_from']);
+$_GET['amount_id_to']    = $_POST['amount_id_to']      ? $currencies->clean_value(db_prepare_input($_POST['amount_id_to']))   : $currencies->clean_value($_GET['amount_id_to']);
 $_GET['gl_acct_id']      = $_POST['gl_acct_id']        ? db_prepare_input($_POST['gl_acct_id'])      : $_GET['gl_acct_id'];
 $_GET['gl_acct_id_from'] = $_POST['gl_acct_id_from']   ? db_prepare_input($_POST['gl_acct_id_from']) : $_GET['gl_acct_id_from'];
 $_GET['gl_acct_id_to']   = $_POST['gl_acct_id_to']     ? db_prepare_input($_POST['gl_acct_id_to'])   : $_GET['gl_acct_id_to'];
@@ -160,7 +160,7 @@ $result = build_search_sql($sku_fields, $_GET['sku_id'], $_GET['sku_id_from'], $
 if ($result) $criteria[] = $result;
 
 $amt_fields = array('m.total_amount', 'i.debit_amount', 'i.credit_amount');
-$result = build_search_sql($amt_fields, $_GET['amount_id'], $_GET['amount_id_from'], $_GET['amount_id_to']);
+$result = build_search_sql($amt_fields, $_GET['amount_id'], $currencies->clean_value($_GET['amount_id_from']), $currencies->clean_value($_GET['amount_id_to']));
 if ($result) $criteria[] = $result;
 
 $gl_acct_fields = array('m.gl_acct_id', 'i.gl_account');

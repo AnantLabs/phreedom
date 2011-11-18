@@ -1052,7 +1052,7 @@ class journal {
 	if ($result->RecordCount() == 0) return $this->fail_message(GL_ERROR_BAD_SKU_ENTERED);
 
 	$sku_id = $result->fields['id'];
-	$sql = "select a.sku, a.description, a.qty, i.quantity_on_hand, i.account_inventory_wage, i.item_cost as price 
+	$sql = "select a.sku, a.description, a.qty, i.inventory_type, i.quantity_on_hand, i.account_inventory_wage, i.item_cost as price 
 	  from " . TABLE_INVENTORY_ASSY_LIST . " a inner join " . TABLE_INVENTORY . " i on a.sku = i.sku
 	  where a.ref_id = " . $sku_id;
 	$result = $db->Execute($sql);
@@ -1060,14 +1060,18 @@ class journal {
 
 	$assy_cost = 0;
 	while (!$result->EOF) {
-	  if ($result->fields['quantity_on_hand'] < ($qty * $result->fields['qty'])) {
+	  if ($result->fields['quantity_on_hand'] < ($qty * $result->fields['qty']) && strpos(COG_ITEM_TYPES, $result->fields['inventory_type']) !== false) {
 		$messageStack->debug("\n    Not enough of SKU = " . $result->fields['sku'] . " needed " . ($qty * $result->fields['qty']) . " and had " . $result->fields['quantity_on_hand']);
 		return $this->fail_message(GL_ERROR_NOT_ENOUGH_PARTS . $result->fields['sku']);
 	  }
 	  $result->fields['qty'] = -($qty * $result->fields['qty']);
-	  $result->fields['id'] = $this->journal_rows[0]['id'];  // placeholder ref_id
-	  if ($qty > 0) $result->fields['price'] = 0; // remove unit_price for builds, leave for unbuilds (to calc delta COGS)
-	  $item_cost = $this->calculate_COGS($result->fields, $return_cogs = true);
+	  $result->fields['id']  = $this->journal_rows[0]['id'];  // placeholder ref_id
+	  if (strpos(COG_ITEM_TYPES, $result->fields['inventory_type']) === false) {
+	    $item_cost = -$result->fields['qty'] * $result->fields['price'];
+	  } else {
+	    if ($qty > 0) $result->fields['price'] = 0; // remove unit_price for builds, leave for unbuilds (to calc delta COGS)
+	    $item_cost = $this->calculate_COGS($result->fields, true);
+	  }
 	  if ($item_cost === false) return false; // error in cogs calculation
 	  $assy_cost += $item_cost;
 	  // generate inventory assembly part record and insert into db

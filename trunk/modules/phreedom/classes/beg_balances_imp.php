@@ -194,7 +194,7 @@ class beg_bal_import {
 				'description'  => constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE') . '-' . TEXT_IMPORT,
 				'gl_account'   => $order['inv_gl_acct'],
 				'taxable'      => $order['taxable'] ? $order['taxable'] : 0,
-				$credit_debit  => $order['total_amount'],
+				$credit_debit  => $currencies->clean_value($order['total_amount']),
 				'post_date'    => $order['post_date'],
 			);
 			break;

@@ -17,13 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/popup_adj/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-
 function init() {
   document.getElementById('search_text').focus();
   document.getElementById('search_text').select();
@@ -33,8 +31,8 @@ function check_form() {
   return true;
 }
 
-// Insert other page specific functions here.
 function setReturnEntry(rID) {
+  window.opener.clearForm();
   window.opener.EditAdjustment(rID);
   self.close();
 }

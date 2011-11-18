@@ -18,34 +18,33 @@
 //  Path: /modules/contacts/pages/main/template_b_general.php
 //
 ?>
-<div id="cat_general" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_GENERAL; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_general">
+  <fieldset>
   <legend><?php echo ACT_CATEGORY_CONTACT; ?></legend>
-  <table class="formArea" border="0" cellspacing="2" cellpadding="2">
+  <table>
     <tr>
-      <td class="main"><?php echo constant('ACT_' . strtoupper($type) . '_SHORT_NAME'); ?></td>
-      <td class="main"><?php echo html_input_field('short_name', $cInfo->short_name, 'size="21" maxlength="20"', true); ?></td>
-      <td class="main">&nbsp;</td>
-      <td class="main">&nbsp;</td>
-      <td class="main" align="right"><?php echo TEXT_INACTIVE; ?></td>
-      <td class="main"><?php echo html_checkbox_field('inactive', '1', $cInfo->inactive); ?></td>
+      <td><?php echo constant('ACT_' . strtoupper($type) . '_SHORT_NAME'); ?></td>
+      <td><?php echo html_input_field('short_name', $cInfo->short_name, 'size="21" maxlength="20"', true); ?></td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td align="right"><?php echo TEXT_INACTIVE; ?></td>
+      <td><?php echo html_checkbox_field('inactive', '1', $cInfo->inactive); ?></td>
     </tr>
     <tr>
-      <td align="right" class="main"><?php echo GEN_FIRST_NAME; ?></td>
-      <td class="main"><?php echo html_input_field('contact_first', $cInfo->contact_first, 'size="33" maxlength="32"', false); ?></td>
-      <td align="right" class="main"><?php echo GEN_MIDDLE_NAME; ?></td>
-      <td class="main"><?php echo html_input_field('contact_middle', $cInfo->contact_middle, 'size="33" maxlength="32"', false); ?></td>
-      <td align="right" class="main"><?php echo GEN_LAST_NAME; ?></td>
-      <td class="main"><?php echo html_input_field('contact_last', $cInfo->contact_last, 'size="33" maxlength="32"', false); ?></td>
+      <td align="right"><?php echo GEN_FIRST_NAME; ?></td>
+      <td><?php echo html_input_field('contact_first', $cInfo->contact_first, 'size="33" maxlength="32"', false); ?></td>
+      <td align="right"><?php echo GEN_MIDDLE_NAME; ?></td>
+      <td><?php echo html_input_field('contact_middle', $cInfo->contact_middle, 'size="33" maxlength="32"', false); ?></td>
+      <td align="right"><?php echo GEN_LAST_NAME; ?></td>
+      <td><?php echo html_input_field('contact_last', $cInfo->contact_last, 'size="33" maxlength="32"', false); ?></td>
     </tr>
   </table>
   </fieldset>
 
 <?php // *********************** Mailing/Main Address (only one allowed) ****************************** ?>
-  <fieldset class="formAreaTitle">
+  <fieldset>
     <legend><?php echo ACT_CATEGORY_M_ADDRESS; ?></legend>
-    <table border="0" width="100%" cellspacing="2" cellpadding="2">
+    <table>
       <?php 
 	    $var_name = $type . 'm_address';
 		$temp_array = $cInfo->$var_name;
@@ -58,5 +57,33 @@
 	  ?>
     </table>
   </fieldset>
-
+<?php // *********************** Attachments  ************************************* ?>
+   <fieldset>
+   <legend><?php echo 'Attachments'; ?></legend>
+   <table class="ui-widget" style="width:100%">
+    <thead class="ui-widget-header">
+     <tr><th colspan="3"><?php echo TEXT_ATTACHMENTS; ?></th></tr>
+    </thead>
+    <tbody class="ui-widget-content">
+     <tr><td colspan="3"><?php echo TEXT_SELECT_FILE_TO_ATTACH . ' ' . html_file_field('file_name'); ?></td></tr>
+     <tr  class="ui-widget-header">
+      <th><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+      <th><?php echo TEXT_FILENAME; ?></th>
+      <th><?php echo TEXT_ACTION; ?></th>
+     </tr>
+<?php 
+if (sizeof($attachments) > 0) { 
+  foreach ($attachments as $key => $value) {
+    echo '<tr>';
+    echo ' <td>' . html_checkbox_field('rm_attach_'.$key, '1', false) . '</td>' . chr(10);
+    echo ' <td>' . $value . '</td>' . chr(10);
+    echo ' <td>' . html_button_field('dn_attach_'.$key, TEXT_DOWNLOAD, 'onclick="submitSeq(' . $key . ', \'download\', true)"') . '</td>';
+    echo '</tr>' . chr(10);
+  }
+} else {
+  echo '<tr><td colspan="3">' . TEXT_NO_DOCUMENTS . '</td></tr>'; 
+} ?>
+    </tbody>
+   </table>
+   </fieldset>
 </div>

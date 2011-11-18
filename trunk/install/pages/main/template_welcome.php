@@ -17,44 +17,35 @@
 // +-----------------------------------------------------------------+
 //  Path: /install/pages/main/template_welcome.php
 //
-
 ?>
 <form name="install" id="install" action="index.php?action=inspect<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
+ <table class="ui-widget" style="margin-left:auto;margin-right:auto;width:800px">
+  <thead class="ui-widget-header">
+   <tr>
+    <th colspan="2" align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></th>
+   </tr>
+  </thead>
+  <tbody class="ui-widget-content">
   <tr>
-    <td align="center" valign="middle"><p>&nbsp;</p><p>&nbsp;</p>
-	  <table width="600" border="0" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
-        <tr>
-          <td align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></td>
-        </tr>
-        <tr>
-          <td bgcolor="#ffffff">
-		    <table width="100%" border="0" cellspacing="0" cellpadding="1">
-			  <tr>
-			    <td colspan="2"><?php echo LANGUAGE_TEXT . html_pull_down_menu('lang', load_lang_dropdown(), isset($_GET['lang']) ? $_GET['lang'] : 'en_us', 'onchange="langSelect()"'); ?></td>
-			  </tr>
-              <tr>
-                <td colspan="2"><?php echo INTRO_WELCOME; ?></td>
-              </tr>
-              <tr>
-                <td colspan="2"><iframe src="<?php echo $license_path; ?>"></iframe></td>
-              </tr>
-              <tr>
-                <td width="80%"><?php echo DESC_AGREE; ?></td>
-                <td><?php echo html_radio_field('license', 'agree',    false). ' ' . TEXT_AGREE; ?></td>
-              </tr>
-              <tr>
-                <td width="80%"><?php echo DESC_DISAGREE; ?></td>
-                <td><?php echo html_radio_field('license', 'disagree', true) . ' ' . TEXT_DISAGREE; ?></td>
-              </tr>
-              <tr>
-                <td colspan="2" align="right"><?php echo html_button_field('submit_form', TEXT_CONTINUE, 'onclick="submit()"'); ?></td>
-              </tr>
-            </table>
-	      </td>
-        </tr>
-      </table>
-    <p>&nbsp;</p></td>
+   <td colspan="2"><?php echo LANGUAGE_TEXT . html_pull_down_menu('lang', load_lang_dropdown(), isset($_GET['lang']) ? $_GET['lang'] : 'en_us', 'onchange="langSelect()"'); ?></td>
   </tr>
-</table>
+   <tr>
+    <td colspan="2"><?php echo INTRO_WELCOME; ?></td>
+   </tr>
+   <tr>
+    <td colspan="2" align="center"><iframe src="<?php echo $license_path; ?>" style="width:750px;height:250px;border:1px solid #666;"></iframe></td>
+   </tr>
+   <tr>
+    <td width="80%"><?php echo DESC_AGREE; ?></td>
+    <td><?php echo html_radio_field('license', 'agree',    false). ' ' . TEXT_AGREE; ?></td>
+   </tr>
+   <tr>
+    <td width="80%"><?php echo DESC_DISAGREE; ?></td>
+    <td><?php echo html_radio_field('license', 'disagree', true) . ' ' . TEXT_DISAGREE; ?></td>
+   </tr>
+   <tr>
+    <td colspan="2" align="right"><?php echo html_button_field('submit_form', TEXT_CONTINUE, 'onclick="document.forms[0].submit()"'); ?></td>
+   </tr>
+  </tbody>
+ </table>
 </form>

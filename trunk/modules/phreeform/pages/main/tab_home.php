@@ -15,27 +15,30 @@
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
 // | GNU General Public License for more details.                    |
 // +-----------------------------------------------------------------+
-//  Path: /modules/phreeform/doc_ctl/pages/main/tab_home.php
+//  Path: /modules/phreeform/pages/main/tab_home.php
 //
 
 $fieldset_content = NULL;
-
 // build the tab contents
-$fieldset_content .= '<table width="100%" cellspacing="0" cellpadding="4"><tr><td width="50%" valign="top">' . chr(10);
+$fieldset_content .= '<table class="ui-widget" style="border-style:none;width:100%">' . chr(10);
+$fieldset_content .= '<tr><td width="50%" valign="top">' . chr(10);
 // column 1
-$fieldset_content .= '  <table width="100%"><tr>' . chr(10);
-$fieldset_content .= '    <th>' . TEXT_MY_REPORTS . '</th>' . chr(10);
-$fieldset_content .= '  </tr>' . chr(10);
-$fieldset_content .= '  <tr>' . chr(10);
-$fieldset_content .= '    <td>' . load_my_reports() . '</td>' . chr(10);
-$fieldset_content .= '  </tr></table>' . chr(10);
+$fieldset_content .= '  <table class="ui-widget" style="border-style:none;width:100%">' . chr(10);
+$fieldset_content .= '   <thead class="ui-widget-header">' . chr(10);
+$fieldset_content .= '    <tr><th>' . TEXT_MY_REPORTS . '</th></tr>' . chr(10);
+$fieldset_content .= '   </thead>' . chr(10);
+$fieldset_content .= '   <tbody class="ui-widget-content">' . chr(10);
+$fieldset_content .= '    <tr><td>' . load_my_reports() . '</td></tr>' . chr(10);
+$fieldset_content .= '   </tbody></table>' . chr(10);
 $fieldset_content .= '</td><td width="50%" valign="top">' . chr(10);
 // column 2
-$fieldset_content .= '  <table width="100%"><tr>' . chr(10);
-$fieldset_content .= '    <th>' . TEXT_RECENTLY_ADDED . '</th>' . chr(10);
-$fieldset_content .= '  </tr><tr>' . chr(10);
-$fieldset_content .= '    <td>' . load_recently_added() . '</td>' . chr(10);
-$fieldset_content .= '  </tr></table>' . chr(10);
+$fieldset_content .= '  <table class="ui-widget" style="border-style:none;width:100%">' . chr(10);
+$fieldset_content .= '   <thead class="ui-widget-header">' . chr(10);
+$fieldset_content .= '    <tr><th>' . TEXT_RECENTLY_ADDED . '</th></tr>' . chr(10);
+$fieldset_content .= '   </thead>' . chr(10);
+$fieldset_content .= '   <tbody class="ui-widget-content">' . chr(10);
+$fieldset_content .= '    <tr><td>' . load_recently_added() . '</td></tr>' . chr(10);
+$fieldset_content .= '  </tbody></table>' . chr(10);
 $fieldset_content .= '</td></tr></table>' . chr(10);
 
 ?>

@@ -21,9 +21,11 @@ $security_level = validate_user(SECURITY_ID_SHIPPING_MANAGER);
 /**************   page specific initialization  *************************/
 gen_pull_language('contacts');
 require_once(DIR_FS_WORKING . 'defaults.php');
+/***************   hook for custom actions  ***************************/
+$custom_path = DIR_FS_WORKING . 'custom/pages/popup_label_mgr/extra_actions.php';
+if (file_exists($custom_path)) { include($custom_path); }
 
 $method = $_GET['method'];
-
 $cal_ship = array(
   'name'      => 'dateShipped',
   'form'      => 'label_mgr',

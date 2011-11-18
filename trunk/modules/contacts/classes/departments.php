@@ -73,39 +73,33 @@ class departments {
 
   function build_main_html() {
   	global $db, $messageStack;
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-	$heading_array = array(
-		'description_short'   => HR_ACCOUNT_ID,
-		'description'         => TEXT_DESCRIPTION,
-		'subdepartment'       => HR_HEADING_SUBACCOUNT,
-		'department_inactive' => TEXT_INACTIVE);
-	$result = html_heading_bar($heading_array, $_GET['list_order']);
-	$output .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output .= '  </tr>' . chr(10);
-	// Build field data
-    $query_raw = "select id, description_short, description, subdepartment, primary_dept_id, department_inactive from " . $this->db_table . " order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $result = $db->Execute($query_raw);
-    while (!$result->EOF) {
-      $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')">' . htmlspecialchars($result->fields['description_short']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')">' . htmlspecialchars($result->fields['description']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')">' . ($result->fields['subdepartment'] ? TEXT_YES : TEXT_NO) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')">' . ($result->fields['department_inactive'] ? TEXT_YES : TEXT_NO) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($this->security_id > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')"') . chr(10);
-	  if ($this->security_id > 3) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . HR_INFO_DELETE_INTRO . '\')) subjectDelete(\'departments\', ' . $result->fields['id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
+    $content = array();
+	$content['thead'] = array(
+	  'value' => array(HR_ACCOUNT_ID, TEXT_DESCRIPTION, HR_HEADING_SUBACCOUNT, TEXT_INACTIVE, TEXT_ACTION),
+	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
+	);
+    $result = $db->Execute("select id, description_short, description, subdepartment, primary_dept_id, department_inactive from ".$this->db_table);
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $actions = '';
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'departments_edit\', \'' . $result->fields['id'] . '\')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . HR_INFO_DELETE_INTRO . '\')) subjectDelete(\'departments\', ' . $result->fields['id'] . ')"') . chr(10);
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => htmlspecialchars($result->fields['description_short']),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'departments_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => htmlspecialchars($result->fields['description']), 
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'departments_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['subdepartment'] ? TEXT_YES : TEXT_NO,
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'departments_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['department_inactive'] ? TEXT_YES : TEXT_NO,
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'departments_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> 'align="right"'),
+	  );
       $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'departments_list', 'departments') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], HR_DISPLAY_NUMBER_OF_DEPTS) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('dept_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -117,37 +111,41 @@ class departments {
 	} else {
       $cInfo = new objectInfo($result->fields);
 	}
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow">' . chr(10);
+	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
+	$output .= '  <thead class="ui-widget-header">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <th colspan="2">' . ($action=='new' ? HR_INFO_NEW_ACCOUNT : HR_INFO_EDIT_ACCOUNT) . '</th>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
+    $output .= '  <tr>' . chr(10);
 	$output .= '    <td colspan="2">' . ($action=='new' ? HR_INFO_INSERT_INTRO : HR_EDIT_INTRO) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . HR_ACCOUNT_ID . html_hidden_field('id', $cInfo->id) . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('description_short', $cInfo->description_short) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . TEXT_DESCRIPTION . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('description', $cInfo->description) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . HR_INFO_SUBACCOUNT . '</td>' . chr(10);
 	$output .= '    <td>' . html_radio_field('subdepartment', '0', !$cInfo->subdepartment) . TEXT_NO . '<br />' . html_radio_field('subdepartment', '1', $cInfo->subdepartment) . HR_INFO_PRIMARY_ACCT_ID . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . HR_INFO_PRIMARY_ACCT_ID . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('primary_dept_id', gen_get_pull_down($this->db_table, false, '1', 'id', 'description_short'), $cInfo->primary_dept_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . HR_INFO_ACCOUNT_TYPE . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('department_type', gen_get_pull_down(TABLE_DEPT_TYPES, false, '1'), $cInfo->department_type) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . HR_INFO_ACCOUNT_INACTIVE . '</td>' . chr(10);
 	$output .= '    <td>' . html_checkbox_field('department_inactive', '1', $cInfo->department_inactive ? true : false) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
+	$output .= '  </tbody>' . "\n";
     $output .= '</table>' . chr(10);
     return $output;
   }

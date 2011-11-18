@@ -17,25 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/main/template_main.php
 //
-
 // display alerts/error messages, if any since the toolbar is not shown
 if ($messageStack->size > 0) echo $messageStack->output();
-// build the breadcrumb
-$breadcrumb = TEXT_HOME;
-if ($menu_id <> 'index') {
-  foreach ($pb_headings as $value) {
-    if (strpos($value['link'], 'mID='.$menu_id) !== false) {
-	  $breadcrumb .= ' -> ' . $value['text'];
-	  break;
-	}
-  }
-}
 $column = 1;
 ?>
-<table width="100%" border="0" cellspacing="2" cellpadding="2">
+<div><a href="<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=ctl_panel&amp;mID=' . $menu_id, 'SSL'); ?>"><?php echo CP_CHANGE_PROFILE; ?></a></div>
+<table style="width:100%;margin-left:auto;margin-right:auto;">
   <tr>
-    <td colspan="2"><?php echo $breadcrumb; ?></td>
-	<td align="right"><a href="<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=ctl_panel&amp;mID=' . $menu_id, 'SSL'); ?>"><?php echo CP_CHANGE_PROFILE; ?></a></td>
   </tr>
   <tr>
     <td width="33%" valign="top">
@@ -56,15 +44,17 @@ while(!$cp_boxes->EOF) {
   $column_id    = $cp_boxes->fields['column_id'];
   $row_id       = $cp_boxes->fields['row_id'];
   $params       = unserialize($cp_boxes->fields['params']);
-  load_method_language(DIR_FS_MODULES . $module_id . '/dashboards/', $dashboard_id);
-  include_once        (DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php');
-  $new_box               = new $dashboard_id;
-  $new_box->menu_id      = $menu_id;
-  $new_box->module_id    = $module_id;
-  $new_box->dashboard_id = $dashboard_id;
-  $new_box->column_id    = $cp_boxes->fields['column_id'];
-  $new_box->row_id       = $cp_boxes->fields['row_id'];
+  if (file_exists(DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php')) {
+    load_method_language(DIR_FS_MODULES . $module_id . '/dashboards/', $dashboard_id);
+    require_once        (DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php');
+    $new_box               = new $dashboard_id;
+    $new_box->menu_id      = $menu_id;
+    $new_box->module_id    = $module_id;
+    $new_box->dashboard_id = $dashboard_id;
+    $new_box->column_id    = $cp_boxes->fields['column_id'];
+    $new_box->row_id       = $cp_boxes->fields['row_id'];
   echo $new_box->Output($params);
+  }
   $cp_boxes->MoveNext();
 }
 

@@ -85,30 +85,29 @@ var lowStockProcessed    = '<?php echo LOW_STOCK_PROCESSED ?> ';
 var lowStockNoVendor     = '<?php echo LOW_STOCK_NO_VENDOR?>';
 var lowStockExecuted     = '<?php echo LOW_STOCK_ALREADY_EXECUTED?>';
 var lowStockExecute      = true;
+var custCreditLimit      = <?php echo AR_CREDIT_LIMIT_AMOUNT; ?>;
+var applyCreditLimit     = '<?php echo APPLY_CUSTOMER_CREDIT_LIMIT ?>';
+var adminNotValidated    = '<?php echo TEXT_ADMIN_NOT_VALIDATED; ?>';
 <?php 
 echo js_calendar_init($cal_order);
 if ($template_options['terminal_date']) echo js_calendar_init($cal_terminal);
 ?>
-
 // List the currency codes and exchange rates
 <?php if (ENABLE_MULTI_CURRENCY) echo $currencies->build_js_currency_arrays(); ?>
-
 // List the gl accounts for line item pull downs
 <?php echo $js_gl_array; ?>
-
 // List the tax rates
 <?php echo $js_tax_rates; ?>
-
 // List the active projects
 <?php echo $js_proj_list; ?>
-
 // list the freight options
 <?php echo $shipping_methods; ?>
 
 function init() {
-  document.orders.ship_to_select.style.visibility     = 'hidden';
-  document.orders.bill_to_select.style.visibility     = 'hidden';
+  document.getElementById('ship_to_select').style.visibility = 'hidden';
+  document.getElementById('bill_to_select').style.visibility = 'hidden';
   document.getElementById('ship_to_search').innerHTML = '&nbsp;'; // turn off ship to id search
+  $('#override_order').dialog({ autoOpen:false, width:600 });
 <?php 
   if ($error && isset($order->shipper_code)) {
     $values = explode(':', $order->shipper_code);
@@ -120,7 +119,6 @@ function init() {
   }
 ?>
   setField('sku_1',text_search);
-
   // change color of the bill and ship address fields if they are the default values
   var add_id;
   for (var i=0; i<add_array.length; i++) {

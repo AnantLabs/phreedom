@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/orders/pre_process.php
 //
-
 /**************   Check user security   *****************************/
 define('JOURNAL_ID',$_GET['jID']);
 switch (JOURNAL_ID) {
@@ -35,6 +34,7 @@ switch (JOURNAL_ID) {
 $security_level = validate_user($security_token);
 /**************  include page specific files    *********************/
 gen_pull_language('contacts');
+require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_MODULES . 'inventory/defaults.php');
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');
 require_once(DIR_FS_WORKING . 'classes/gen_ledger.php');
@@ -43,7 +43,6 @@ if (defined('MODULE_SHIPPING_STATUS')) {
   require_once(DIR_FS_MODULES . 'shipping/functions/shipping.php');
   require_once(DIR_FS_MODULES . 'shipping/defaults.php'); 
 }
-
 /**************   page specific initialization  *************************/
 switch (JOURNAL_ID) {
   case 3:		// Vendor Quote Journal
@@ -164,12 +163,10 @@ switch (JOURNAL_ID) {
 $error        = false;
 $post_success = false;
 $order        = new orders();
-$action       = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-
+$action       = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/orders/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
@@ -265,7 +262,6 @@ switch ($action) {
 	    $x++;
 		continue; // skip item line
 	  }
-	  $full_price = in_array(JOURNAL_ID, array(9, 10, 12, 13)) ? ($currencies->clean_value(db_prepare_input($_POST['full_' . $x]), $order->currencies_code) / $order->currencies_value) : 0;
 	  // Error check some input fields
 	  //if ($_POST['pstd_' . $x] == "") $error = $messageStack->add(GEN_ERRMSG_NO_DATA . "Qty", 'error');	  
 	  if ($_POST['acct_' . $x] == "") $error = $messageStack->add(GEN_ERRMSG_NO_DATA . TEXT_GL_ACCOUNT, 'error');
@@ -281,7 +277,7 @@ switch ($action) {
 		'proj'              => db_prepare_input($_POST['proj_' . $x]),
 		'date_1'            => db_prepare_input($_POST['date_1_' . $x]),
 		'price'             => $currencies->clean_value(db_prepare_input($_POST['price_' . $x]), $order->currencies_code) / $order->currencies_value,
-		'full'              => $full_price,
+		'full'              => $currencies->clean_value(db_prepare_input($_POST['full_' . $x]),  $order->currencies_code) / $order->currencies_value,
 		'acct'              => db_prepare_input($_POST['acct_' . $x]),
 		'tax'               => db_prepare_input($_POST['tax_' . $x]),
 		'total'             => $currencies->clean_value(db_prepare_input($_POST['total_' . $x]), $order->currencies_code) / $order->currencies_value,
@@ -323,24 +319,8 @@ switch ($action) {
 	// End of error checking, check for attachments and process the order
 	if (!$error) { // Post the order
 	  if ($post_success = $order->post_ordr($action)) {	// Post the order class to the db
-		if ($order->rm_attach) @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip');
-		if (is_uploaded_file($_FILES['file_name']['tmp_name'])) { // file uploaded
-		  if ($_FILES['file_name']['error']) { // php error uploading file
-			$messageStack->add(TEXT_IMP_ERMSG5 . $_FILES['file_name']['error'], 'error');
-		  } elseif ($_FILES['file_name']['size'] > 0) { // report contains no data, error
-			require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
-		    $backup              = new backup();
-			$backup->source_dir  = $_FILES['file_name']['tmp_name'];
-			$backup->source_file = '';
-			$backup->dest_dir    = PHREEBOOKS_DIR_MY_ORDERS;
-			$backup->dest_file   = 'order_' . $order->id . '.zip';
-			if (file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip')) {
-			  @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $order->id . '.zip');
-			}
-			if ($backup->make_zip('file', $_FILES['file_name']['name'])) $error = true;
-			@unlink($backup->source_dir . $_FILES['file_name']['tmp_name']);
-		  }
-		}
+		if ($order->rm_attach) @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_'.$order->id.'.zip');
+		if (is_uploaded_file($_FILES['file_name']['tmp_name'])) saveUploadZip('file_name', PHREEBOOKS_DIR_MY_ORDERS, 'order_'.$order->id.'.zip');
 		gen_add_audit_log(constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE') . ' - ' . ($_POST['id'] ? TEXT_EDIT : TEXT_ADD), $order->purchase_invoice_id, $order->total_amount);
 		if (DEBUG) $messageStack->write_debug();
 		if ($action == 'save') {

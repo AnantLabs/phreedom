@@ -24,7 +24,7 @@ is scrolled.
 // created.
 
 //===================	GLOBAL TOOPTIP CONFIGURATION	======================//
-config. FollowScroll = false		// true or false - set to true if you want this to be the default behaviour
+config. FollowScroll = false;		// true or false - set to true if you want this to be the default behaviour
 //=======	END OF TOOLTIP CONFIG, DO NOT CHANGE ANYTHING BELOW	==============//
 
 

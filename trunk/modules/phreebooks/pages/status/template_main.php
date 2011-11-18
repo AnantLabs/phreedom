@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/status/template_main.php
 //
-// start the form
 echo html_form('status', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo',   '') . chr(10);
@@ -28,12 +27,12 @@ $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;jID=' . JOURNAL_ID, 'SSL') . '\'"', 2);
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-  foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
+if (JOURNAL_ID == 2 ){
+	$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=journal', 'SSL') . '\'"', 2);
+} else {
+	$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;jID=' . JOURNAL_ID, 'SSL') . '\'"', 2);
 }
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 switch (JOURNAL_ID) {
   case  2: $toolbar->add_help('');            break;
   case  3: $toolbar->add_help('07.02.03.04'); break;
@@ -52,12 +51,16 @@ $toolbar->search_period = $acct_period;
 echo $toolbar->build_toolbar($add_search = true, $add_periods = true); 
 // Build the page
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE')); ?></div>
-<table border="0" width="100%" cellspacing="0" cellpadding="1">
-  <tr class="dataTableHeadingRow"><?php echo $list_header; ?></tr>
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE')); ?></div>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
+  <tr><?php echo $list_header; ?></tr>
+ </thead>
+ <tbody>
 <?php
+  $odd = true;
   while (!$query_result->EOF) {
 	$oID            = $query_result->fields['id'];
 	$post_date      = gen_locale_date($query_result->fields['post_date']);
@@ -91,13 +94,13 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 	    break;
 	}
 ?>
-  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">
-	<td class="dataTableContent" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $post_date; ?></td>
-	<td class="dataTableContent" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $reference_id; ?></td>
-	<td class="dataTableContent"<?php echo $bkgnd; ?> onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $primary_name; ?></td>
-	<td class="dataTableContent" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $purch_order_id; ?></td>
-	<td class="dataTableContent" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $closed; ?></td>
-	<td class="dataTableContent" align="right" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $total_amount; ?></td>
+  <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
+	<td onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $post_date; ?></td>
+	<td onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $reference_id; ?></td>
+	<td<?php echo $bkgnd; ?> onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $primary_name; ?></td>
+	<td onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $purch_order_id; ?></td>
+	<td onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $closed; ?></td>
+	<td align="right" onclick="window.open('<?php echo $link_page; ?>','_blank')"><?php echo $total_amount; ?></td>
 <?php if (defined('MODULE_SHIPPING_STATUS') && JOURNAL_ID == 12) { 
       $sID            = 0;
       $shipped        = false;
@@ -112,9 +115,9 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 	  $ship_meth      = defined('MODULE_SHIPPING_' . strtoupper($temp[0]) . '_TITLE_SHORT') ? constant('MODULE_SHIPPING_' . strtoupper($temp[0]) . '_TITLE_SHORT') : $temp[0];
 	  $ship_srv       = defined($temp[0].'_'.$temp[1]) ? constant($temp[0].'_'.$temp[1]) : $temp[1];
 ?>
-	<td class="dataTableContent" align="center" onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $oID . '&amp;jID=12&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $ship_meth ? ($ship_meth . ' ' . $ship_srv) : '&nbsp;'; ?></td>
+	<td align="center" onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $oID . '&amp;jID=12&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $ship_meth ? ($ship_meth . ' ' . $ship_srv) : '&nbsp;'; ?></td>
 <?php } // end MODULE_SHIPPING_STATUS ?>
-	<td class="dataTableContent" align="right">
+	<td align="right">
 <?php // build the action toolbar
 	if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
 	switch (JOURNAL_ID) {
@@ -176,9 +179,11 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
   </tr>
 <?php
 	  $query_result->MoveNext();
+	  $odd = !$odd;
 	}
 ?>
+ </tbody>
 </table>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE')); ?></div>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE')); ?></div>
 </form>

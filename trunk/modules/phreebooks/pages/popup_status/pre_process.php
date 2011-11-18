@@ -28,7 +28,7 @@ $id = (int)$_GET['id'];
 $customer = $db->Execute("select c.type, c.inactive, c.special_terms, a.notes 
   from " . TABLE_CONTACTS . " c inner join " . TABLE_ADDRESS_BOOK . " a on c.id = a.ref_id 
   where c.id = " . $id . " and a.type like '%m'");
-$notes         = str_replace(chr(10), "<br />", $customer->fields['notes']);
+$notes         = $customer->fields['notes'] ? str_replace(chr(10), "<br />", $customer->fields['notes']) : '&nbsp;';
 $type          = $customer->fields['type'] == 'v' ? 'AP' : 'AR';
 $special_terms = gen_terms_to_language($customer->fields['special_terms'], $short = false, $type);
 $terms         = explode(':', $customer->fields['special_terms']);
@@ -91,16 +91,16 @@ while(!$open_inv->EOF) {
 
 // set the customer/vendor status in order of importance
 if ($customer->fields['inactive']) {
-  $inactive_flag = ' style="background-color:red"';
+  $inactive_flag = 'class="ui-state-error"';
   $status_text = TEXT_INACTIVE;
 } elseif ($past_due > 0) {
-  $inactive_flag = ' style="background-color:yellow"';
+  $inactive_flag = 'class="ui-state-highlight"';
   $status_text = ACT_HAS_PAST_DUE_AMOUNT;
 } elseif ($total_outstanding > $credit_limit) {
-  $inactive_flag = ' style="background-color:yellow"';
+  $inactive_flag = 'class="ui-state-highlight"';
   $status_text = ACT_OVER_CREDIT_LIMIT;
 } else {
-  $inactive_flag = ' style="background-color:lightgreen"';
+  $inactive_flag = 'class="ui-state-active"';
   $status_text = ACT_GOOD_STANDING;
 }
 

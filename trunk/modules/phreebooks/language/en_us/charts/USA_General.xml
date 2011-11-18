@@ -45,14 +45,14 @@
   </account>
   <account>
     <id>1820</id>
-	<description>Office Furniture & Equipment</description>
+	<description>Office Furniture &amp; Equipment</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>8</type>
   </account>
   <account>
     <id>1830</id>
-	<description>Accum. Amort. - Furn. & Equip.</description>
+	<description>Accum. Amort. - Furn. &amp; Equip.</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>8</type>
@@ -101,7 +101,7 @@
   </account>
   <account>
     <id>2140</id>
-	<description>Accrued Real & Personal Prop Tax</description>
+	<description>Accrued Real &amp; Personal Prop Tax</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>22</type>
@@ -248,7 +248,7 @@
   </account>
   <account>
     <id>4430</id>
-	<description>Shipping & Handling</description>
+	<description>Shipping &amp; Handling</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>30</type>
@@ -290,7 +290,7 @@
   </account>
   <account>
     <id>5410</id>
-	<description>Wages & Salaries</description>
+	<description>Wages &amp; Salaries</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
@@ -381,21 +381,21 @@
   </account>
   <account>
     <id>5600</id>
-	<description>General & Administrative Expenses</description>
+	<description>General &amp; Administrative Expenses</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
   </account>
   <account>
     <id>5610</id>
-	<description>Accounting & Legal</description>
+	<description>Accounting &amp; Legal</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
   </account>
   <account>
     <id>5620</id>
-	<description>Advertising & Promotions</description>
+	<description>Advertising &amp; Promotions</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
@@ -423,7 +423,7 @@
   </account>
   <account>
     <id>5690</id>
-	<description>Interest & Bank Charges</description>
+	<description>Interest &amp; Bank Charges</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
@@ -444,7 +444,7 @@
   </account>
   <account>
     <id>5740</id>
-	<description>Repair & Maintenance</description>
+	<description>Repair &amp; Maintenance</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>
@@ -458,7 +458,7 @@
   </account>
   <account>
     <id>5760</id>
-	<description>Travel & Entertainment</description>
+	<description>Travel &amp; Entertainment</description>
 	<heading>0</heading>
 	<primary></primary>
 	<type>34</type>

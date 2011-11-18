@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/journal/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
@@ -30,26 +29,24 @@ var text_increased    = '<?php echo GL_ACCOUNT_INCREASED; ?>';
 var text_decreased    = '<?php echo GL_ACCOUNT_DECREASED; ?>';
 var journalID         = '<?php echo JOURNAL_ID; ?>';
 var securityLevel     = <?php echo $security_level; ?>;
-var showGLNames       = '<?php echo SHOW_FULL_GL_NAMES; ?>';
 <?php echo js_calendar_init($cal_gl); ?>
 
 <?php echo $js_gl_array; ?>
 
 function init() {
-<?php if ($action == 'edit') echo '  EditJournal(' . $oID . ')'; ?>
+<?php if ($action == 'edit') echo '  EditJournal(' . $oID . ');' . chr(10); ?>
+  document.getElementById("purchase_invoice_id").focus();
 }
 
 function check_form() {
   var error = 0;
   var error_message = "<?php echo JS_ERROR; ?>";
-
   // check for balance of credits and debits
   var bal_total = cleanCurrency(document.getElementById('balance_total').value);
   if (bal_total != 0) {
   	error_message += "<?php echo GL_ERROR_OUT_OF_BALANCE; ?>";
   	error = 1;
   }
-
   // check for all accounts valid
   for (var i = 1; i <= ((document.getElementById("item_table").rows.length - 1) / 2); i++) {
 	if (!updateDesc(i)) {
@@ -58,7 +55,6 @@ function check_form() {
 	  break;
 	}
   }
-
   // With edit of order and recur, ask if roll through future entries or only this entry
   var todo = document.getElementById('todo').value;
   if (document.getElementById('id').value != "" && document.getElementById('recur_id').value > 0) {
@@ -136,7 +132,7 @@ function processEditJournal(sXml) {
   document.getElementById('recur_id').value  = $(xml).find("recur_id").text();
   document.getElementById('store_id').value  = $(xml).find("store_id").text();
   // delete the rows
-  while (document.getElementById("item_table").rows.length > 1) document.getElementById("item_table").deleteRow(-1);
+  while (document.getElementById("item_table").rows.length > 0) document.getElementById("item_table").deleteRow(-1);
   // turn off some icons
   if (id && securityLevel < 3) {
 	removeElement('tb_main_0', 'tb_icon_recur');
@@ -165,21 +161,24 @@ function glProperties(id, description, asset) {
   this.asset       = asset;
 }
 
-function addGLRow() {
+function addGLRow(debit, credit, description) {
+	if (!debit)       debit  = '';
+	if (!credit)      credit = '';
+	if (!description) description = '';
 	var cell = new Array();
 	var newRow = document.getElementById("item_table").insertRow(-1);
-	var rowCnt = (newRow.rowIndex + 1) / 2;
+	var rowCnt = (newRow.rowIndex+1) / 2;
 	// NOTE: any change here also need to be made below for reload if action fails
-	cell[0]  = '<td align="center">';
+	cell[0]  = '<td>';
 	cell[0] += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'style="cursor:pointer" onclick="if (confirm(\''+image_delete_msg+'\')) removeGLRow('+rowCnt+');"') + '<\/td>';
-	cell[1]  = '<td class="main" align="center" nowrap="nowrap">';
+	cell[1]  = '<td>';
 	cell[1] += '<select name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" onchange="updateDesc('+rowCnt+')"><\/select>&nbsp;';
 	// Hidden fields
 	cell[1] += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="" />';
 	// End hidden fields
-	cell[2] = '<td class="main"><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="64" maxlength="64"><\/td>';
-	cell[3] = '<td class="main" align="right"><input type="text" name="debit_'+rowCnt+'" id="debit_'+rowCnt+'" style="text-align:right" size="13" maxlength="12" onchange="formatRow('+rowCnt+', \'d\')"><\/td>';
-	cell[4] = '<td class="main" align="right"><input type="text" name="credit_'+rowCnt+'" id="credit_'+rowCnt+'" style="text-align:right" size="13" maxlength="12" onchange="formatRow('+rowCnt+', \'c\')"><\/td>';
+	cell[2] = '<td><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="64" maxlength="64" value="'+description+'"><\/td>';
+	cell[3] = '<td><input type="text" name="debit_'+rowCnt+'" id="debit_'+rowCnt+'" style="text-align:right" size="13" maxlength="12"  value="'+debit+'" onchange="formatRow('+rowCnt+', \'d\')"><\/td>';
+	cell[4] = '<td><input type="text" name="credit_'+rowCnt+'" id="credit_'+rowCnt+'" style="text-align:right" size="13" maxlength="12" value="'+credit+'"onchange="formatRow('+rowCnt+', \'c\')"><\/td>';
 
 	var newCell, cellCnt, newDiv, divIdName, newDiv, newOpt;
 	for (var i=0; i<cell.length; i++) {
@@ -187,41 +186,27 @@ function addGLRow() {
 		newCell.innerHTML = cell[i];
 	}
 	// build the account dropdown
-    newOpt = document.createElement("option");
-    newOpt.text = '<?php echo GEN_HEADING_PLEASE_SELECT; ?>';
-    document.getElementById('acct_'+rowCnt).options.add(newOpt);	
-    document.getElementById('acct_'+rowCnt).options[0].value = '';
-    for (i=0, j=1; i<js_gl_array.length; i++, j++) {
+    for (i=0; i<js_gl_array.length; i++) {
 	  newOpt = document.createElement("option");
-	  switch (showGLNames) {
-	    default:
-		case '0': // account only
-          newOpt.text = js_gl_array[i].id;
-		  break;
-	    case '1': // description only
-          newOpt.text = js_gl_array[i].description;
-		  break;
-	    case '2': // both
-          newOpt.text = js_gl_array[i].id + ' : ' + js_gl_array[i].description;
-		  break;
-	  }
+      newOpt.text = js_gl_array[i].description;
 	  document.getElementById('acct_'+rowCnt).options.add(newOpt);
-	  document.getElementById('acct_'+rowCnt).options[j].value = js_gl_array[i].id;
+	  document.getElementById('acct_'+rowCnt).options[i].value = js_gl_array[i].id;
     }
 	// insert information row
 	newRow = document.getElementById("item_table").insertRow(-1);
-	newRow.bgColor = inactive_bg_color;
+	newRow.className += ' ui-state-highlight';
 	newCell = newRow.insertCell(-1);
 	newCell.colSpan = 3;
-	newCell.innerHTML = '<td colspan="3" class="main">&nbsp;<\/td>';
+	newCell.innerHTML = '<td colspan="3">&nbsp;<\/td>';
 	newCell = newRow.insertCell(-1);
 	newCell.colSpan = 2;
-	newCell.innerHTML = '<td colspan="2" id="msg_'+rowCnt+'" class="main">&nbsp;<\/td>';
+	newCell.innerHTML = '<td colspan="2" id="msg_'+rowCnt+'">&nbsp;<\/td>';
+	document.getElementById("acct_" + rowCnt).focus();
 	return rowCnt;
 }
 
 function removeGLRow(delRowCnt) {
-  var glIndex = (delRowCnt * 2) - 1;
+  var glIndex = (delRowCnt * 2) - 2;
   // remove row from display by reindexing and then deleting last row
   for (var i = delRowCnt; i < ((document.getElementById("item_table").rows.length - 1) / 2); i++) {
 	// remaining cell values
@@ -239,7 +224,7 @@ function removeGLRow(delRowCnt) {
   }
   document.getElementById("item_table").deleteRow(-1);
   document.getElementById("item_table").deleteRow(-1);
-  updateBalance();
+  updateBalance(true);
 }
 
 function showAction(rowID, DebitOrCredit) {
@@ -260,17 +245,15 @@ function showAction(rowID, DebitOrCredit) {
   if (document.getElementById('debit_'+rowID).value == '' && document.getElementById('credit_'+rowID).value == '') {
     textValue = ' ';
   }
-
   if(document.all) { // IE browsers
-    document.getElementById("item_table").rows[rowID*2].cells[1].innerText = textValue;  
+    document.getElementById("item_table").rows[(rowID*2)-1].cells[1].innerText = textValue;  
   } else { //firefox
-    document.getElementById("item_table").rows[rowID*2].cells[1].textContent = textValue;  
+    document.getElementById("item_table").rows[(rowID*2)-1].cells[1].textContent = textValue;  
   }
 }
 
 function formatRow(rowID, DebitOrCredit) {
   var temp;
-
   showAction(rowID, DebitOrCredit);
   if (DebitOrCredit == 'd') {
   	if (document.getElementById('debit_'+rowID).value != '') {
@@ -292,11 +275,26 @@ function updateBalance() {
   var debit_total = 0;
   var credit_total = 0;
   var balance_total = 0;
-  for (var i = 1; i < ((document.getElementById('item_table').rows.length + 1) / 2); i++) {
+  var description = '';
+  for (var i = 1; i <= ((document.getElementById('item_table').rows.length) / 2); i++) {
 	temp = parseFloat(cleanCurrency(document.getElementById('debit_'+i).value));
   	if (!isNaN(temp)) debit_total += temp;
 	temp = parseFloat(cleanCurrency(document.getElementById('credit_'+i).value));
   	if (!isNaN(temp)) credit_total += temp;
+  	description = document.getElementById('desc_'+i).value;
+  }
+  var debit  = 0;
+  var credit = 0;
+  if (debit_total != credit_total && document.getElementById('id').value == '') { // auto fill only for new entries
+	if (debit_total > credit_total){
+		credit = debit_total  - credit_total;
+		credit_total += credit;
+	}
+	if (debit_total < credit_total){
+		debit  = credit_total - debit_total;
+		debit_total += debit;
+	}
+	addGLRow(debit?formatCurrency(debit):'', credit?formatCurrency(credit):'', description);
   }
   balance_total = debit_total - credit_total;
   var dt = new String(debit_total);
@@ -315,38 +313,12 @@ function updateBalance() {
 function updateDesc(rowID) {
   var acct = document.getElementById('acct_'+rowID).value;
   var DebitOrCredit = '';
-  var textValue = '<?php echo GL_ERROR_JOURNAL_BAD_ACCT ?>';
-  var error = true;
-  document.getElementById('acct_'+rowID).style.color = 'red';
-
   if (document.getElementById('debit_'+rowID).value != '') {
   	DebitOrCredit = 'd';
   } else if (document.getElementById('credit_'+rowID).value != '') {
   	DebitOrCredit = 'c';
   }
-
-  if (!acct) {
-    textValue = '.';
-	document.getElementById('acct_'+rowID).style.color = '';
-	error = false;
-  }
-
-  for (var i=0; i<js_gl_array.length; i++) {
-	if (js_gl_array[i].id == acct) {
-	  textValue = js_gl_array[i].description;
-	  document.getElementById('acct_'+rowID).style.color = '';
-      error = false;
-	  break;
-	}
-  }
-
   showAction(rowID, DebitOrCredit);
-  if(document.all) { // IE browsers
-    document.getElementById('item_table').rows[rowID*2].cells[0].innerText = textValue;
-  } else { //firefox
-    document.getElementById('item_table').rows[rowID*2].cells[0].textContent = textValue;
-  }
-  if (error) return false;
   return true;
 }
 

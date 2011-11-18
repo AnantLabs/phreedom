@@ -19,14 +19,13 @@
 //
 
 ?>
-<div id="cat_payment" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_PAYMENT; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_payment">
+  <fieldset>
     <legend><?php echo ACT_CATEGORY_P_ADDRESS; ?></legend>
-    <table border="0" cellspacing="1" cellpadding="1">
+    <table>
 <?php
 	if (sizeof($cInfo->pmt_values) > 0) {
-		$field  = '<tr><td colspan="2"><table id="pmt_table" width="100%" border="0" cellspacing="0" cellpadding="0">';
+		$field  = '<tr><td colspan="2"><table id="pmt_table" width="100%" cellspacing="0" cellpadding="0">';
 		$field .= '<tr>' . chr(10);
 		$field .= '  <th>' . ACT_CARDHOLDER_NAME . '</th>' . chr(10);
 		$field .= '  <th>' . ACT_CARD_HINT . '</th>' . chr(10);
@@ -34,23 +33,25 @@
 		$field .= '  <th align="center">' . TEXT_ACTION . '</th>' . chr(10);
 		$field .= '</tr>' . chr(10) . chr(10);
 		$cnt = 0;
+		$odd = true;
 		foreach ($cInfo->pmt_values as $payment) {
-			$field .= '<tr id="trp_' . $payment['id'] . '" class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">';
-			$field .= '  <td class="main" onclick="editPmtRow(' . $cnt . ')">' . $payment['name'] . '</td>' . chr(10);
-			$field .= '  <td class="main" onclick="editPmtRow(' . $cnt . ')">' . $payment['hint'] . '</td>' . chr(10);
-			$field .= '  <td class="main" onclick="editPmtRow(' . $cnt . ')">' . $payment['exp'] . '</td>' . chr(10);
-			$field .= '  <td class="main" align="center">';
+			$field .= '<tr id="trp_' . $payment['id'] . '" class="' . ($odd?'odd':'even') . '" style="cursor:pointer">';
+			$field .= '  <td onclick="editPmtRow(' . $cnt . ')">' . $payment['name'] . '</td>' . chr(10);
+			$field .= '  <td onclick="editPmtRow(' . $cnt . ')">' . $payment['hint'] . '</td>' . chr(10);
+			$field .= '  <td onclick="editPmtRow(' . $cnt . ')">' . $payment['exp'] . '</td>' . chr(10);
+			$field .= '  <td align="center">';
 			$field .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="editPmtRow(' . $cnt . ')"') . chr(10);
 			$field .= '&nbsp;' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . ACT_WARN_DELETE_PAYMENT . '\')) removePmtRow(' . $payment['id'] . ');"') . chr(10);
 			$field .= '  </td>' . chr(10);
 			$field .= '</tr>' . chr(10) . chr(10);
 			$cnt++;
+			$odd = !$odd;
 		}
 		$field .= '</table></td></tr>' . chr(10);
 		echo $field;
 	}
     if (!$_SESSION['admin_encrypt']) { ?>
-      <tr><td colspan="2" class="messageStackCaution"><?php echo ACT_NO_ENCRYPT_KEY_ENTERED; ?></td></tr>
+      <tr><td colspan="2" class="ui-state-highlight"><?php echo ACT_NO_ENCRYPT_KEY_ENTERED; ?></td></tr>
 <?php } ?>
       <tr><td colspan="2"><?php echo '&nbsp;'; ?></td></tr>
       <tr><th colspan="2"><?php echo ACT_PAYMENT_MESSAGE; ?></th></tr>

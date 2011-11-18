@@ -17,7 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/admin/template_tab_project_phases.php
 //
-$project_phases_toolbar = new toolbar;
+$project_phases_toolbar = new toolbar('project_phases');
 $project_phases_toolbar->icon_list['cancel']['show'] = false;
 $project_phases_toolbar->icon_list['open']['show']   = false;
 $project_phases_toolbar->icon_list['save']['show']   = false;
@@ -27,9 +27,8 @@ if ($security_level > 1) $project_phases_toolbar->add_icon('new', 'onclick="load
 if ($project_phases->extra_buttons) $project_phases->customize_buttons($project_phases_toolbar);
 
 ?>
-<div id="project_phases" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_COUNTRIES_TABS; ?></h2>
+<div id="tab_project_phases">
   <?php echo $project_phases_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $project_phases->title; ?></div>
+  <h1><?php echo $project_phases->title; ?></h1>
   <div id="project_phases_content"><?php echo $project_phases->build_main_html(); ?></div>
 </div>

@@ -17,7 +17,5 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/payment/language/en_us/menu.php
 //
-
-define('MENU_HEADING_PHREEPAY', 'PhreePay Payment Module');
-
+define('MENU_HEADING_PHREEPAY', 'Payment Module');
 ?>

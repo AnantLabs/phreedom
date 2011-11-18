@@ -17,13 +17,27 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/pages/main/template_tab_gen.php
 //
-
-// start the general tab html
 ?>
-<div id="SYSTEM" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_GENERAL; ?></h2>
-  <table><tr><td>
-    <table cellspacing="1" cellpadding="1"><tr>
+<div id="tab_general">
+
+  <div id="inv_image" title="<?php echo $cInfo->sku; ?>">
+    <?php if ($cInfo->image_with_path) {
+    	echo html_image(DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path, '', 600) . chr(10);
+    } else {
+    	echo TEXT_NO_IMAGE;
+    }
+    ?>
+    <div>
+	  <h2><?php echo TEXT_SKU . ': ' . $cInfo->sku; ?></h2>
+	  <p><?php echo '<br />' . $cInfo->description_sales; ?></p>
+    </div>
+  </div>
+
+  <table class="ui-widget" style="border-style:none;width:100%">
+    <tr><td>
+    <table class="ui-widget" style="border-style:none;width:100%">
+     <tbody class="ui-widget-content">
+     <tr>
 	  <td align="right"><?php echo TEXT_SKU; ?></td>
 	  <td>
 		<?php echo html_input_field('sku', $cInfo->sku, 'readonly="readonly" size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '"', false); ?>
@@ -34,7 +48,7 @@
 	  <td><?php echo html_input_field('quantity_on_hand', $cInfo->quantity_on_hand, 'disabled="disabled" size="6" maxlength="5" style="text-align:right"', false); ?></td>
 	  <td rowspan="5" align="center">
 		<?php if ($cInfo->image_with_path) { // show image if it is defined
-			echo html_image(DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path, $cInfo->image_with_path, '', '100', 'style="cursor:pointer" onclick="ImgPopup(\'' . DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path . '\')" language="javascript"');
+			echo $cInfo->image_with_pat . html_image(DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' . $cInfo->image_with_path, $cInfo->image_with_path, '', '100', 'onclick="showImage()"');
 		} else echo '&nbsp;'; ?>
 	  </td>
 	</tr>
@@ -65,7 +79,13 @@
 	  <td align="right"><?php echo INV_ENTRY_ITEM_WEIGHT; ?></td>
 	  <td><?php echo html_input_field('item_weight', $cInfo->item_weight, 'size="11" maxlength="9" style="text-align:right"', false); ?></td>
 	</tr>
-	<th colspan="5"><?php echo TEXT_CUSTOMER_DETAILS; ?></th>
+	</tbody>
+	</table>
+    <table class="ui-widget" style="border-style:none;width:100%">
+ 	 <thead class="ui-widget-header">
+	  <tr><th colspan="5"><?php echo TEXT_CUSTOMER_DETAILS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	<tr>
 	  <td valign="top" align="right"><?php echo INV_ENTRY_INVENTORY_DESC_SALES; ?></td>
 	  <td colspan="5"><?php echo html_textarea_field('description_sales', 75, 2, $cInfo->description_sales, '', $reinsert_value = true); ?></td>
@@ -87,7 +107,13 @@
 	  <td>&nbsp;</td>
 	</tr>
 <?php if ($_SESSION['admin_security'][SECURITY_ID_PURCHASE_INVENTORY] > 0) { ?>
-	<th colspan="5"><?php echo TEXT_VENDOR_DETAILS; ?></th>
+	</tbody>
+	</table>
+    <table class="ui-widget" style="border-style:none;width:100%">
+ 	 <thead class="ui-widget-header">
+	   <tr><th colspan="5"><?php echo TEXT_VENDOR_DETAILS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	<tr>
 	  <td valign="top" align="right"><?php echo INV_ENTRY_INVENTORY_DESC_PURCHASE; ?></td>
 	  <td colspan="5"><?php echo html_textarea_field('description_purchase', 75, 2, $cInfo->description_purchase, '', $reinsert_value = true); ?></td>
@@ -110,7 +136,13 @@
 	  <td colspan="2"><?php echo html_pull_down_menu('vendor_id', gen_get_contact_array_by_type('v'), $cInfo->vendor_id); ?></td>
 	</tr>
 <?php } ?>
-	<th colspan="5"><?php echo TEXT_ITEM_DETAILS; ?></th>
+	</tbody>
+	</table>
+    <table class="ui-widget" style="border-style:none;width:100%">
+ 	 <thead class="ui-widget-header">
+	  <tr><th colspan="5"><?php echo TEXT_ITEM_DETAILS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	<tr>
 	  <td align="right"><?php echo INV_ENTRY_INVENTORY_TYPE; ?></td>
 	  <td><?php echo html_hidden_field('inventory_type', $cInfo->inventory_type);
@@ -147,22 +179,29 @@
 	  <td align="right"><?php echo INV_ENTRY_ACCT_COS; ?></td>
 	  <td><?php echo html_pull_down_menu('account_cost_of_sales', $gl_array_list, $cInfo->account_cost_of_sales); ?></td>
 	</tr>
-	</table>
+   </tbody>
+   </table>
 <?php if (ENABLE_MULTI_BRANCH) { ?>
   </td>
   <td valign="top">
-    <table border="1" cellspacing="1" cellpadding="1">
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr>
 	    <th><?php echo GEN_STORE_ID; ?></th>
 	    <th><?php echo INV_HEADING_QTY_IN_STOCK; ?></th>
 	  </tr>
-	    <?php foreach ($store_stock as $stock) {
+	 </thead>
+	 <tbody class="ui-widget-content">
+	  <?php foreach ($store_stock as $stock) {
 	  	  echo '<tr>' . chr(10);
 		  echo '<td>' . $stock['store'] . '</td>' . chr(10);
 		  echo '<td align="center">' . $stock['qty'] . '</td>' . chr(10);
 	      echo '</tr>' . chr(10);
 		} ?>
+     </tbody>
     </table>
 <?php } ?>
-  </td></tr></table>
+  </td></tr>
+ </tbody>
+ </table>
 </div>

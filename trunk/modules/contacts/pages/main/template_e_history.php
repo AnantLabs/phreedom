@@ -18,17 +18,18 @@
 //  Path: /modules/contacts/pages/main/template_e_history.php
 //
 ?>
-<div id="cat_history" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_HISTORY; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_history">
+  <fieldset>
     <legend><?php echo ACT_ACT_HISTORY; ?></legend>
-    <table border="0" width="100%" cellspacing="6" cellpadding="0">
+	  <table class="ui-widget" style="border-collapse:collapse;width:100%;">
+		<tbody class="ui-widget-content">
 	  <tr>
 	    <td width="50%"><?php echo constant('ACT_' . strtoupper($type) . '_FIRST_DATE') . ' ' . gen_locale_date($cInfo->first_date); ?></td>
 	  </tr>
 	  <tr>
 	    <td width="50%"><?php echo constant('ACT_' . strtoupper($type) . '_LAST_DATE1') . ' ' . gen_locale_date($cInfo->last_update); ?></td>
 	  </tr>
+	   </tbody>
 	</table>
   </fieldset>
 </div>

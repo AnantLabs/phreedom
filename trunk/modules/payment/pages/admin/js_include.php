@@ -25,7 +25,9 @@
 // Include translations here as well.
 
 function init() {
-
+	$(function() {
+		$('#admintabs').tabs();
+	});
 }
 
 function check_form() {

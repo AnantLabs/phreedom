@@ -128,7 +128,7 @@ foreach ($_REQUEST as $key => $val)
   </script>
   <script type="text/javascript" src="includes/common.js"></script>
   <script type="text/javascript" src="modules/phreedom/includes/jquery/jquery-1.4.3.min.js"></script>
-  <?php require_once(DIR_FS_ADMIN . 'themes/' . $_SESSION['theme'] . '/config.php'); ?>
+  <?php require_once(DIR_FS_ADMIN . 'themes/' . $_SESSION['admin_prefs']['theme'] . '/config.php'); ?>
   <?php
   // load the language file
   include_once(DIR_FS_MODULES . 'phreedom/includes/bigdump/language/' . $_SESSION['language'] . '/language.php');
@@ -287,7 +287,7 @@ if (count($extra_toolbar_buttons) > 0) {
 $toolbar->add_help('01');
 echo $toolbar->build_toolbar(); 
 
-echo '<div class="pageHeading">' . BOX_HEADING_RESTORE . '</div>';
+echo '<h1>' . BOX_HEADING_RESTORE . '</h1>';
 // ****************************** EOF - Mods by PhreeSoft **************************************** ?>
 
 <center>
@@ -854,8 +854,8 @@ skin_open();
 <input type="hidden" name="tax" value="0" />
 <input type="hidden" name="bn" value="PP-DonationsBF" />
 <input type="hidden" name="lc" value="US" />
-<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!" />
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" name="submit" alt="Make payments with PayPal - it's fast, free and secure!" />
+<img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
 </form>
 <!-- End Paypal donation code -->
 

@@ -17,7 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/admin/template_currency_currency.php
 //
-$currency_toolbar = new toolbar;
+$currency_toolbar = new toolbar('currency');
 $currency_toolbar->icon_list['cancel']['show'] = false;
 $currency_toolbar->icon_list['open']['show']   = false;
 $currency_toolbar->icon_list['save']['show']   = false;
@@ -30,9 +30,8 @@ if (ENABLE_MULTI_CURRENCY) {
 }
 
 ?>
-<div id="currency" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_CURRENCY_TABS; ?></h2>
-  <?php echo $currency_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $currency->title; ?></div>
-  <div id="currency_content"><?php echo $currency->build_main_html(); ?></div>
+<div id="tab_currency">
+    <?php echo $currency_toolbar->build_toolbar(); ?>
+	<h1><?php echo $currency->title; ?></h1>
+    <div id="currency_content"><?php echo $currency->build_main_html(); ?></div>
 </div>

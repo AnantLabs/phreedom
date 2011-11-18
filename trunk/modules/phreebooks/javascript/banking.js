@@ -78,7 +78,8 @@ function processGuess(sXml) {
   var xml = parseXml(sXml);
   if (!xml) return;
   if ($(xml).find("result").text() == 'success') {
-    fillBillData(xml);
+    var cID = $(xml).find("id").first().text();
+	ajaxBillData(cID, 0, journalID);
   } else {
 	var search_text = document.getElementById('search').value;
     window.open('index.php?module=phreebooks&page=popup_bills_accts&list=1&jID='+journalID+"&type="+account_type+"&search_text="+search_text,"invoices","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
@@ -201,7 +202,7 @@ function fillBill(xml) {
 		document.getElementById('desc_' + jIndex).readOnly  = true;
 		document.getElementById('dscnt_' + jIndex).readOnly = true;
 		document.getElementById('total_' + jIndex).readOnly = true;
-		document.getElementById('item_table').rows[rowCnt-1].className = 'rowInactive';
+		document.getElementById('item_table').rows[rowCnt-1].className = 'ui-state-error';
 		document.getElementById('item_table').rows[rowCnt-1].cells[6].innerHTML = '&nbsp;'; // remove checkbox
 	} else if ($(this).find("amount_paid").text()) {
 		document.getElementById('pay_' + jIndex).checked    = true;
@@ -280,7 +281,7 @@ function addInvRow() {
    rowCnt = newRow.rowIndex;
 
    // NOTE: any change here also need to be made below for reload if action fails
-   cell[0] = '<td class="main" align="center"><input type="text" name="inv_'+rowCnt+'" id="inv_'+rowCnt+'" readonly="readonly" size="15">';
+   cell[0] = '<td align="center"><input type="text" name="inv_'+rowCnt+'" id="inv_'+rowCnt+'" readonly="readonly" size="15">';
 // Hidden fields
    cell[0] += '<input type="hidden" name="id_'+rowCnt+'"    id="id_'+rowCnt+'"    value="">';
    cell[0] += '<input type="hidden" name="prcnt_'+rowCnt+'" id="prcnt_'+rowCnt+'" value="">';
@@ -288,12 +289,12 @@ function addInvRow() {
    cell[0] += '<input type="hidden" name="acct_'+rowCnt+'"  id="acct_'+rowCnt+'"  value="">';
 // End hidden fields
    cell[0] += '</td>';
-   cell[1] = '<td class="main" align="center"><input type="text" name="due_'+rowCnt+'" id="due_'+rowCnt+'" readonly="readonly" size="15"></td>';
-   cell[2] = '<td class="main" align="center"><input type="text" name="amt_'+rowCnt+'" id="amt_'+rowCnt+'" readonly="readonly" size="12" style="text-align:right"></td>';
-   cell[3] = '<td class="main" align="center"><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="64" maxlength="64"></td>';
-   cell[4] = '<td class="main" align="center"><input type="text" name="dscnt_'+rowCnt+'" id="dscnt_'+rowCnt+'" size="15" maxlength="20" onchange="updateRowTotal('+rowCnt+')" style="text-align:right"></td>';
-   cell[5] = '<td class="main" align="center"><input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="15" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right"></td>';
-   cell[6] = '<td class="main" align="center"><input type="checkbox" name="pay_'+rowCnt+'" id="pay_'+rowCnt+'" value="1" onclick="updatePayValues('+rowCnt+')"></td>';
+   cell[1] = '<td align="center"><input type="text" name="due_'+rowCnt+'" id="due_'+rowCnt+'" readonly="readonly" size="15"></td>';
+   cell[2] = '<td align="center"><input type="text" name="amt_'+rowCnt+'" id="amt_'+rowCnt+'" readonly="readonly" size="12" style="text-align:right"></td>';
+   cell[3] = '<td align="center"><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="64" maxlength="64"></td>';
+   cell[4] = '<td align="center"><input type="text" name="dscnt_'+rowCnt+'" id="dscnt_'+rowCnt+'" size="15" maxlength="20" onchange="updateRowTotal('+rowCnt+')" style="text-align:right"></td>';
+   cell[5] = '<td align="center"><input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="15" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right"></td>';
+   cell[6] = '<td align="center"><input type="checkbox" name="pay_'+rowCnt+'" id="pay_'+rowCnt+'" value="1" onclick="updatePayValues('+rowCnt+')"></td>';
 
    for (var i=0; i<cell.length; i++) {
 		newCell = newRow.insertCell(-1);
@@ -309,7 +310,7 @@ function addBulkRow() {
    rowCnt = newRow.rowIndex;
 
    // NOTE: any change here also need to be made below for reload if action fails
-   cell[0] = '<td class="main" align="center"><input type="text" name="due_'+rowCnt+'" id="due_'+rowCnt+'" readonly="readonly" size="15"></td>';
+   cell[0] = '<td align="center"><input type="text" name="due_'+rowCnt+'" id="due_'+rowCnt+'" readonly="readonly" size="15"></td>';
 // Hidden fields
    cell[0] += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="">';
    cell[0] += '<input type="hidden" name="prcnt_'+rowCnt+'" id="prcnt_'+rowCnt+'" value="">';
@@ -317,13 +318,13 @@ function addBulkRow() {
    cell[0] += '<input type="hidden" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="">';
 // End hidden fields
    cell[0] += '</td>';
-   cell[1] = '<td class="main" align="center"><input type="text" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" readonly="readonly" size="15"></td>';
-   cell[2] = '<td class="main" align="center"><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="40"></td>';
-   cell[3] = '<td class="main" align="center"><input type="text" name="inv_'+rowCnt+'" id="inv_'+rowCnt+'" readonly="readonly" size="15">';
-   cell[4] = '<td class="main" align="center"><input type="text" name="amt_'+rowCnt+'" id="amt_'+rowCnt+'" readonly="readonly" size="12" style="text-align:right"></td>';
-   cell[5] = '<td class="main" align="center"><input type="text" name="dscnt_'+rowCnt+'" id="dscnt_'+rowCnt+'" size="11" maxlength="10" onchange="updateRowTotal('+rowCnt+')" style="text-align:right"></td>';
-   cell[6] = '<td class="main" align="center"><input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="11" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right"></td>';
-   cell[7] = '<td class="main" align="center"><input type="checkbox" name="pay_'+rowCnt+'" id="pay_'+rowCnt+'" value="1" onclick="updatePayValues('+rowCnt+')"></td>';
+   cell[1] = '<td align="center"><input type="text" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" readonly="readonly" size="15"></td>';
+   cell[2] = '<td align="center"><input type="text" name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" size="40"></td>';
+   cell[3] = '<td align="center"><input type="text" name="inv_'+rowCnt+'" id="inv_'+rowCnt+'" readonly="readonly" size="15">';
+   cell[4] = '<td align="center"><input type="text" name="amt_'+rowCnt+'" id="amt_'+rowCnt+'" readonly="readonly" size="12" style="text-align:right"></td>';
+   cell[5] = '<td align="center"><input type="text" name="dscnt_'+rowCnt+'" id="dscnt_'+rowCnt+'" size="11" maxlength="10" onchange="updateRowTotal('+rowCnt+')" style="text-align:right"></td>';
+   cell[6] = '<td align="center"><input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" size="11" maxlength="20" onchange="updateUnitPrice('+rowCnt+')" style="text-align:right"></td>';
+   cell[7] = '<td align="center"><input type="checkbox" name="pay_'+rowCnt+'" id="pay_'+rowCnt+'" value="1" onclick="updatePayValues('+rowCnt+')"></td>';
 
    for (var i=0; i<cell.length; i++) {
 		newCell = newRow.insertCell(-1);

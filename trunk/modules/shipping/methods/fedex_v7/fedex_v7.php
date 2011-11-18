@@ -49,11 +49,19 @@ define('fedex_v7_3DFrt', MODULE_SHIPPING_FEDEX_V7_3DF);
 define('fedex_v7_GndFrt',MODULE_SHIPPING_FEDEX_V7_GDF);
 define('fedex_v7_EcoFrt',MODULE_SHIPPING_FEDEX_V7_ECF);
 // FedEx WSDL paths
-define('PATH_TO_TEST_RATE_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestRateService_v7.wsdl');
-define('PATH_TO_TEST_SHIP_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestShipService_v7.wsdl');
+define('MODULE_SHIPPING_FEDEX_RATE_WSDL_VERSION','10');
+define('PATH_TO_TEST_RATE_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestRateService_v10.wsdl');
+define('PATH_TO_RATE_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/RateService_v10.wsdl');
+//define('PATH_TO_TEST_RATE_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestRateService_v7.wsdl');
+//define('PATH_TO_RATE_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/RateService_v7.wsdl');
+
+define('MODULE_SHIPPING_FEDEX_SHIP_WSDL_VERSION','10');
+define('PATH_TO_TEST_SHIP_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestShipService_v10.wsdl');
+define('PATH_TO_SHIP_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/ShipService_v10.wsdl');
+//define('PATH_TO_TEST_SHIP_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestShipService_v7.wsdl');
+//define('PATH_TO_SHIP_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/ShipService_v7.wsdl');
+
 define('PATH_TO_TEST_CLOSE_WSDL', DIR_FS_WORKING . 'methods/fedex_v7/TestCloseService_v2.wsdl');
-define('PATH_TO_RATE_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/RateService_v7.wsdl');
-define('PATH_TO_SHIP_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/ShipService_v7.wsdl');
 define('PATH_TO_TRACK_WSDL',      DIR_FS_WORKING . 'methods/fedex_v7/TrackService_v4.wsdl');
 define('PATH_TO_CLOSE_WSDL',      DIR_FS_WORKING . 'methods/fedex_v7/CloseService_v2.wsdl');
 ini_set("soap.wsdl_cache_enabled", "0");
@@ -85,8 +93,8 @@ class fedex_v7 {
 	'FEDEX_1_DAY_FREIGHT'    => '1DFrt',
 	'FEDEX_2_DAY_FREIGHT'    => '2DFrt',
 	'FEDEX_3_DAY_FREIGHT'    => '3DFrt',
-	'FEDEX_FREIGHT'          => 'GndFrt',
-//	'FEDEX_NATIONAL_FREIGHT' => 'EcoFrt',
+	'FEDEX_FREIGHT_PRIORITY' => 'GndFrt',
+//	'FEDEX_FREIGHT_ECONOMY'  => 'EcoFrt',
 	// new options
 //	'EUROPE_FIRST_INTERNATIONAL_PRIORITY',
 //	'INTERNATIONAL_ECONOMY_FREIGHT',
@@ -289,12 +297,12 @@ class fedex_v7 {
 	global $messageStack, $currencies;
 	$arrRates = array();
 	$request = $this->FormatFedExRateRequest($pkg, $num_packages, $ltl);
-//echo 'FedEx Express XML Submit String:<br />'; print_r($request); echo '<br />';
+//if ($ltl) { echo 'FedEx Express XML Submit String:<br />'; print_r($request); echo '<br />'; }
 	try {
 	  $response = $client->getRates($request);
 //echo 'Request <pre>'  . htmlspecialchars($client->__getLastRequest()) . '</pre>';
 //echo 'Response <pre>' . htmlspecialchars($client->__getLastResponse()) . '</pre>';
-//echo 'rate response array = '; print_r($response->RateReplyDetails); echo '<br />';
+//if ($ltl) { echo 'rate response array = '; print_r($response->RateReplyDetails); echo '<br />'; }
 	  if ($response->HighestSeverity != 'FAILURE' && $response->HighestSeverity != 'ERROR') {
 		if ($response->HighestSeverity == 'NOTE' || $response->HighestSeverity == 'WARNING') {
 		  $message .= ' (' . $response->Notifications->Code . ') ' . $response->Notifications->Message;
@@ -356,7 +364,7 @@ class fedex_v7 {
 	  $messageStack->add(SHIPPING_FEDEX_CURL_ERROR . $message, 'error');
 	  return false;
 	}
-//echo 'arrRates array = '; print_r($arrRates); echo '<br /><br />';
+//if ($ltl) { echo 'arrRates array = '; print_r($arrRates); echo '<br /><br />'; }
 	return $arrRates;
   }
 
@@ -378,7 +386,7 @@ class fedex_v7 {
 	);
 	$request['Version'] = array( // version 7
 	  'ServiceId'    => 'crs', 
-	  'Major'        => '7', 
+	  'Major'        => MODULE_SHIPPING_FEDEX_RATE_WSDL_VERSION, 
 	  'Intermediate' => '0', 
 	  'Minor'        => '0',
 	);
@@ -394,7 +402,7 @@ class fedex_v7 {
 	$request['RequestedShipment']['ShipTimestamp'] = $ship_date;
 	$request['RequestedShipment']['Shipper'] = array(
 	  'Address' => array(
-//			'StreetLines'         => COMPANY_ADDRESS1,
+//		'StreetLines'         => COMPANY_ADDRESS1,
 		'City'                => $pkg->ship_city_town,
 		'StateOrProvinceCode' => $pkg->ship_state_province,
 		'PostalCode'          => $pkg->ship_postal_code,
@@ -421,20 +429,19 @@ class fedex_v7 {
 	if ($ltl && MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER) {
 	  $request['RequestedShipment']['FreightShipmentDetail'] = array(
 		'FedExFreightAccountNumber'  => MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER,
-		'FedExFreightBillingAddress' => array(
-		  'StreetLines'         => COMPANY_ADDRESS1,
-		  'City'                => $pkg->ship_city_town,
-		  'StateOrProvinceCode' => $pkg->ship_state_province,
-		  'PostalCode'          => $pkg->ship_postal_code,
-		  'CountryCode'         => $pkg->ship_from_country_iso2,
-		),
-		'FedExNationalFreightAccountNumber'  => MODULE_SHIPPING_FEDEX_V7_NAT_ACCOUNT_NUMBER,
-		'FedExNationalFreightBillingAddress' => array(
-		  'StreetLines'         => COMPANY_ADDRESS1,
-		  'City'                => $pkg->ship_city_town,
-		  'StateOrProvinceCode' => $pkg->ship_state_province,
-		  'PostalCode'          => $pkg->ship_postal_code,
-		  'CountryCode'         => $pkg->ship_from_country_iso2,		  
+		'FedExFreightBillingContactAndAddress' => array(
+		  'Contact' => array(
+			'PersonName'          => AR_CONTACT_NAME,
+			'CompanyName'         => COMPANY_NAME,
+			'PhoneNumber'         => COMPANY_TELEPHONE1,
+		  ),
+		  'Address' => array(
+			'StreetLines'         => COMPANY_ADDRESS1,
+			'City'                => COMPANY_CITY_TOWN,
+			'StateOrProvinceCode' => COMPANY_ZONE,
+			'PostalCode'          => COMPANY_POSTAL_CODE,
+			'CountryCode'         => gen_get_country_iso_2_from_3(COMPANY_COUNTRY),
+		  ),
 		),
 		'Role'         => 'SHIPPER', // valid values are SHIPPER, THIRD_PARTY, and CONSIGNEE
 		'PaymentType'  => 'PREPAID', // valid values are COLLECT and PREPAID
@@ -461,7 +468,10 @@ class fedex_v7 {
 	  $request['RequestedShipment']['PackageDetail'] = 'INDIVIDUAL_PACKAGES';
 	  for ($i = 0; $i < $num_packages; $i++) {
 		$weight = ceil($pkg->pkg_weight / $num_packages);
-		$request['RequestedShipment']['RequestedPackageLineItems'][] = array(
+		$request['RequestedShipment']['RequestedPackageLineItems'] = array(
+		  'SequenceNumber'    => $i+1,
+		  'GroupNumber'       => '1',
+		  'GroupPackageCount' => $num_packages,
 		  'Weight' => array(
 			'Value' => $weight,
 			'Units' => substr($pkg->pkg_weight_unit,0,2),
@@ -484,7 +494,7 @@ class fedex_v7 {
 	function retrieveLabel($sInfo) {
 		global $messageStack;
 		$fedex_results = array();
-		if (in_array($sInfo->ship_method, array('I2DEam','I2Dam','I3D','GndFrt','EcoFrt'))) { // unsupported ship methods
+		if (in_array($sInfo->ship_method, array('I2DEam','I2Dam','I3D'))) { // unsupported ship methods
 		  $messageStack->add('The ship method requested is not supported by this tool presently. Please ship the package via a different tool.','error');
 		  return false;
 		}
@@ -494,6 +504,7 @@ class fedex_v7 {
 			$client = new SoapClient(PATH_TO_SHIP_WSDL, array('trace' => 1));
 		}
 		for ($key = 0; $key < count($sInfo->package); $key++) {
+		  $labels = array();
 		  $request = $this->FormatFedExShipRequest($sInfo, $key);
 //echo 'FedEx Express XML Label Submit String:'; print_r($request); echo '<br />';
 		  try {
@@ -502,55 +513,62 @@ class fedex_v7 {
 //echo 'Response <pre>' . htmlspecialchars($client->__getLastResponse()) . '</pre>';
 //echo 'rate response array = '; print_r($response); echo '<br />';
 		    if ($response->HighestSeverity != 'FAILURE' && $response->HighestSeverity != 'ERROR') {
-				if (isset($response->CompletedShipmentDetail->RoutingDetail->DeliveryDate)) {
-					$del_code = $response->CompletedShipmentDetail->RoutingDetail->DestinationServiceArea;
-					$guar_time = $this->calculateDeliveryTime($sInfo->ship_method, $del_code, $sInfo->residential_address);
-					$del_date = $response->CompletedShipmentDetail->RoutingDetail->DeliveryDate . ' ' . $guar_time;
-				} elseif (isset($response->CompletedShipmentDetail->RoutingDetail->TransitTime)) {
-					$del_date = $this->calculateDelivery($response->CompletedShipmentDetail->RoutingDetail->TransitTime, $sInfo->residential_address);
-				} else {
-					$del_date = '';
+				if ($key == 0) {
+					$sInfo->master_tracking = $response->CompletedShipmentDetail->MasterTrackingId;
 				}
-				if (is_array($response->CompletedShipmentDetail->CompletedPackageDetails->PackageRating->PackageRateDetails)) {
-				  foreach ($response->CompletedShipmentDetail->CompletedPackageDetails->PackageRating->PackageRateDetails as $rate) {
+				$net_cost  = 0;
+				$book_cost = 0;
+				$del_date = '';
+				if (isset($response->CompletedShipmentDetail->OperationalDetail->DeliveryDate)) {
+					$del_code  = $response->CompletedShipmentDetail->OperationalDetail->DestinationServiceArea;
+					$guar_time = $this->calculateDeliveryTime($sInfo->ship_method, $del_code, $sInfo->residential_address);
+					$del_date  = $response->CompletedShipmentDetail->OperationalDetail->DeliveryDate . ' ' . $guar_time;
+				} elseif (isset($response->CompletedShipmentDetail->OperationalDetail->TransitTime)) {
+				  $del_date  = $this->calculateDelivery($response->CompletedShipmentDetail->OperationalDetail->TransitTime, $sInfo->residential_address);
+				}
+				if (is_array($response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails)) {
+				  foreach ($response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails as $rate) {
 				    switch($rate->RateType) {
-				      case 'PAYOR_ACCOUNT':
-					    $net_cost  = $rate->NetCharge->Amount;
-					    break;
-					  case 'RATED_ACCOUNT':
-					    $book_cost = $rate->NetCharge->Amount;
-					    break;
+				      case 'PAYOR_ACCOUNT_PACKAGE':
+				      case 'PAYOR_ACCOUNT_SHIPMENT': $net_cost  = $rate->TotalNetCharge->Amount; break;
+					  case 'PAYOR_LIST_SHIPMENT':
+					  case 'PAYOR_LIST_PACKAGE':     $book_cost = $rate->TotalNetCharge->Amount; break;
 				    }
 				  }
+				}
+				if ($response->CompletedShipmentDetail->CarrierCode == 'FXFR') { // LTL Freight
+					$is_ltl   = true; // special handling for freight, hard coded label types for now
+					$tracking = $response->CompletedShipmentDetail->MasterTrackingId->TrackingNumber;
+					$zone     = '';
+					foreach ($response->CompletedShipmentDetail->ShipmentDocuments as $document) $labels[] = $document->Parts->Image;					
 				} else {
-				  $book_cost = 0;
+					$is_ltl    = false;
+					$tracking  = $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber;
+					$zone      = $response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails->RateZone;
+					$labels[]  = $response->CompletedShipmentDetail->CompletedPackageDetails->Label->Parts->Image;
 				}
 				$fedex_results[$key] = array(
 					'ref_id'        => $sInfo->purchase_invoice_id . '-' . ($key + 1),
-					'tracking'      => $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber,
-					'zone'          => $response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails->RateZone,
+					'tracking'      => $tracking,
+					'zone'          => $zone,
 					'book_cost'     => $book_cost,
 					'net_cost'      => $net_cost,
 					'delivery_date' => $del_date,
 //					'dim_weight'    => $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber,
 //					'billed_weight' => $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber,
 				);
-				if ($key == 0) {
-					$sInfo->master_tracking = $response->CompletedShipmentDetail->MasterTrackingId;
-				}
-
-				$label = $response->CompletedShipmentDetail->CompletedPackageDetails->Label->Parts->Image;
-				if ($label) {
+				if (sizeof($labels) > 0) {
+				  $cnt       = 0;
+				  $date      = explode('-',$sInfo->ship_date);
+				  $file_path = SHIPPING_DEFAULT_LABEL_DIR.$this->code.'/'.$date[0].'/'.$date[1].'/'.$date[2].'/';
+				  validate_path($file_path);
+				  foreach ($labels as $label) {
 					$this->returned_label = $label;
-					$date = explode('-',$sInfo->ship_date); // date format YYYY-MM-DD
-					$file_path = SHIPPING_DEFAULT_LABEL_DIR . $this->code . '/' . $date[0] . '/' . $date[1] . '/' . $date[2] . '/';
-					validate_path($file_path);
 					// check for label to be for thermal printer or plain paper
-					if (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') {
-						// keep the thermal label encoded for now
-						$file_name = $fedex_results[$key]['tracking'] . '.lpt'; // thermal printer
+					if (!$is_ltl && MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') { // keep the thermal label encoded for now
+						$file_name = $tracking . ($cnt > 0 ? '-'.$cnt : '') . '.lpt'; // thermal printer
 					} else {
-						$file_name = $fedex_results[$key]['tracking'] . '.pdf'; // plain paper
+						$file_name = $tracking . ($cnt > 0 ? '-'.$cnt : '') . '.pdf'; // plain paper
 					}
 					if (!$handle = fopen($file_path . $file_name, 'w')) { 
 						$messageStack->add('Cannot open file (' . $file_path . $file_name . ')','error');
@@ -561,7 +579,9 @@ class fedex_v7 {
 						return false;
 					}
 					fclose($handle);
-					$messageStack->add_session('Successfully retrieved the FedEx shipping label. Tracking # ' . $fedex_results[$key]['tracking'],'success');
+					$cnt++;
+//					$messageStack->add_session('Successfully retrieved the FedEx shipping label. Tracking # ' . $fedex_results[$key]['tracking'],'success');
+				  }
 				} else {
 					$messageStack->add('Error - No label found in return string.','error');
 					return false;				
@@ -576,20 +596,22 @@ class fedex_v7 {
 			  }
 			  $messageStack->add(SHIPPING_FEDEX_V7_RATE_ERROR . $message, 'error');
 			  return false;
-		  }
-		} catch (SoapFault $exception) {
+		    }
+		  } catch (SoapFault $exception) {
 //echo 'Request <pre>' . htmlspecialchars($client->__getLastRequest()) . '</pre>';  
 //echo 'Response <pre>' . htmlspecialchars($client->__getLastResponse()) . '</pre>';
-		  $message = " [label soap fault] ({$exception->faultcode}) {$exception->faultstring}";
-		  $messageStack->add(SHIPPING_FEDEX_CURL_ERROR . $message, 'error');
-		  return false;
-		}
-	  }
-	  return $fedex_results;
+		    $message = " [label soap fault] ({$exception->faultcode}) {$exception->faultstring}";
+		    $messageStack->add(SHIPPING_FEDEX_CURL_ERROR . $message, 'error');
+		    return false;
+		  }
+	    }
+		return $fedex_results;
 	}
 
 	function FormatFedExShipRequest($pkg, $key) {
 		global $ZONE001_DEFINES, $debug, $currencies;
+		// process different for freight than express
+		$is_freight = (in_array($pkg->ship_method, array('GndFrt','EcoFrt')) && MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER) ? true : false;
 		$request['WebAuthenticationDetail'] = array(
 			'UserCredential' => array(
 			  'Key'      => MODULE_SHIPPING_FEDEX_V7_AUTH_KEY,
@@ -601,11 +623,11 @@ class fedex_v7 {
 		  'MeterNumber'   => MODULE_SHIPPING_FEDEX_V7_METER_NUMBER,
 		);
 		$request['TransactionDetail'] = array(
-		  'CustomerTransactionId' => '*** FedEx Shipping Request - V7 ***',
+		  'CustomerTransactionId' => '*** FedEx Shipping Request ***',
 		);
 		$request['Version'] = array( // version 7
 		  'ServiceId'    => 'ship', 
-		  'Major'        => '7', 
+		  'Major'        => MODULE_SHIPPING_FEDEX_SHIP_WSDL_VERSION, 
 		  'Intermediate' => '0', 
 		  'Minor'        => '0',
 		);
@@ -624,7 +646,7 @@ class fedex_v7 {
 			'PhoneNumber'         => COMPANY_TELEPHONE1,
 		  ),
 		  'Address' => array(
-		    'StreetLines' => array(
+			'StreetLines' => array(
 			  '0' => COMPANY_ADDRESS1,
 			  '1' => COMPANY_ADDRESS2,
 			),        
@@ -641,42 +663,180 @@ class fedex_v7 {
 			'PhoneNumber'         => strip_alphanumeric($pkg->ship_telephone1),
 		  ),
 		  'Address' => array (
-		    'StreetLines' => array(
+			'StreetLines' => array(
 			  '0' => remove_special_chars($pkg->ship_address1),
 			  '1' => remove_special_chars($pkg->ship_address2),
 			),        
 			'City'                => strtoupper($pkg->ship_city_town),
 			'StateOrProvinceCode' => ($pkg->ship_country_code == 'US') ? strtoupper($pkg->ship_state_province) : '',
 			'PostalCode'          => strip_alphanumeric($pkg->ship_postal_code),
-			'CountryCode'         => $pkg->ship_country_code,
+			'CountryCode'         => gen_get_country_iso_2_from_3($pkg->ship_country_code),
+			'Residential'         => $pkg->residential_address ? '1' : '0',
 		  ),
 		);
-		if ($pkg->residential_address) $request['RequestedShipment']['Recipient']['Address']['Residential'] = 1;
 		$request['RequestedShipment']['ShippingChargesPayment'] = array(
-		  'PaymentType' => $this->PaymentMap[$pkg->bill_charges],
+		  'PaymentType'   => $this->PaymentMap[$pkg->bill_charges],
 		);
-		$pay_acct = ($pkg->bill_charges == '1' || $pkg->bill_charges == '2') ? $pkg->bill_acct : MODULE_SHIPPING_FEDEX_V7_ACCOUNT_NUMBER;
+		$pay_acct = MODULE_SHIPPING_FEDEX_V7_ACCOUNT_NUMBER;
+		if ($pkg->bill_charges == '1' || $pkg->bill_charges == '2') $pay_acct = $pkg->bill_acct;
 		$request['RequestedShipment']['ShippingChargesPayment']['Payor'] = array(
 		  'AccountNumber' => $pay_acct,
 		  'CountryCode'   => 'US',
 		);
-		if ($pkg->cod) {
-  		  $request['RequestedShipment']['SpecialServicesRequested'] = array(
-		    'SpecialServiceTypes' => array(
-		      'COD',
-		    ),
-		    'CodDetail' => array(
-		      'CollectionType' => $this->CODMap[$pkg->cod_payment_type],
-		    ),
-		  );
+		if ($is_freight) {
+//			$request['ClientDetail']['AccountNumber'] = MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER; // causes acct and meter not consistent error
+			$request['RequestedShipment']['FreightShipmentDetail'] = array(
+				'FedExFreightAccountNumber' => MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER,
+				'FedExFreightBillingContactAndAddress' => array(
+				  'Contact' => array(
+					'PersonName'          => AR_CONTACT_NAME,
+					'CompanyName'         => COMPANY_NAME,
+					'PhoneNumber'         => COMPANY_TELEPHONE1,
+				  ),
+				  'Address' => array(
+					'StreetLines'         => COMPANY_ADDRESS1,
+					'City'                => COMPANY_CITY_TOWN,
+					'StateOrProvinceCode' => COMPANY_ZONE,
+					'PostalCode'          => COMPANY_POSTAL_CODE,
+					'CountryCode'         => gen_get_country_iso_2_from_3(COMPANY_COUNTRY),
+				  ),
+				),
+//				'PrintedReferences' => array(
+//				  'Type' => 'SHIPPER_ID_NUMBER',
+//				  'Value' => 'RBB1057',
+//				),
+				'Role'                 => 'SHIPPER', // valid values are SHIPPER, THIRD_PARTY, and CONSIGNEE
+				'PaymentType'          => 'PREPAID', // $pkg->bill_charges // valid values are COLLECT and PREPAID
+				'CollectTermsType'     => 'STANDARD',
+				'DeclaredValuePerUnit' => array(
+					'Amount'   => $currencies->clean_value($pkg->package[$key]['value']),
+					'Currency' => 'USD',
+				),
+//				'LiabilityCoverageDetail' => array(
+//				  'CoverageType'   => 'NEW',
+//				  'CoverageAmount' => array(
+//					'Currency' => 'USD',
+//					'Amount'   => '50',
+//				  ),
+//				),
+				'TotalHandlingUnits'    => $pkg->ltl_num_pieces,
+//				'ClientDiscountPercent' => 0, // should be actual charge
+				'PalletWeight' => array(
+				  'Units' => substr($pkg->pkg_weight_unit,0,2),
+				  'Value' => $pkg->total_weight,
+				),
+				'ShipmentDimensions' => array(
+				  'Length' => $pkg->package[$key]['length'] < 32 ? 32 : $pkg->package[$key]['length'],
+				  'Width'  => $pkg->package[$key]['width']  < 32 ? 32 : $pkg->package[$key]['width'],
+				  'Height' => $pkg->package[$key]['height'] < 16 ? 16 : $pkg->package[$key]['height'],
+				  'Units'  => $pkg->pkg_dimension_unit,
+				),
+				'LineItems' => array( // assume only one skid at a time
+				  'FreightClass' => 'CLASS_' . $pkg->ltl_class,
+				  'Packaging'    => 'PALLET',
+				  'Description'  => $pkg->ltl_description,
+//				  'ClassProvidedByCustomer' => false,
+				  'HandlingUnits' => $pkg->ltl_num_pieces,
+				  'Pieces' => 1,
+				  'BillOfLaddingNumber' => $pkg->purchase_invoice_id,
+				  'PurchaseOrderNumber' => $pkg->purch_order_id,
+				  'Weight' => array(
+					'Units' => substr($pkg->pkg_weight_unit,0,2),
+					'Value' => $pkg->total_weight,
+				  ),
+				  'Dimensions' => array( // set some minimum dimensions in case defaults are not sent, assume inches for now
+					'Length' => $pkg->package[$key]['length'] < 32 ? 32 : $pkg->package[$key]['length'],
+					'Width'  => $pkg->package[$key]['width']  < 32 ? 32 : $pkg->package[$key]['width'],
+					'Height' => $pkg->package[$key]['height'] < 16 ? 16 : $pkg->package[$key]['height'],
+					'Units'  => $pkg->pkg_dimension_unit,
+				  ),
+//				  'Volume' => array(
+//					'Units' => 'CUBIC_FT',
+//					'Value' => 30
+//				  ),
+				),
+			);
+		} else { // provide small package/express freight details
+			$pay_acct = ($pkg->bill_charges == '1' || $pkg->bill_charges == '2') ? $pkg->bill_acct : MODULE_SHIPPING_FEDEX_V7_ACCOUNT_NUMBER;
+			if ($pkg->cod) {
+			  $request['RequestedShipment']['SpecialServicesRequested'] = array(
+				'SpecialServiceTypes' => array(
+				  'COD',
+				),
+				'CodDetail' => array(
+				  'CollectionType' => $this->CODMap[$pkg->cod_payment_type],
+				),
+			  );
+			}
+			if ($pkg->saturday_delivery) {
+			  $request['RequestedShipment']['SpecialServicesRequested']['SpecialServiceTypes'][] = 'SATURDAY_DELIVERY';
+			}
+			if ($key > 0) { // link to the master package
+			  $request['RequestedShipment']['MasterTrackingId'] = $pkg->master_tracking;
+			}
+			$request['RequestedShipment']['RequestedPackageLineItems'] = array(
+			  'SequenceNumber' => $key + 1,
+			  'InsuredValue' => array(
+				'Amount'   => $currencies->clean_value($pkg->package[$key]['value']),
+				'Currency' => 'USD',
+			  ),
+			  'Weight' => array(
+				'Value' => number_format($pkg->package[$key]['weight'], 1),
+				'Units' => substr($pkg->pkg_weight_unit,0,2),
+			  ),
+			  'Dimensions' => array(
+				'Length' => $pkg->package[$key]['length'],
+				'Width'  => $pkg->package[$key]['width'],
+				'Height' => $pkg->package[$key]['height'],
+				'Units'  => $pkg->pkg_dimension_unit,
+			  ),
+			  'CustomerReferences' => array( // valid values CUSTOMER_REFERENCE, INVOICE_NUMBER, P_O_NUMBER and SHIPMENT_INTEGRITY
+				'0' => array(
+				  'CustomerReferenceType' => 'CUSTOMER_REFERENCE',
+				  'Value' => $pkg->purchase_invoice_id . '-' . ($key + 1),
+				), 
+				'1' => array(
+				  'CustomerReferenceType' => 'INVOICE_NUMBER',
+				  'Value' => $pkg->purchase_invoice_id,
+				),
+				'2' => array(
+				  'CustomerReferenceType' => 'P_O_NUMBER',
+				  'Value' => $pkg->purch_order_id,
+				)
+			  ),
+			);
+			if ($pkg->cod) {
+			  $request['RequestedShipment']['RequestedPackageLineItems']['SpecialServicesRequested'] = array(
+				'CodCollectionAmount' => array(
+				  'Amount'   => $pkg->total_amount,
+				  'Currency' => 'USD',
+				),
+				'EMailNotificationDetail' => array(
+				  'Shipper' => array(
+					'EMailAddress'      => COMPANY_EMAIL,
+					'NotifyOnShipment'  => $pkg->email_sndr_ship ? '1' : '0',
+					'NotifyOnException' => $pkg->email_sndr_dlvr ? '1' : '0',
+					'NotifyOnException' => $pkg->email_sndr_excp ? '1' : '0',
+					'Localization"'     => substr($_SESSION['language'], 0, 2),
+				  ),
+				  'Recipient' => array(
+					'EMailAddress'      => $pkg->ship_email,
+					'NotifyOnShipment'  => $pkg->email_rcp_ship ? '1' : '0',
+					'NotifyOnException' => $pkg->email_rcp_dlvr ? '1' : '0',
+					'NotifyOnException' => $pkg->email_rcp_excp ? '1' : '0',
+					'Localization"'     => substr($_SESSION['language'], 0, 2),
+				  ),
+				),
+			  );
+			}
 		}
-		if ($pkg->saturday_delivery) {
-  		  $request['RequestedShipment']['SpecialServicesRequested']['SpecialServiceTypes'][] = 'SATURDAY_DELIVERY';
-		}
-  		$request['RequestedShipment']['LabelSpecification']['LabelFormatType'] = 'COMMON2D';
+		$request['RequestedShipment']['PackageCount']  = count($pkg->package);
+		$request['RequestedShipment']['PackageDetail'] = 'INDIVIDUAL_PACKAGES';                                                                                
+		$request['RequestedShipment']['RateRequestTypes'] = 'LIST'; // valid values ACCOUNT and LIST
+		$request['RequestedShipment']['LabelSpecification']['LabelFormatType'] = 'COMMON2D';
 		$request['RequestedShipment']['LabelSpecification']['CustomerSpecifiedDetail']['MaskedData'] = 'SHIPPER_ACCOUNT_NUMBER';
 		// For thermal labels
-		if (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') {
+		if (!$is_freight && MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') {
 		  $request['RequestedShipment']['LabelSpecification']['ImageType'] = 'EPL2';
   		  $request['RequestedShipment']['LabelSpecification']['LabelStockType'] = LABELORIENTATION_THERMAL;
   		  $request['RequestedShipment']['LabelSpecification']['LabelPrintingOrientation'] = 'TOP_EDGE_OF_TEXT_FIRST';
@@ -709,70 +869,26 @@ class fedex_v7 {
 			  );
 			}
 		  }
+		} elseif ($is_freight) {
+			$request['RequestedShipment']['LabelSpecification']['LabelFormatType']          = 'FEDEX_FREIGHT_STRAIGHT_BILL_OF_LADING';
+			$request['RequestedShipment']['LabelSpecification']['ImageType']                = 'PDF';
+			$request['RequestedShipment']['LabelSpecification']['LabelStockType']           = 'PAPER_LETTER';
+			$request['RequestedShipment']['LabelSpecification']['LabelPrintingOrientation'] = 'TOP_EDGE_OF_TEXT_FIRST';
+			$request['RequestedShipment']['ShippingDocumentSpecification'] = array(
+				'ShippingDocumentTypes'     => array('FREIGHT_ADDRESS_LABEL'),
+				'FreightAddressLabelDetail' => array(
+					'Format' => array(
+						'ImageType'          => 'PDF',
+						'StockType'          => 'PAPER_4X6',
+						'ProvideInstuctions' => '0',
+					),
+		            'Copies' => '1',
+				),
+			);
+//echo 'FedEx Express XML Label Submit String:'; print_r($request); echo '<br />';
 		} else {
-  		  $request['RequestedShipment']['LabelSpecification']['ImageType'] = 'PDF';
-  		  $request['RequestedShipment']['LabelSpecification']['LabelStockType'] = LABELORIENTATION_PDF;
-		}
-  		$request['RequestedShipment']['RateRequestTypes'] = array('LIST'); // valid values ACCOUNT and LIST
-		if ($key > 0) { // link to the master package
-		  $request['RequestedShipment']['MasterTrackingId'] = $pkg->master_tracking;
-		}
-  		$request['RequestedShipment']['PackageCount']  = count($pkg->package);
-  		$request['RequestedShipment']['PackageDetail'] = 'INDIVIDUAL_PACKAGES';                                                                                
-		$request['RequestedShipment']['RequestedPackageLineItems'] = array(
-		  'SequenceNumber' => $key + 1,
-		  'InsuredValue' => array(
-		    'Amount'   => $currencies->clean_value($pkg->package[$key]['value']),
-			'Currency' => 'USD',
-		  ),
-		  'Weight' => array(
-		    'Value' => number_format($pkg->package[$key]['weight'], 1),
-			'Units' => substr($pkg->pkg_weight_unit,0,2),
-		  ),
-		  'Dimensions' => array(
-			'Length' => $pkg->package[$key]['length'],
-			'Width'  => $pkg->package[$key]['width'],
-			'Height' => $pkg->package[$key]['height'],
-			'Units'  => $pkg->pkg_dimension_unit,
-		  ),
-		  'CustomerReferences' => array( // valid values CUSTOMER_REFERENCE, INVOICE_NUMBER, P_O_NUMBER and SHIPMENT_INTEGRITY
-		    '0' => array(
-			  'CustomerReferenceType' => 'CUSTOMER_REFERENCE',
-			  'Value' => $pkg->purchase_invoice_id . '-' . ($key + 1),
-			), 
-			'1' => array(
-			  'CustomerReferenceType' => 'INVOICE_NUMBER',
-			  'Value' => $pkg->purchase_invoice_id,
-			),
-			'2' => array(
-			  'CustomerReferenceType' => 'P_O_NUMBER',
-			  'Value' => $pkg->purch_order_id,
-			)
-		  ),
-		);
-		if ($pkg->cod) {
-		  $request['RequestedShipment']['RequestedPackageLineItems']['SpecialServicesRequested'] = array(
-		    'CodCollectionAmount' => array(
-			  'Amount'   => $pkg->total_amount,
-			  'Currency' => 'USD',
-			),
-			'EMailNotificationDetail' => array(
-			  'Shipper' => array(
-			    'EMailAddress'      => COMPANY_EMAIL,
-			    'NotifyOnShipment'  => $pkg->email_sndr_ship ? '1' : '0',
-				'NotifyOnException' => $pkg->email_sndr_dlvr ? '1' : '0',
-				'NotifyOnException' => $pkg->email_sndr_excp ? '1' : '0',
-				'Localization"'     => substr($_SESSION['language'], 0, 2),
-			  ),
-			  'Recipient' => array(
-			    'EMailAddress'      => $pkg->ship_email,
-			    'NotifyOnShipment'  => $pkg->email_rcp_ship ? '1' : '0',
-				'NotifyOnException' => $pkg->email_rcp_dlvr ? '1' : '0',
-				'NotifyOnException' => $pkg->email_rcp_excp ? '1' : '0',
-				'Localization"'     => substr($_SESSION['language'], 0, 2),
-			  ),
-			),
-		  );
+			$request['RequestedShipment']['LabelSpecification']['ImageType'] = 'PDF';
+			$request['RequestedShipment']['LabelSpecification']['LabelStockType'] = LABELORIENTATION_PDF;
 		}
 		return $request;
 	}
@@ -780,10 +896,10 @@ class fedex_v7 {
 // ***************************************************************************************************************
 //								FEDEX DELETE LABEL REQUEST
 // ***************************************************************************************************************
-  function deleteLabel($method = 'FDXE', $shipment_id = '') {
+  function deleteLabel($method = 'FDXE', $tracking_number = '') {
 	global $db, $messageStack;
-	if (!$shipment_id) {
-	  $messageStack->add('Cannot delete shipment, shipment ID was not provided!','error');
+	if (!$tracking_number) {
+	  $messageStack->add('Cannot delete shipment, tracking number was not provided!','error');
 	  return false;
 	}
 	$result = array();
@@ -792,9 +908,6 @@ class fedex_v7 {
 	} else {
 	  $client = new SoapClient(PATH_TO_SHIP_WSDL, array('trace' => 1));
 	}
-	$shipments = $db->Execute("select ship_date, tracking_id from " . TABLE_SHIPPING_LOG . " where shipment_id = " . $shipment_id);
-	while (!$shipments->EOF) {
-	  $tracking_number = $shipments->fields['tracking_id'];
 	  $request = $this->FormatFedExDeleteRequest($method, $tracking_number);
 //echo 'request = '; print_r($request); echo '<br />';  
 	  try {
@@ -802,20 +915,6 @@ class fedex_v7 {
 //echo 'Request <pre>' . htmlspecialchars($client->__getLastRequest()) . '</pre>';  
 //echo 'Response <pre>' . htmlspecialchars($client->__getLastResponse()) . '</pre>';
 		if ($response->HighestSeverity != 'FAILURE' && $response->HighestSeverity != 'ERROR') {
-		  // delete the label file
-		  $date = explode('-',$shipments->fields['ship_date']);
-		  $file_path = DIR_FS_MY_FILES . $_SESSION['company'] . '/shipping/labels/' . $this->code . '/' . $date[0] . '/' . $date[1] . '/' . $date[2] . '/';
-		  if (file_exists($file_path . $shipments->fields['tracking_id'] . '.lpt')) {
-			$file_name = $shipments->fields['tracking_id'] . '.lpt';
-		  } elseif (file_exists($file_path . $shipments->fields['tracking_id'] . '.pdf')) {
-			$file_name = $shipments->fields['tracking_id'] . '.pdf';
-		  } else {
-			$file_name = false; // file does not exist, skip
-		  }
-		  if ($file_name) if (!unlink($file_path . $file_name)) { // only delete if it is there
-			$messageStack->add_session('Trouble removing label file (' . $file_path . $file_name . ')','caution');
-		  }
-		  // if we are here the delete was successful, the lack of an error indicates success
 		  $messageStack->add_session(SHIPPING_FEDEX_V7_DEL_SUCCESS. $tracking_number, 'success');
 		} else {
 		  foreach ($response->Notifications as $notification) {
@@ -835,8 +934,6 @@ class fedex_v7 {
 		$messageStack->add(SHIPPING_FEDEX_CURL_ERROR . $message, 'error');
 		return false;
 	  }
-	  $shipments->MoveNext();
-	}
 	return true;
   }
 
@@ -852,15 +949,22 @@ class fedex_v7 {
 	  'MeterNumber'   => MODULE_SHIPPING_FEDEX_V7_METER_NUMBER,
 	);
 	$request['TransactionDetail'] = array(
-	  'CustomerTransactionId' => '*** FedEx Delete Label Request - V7 ***',
+	  'CustomerTransactionId' => '*** FedEx Delete Label Request ***',
 	);
 	$request['Version'] = array(
 	  'ServiceId'    => 'ship', 
-	  'Major'        => '7', 
+	  'Major'        => MODULE_SHIPPING_FEDEX_SHIP_WSDL_VERSION, 
 	  'Intermediate' => '0', 
 	  'Minor'        => '0',
 	);
-	$request['TrackingId']['TrackingIdType'] = ($method == 'GND' || $method == 'GDR') ? 'GROUND' : 'EXPRESS';
+	switch($method) {
+	  case 'GND':
+	  case 'GDR':    $trackingType = 'GROUND';  break;
+	  case 'GndFrt':
+	  case 'EcoFrt': $trackingType = 'FREIGHT'; break;
+	  default:       $trackingType = 'EXPRESS'; break;
+	}
+	$request['TrackingId']['TrackingIdType'] = $trackingType;
 	$request['TrackingId']['TrackingNumber'] = $tracking_number;
 	$request['DeletionControl'] = 'DELETE_ONE_PACKAGE';
 	return $request;

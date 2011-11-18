@@ -26,7 +26,7 @@ define('MODULE_PHREEBOOKS_DESCRIPTION','The phreebooks module provides double en
 define('MODULE_PHREEBOOKS_NOTES_1','PRIORITY MEDIUM: Enter company information (Company -> Module Administration -> My Company tab)');
 define('MODULE_PHREEBOOKS_NOTES_2','PRIORITY LOW: Set up mail server settings (Company -> Module Administration -> Email tab)');
 define('MODULE_PHREEBOOKS_NOTES_3','PRIORITY HIGH: Change or import chart of accounts from default settings (Company -> Module Administration -> PhreeBooks Module Properties -> Chart of Accounts tab)');
-define('MODULE_PHREEBOOKS_NOTES_4','PRIORITY MEDIUM: Update default general ledger accounts for customer and vendors, after loading GL accounts (Company -> Module Administration -> PhreeeBooks Module Properties -> Customers/Vendors tab)');
+define('MODULE_PHREEBOOKS_NOTES_4','PRIORITY MEDIUM: Update default general ledger accounts for customer and vendors, after loading GL accounts (Company -> Module Administration -> PhreeBooks Module Properties -> Customers/Vendors tab)');
 // General Defines
 define('TEXT_DEFAULT_GL_ACCOUNTS','Default GL Accounts');
 define('TEXT_PAYMENT_TERMS','Payment Terms');
@@ -97,7 +97,7 @@ define('GEN_ADM_TOOLS_BTN_TEST','Test GL Balances');
 define('GEN_ADM_TOOLS_BTN_REPAIR','Repair GL Balance Errors');
 define('GEN_ADM_TOOLS_REPAIR_CONFIRM','Are you sure you want to repair the general ledger balances?\n\nYOU SHOULD PRINT FINANCIAL SATEMENTS AND BACKUP YOUR COMPANY BEFORE DOING THIS!');
 define('GEN_ADM_TOOLS_REPAIR_ERROR_MSG','There is a balance error in period %s account %s values compared: %s with: %s');
-define('GEN_ADM_TOOLS_REPAIR_SUCCESS','You\'re chart of account balances are OK.');
+define('GEN_ADM_TOOLS_REPAIR_SUCCESS','Your chart of accounts are in balance.');
 define('GEN_ADM_TOOLS_REPAIR_ERROR','You should repair the chart balance. NOTE: BACKUP BEFORE YOU REPAIR THE CHART OF ACCOUNTS BALANCES!');
 define('GEN_ADM_TOOLS_REPAIR_COMPLETE','The chart balances have been repaired.');
 define('GEN_ADM_TOOLS_REPAIR_LOG_ENTRY','Repaired GL balances');
@@ -105,7 +105,6 @@ define('GEN_ADM_TOOLS_REPAIR_LOG_ENTRY','Repaired GL balances');
 define('GL_UTIL_HEADING_TITLE', 'General Journal Maintenance, Setup and Utilities');
 define('GL_UTIL_PERIOD_LEGEND','Accounting Periods and Fiscal Years');
 define('GL_UTIL_PURGE_ALL','Purge all Journal Transactions (re-start)');
-define('GL_FISCAL_YEAR','Fiscal Year');
 define('GL_UTIL_FISCAL_YEAR_TEXT','Fiscal period calendar dates can be modified here. Please note that fiscal year dates cannot be changed for any period up to and including the last general journal entry in the system.');
 define('GL_UTIL_PURGE_DB','Delete all Journal Entries (type \'purge\' in the text box and press purge button)<br />');
 define('GL_UTIL_PURGE_DB_CONFIRM','Are you sure you want to clear all journal entries?');
@@ -164,6 +163,7 @@ define('CD_02_12_DESC', 'Default amount to use for customer credit limit. (%s)')
 define('CD_02_13_DESC', 'Percent (%) discount if paid in');
 define('CD_02_14_DESC', 'days. Total due in');
 define('CD_02_15_DESC', 'days.');
+define('APPLY_CUSTOMER_CREDIT_LIMIT_DESC','Whether to require admin aproval for orders over the customers credit limit.');
 
 define('CD_02_16_DESC', 'Sets the start date for account aging.');
 define('CD_02_17_DESC', 'Determines the number of days for the first warning of past due invoices. The period starts from the Account Aging Start Date Field.');

@@ -55,21 +55,6 @@ function build_bom_list($id, $error = false) {
 	return ($store_bal - $qty_owed);
   }
 
-  function inv_sku_inv_accounts($sku) {
-  	global $db;
-	$result = $db->Execute("select account_sales_income, account_inventory_wage, account_cost_of_sales 
-		from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
-	if ($result->RecordCount()) {
-		$gl_accts = array(
-			'sales_income'   => $result->fields['account_sales_income'],
-			'inventory_wage' => $result->fields['account_inventory_wage'],
-			'cost_of_sales'  => $result->fields['account_cost_of_sales']);
-		return $gl_accts;
-	} else {
-		return false;
-	}
-  }
-
   function inv_calculate_prices($item_cost, $full_price, $encoded_price_levels) {
     global $currencies, $messageStack;
 	if (!defined('MAX_NUM_PRICE_LEVELS')) {
@@ -303,14 +288,13 @@ function build_bom_list($id, $error = false) {
 	return $history;
   }
 
-  function inv_calculate_sales_price($qty, $sku_id, $contact_id = 0) {
+  function inv_calculate_sales_price($qty, $sku_id, $contact_id = 0, $type = 'c') {
     global $db, $currencies;
 	if ($contact_id) {
 	  $customer = $db->Execute("select type, price_sheet from " . TABLE_CONTACTS . " where id = '" . $contact_id . "'");
 	  $type = $customer->fields['type'];
 	} else {
 	  $customer->fields['price_sheet'] == '';
-	  $type = 'c'; // assume for now it's a customer price sheet
 	}
 	// get the inventory prices
 	$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v from " . TABLE_INVENTORY . " 

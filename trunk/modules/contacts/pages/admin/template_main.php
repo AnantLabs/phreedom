@@ -35,24 +35,23 @@ $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 echo $toolbar->build_toolbar();
 ?>
-<div class="pageHeading"><?php echo PAGE_TITLE; ?></div>
-
-<ul class="tabset_tabs">
+<h1><?php echo PAGE_TITLE; ?></h1>
+<div id="admintabs">
+<ul>
 <?php
-  echo add_tab_list('add_book',       TEXT_ADDRESS_BOOK,           !$def_tab                  ? true : false);
-  echo add_tab_list('departments',    HR_POPUP_WINDOW_TITLE,       $def_tab=='departments'    ? true : false);
-  echo add_tab_list('dept_types',     SETUP_TITLE_DEPT_TYPES,      $def_tab=='dept_types'     ? true : false);
-  echo add_tab_list('project_costs',  SETUP_TITLE_PROJECTS_COSTS,  $def_tab=='project_costs'  ? true : false);
-  echo add_tab_list('project_phases', SETUP_TITLE_PROJECTS_PHASES, $def_tab=='project_phases' ? true : false);
-  echo add_tab_list('tabs',           TEXT_EXTRA_TABS,             $def_tab=='tabs'           ? true : false);
-  echo add_tab_list('fields',         TEXT_EXTRA_FIELDS,           $def_tab=='fields'         ? true : false);
+  echo add_tab_list('tab_add_book',      TEXT_ADDRESS_BOOK);
+  echo add_tab_list('tab_departments',   HR_POPUP_WINDOW_TITLE);
+  echo add_tab_list('tab_dept_types',    SETUP_TITLE_DEPT_TYPES);
+  echo add_tab_list('tab_project_costs', SETUP_TITLE_PROJECTS_COSTS);
+  echo add_tab_list('tab_project_phases',SETUP_TITLE_PROJECTS_PHASES);
+  echo add_tab_list('tab_tabs',          TEXT_EXTRA_TABS);
+  echo add_tab_list('tab_fields',        TEXT_EXTRA_FIELDS);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
-    echo add_tab_list('custom',       TEXT_CUSTOM_TAB,             $def_tab=='custom'         ? true : false); 
+    echo add_tab_list('tab_custom',      TEXT_CUSTOM_TAB); 
   }
-  echo add_tab_list('statistics',     TEXT_STATISTICS,             $def_tab=='statistics'     ? true : false);
+  echo add_tab_list('tab_stats',         TEXT_STATISTICS);
 ?>
 </ul>
-
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_add_book.php');
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_departments.php');
@@ -66,5 +65,5 @@ echo $toolbar->build_toolbar();
   }
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_stats.php');
 ?>
-
+</div>
 </form>

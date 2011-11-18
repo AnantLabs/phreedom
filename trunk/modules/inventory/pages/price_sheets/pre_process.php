@@ -107,13 +107,14 @@ switch ($action) {
 	  break;
 	}
 	$id = (int)db_prepare_input($_GET['psID']);
-	$result = $db->Execute("select sheet_name, default_sheet from " . TABLE_PRICE_SHEETS . " where id = " . $id);
+	$result = $db->Execute("select sheet_name, type, default_sheet from " . TABLE_PRICE_SHEETS . " where id = " . $id);
 	$sheet_name = $result->fields['sheet_name'];
+	$type       = $result->fields['type'];
 	if ($result->fields['default_sheet'] == '1') $messageStack->add(PRICE_SHEET_DEFAULT_DELETED, 'caution');
 	$db->Execute("delete from " . TABLE_PRICE_SHEETS . " where id = '" . $id . "'");
 	$db->Execute("delete from " . TABLE_INVENTORY_SPECIAL_PRICES . " where price_sheet_id = '" . $id . "'");
 	gen_add_audit_log(PRICE_SHEETS_LOG . TEXT_DELETE, $sheet_name);
-	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('psID', 'action')), 'SSL'));
+	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('psID', 'action')).'&type='.$type, 'SSL'));
 	break;
 
   case 'revise':

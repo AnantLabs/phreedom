@@ -17,16 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /themes/default/config.php
 //
-
-// Set up the theme and conversion from defaults
-define('THEME_NAME','Cool Blue (Default)');
-?>
-
-<?php if ($include_calendar) { // uses spiffyCal calendar ?>
-  <link rel="stylesheet" type="text/css" href="themes/default/includes/spiffyCal/spiffyCal.css" />
-<?php } ?>
-<?php if ($include_header) { ?>
-  <link rel="stylesheet" type="text/css" href="themes/default/css/ddsmoothmenu.css" />
+$theme = array('name' => 'Cool Blue (Default)'); // theme name for display purposes
+$theme_menu_options = array( // available menu location options
+  'top' => TEXT_TOP,
+  'left'=> TEXT_LEFT,
+);
+if ($include_header) { ?>
+  <link rel="stylesheet" type="text/css" href="<?php echo DIR_WS_THEMES.'css/'.MY_COLORS.'/ddsmoothmenu.css'; ?>" />
   <script type="text/javascript" src="themes/default/ddsmoothmenu.js">
   /***********************************************
   * Smooth Navigational Menu- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
@@ -36,72 +33,29 @@ define('THEME_NAME','Cool Blue (Default)');
   </script>
   <script type="text/javascript">
     ddsmoothmenu.init({
-	  mainmenuid: "smoothmenu1", //menu DIV id
-	  orientation: 'h', //Horizontal or vertical menu: Set to "h" or "v"
-	  classname: 'ddsmoothmenu', //class added to menu's outer DIV
-	  //customtheme: ["#1c5a80", "#18374a"],
-	  contentsource: "markup" //"markup" or ["container_id", "path_to_menu_file"]
+	  mainmenuid: "smoothmenu",
+	  orientation: '<?php echo MY_MENU=='left'?'v':'h'?>',
+	  classname: '<?php echo MY_MENU=='left'?'ddsmoothmenu-v':'ddsmoothmenu'?>',
+	  contentsource: "markup"
     })
   </script>
-  <script type="text/javascript"> // start the clock in the toolbar
-    addLoadEvent(startClock);
-    addUnloadEvent(endClock);
-  </script>
-<?php } ?>
-<?php if ($include_tabs) { ?>
- <script type="text/javascript" src="themes/default/includes/tabtastic/tabs.js"></script>
-<?php } ?>
-<?php if ($include_calendar) {
-// create the date format for the calendar (different from php) use only 'dd', 'MM' and 'yyyy'
-$cal_format =  preg_replace(array('/m/', '/d/', '/Y/'), array('MM', 'dd', 'yyyy'), DATE_FORMAT);
-define('DATE_FORMAT_CALENDAR', $cal_format);
+<?php } // end include_header
 
-// wrappers to initialize SpiffyCal, both html and javascript
-function html_calendar_field($properties) {
-  $output  = '<script type="text/javascript">' . chr(10);
-  $output .= $properties['name'] . '.writeControl(); ';
-  if (is_array($properties['params'])) foreach ($properties['params'] as $key => $value) {
-    switch ($key) {
-	  case 'align':    if ($value == 'left') $output .= $properties['name'] . '.displayLeft=true; '; break;
-	  case 'onchange': $output .= $properties['name'] . '.JStoRunOnSelect="' . $value . '"; '; break;
-	  case 'readonly': $output .= $properties['name'] . '.readonly=true; '; break;
-	}
+if ($include_calendar) { // create the date format for the calendar (different from php)
+  $cal_format =  preg_replace(array('/m/','/d/','/Y/'), array('mm', 'dd', 'yy'), DATE_FORMAT);
+  define('DATE_FORMAT_CALENDAR', $cal_format);
+  // load the date format configuration values
+  if      (file_exists(DIR_FS_MODULES . 'phreedom/custom/language/'.$_SESSION['language'].'/datepicker.php')) {
+   include_once       (DIR_FS_MODULES . 'phreedom/custom/language/'.$_SESSION['language'].'/datepicker.php');
+  } elseif(file_exists(DIR_FS_MODULES . 'phreedom/language/'       .$_SESSION['language'].'/datepicker.php')) {
+   include_once       (DIR_FS_MODULES . 'phreedom/language/'       .$_SESSION['language'].'/datepicker.php');
+  } else include_once (DIR_FS_MODULES . 'phreedom/language/en_us/datepicker.php');
+  // wrappers to initialize jquery UI calendar, both javascript and html
+  function js_calendar_init($properties = NULL) {
+	return 'addLoadEvent(function() { $("#'.$properties['fieldname'].'").datepicker(); });';
   }
-  $output .= $properties['name'] . '.dateFormat="' . DATE_FORMAT_CALENDAR . '";' . chr(10);
-  $output .= '</script>' . chr(10);
-  return $output;
-}
-
-function js_calendar_init($properties) {
-  $output  = 'var ' . $properties['name'] . ' = new ctlSpiffyCalendarBox("' . $properties['name'] . '","';
-  $output .= $properties['form']      . '","';
-  $output .= $properties['fieldname'] . '","';
-  $output .= $properties['imagename'] . '","';
-  $output .= $properties['default']   . '",scBTNMODE_CALBTN);' . chr(10);
-  return $output;
-}
-
+  function html_calendar_field($properties = NULL) {
+	return html_input_field($properties['fieldname'], $properties['default']);
+  }
+} /// end include_calendar 
 ?>
-  <script type="text/javascript"> // Calendar translations
-	var month_short_01 = '<?php echo TEXT_JAN; ?>';
-	var month_short_02 = '<?php echo TEXT_FEB; ?>';
-	var month_short_03 = '<?php echo TEXT_MAR; ?>';
-	var month_short_04 = '<?php echo TEXT_APR; ?>';
-	var month_short_05 = '<?php echo TEXT_MAY; ?>';
-	var month_short_06 = '<?php echo TEXT_JUN; ?>';
-	var month_short_07 = '<?php echo TEXT_JUL; ?>';
-	var month_short_08 = '<?php echo TEXT_AUG; ?>';
-	var month_short_09 = '<?php echo TEXT_SEP; ?>';
-	var month_short_10 = '<?php echo TEXT_OCT; ?>';
-	var month_short_11 = '<?php echo TEXT_NOV; ?>';
-	var month_short_12 = '<?php echo TEXT_DEC; ?>';
-	var day_short_1    = '<?php echo TEXT_SUN; ?>';
-	var day_short_2    = '<?php echo TEXT_MON; ?>';
-	var day_short_3    = '<?php echo TEXT_TUE; ?>';
-	var day_short_4    = '<?php echo TEXT_WED; ?>';
-	var day_short_5    = '<?php echo TEXT_THU; ?>';
-	var day_short_6    = '<?php echo TEXT_FRI; ?>';
-	var day_short_7    = '<?php echo TEXT_SAT; ?>';
-  </script>
-  <script type="text/javascript" src="themes/default/includes/spiffyCal/spiffyCal.js"></script>
-<?php } /// end include_calendar ?>

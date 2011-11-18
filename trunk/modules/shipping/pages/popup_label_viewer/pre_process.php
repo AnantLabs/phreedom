@@ -20,20 +20,35 @@
 $security_level = validate_user(0, true);
 /**************   page specific initialization  *************************/
 require_once(DIR_FS_WORKING . 'defaults.php');
-
 /**************   page specific initialization  *************************/
-$method = $_GET['method'];
-$date   = $_GET['date'];
-$labels = $_GET['labels'];
-$labels = explode(':',$labels);
-if (count($labels) == 0) die('No labels were passed to label_viewer.php!');
-$row_size   = intval(100 / count($labels));
-$row_string = '';
-for ($i = 0; $i < count($labels); $i++) $row_string .= $row_size . '%,';
-$row_string = substr($row_string, 0, -1);
-
-$file_path    = SHIPPING_DEFAULT_LABEL_DIR . $method . '/' . str_replace('-', '/', $date) . '/';
-$browser_path = DIR_WS_MY_FILES . $_SESSION['company'] . '/shipping/labels/' . $method . '/' . str_replace('-', '/', $date) . '/';
+$method           = $_GET['method'];
+$date             = $_GET['date'];
+$label_list       = $_GET['labels'];
+$file_path        = SHIPPING_DEFAULT_LABEL_DIR.$method.'/'.str_replace('-', '/', $date).'/';
+$browser_path     = SHIPPING_DEFAULT_LABEL_WS .$method.'/'.str_replace('-', '/', $date).'/';
+$labels           = explode(':',$label_list);
+if (count($labels) == 0) die('No labels were passed to label_viewer!');
+$content_list     = array();
+foreach ($labels as $one_label) {
+  $cnt = 0;
+  while (true) {
+    $label = $one_label . ($cnt > 0 ? '-'.$cnt : '');
+    if (is_file($file_path . $label . '.pdf')) { // PDF format
+	  $content_list[] = $browser_path . $label . '.pdf';
+    } elseif (is_file($file_path . $label . '.lpt')) {  // Thermal label
+  	  $content_list[] = html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=popup_label_image&amp;todo=notify&amp;date=' . $date . '&amp;method=' . $method . '&amp;label=' . $label, 'SSL');
+    } elseif (is_file($file_path . $label . '.gif')) { // GIF image
+	  $content_list[] = $browser_path . $label . '.gif';
+    } else {
+  	  break;
+    }
+	$cnt++;
+  }
+}
+$row_size         = intval(100 / count($content_list));
+$row_string       = '';
+for ($i = 0; $i < count($content_list); $i++) $row_string .= $row_size . '%,';
+$row_string       = substr($row_string, 0, -1);
 
 $custom_html      = true; // need custom header to support frames
 $include_header   = false;

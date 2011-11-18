@@ -19,11 +19,11 @@
 //
 
 ?>
-<div id="pf_field" class="tabset_content">
-<h2 class="tabset_label"><?php echo TEXT_FIELD_SETUP; ?></h2>
-<h2 align="center"><?php echo TEXT_FIELD_SETUP; ?></h2>
-<table align="center"><tr><td>
-  <table id="field_setup" width="100%" cellspacing="0"><thead>
+<div id="tab_field">
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+<tr><td>
+  <table id="field_setup" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
+    <thead class="ui-widget-header">
 	<tr><th id="fieldListHeading" colspan="10"><?php echo TEXT_FIELD_LIST; ?></th></tr>
     <tr>
       <th><?php echo PHREEFORM_TBLFNAME; ?></th>
@@ -37,7 +37,8 @@
       <th><?php echo TEXT_ALIGN; ?></th>
       <th><?php echo TEXT_ACTION; ?></th>
     </tr>
-	</thead><tbody>
+	</thead>
+	<tbody class="ui-widget-content">
 <?php for ($i = 0; $i < sizeof($report->fieldlist); $i++) { ?>
     <tr>
 	  <td><?php echo html_combo_box('fld_fld[]', CreateSpecialDropDown($report), $report->fieldlist[$i]->fieldname, 'onclick="updateFieldList(this)"', '220px', '', 'fld_combo_' . $i); ?></td>
@@ -57,10 +58,12 @@
 	  </td>
     </tr>
 <?php } ?>
-  </tbody></table>
+    </tbody>
+  </table>
 </td>
 <td valign="bottom">
 <?php echo html_icon('actions/list-add.png', TEXT_ADD, 'small', 'onclick="rowAction(\'field_setup\', \'add\')"'); ?>
-</td></tr></table>
+</td></tr>
+</table>
 <?php echo PHREEFORM_FIELD_HELP; ?>
 </div>

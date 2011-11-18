@@ -187,40 +187,34 @@ class fields {
   function build_main_html() {
   	global $db, $messageStack;
 	$tab_array = xtra_field_get_tabs('inventory');
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-    $heading_array = array(
-	  'description' => TEXT_DESCRIPTION,
-	  'field_name'  => TEXT_FLDNAME,
-	  'tab_id'      => TEXT_TAB_NAME,
-	  'entry_type'  => TEXT_TYPE,
+    $content = array();
+	$content['thead'] = array(
+	  'value' => array(TEXT_DESCRIPTION, TEXT_FLDNAME, TEXT_TAB_NAME, TEXT_TYPE, TEXT_ACTION),
+	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
 	);
-	$result     = html_heading_bar($heading_array, $_GET['list_order']);
-	$output    .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output    .= '  </tr>' . chr(10);
 	$field_list = array('id', 'field_name', 'entry_type', 'description', 'tab_id');
-    $query_raw  = "select " . implode(', ', $field_list)  . " from " . TABLE_EXTRA_FIELDS . " where module_id='inventory' order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $result     = $db->Execute($query_raw);
-    while (!$result->EOF) {
-      $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')">' . htmlspecialchars($result->fields['description']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')">' . $result->fields['field_name'] . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')">' . $tab_array[$result->fields['tab_id']] . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')">' . $result->fields['entry_type'] . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')"') . chr(10);
-	  if ($result->fields['tab_id'] && $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 3) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . EXTRA_TABS_DELETE_INTRO . '\')) subjectDelete(\'fields\', ' . $result->fields['id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
+    $result = $db->Execute("select ".implode(', ', $field_list)." from ".TABLE_EXTRA_FIELDS." where module_id='inventory'");
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $actions = '';
+	  if ($_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')"') . chr(10);
+	  if ($result->fields['tab_id'] && $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . EXTRA_TABS_DELETE_INTRO . '\')) subjectDelete(\'fields\', ' . $result->fields['id'] . ')"') . chr(10);
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => htmlspecialchars($result->fields['description']),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['field_name'], 
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $tab_array[$result->fields['tab_id']],
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['entry_type'],
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> 'align="right"'),
+	  );
       $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'fields_list', 'fields') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_FIELDS) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('field_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -245,11 +239,14 @@ class fields {
 	}
 	$disabled = ($cInfo->id !== '0') ? '' : 'disabled="disabled" ';
 	$readonly = ($cInfo->id !== '0') ? '' : 'readonly="readonly" ';
-	$output  = '<table width="100%" border="1" cellspacing="1" cellpadding="1">' . chr(10);
+	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
+	$output .= '  <thead class="ui-widget-header">' . "\n";
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td>' . INV_FIELD_NAME . '</td>' . chr(10);
 	$output .= '	<td>' . html_input_field('field_name', $cInfo->field_name, $readonly . 'size="33" maxlength="32"') . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
 	$output .= '  <tr>' . chr(10);
 	$output .= '	<td colspan="2">' . INV_FIELD_NAME_RULES . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);
@@ -261,7 +258,7 @@ class fields {
 	$output .= '	<td>' . INV_CATEGORY_MEMBER . '</td>' . chr(10);
 	$output .= '	<td>' . html_pull_down_menu('tab_id', $tab_list, $cInfo->tab_id, $disabled) . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);
-	$output .= '  <tr>' . chr(10);
+	$output .= '  <tr class="ui-widget-header">' . chr(10);
 	$output .= '	<th colspan="2">' . INV_HEADING_FIELD_PROPERTIES . '</th>' . chr(10);
 	$output .= '  </tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
@@ -328,6 +325,7 @@ class fields {
 	$output .= '	<td>' . html_radio_field('entry_type', 'time_stamp', ($cInfo->entry_type=='time_stamp' ? true : false), '', $disabled) . '&nbsp;' . INV_LABEL_TIME_STAMP_FIELD . '</td>' . chr(10);
 	$output .= '	<td>' . INV_LABEL_TIME_STAMP_VALUE . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);
+	$output .= '  </tbody>' . "\n";
 	$output .= '</table>' . chr(10);
     return $output;
   }

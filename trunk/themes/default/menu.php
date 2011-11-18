@@ -17,70 +17,58 @@
 // +-----------------------------------------------------------------+
 //  Path: /themes/default/menu.php
 //
-
-if ($include_header) { 
-?>
-<!-- Menu Bar -->
-<div class="headerBar">
-  <div class="headerBarContent" style="float:right;"><a href="<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=logout', 'SSL'); ?>" class="headerLink"><?php echo HEADER_TITLE_LOGOFF; ?></a>&nbsp;</div>
-  <div class="headerBarContent" style="float:right;"><a href="<?php echo html_href_link(FILENAME_DEFAULT, 'module=phreehelp&amp;page=main', 'SSL'); ?>" class="headerLink" target="_blank"><?php echo TEXT_HELP; ?></a>&nbsp;|&nbsp;</div>
-  <div class="headerBarContent" style="float:right;"><a href="<?php echo html_href_link(FILENAME_DEFAULT, '', 'SSL'); ?>" class="headerLink"><?php echo HEADER_TITLE_TOP; ?></a>&nbsp;|&nbsp;</div>
-  <?php // start the left heading fields ?>
-  <?php if (ENABLE_ENCRYPTION && strlen($_SESSION['admin_encrypt']) > 0) {
-  	echo '<div class="headerBarContent" style="float:left;">' . html_icon('emblems/emblem-readonly.png', TEXT_ENCRYPTION_ENABLED, 'small') . '</div>';
-  } ?>
-  <div class="headerBarContent" style="float:left;"><?php echo COMPANY_NAME; ?></div>
-  <div class="headerBarContent" style="float:left;"><?php echo ' | '; ?></div>
-  <div class="headerBarContent" style="float:left;"><?php echo TEXT_ACCOUNTING_PERIOD . ': ' . CURRENT_ACCOUNTING_PERIOD; ?></div>
-  <div class="headerBarContent" style="float:left;"><?php echo ' | '; ?></div>
-  <div class="headerBarContent" id="rtClock" ><?php echo '&nbsp;' . date(DATE_FORMAT, time()); ?></div>
-</div>
-
-<!-- Pull Down Menu -->
-<div id="smoothmenu1" class="ddsmoothmenu">
-<ul>
-<?php
+echo '<!-- Pull Down Menu -->' . chr(10);
+switch (MY_MENU) {
+   case 'left': echo '<div id="smoothmenu" class="ddsmoothmenu-v" style="float:left">'.chr(10); break;
+   case 'top':
+   default:     echo '<div id="smoothmenu" class="ddsmoothmenu">'.chr(10); break;
+}
+echo '  <ul>' . chr(10);
 if (is_array($pb_headings)) {
   ksort($pb_headings); // sorts the category headings with included extra modules
   foreach ($pb_headings as $box) {
-    $sorted_menu  = array();
-	$just_reports = true;
-    foreach ($menu as $item)  {
-	  if (isset($item['heading']) && !$item['hidden']) {
-	    if ($item['heading'] == $box['text'] && $_SESSION['admin_security'][$item['security_id']] > 0) {
-//echo 'text = ' . $item['text'] . '<br>';
-		  $sorted_menu['text'][]    = $item['text'];
-		  $sorted_menu['heading'][] = $item['heading'];
-		  $sorted_menu['rank'][]    = $item['rank'];
-		  $sorted_menu['link'][]    = $item['link'];
-		  if ($item['text'] <> TEXT_REPORTS) $just_reports = false;
-	    }
+    $sorted_menu = array();
+	if ($box['text'] == TEXT_HOME || $box['text'] == TEXT_LOGOUT) {
+	  echo '  <li><a href="'.$box['link'].'">';
+	  if ($box['text']==TEXT_HOME && ENABLE_ENCRYPTION && strlen($_SESSION['admin_encrypt']) > 0) {
+		echo html_icon('emblems/emblem-readonly.png', TEXT_ENCRYPTION_ENABLED, 'small');
 	  }
-    }
-    if (is_array($sorted_menu['rank']) && !$just_reports) {
-	  $result = array_multisort(
+	  echo ($box['icon'] ? $box['icon'].' '.$box['text'] : $box['text']).'</a></li>'.chr(10);
+	} else {
+      $hide_menu   = true;
+      foreach ($menu as $item)  {
+	    if (isset($item['heading']) && !$item['hidden']) {
+	      if ($item['heading'] == $box['text'] && $_SESSION['admin_security'][$item['security_id']] > 0) {
+		    $sorted_menu['text'][]    = $item['text'];
+		    $sorted_menu['heading'][] = $item['heading'];
+		    $sorted_menu['rank'][]    = $item['rank'];
+		    $sorted_menu['link'][]    = $item['link'];
+		    $sorted_menu['params'][]  = $item['params'];
+		    if ($item['text'] <> TEXT_REPORTS) $hide_menu = false;
+	      }
+	    }
+      }
+	  if (is_array($sorted_menu['rank']) && !$hide_menu) {
+	    $result = array_multisort(
 		  $sorted_menu['rank'], SORT_ASC, SORT_NUMERIC, 
 		  $sorted_menu['text'], SORT_ASC, SORT_STRING, 
 		  $sorted_menu['link'], SORT_ASC, SORT_STRING);
-	  if ($result) {
-	    echo '<li><a href="' . $box['link'] . '">' . $box['text'] . '</a>' . chr(10);
-	    echo '  <ul>' . chr(10);
-	    foreach ($sorted_menu['text'] as $key => $item) {
-	      echo '    <li><a href="' . $sorted_menu['link'][$key] . '">' . $item . '</a></li>' . chr(10);
+	    if ($result) {
+	      echo '  <li><a href="'.$box['link'].'">'.$box['text'].'</a>'.chr(10);
+	      echo '    <ul>' . chr(10);
+	      foreach ($sorted_menu['text'] as $key => $item) {
+	        echo '      <li><a href="'.$sorted_menu['link'][$key].'" '.$sorted_menu['params'][$key].'>'.$item.'</a></li>'.chr(10);
+	      }
+	      echo '    </ul>'.chr(10);
+	      echo '  </li>'.chr(10);
+	    } else {
+	      die('Error in multi-sort in header_navigation.php');
 	    }
-	    echo '  </ul>' . chr(10);
-	    echo '  </li>' . chr(10);
-	  } else {
-	    die('Error in multi-sort in header_navigation.php');
-	  }
-    }
+      }
+	}
   }
 }
-
+echo '  </ul>'.chr(10);
+echo '<br style="clear:left" />'.chr(10);
+echo '</div>'.chr(10);
 ?>
-</ul>
-<br style="clear: left" />
-</div>
-<?php } // end if ($include_header) ?>
-
-<?php if ($include_calendar) echo '<div id="spiffycalendar" class="text"></div>'.  chr(10); ?>

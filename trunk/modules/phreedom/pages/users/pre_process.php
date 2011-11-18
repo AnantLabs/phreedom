@@ -34,34 +34,19 @@ switch ($action) {
   case 'save':
   case 'fill_all': 
   case 'fill_role':
-	if ($security_level < 2) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
+	validate_security($security_level, 2);
 	$admin_id  = db_prepare_input($_POST['rowSeq']);
 	$fill_all  = db_prepare_input($_POST['fill_all']);
 	$fill_role = db_prepare_input($_POST['fill_role']);
 	if ($security_level < 3 && $admin_id) $error = $messageStack->add(GEN_ADMIN_CANNOT_CHANGE_ROLES, 'error'); 
 	if ($action == 'fill_role' ) {
 	  $result = $db->Execute("select admin_prefs, admin_security from " . TABLE_USERS . " where admin_id = " . $fill_role);
-	  $admin_prefs    = $result->fields['admin_prefs'];
 	  $admin_security = $result->fields['admin_security'];
 	  $temp = unserialize($result->fields['admin_prefs']);  // fake the input to look like role
 	  foreach ($temp as $key => $value) $_POST[$key] = $value;
 	} else {
-	  $prefs = array(
-	    'def_store_id'    => db_prepare_input($_POST['def_store_id']),
-	    'def_cash_acct'   => db_prepare_input($_POST['def_cash_acct']),
-	    'def_ar_acct'     => db_prepare_input($_POST['def_ar_acct']),
-	    'def_ap_acct'     => db_prepare_input($_POST['def_ap_acct']),
-	    'restrict_store'  => isset($_POST['restrict_store'])  ? '1' : '0',
-	    'restrict_period' => isset($_POST['restrict_period']) ? '1' : '0',
-	  );
-	  $admin_prefs = serialize($prefs);
-	  // not the most elegent but look for a colon in the second character position
-	  $post_keys = array_keys($_POST);
 	  $admin_security = '';
+	  $post_keys = array_keys($_POST);
       foreach ($post_keys as $key) {
 	    if (strpos($key, 'sID_') === 0) { // it's a security setting post
 		  if ($admin_security) $admin_security .= ',';
@@ -69,6 +54,17 @@ switch ($action) {
 	    }
 	  }
 	}
+	$prefs = array(
+	  'role'            => $fill_role,
+	  'def_store_id'    => db_prepare_input($_POST['def_store_id']),
+	  'def_cash_acct'   => db_prepare_input($_POST['def_cash_acct']),
+	  'def_ar_acct'     => db_prepare_input($_POST['def_ar_acct']),
+	  'def_ap_acct'     => db_prepare_input($_POST['def_ap_acct']),
+	  'restrict_store'  => isset($_POST['restrict_store'])  ? $_POST['restrict_store']  : '0',
+	  'restrict_period' => isset($_POST['restrict_period']) ? $_POST['restrict_period'] : '0',
+	);
+	$admin_prefs = serialize($prefs);
+	// not the most elegent but look for a colon in the second character position
 	$sql_data_array = array(
 	  'admin_name'     => db_prepare_input($_POST['admin_name']),
 	  'is_role'        => '0',
@@ -113,11 +109,7 @@ switch ($action) {
 	break;
 
   case 'copy':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
+	validate_security($security_level, 3);
 	$admin_id = db_prepare_input($_GET['cID']);
 	$new_name = db_prepare_input($_GET['name']);
 	// check for duplicate user names
@@ -163,11 +155,7 @@ switch ($action) {
 	break;
 
   case 'delete':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	  break;
-	}
+	validate_security($security_level, 4);
 	$admin_id = (int)db_prepare_input($_POST['rowSeq']);
 	// fetch the name for the audit log
 	$result = $db->Execute("select admin_name from " . TABLE_USERS . " where admin_id = " . $admin_id);

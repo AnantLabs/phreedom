@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/main/pre_process.php
 //
-
 /**************   page specific initialization  *************************/
 $error       = false;
 $contact_js  = '';
@@ -25,6 +24,7 @@ $js_pmt_array= '';
 $js_actions  = '';
 $criteria    = array();
 $search_text = $_POST['search_text'] ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action      = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -89,7 +89,6 @@ require_once(DIR_FS_WORKING . 'functions/contacts.php');
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/main/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'new':
@@ -263,7 +262,28 @@ switch ($action) {
 	  }
 
 	}
-
+	// Check attachments
+	$result = $db->Execute("select attachments from " . TABLE_CONTACTS . " where id = " . $id);
+	$attachments = $result->fields['attachments'] ? unserialize($result->fields['attachments']) : array();
+	$image_id = 0;
+	while ($image_id < 100) { // up to 100 images
+	  if (isset($_POST['rm_attach_'.$image_id])) {
+		@unlink(CONTACTS_DIR_ATTACHMENTS . 'contacts_'.$id.'_'.$image_id.'.zip');
+		unset($attachments[$image_id]);
+	  }
+	  $image_id++;
+	}
+	if (is_uploaded_file($_FILES['file_name']['tmp_name'])) {
+	  // find an image slot to use
+	  $image_id = 0;
+	  while (true) {
+		if (!file_exists(CONTACTS_DIR_ATTACHMENTS . 'contacts_'.$id.'_'.$image_id.'.zip')) break;
+		$image_id++;
+	  }
+	  saveUploadZip('file_name', CONTACTS_DIR_ATTACHMENTS, 'contacts_'.$id.'_'.$image_id.'.zip');
+	  $attachments[$image_id] = $_FILES['file_name']['name'];
+	}
+	
 	if ($error == false) {
 	  $sql_data_array = array(
 		'type'            => $type,
@@ -280,7 +300,8 @@ switch ($action) {
 		'special_terms'   => $special_terms,
 		'price_sheet'     => $price_sheet,
 		'tax_id'          => $tax_id,
-		'last_update'     => 'now()',
+		'attachments'     => sizeof($attachments)>0 ? serialize($attachments) : '',
+	    'last_update'     => 'now()',
 	  );
 	  $xtra_db_fields = $db->Execute("select field_name, entry_type, params 
 	    from " . TABLE_EXTRA_FIELDS . " where tab_id > 0 and module_id='contacts'");
@@ -403,7 +424,7 @@ switch ($action) {
 		  db_perform(TABLE_CONTACTS_LOG, $sql_data_array, 'insert');			
 		}
 		$i++;
-	  }	  
+	  }
 	  // check for deletion of crm notes
 	  if ($_POST['del_crm_note']) {
 		$del_list = substr(trim($_POST['del_crm_note']), 1);
@@ -452,7 +473,7 @@ switch ($action) {
 	$accounts_query_raw = "select " . $query . "c.id, c.short_name, c.inactive, c.contact_first, 
 		c.contact_middle, c.contact_last, c.store_id, c.gl_type_account, 
 		c.gov_id_number, c.dept_rep_id, c.account_number, c.special_terms, c.price_sheet, c.tax_id, 
-		c.first_date, c.last_update, c.last_date_1, c.last_date_2, 
+		c.attachments, c.first_date, c.last_update, c.last_date_1, c.last_date_2, 
 		a.address_id, a.type, a.primary_name, a.contact, 
 		a.address1, a.address2, a.city_town, a.state_province, a.postal_code, 
 		a.country_code, a.telephone1, a.telephone2, 
@@ -520,6 +541,8 @@ switch ($action) {
 	    $result->MoveNext();
 	  }
 	}
+	// load attachments
+	$attachments = $contacts->fields['attachments'] ? unserialize($contacts->fields['attachments']) : array();
 	// load crm notes
 	if ($type == 'i') {
 	  $result = $db->Execute("select log_id, log_date, action, notes from " . TABLE_CONTACTS_LOG . " where contact_id = " . $id);
@@ -553,15 +576,41 @@ switch ($action) {
 	  $db->Execute("delete from " . TABLE_ADDRESS_BOOK  . " where ref_id = " . $id);
 	  $db->Execute("delete from " . TABLE_DATA_SECURITY . " where ref_1 = "  . $id);
 	  $db->Execute("delete from " . TABLE_CONTACTS      . " where id = "     . $id);
+	  foreach (glob(CONTACTS_DIR_ATTACHMENTS.'contacts_'.$id.'_*.zip') as $filename) unlink($filename); // remove attachments
 	  gen_add_audit_log(TEXT_CONTACTS . '-' . TEXT_DELETE . '-' . constant('ACT_' . strtoupper($type) . '_TYPE_NAME'), gen_get_contact_name($id));
 	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	}
 	$messageStack->add(ACT_ERROR_CANNOT_DELETE,'error');
 	break;
 
+  case 'download':
+	$cID   = db_prepare_input($_POST['id']);
+  	$imgID = db_prepare_input($_POST['rowSeq']);
+	$filename = 'contacts_'.$cID.'_'.$imgID.'.zip';
+	if (file_exists(CONTACTS_DIR_ATTACHMENTS . $filename)) {
+	  require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+	  $backup = new backup();
+	  $backup->download(CONTACTS_DIR_ATTACHMENTS, $filename, true);
+	}
+	die;
+
+  case 'dn_attach': // download from list, assume the first document only
+	$cID   = db_prepare_input($_POST['rowSeq']);
+  	$result = $db->Execute("select attachments from " . TABLE_CONTACTS . " where id = " . $cID);
+  	$attachments = unserialize($result->fields['attachments']);
+  	foreach ($attachments as $key => $value) {
+	  $filename = 'contacts_'.$cID.'_'.$key.'.zip';
+	  if (file_exists(CONTACTS_DIR_ATTACHMENTS . $filename)) {
+	    require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+	    $backup = new backup();
+	    $backup->download(CONTACTS_DIR_ATTACHMENTS, $filename, true);
+	    die;
+	  }
+  	}
+
   case 'go_first':    $_GET['list'] = 1;     break;
   case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
+  case 'go_next':     $_GET['list']++;       break; 
   case 'go_last':     $_GET['list'] = 99999; break;
   case 'search':
   case 'search_reset':
@@ -661,7 +710,7 @@ switch ($action) {
 
 	$search = (sizeof($criteria) > 0) ? (' where ' . implode(' and ', $criteria)) : '';
 	$field_list = array('c.id', 'c.inactive', 'c.short_name', 'c.contact_first', 'c.contact_last', 
-		'a.telephone1', 'c.first_date', 'c.last_update', 'c.last_date_1', 'c.last_date_2', 
+		'a.telephone1', 'c.attachments', 'c.first_date', 'c.last_update', 'c.last_date_1', 'c.last_date_2', 
 		'a.primary_name', 'a.address1', 'a.city_town', 'a.state_province', 'a.postal_code');
 	// hook to add new fields to the query return results
 	if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);

@@ -16,7 +16,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /includes/common.js
 //
-
 /******************************* General Functions ****************************************/
 function addLoadEvent(func) { 
   var oldonload = window.onload; 
@@ -26,7 +25,7 @@ function addLoadEvent(func) {
     window.onload = function() { 
 	  if (oldonload) { oldonload(); } 
 	  func(); 
-	} 
+	};
   } 
 } 
 
@@ -38,7 +37,7 @@ function addUnloadEvent(func) {
 	window.onunload = function() { 
 	  if (oldonunload) { oldonunload(); } 
 	  func(); 
-	} 
+	};
   } 
 } 
 
@@ -84,6 +83,22 @@ function setField(field_name, text_value) {
   }
 }
 
+function activeField(field, text_value) {
+  if (field.value == text_value) {
+	  field.style.color = '';
+	  field.value       = '';
+  }
+	}
+
+function inactiveField(field, text_value) {
+  if (field.value == '' || field.value == text_value) {
+	  field.style.color = inactive_text_color;
+	  field.value       = text_value;
+  } else {
+	  field.style.color = '';
+  }
+}
+
 function removeElement(parentDiv, childDiv) {
   if (childDiv == parentDiv) {
     return false;
@@ -119,58 +134,6 @@ function setCheckedValue(radioObj, newValue) {
 	  radioObj[i].checked = true;
 	}
   }
-}
-
-function rowOverEffect(object) {
-  if (object.className == 'dataTableRow') object.className = 'dataTableRowOver';
-}
-
-function rowOutEffect(object) {
-  if (object.className == 'dataTableRowOver') object.className = 'dataTableRow';
-}
-
-var clockID = 0;
-function refreshClock() {
-  if (clockID) {
-    clearTimeout(clockID);
-    clockID = 0;
-  }
-  var currentDate = new Date();
-  var currentHours = new String(currentDate.getHours());
-  if (currentHours.length < 2) currentHours = '0' + currentHours;
-  var currentMinutes = new String(currentDate.getMinutes());
-  if (currentMinutes.length < 2) currentMinutes = '0' + currentMinutes;
-  var currentSeconds = new String(currentDate.getSeconds());
-  if (currentSeconds.length < 2) currentSeconds = '0' + currentSeconds;
-  var currentMonth = new String(currentDate.getMonth()+1);
-  if (currentMonth.length < 2) currentMonth = '0' + currentMonth;
-  var currentDay = new String(currentDate.getDate());
-  if (currentDay.length < 2) currentDay = '0' + currentDay;
-  var currentYear = new String(currentDate.getFullYear());
-  // display via date format
-  var df = date_format; // load the PHP date format string per locale
-  df = df.replace("Y", currentYear);
-  df = df.replace("m", currentMonth);
-  df = df.replace("d", currentDay);
-  if(document.all) { // IE browsers
-    document.getElementById('rtClock').innerText = ' '+df+' '+currentHours+':'+currentMinutes+':'+currentSeconds;
-  } else { //firefox
-    document.getElementById('rtClock').textContent = ' '+df+' '+currentHours+':'+currentMinutes+':'+currentSeconds;
-  }
-  clockID = setTimeout("refreshClock()", 1000);
-}
-
-function startClock() {
-  clockID = setTimeout("refreshClock()", 500);
-  if (sessionAutoRefresh) refreshSessionClock();
-}
-
-function endClock() {
-  if (clockID) {
-    clearTimeout(clockID);
-    clockID = 0;
-  }
-  clearSessionClock();
 }
 
 // Numeric functions
@@ -301,7 +264,7 @@ function dropDownData(id, text) {
 
 function buildDropDown(selElement, data, defValue) {
   // build the dropdown
-  for (i=0; i<data.length; i++) {
+  for (var i=0; i<data.length; i++) {
 	newOpt = document.createElement("option");
 	newOpt.text = data[i].text;
 	document.getElementById(selElement).options.add(newOpt);
@@ -314,7 +277,7 @@ function htmlComboBox(name, values, defaultVal, parameters, width, onChange) {
   var field;
   field = '<input type="text" name="' + name + '" id="' + name + '" value="' + defaultVal + '" ' + parameters + '>';
   field += '<image name="imgName' + name + '" id="imgName' + name + '" src="' + icon_path + '16x16/phreebooks/pull_down_inactive.gif" height="16" width="16" align="absmiddle" style="border:none;" onMouseOver="handleOver(\'imgName' + name + '\'); return true;" onMouseOut="handleOut(\'imgName' + name + '\'); return true;" onclick="JavaScript:cbMmenuActivate(\'' + name + '\', \'combodiv' + name + '\', \'combosel' + name + '\', \'imgName' + name + '\')">';
-  field += '<div id="combodiv' + name + '" style="position:absolute; display:none; top:0px; left:0px; z-index:10000" onmouseover="javascript:oOverMenu=\'combodiv' + name + '\';" onmouseout="javascript:oOverMenu=false;">';
+  field += '<div id="combodiv' + name + '" style="position:absolute; display:none; top:0px; left:0px; z-index:5000" onmouseover="javascript:oOverMenu=\'combodiv' + name + '\';" onmouseout="javascript:oOverMenu=false;">';
   field += '<select size="10" id="combosel' + name + '" style="width:' + width + '; border-style:none" onclick="JavaScript:textSet(\'' + name + '\', this.value); ' + onChange + ';" onkeypress="JavaScript:comboKey(\'' + name + '\', this, event);">';
   field += '</select></div>';
   return field;
@@ -375,7 +338,7 @@ function handleOut(idImg) {
 
 // ***************** START function to build html strings ******************************************
 function buildIcon(imagePath, alt, params) {
-    var image_html = '<img src="' + imagePath + '" border="0" alt="' + alt + '" title="' + alt + '" ' + params + ' />';
+    var image_html = '<img src="' + imagePath + '" alt="' + alt + '" title="' + alt + '" ' + params + ' />';
     return image_html;
 }
 
@@ -389,7 +352,7 @@ function hideLoading() {
 }
 
 function submitToDo(todo, multi_submit) {
-  if (!multi_submit) var multi_submit = false;  
+  if (!multi_submit) multi_submit = false;  
   document.getElementById('todo').value = todo;
   if (!form_submitted && check_form() && !multi_submit) {
 	showLoading();
@@ -401,7 +364,7 @@ function submitToDo(todo, multi_submit) {
 }
 
 function submitSeq(rowSeq, todo, multi_submit) {
-  if (!multi_submit) var multi_submit = false;  
+  if (!multi_submit) multi_submit = false;  
   document.getElementById('rowSeq').value = rowSeq;
   submitToDo(todo, multi_submit);
 }
@@ -420,6 +383,15 @@ function jumpToPage(get_params) {
   var index = document.getElementById('list').selectedIndex;
   var pageNum = document.getElementById('list').options[index].value;
   location.href = 'index.php?'+get_params+'&list='+pageNum;
+}
+
+function checkEnter(e) {
+  if(window.event) { // IE
+    keycode = event.keyCode;
+  } else if (e.which) { // Netscape/Firefox/Opera
+    keycode = e.which;
+  }
+  if (keycode == 13) document.getElementById('search_text').form.submit();
 }
 
 // ajax wrappers
@@ -467,61 +439,6 @@ function processTabPage(sXml) {
 }
 
 /************************ Folder Navigation Functions **********************************/
-/*
-window.onload = function() {
- document.onmousedown = startDrag;
- document.onmouseup   = stopDrag;
-}
-*/
-var drag   = false;
-var dragID = false;
-var coordX = 0;
-var coordY = 0;
-
-function startDrag(e){
-if (drag) return; // already dragging
-  if (!e) { var e = window.event }
-  var targ = e.target ? e.target : e.srcElement; // determine target element
-  if (targ.className != 'draggable') return;
-  dragID = targ.id;
-  // calculate event X,Y coordinates
-  offsetX = e.clientX;
-  offsetY = e.clientY;
-  // assign default values for top and left properties
-  if (!targ.style.left) { targ.style.left = '0px' }
-  if (!targ.style.top) { targ.style.top = '0px' }
-  // calculate integer values for top and left properties
-  coordX = parseInt(targ.style.left);
-  coordY = parseInt(targ.style.top);
-  drag = true;
-  // move div element
-  document.onmousemove = dragDiv;
-}
-
-function dragDiv(e) {
-  if (!drag) { return }
-  if (!e) { var e = window.event }
-  var targ = e.target ? e.target : e.srcElement;
-  targ.style.left = coordX+e.clientX-offsetX+'px';
-  targ.style.top  = coordY+e.clientY-offsetY+'px';
-  return false;
-}
-
-function stopDrag(e) {
-//  if (!drag) return;
-  drag = false;
-  if (!e) { var e = window.event }
-  var targ = e.target ? e.target : e.srcElement;
-  NoffsetX = e.clientX;
-  NoffsetY = e.clientY;
-//alert('starting offsetX = '+offsetX+' and offsetY = '+offsetY+' AND ending offsetX = '+NoffsetX+' and offsetY = '+NoffsetY);
-//alert('dragID = '+dragID+' and target id = '+targ.id);
-  dragID = false;
-  // snap back to original position if not valid drop
-//  targ.style.left = coordX + 'px';
-//  targ.style.top  = coordY + 'px';
-}
-
 function Toggle(item) {
   obj = document.getElementById(item);
   if (obj == null) {
@@ -556,7 +473,7 @@ function build_path(id) {
 
 function Expand(tab_type) {
   divs = document.getElementsByTagName("DIV");
-  for (i=0; i<divs.length; i++) {
+  for (var i=0; i<divs.length; i++) {
 	div_id = divs[i].id;
 	if (div_id.substr(0,3) == tab_type) {
 	  divs[i].style.display = "block";
@@ -568,7 +485,7 @@ function Expand(tab_type) {
 
 function Collapse(tab_type) {
   divs=document.getElementsByTagName("DIV");
-  for (i=0; i<divs.length; i++) {
+  for (var i=0; i<divs.length; i++) {
 	div_id = divs[i].id;
 	if (div_id.substr(0,3) == tab_type) {
 	  divs[i].style.display="none";

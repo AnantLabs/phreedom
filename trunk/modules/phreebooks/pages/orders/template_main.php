@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/orders/template_main.php
 //
-// start the form
 echo html_form('orders', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
 $hidden_fields = NULL;
 // include hidden fields
@@ -35,7 +34,9 @@ echo html_hidden_field('item_count',      $order->item_count) . chr(10);
 echo html_hidden_field('weight',          $order->weight) . chr(10);
 echo html_hidden_field('currencies_code', $order->currencies_code) . chr(10);
 echo html_hidden_field('printed',         $order->printed);
-if (!isset($template_options['closed']))        echo html_hidden_field('closed', $order->closed);
+echo html_hidden_field('override_user',   '');
+echo html_hidden_field('override_pass',   '');
+if (!isset($template_options['closed']))        echo html_hidden_field('closed',  $order->closed);
 if (!isset($template_options['waiting']))       echo html_hidden_field('waiting', $order->waiting);
 if (!isset($template_options['terminal_date'])) echo html_hidden_field('terminal_date', $order->terminal_date ? gen_locale_date($order->terminal_date) : '');
 if (!isset($template_options['terms']))         echo html_hidden_field('terms_text', $order->terms_text); // placeholder when not used
@@ -72,7 +73,7 @@ if ($security_level > 1 && in_array(JOURNAL_ID, array(3, 9))) {
   $toolbar->icon_list['cvt_quote']['icon'] = 'emblems/emblem-symbolic-link.png';
   $toolbar->icon_list['cvt_quote']['text'] = JOURNAL_ID == 3 ? ORD_CONVERT_TO_RFQ_PO : ORD_CONVERT_TO_SO_INV;
 }
-if ($security_level > 1 && JOURNAL_ID == 10) {
+if ($security_level > 1 && JOURNAL_ID == 10 && validate_user(SECURITY_ID_PURCHASE_ORDER) > 1) {
   $toolbar->add_icon('cvt_quote', 'onclick="convertSO()"', 13);
   $toolbar->icon_list['cvt_quote']['icon'] = 'emblems/emblem-symbolic-link.png';
   $toolbar->icon_list['cvt_quote']['text'] = ORD_CONVERT_TO_PO;
@@ -103,28 +104,37 @@ if (count($extra_toolbar_buttons) > 0) {
 
 // add the help file index and build the toolbar
 switch(JOURNAL_ID) {
-	case  3: $toolbar->add_help('07.02.04'); break;
-	case  4: $toolbar->add_help('07.02.03'); break;
-	case  6: $toolbar->add_help('07.02.05'); break;
-	case  7: $toolbar->add_help('07.02.07'); break;
-	case  9: $toolbar->add_help('07.03.04'); break;
-	case 10: $toolbar->add_help('07.03.03'); break;
-	case 12: $toolbar->add_help('07.03.05'); break;
-	case 13: $toolbar->add_help('07.03.07'); break;
-	case 18: $toolbar->add_help('07.03.06'); break;
-	case 19: $toolbar->add_help('07.03.06'); break;
-	case 20: $toolbar->add_help('07.02.06'); break;
-	case 21: $toolbar->add_help('07.02.06'); break;
+  case  3: $toolbar->add_help('07.02.04'); break;
+  case  4: $toolbar->add_help('07.02.03'); break;
+  case  6: $toolbar->add_help('07.02.05'); break;
+  case  7: $toolbar->add_help('07.02.07'); break;
+  case  9: $toolbar->add_help('07.03.04'); break;
+  case 10: $toolbar->add_help('07.03.03'); break;
+  case 12: $toolbar->add_help('07.03.05'); break;
+  case 13: $toolbar->add_help('07.03.07'); break;
+  case 18: $toolbar->add_help('07.03.06'); break;
+  case 19: $toolbar->add_help('07.03.06'); break;
+  case 20: $toolbar->add_help('07.02.06'); break;
+  case 21: $toolbar->add_help('07.02.06'); break;
 }
 echo $toolbar->build_toolbar();
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE'); ?></div>
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
+<div id="override_order" title="<?php echo TEXT_CREDIT_LIMIT_TITLE; ?>">
+	<p><?php echo TEXT_CREDIT_LIMIT_DESC; ?></p>
+	<p>
+	  <?php echo TEXT_ADMIN_USER . '&nbsp;' . html_input_field('override_user', '', 'onblur="document.getElementById(\'override_user\').value = this.value;"', true); ?><br />
+	  <?php echo TEXT_ADMIN_PASS . '&nbsp;' . html_password_field('override_pass', '', true, 'onblur="document.getElementById(\'override_pass\').value = this.value;"'); ?>
+	</p>
+	<p align="right"><?php echo html_icon('actions/go-next.png', TEXT_CONTINUE, 'small', 'onclick="checkOverride();"'); ?></p>
+</div>
+<h1><?php echo constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE'); ?></h1>
+<table class="ui-widget" style="width:100%;">
+ <tbody class="ui-widget-content">
   <tr>
     <td>
-	  <table width="100%"  border="0" cellspacing="2" cellpadding="2">
+	  <table class="ui-widget" style="width:100%;">
+	  <tbody>
 	    <tr>
 		  <td width="33%">
 			<?php echo ORD_ACCT_ID . ' ' . html_input_field('search', isset($order->short_name) ? $order->short_name : TEXT_SEARCH, 'size="21" maxlength="20" onfocus="clearField(\'search\', \'' . TEXT_SEARCH . '\')" onblur="setField(\'search\', \'' . TEXT_SEARCH . '\');"');
@@ -143,7 +153,7 @@ echo $toolbar->build_toolbar();
 		    <?php echo html_pull_down_menu('ship_to_select', gen_null_pull_down(), '', 'disabled="disabled" onchange="fillAddress(\'ship\')"'); ?>
 		  </td>
 		  <td width="27%" rowspan="2" valign="top">
-			<table width="100%"  border="0" cellspacing="2" cellpadding="2">
+			<table>
 <?php if (ENABLE_MULTI_CURRENCY) {	// show currency slection pulldown ?>
 			  <tr>
 				<td align="right"><?php echo TEXT_CURRENCY; ?></td>
@@ -175,7 +185,7 @@ echo $toolbar->build_toolbar();
 			  </tr>
 <?php } ?>
 			  <tr>
-				<td class="messageInfo" id="closed_text" align="center" colspan="2"><?php echo '&nbsp;'; ?></td>
+				<td id="closed_text" align="center" colspan="2"><?php echo '&nbsp;'; ?></td>
 			  </tr>
 			</table>
 		  </td>
@@ -227,22 +237,30 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 } ?>
 		  </td>
 		</tr>
+	   </tbody>
 	  </table>
 	</td>
   </tr>
   <tr>
-	<td class="formArea">
-      <table width="100%"  border="1" cellspacing="0" cellpadding="0">
+	<td>
+      <table style="width:100%;">
+		<thead class="ui-widget-header">
         <tr>
-          <th class="dataTableHeadingContent"><?php echo in_array(JOURNAL_ID, array(9,1.,12)) ? ORD_HEADING_NUMBER_4 : TEXT_REFERENCE_NUMBER; ?></th>
-          <?php if (ENABLE_MULTI_BRANCH) echo '<th class="dataTableHeadingContent">' . GEN_STORE_ID . '</th>' . chr(10); ?>
-          <th class="dataTableHeadingContent"><?php echo (in_array(JOURNAL_ID, array(3,4,6,7,9)) ? TEXT_BUYER : TEXT_SALES_REP); ?></th>
-<?php if ($template_options['terms']) echo '<th class="dataTableHeadingContent">' . ACT_TERMS_DUE . '</th>'; ?>
-<?php if ($template_options['terminal_date']) echo '<th class="dataTableHeadingContent">' . (in_array(JOURNAL_ID, array(3,4,9)) ? TEXT_EXPIRATION_DATE : TEXT_SHIP_BY_DATE) . '</th>'; ?>
-          <th class="dataTableHeadingContent"><?php echo DEF_GL_ACCT_TITLE; ?></th>
+          <th><?php echo in_array(JOURNAL_ID, array(6,9,10,12)) ? ORD_HEADING_NUMBER_4 : TEXT_REFERENCE_NUMBER; ?></th>
+          <?php if (JOURNAL_ID==12) echo '<th>' . ORD_HEADING_NUMBER_10 . '</th>' . chr(10); ?>
+          <?php if (ENABLE_MULTI_BRANCH) echo '<th>' . GEN_STORE_ID . '</th>' . chr(10); ?>
+          <th><?php echo (in_array(JOURNAL_ID, array(3,4,6,7,9)) ? TEXT_BUYER : TEXT_SALES_REP); ?></th>
+<?php if ($template_options['terms']) echo '<th>' . ACT_TERMS_DUE . '</th>'; ?>
+<?php if ($template_options['terminal_date']) echo '<th>' . (in_array(JOURNAL_ID, array(3,4,9)) ? TEXT_EXPIRATION_DATE : TEXT_SHIP_BY_DATE) . '</th>'; ?>
+          <th><?php echo DEF_GL_ACCT_TITLE; ?></th>
         </tr>
+        </thead>
+        <tbody class="ui-widget-content">
         <tr>
           <td align="center"><?php echo html_input_field('purch_order_id', $order->purch_order_id, 'size="21" maxlength="20"'); ?></td>
+          <?php if (JOURNAL_ID==12) { ?>
+            <td align="center"><?php echo html_input_field('sales_order_num', $order->sales_order_num, 'readonly="readonly" size="21" maxlength="20"'); ?></td>
+		  <?php } ?>
           <?php if (ENABLE_MULTI_BRANCH) { ?>
             <td align="center"><?php echo html_pull_down_menu('store_id', gen_get_store_ids(), $order->store_id ? $order->store_id : $_SESSION['admin_prefs']['def_store_id']); ?></td>
 		  <?php } ?>
@@ -253,45 +271,46 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 			<?php echo html_pull_down_menu('gl_acct_id', $gl_array_list, $order->gl_acct_id, ''); ?>
           </td>
         </tr>
+		</tbody>
       </table>
 	</td>
   </tr>
   <tr>
-	<td id="productList" class="formArea">
-	  <table width="100%" border="1" cellpadding="1" cellspacing="1">
-	    <thead>
+	<td id="productList">
+      <table style="width:100%;">
+		<thead class="ui-widget-header">
 <?php if (SINGLE_LINE_ORDER_SCREEN) { ?>
         <tr>
-          <th class="dataTableHeadingContent"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_COLUMN_1_TITLE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_COLUMN_2_TITLE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_SKU; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_DESCRIPTION; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_GL_ACCOUNT; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_UNIT_PRICE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo ORD_TAX_RATE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_AMOUNT; ?></th>
+          <th><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+          <th><?php echo TEXT_COLUMN_1_TITLE; ?></th>
+          <th><?php echo TEXT_COLUMN_2_TITLE; ?></th>
+          <th><?php echo TEXT_SKU; ?></th>
+          <th><?php echo TEXT_DESCRIPTION; ?></th>
+          <th><?php echo TEXT_GL_ACCOUNT; ?></th>
+          <th><?php echo TEXT_UNIT_PRICE; ?></th>
+          <th><?php echo ORD_TAX_RATE; ?></th>
+          <th><?php echo TEXT_AMOUNT; ?></th>
         </tr>
 <?php } else { // two line order screen ?>
         <tr>
-          <th rowspan="2" class="dataTableHeadingContent"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_COLUMN_1_TITLE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_COLUMN_2_TITLE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_SKU; ?></th>
-          <th colspan="3" class="dataTableHeadingContent"><?php echo TEXT_DESCRIPTION; ?></th>
-          <th colspan="2" class="dataTableHeadingContent"><?php echo TEXT_PROJECT; ?></th>
+          <th rowspan="2"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+          <th><?php echo TEXT_COLUMN_1_TITLE; ?></th>
+          <th><?php echo TEXT_COLUMN_2_TITLE; ?></th>
+          <th><?php echo TEXT_SKU; ?></th>
+          <th colspan="3"><?php echo TEXT_DESCRIPTION; ?></th>
+          <th colspan="2"><?php echo TEXT_PROJECT; ?></th>
         </tr>
         <tr>
-          <th colspan="3" class="dataTableHeadingContent"><?php echo TEXT_GL_ACCOUNT; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_PRICE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_DISCOUNT; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_UNIT_PRICE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo ORD_TAX_RATE; ?></th>
-          <th class="dataTableHeadingContent"><?php echo TEXT_AMOUNT; ?></th>
+          <th colspan="3"><?php echo TEXT_GL_ACCOUNT; ?></th>
+          <th><?php echo TEXT_PRICE; ?></th>
+          <th><?php echo TEXT_DISCOUNT; ?></th>
+          <th><?php echo TEXT_UNIT_PRICE; ?></th>
+          <th><?php echo ORD_TAX_RATE; ?></th>
+          <th><?php echo TEXT_AMOUNT; ?></th>
         </tr>
 <?php } // end if single line order screen ?>
-	    </thead>
-	    <tbody id="item_table">
+        </thead>
+        <tbody id="item_table" class="ui-widget-content">
 <?php
 		  if ($order->item_rows) {
 			for ($j = 0, $i = 1; $j < count($order->item_rows); $j++, $i++) {
@@ -310,7 +329,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('pstd_' . $i, $order->item_rows[$j]['pstd'], ($item_col_2_enable ? '' : ' readonly="readonly"') . ' size="7" maxlength="6" onchange="updateRowTotal(' . $i . ', true)" style="text-align:right"');
 				// for serialized items, show the icon
-				if (in_array(JOURNAL_ID, array(6,7,12,13,18,20))) echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'align="top" style="cursor:pointer" onclick="serialList(\'serial_' . $i . '\')"');
+				if (in_array(JOURNAL_ID, array(6,7,12,13))) echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'id="imgSerial_'.$i.'" align="top" style="cursor:pointer; display:none;" onclick="serialList(\'serial_' . $i . '\')"');
 				echo '</td>' . chr(10);
 				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('sku_' . $i, $order->item_rows[$j]['sku'], ($sku_enable ? '' : ' readonly="readonly"') . ' size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\')" onblur="setField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\'); loadSkuDetails(0, ' . $i . ')"') . chr(10);
@@ -366,7 +385,8 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   </tr>
   <tr>
     <td>
-	  <table width="100%" border="0" cellspacing="2" cellpadding="0">
+	  <table class="ui-widget" style="width:100%">
+        <tbody class="ui-widget-content">
         <tr>
           <td>&nbsp;</td>
           <td align="right">
@@ -414,7 +434,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   echo '        </td></tr>' . chr(10);
 } ?>
         <tr>
-          <td><?php echo 'Select file to attach: ' . html_file_field('file_name'); ?></td>
+          <td><?php echo TEXT_SELECT_FILE_TO_ATTACH . ' ' . html_file_field('file_name'); ?></td>
           <td align="right">
 <?php echo ($account_type == 'v') ? ORD_PURCHASE_TAX . ' ' : ORD_SALES_TAX . ' '; ?>
 <?php echo ' ' . html_input_field('sales_tax', $currencies->format(($order->sales_tax ? $order->sales_tax : '0.00'), true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" onchange="updateTotalPrices()" style="text-align:right"'); ?>
@@ -431,34 +451,11 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 <?php echo html_input_field('total', $currencies->format($order->total_amount, true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" style="text-align:right"'); ?>
 		  </td>
         </tr>
-        <tr>
-          <td>
-<?php if (isset($payment_modules) && count($payment_modules) <> 0){// rene added payment just for pos
-	echo '<fieldset>';
-    echo '<legend>'. TEXT_PAYMENT_METHOD. '</legend>';
-	echo '<div style="position: relative; height: 100px;">';
-	echo html_pull_down_menu('payment_method', $payment_modules, $order->shipper_code, 'onchange="activateFields()"') . chr(10);
-	$count = 0;
-	foreach ($payment_modules as $pmt_class) {
-	  $value = $pmt_class['id'];
-	  echo '          <div id="pm_' . $count . '" style="visibility:hidden; position:absolute; top:22px; left:1px">' . chr(10);
-	  $disp_fields = $$value->selection();
-	  for ($i=0; $i<count($disp_fields['fields']); $i++) {
-		echo $disp_fields['fields'][$i]['title'] . '<br />' . chr(10);
-		echo $disp_fields['fields'][$i]['field'] . '<br />' . chr(10);
-	  }
-	  echo '          </div>' . chr(10);
-	  $count++;
-	}
-	echo '          	  </div>';
-	echo '</fieldset>';
-} else { echo '&nbsp;'; } ?>
-		  </td>
- 		  <td align="right"></td>
-        </tr>
+        </tbody>
       </table>
     </td>
   </tr>
+ </tbody>
 </table>
 <?php // display the hidden fields that are not used in this rendition of the form
 echo $hidden_fields;

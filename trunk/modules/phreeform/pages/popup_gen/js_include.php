@@ -39,6 +39,9 @@ var tableCount    = 0;
 <?php echo $jsArray; ?>
 
 function init() {
+  $(function() {
+	$('#gentabs').tabs();
+  });
   for (var tables in tableInit) {
     var table = document.getElementById(tableInit[tables]);
     var tableDnD = new TableDnD();

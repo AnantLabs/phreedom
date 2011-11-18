@@ -28,6 +28,7 @@ var num_price_sheets = <?php echo $price_sheets->RecordCount(); ?>;
 var num_price_levels = <?php echo MAX_NUM_PRICE_LEVELS; ?>;
 
 function init() {
+  $(function() { $('#pricetabs').tabs(); });
   <?php if ($action == 'save') echo 'self.close();' ?>
   for (var sheetID=1; sheetID<=num_price_sheets; sheetID++) {
 	updatePrice(sheetID);

@@ -124,7 +124,7 @@ switch ($action) {
 	  gen_add_audit_log(GEN_DB_DATA_BACKUP, TABLE_AUDIT_LOG);
 	  $backup->download($backup->dest_dir, $backup->dest_file); // will not return if successful
 	}
-	$def_tab = 'tools';
+	$default_tab_id = 'tools';
     break;
   case 'clean':
     $carrier   = db_prepare_input($_POST['carrier']);
@@ -135,7 +135,7 @@ switch ($action) {
 	$backup->source_dir  = DIR_FS_MY_FILES . $_SESSION['company'] . '/shipping/labels/' . $carrier . '/' . $fy_year . '/' . $fy_month . '/';
     if ($backup->delete_dir($backup->source_dir, $recursive = true)) $error = true;
 	if (!$error) gen_add_audit_log(GEN_FILE_DATA_CLEAN);
-	$def_tab = 'tools';
+	$default_tab_id = 'tools';
 	break;
   default:
 }

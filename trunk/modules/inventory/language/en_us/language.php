@@ -112,7 +112,7 @@ define('INV_TEXT_UNIT_COST','Unit Cost');
 define('INV_TEXT_CURRENT_VALUE','Current Value');
 define('INV_TEXT_NEW_VALUE','New Value');
 
-define('INV_ADJ_QUANTITY','Adjustment Quantity');
+define('INV_ADJ_QUANTITY','Adj Qty');
 define('INV_REASON_FOR_ADJUSTMENT','Reason for Adjustment');
 define('INV_ADJ_VALUE', 'Adj. Value');
 define('INV_ROUNDING', 'Rounding');
@@ -153,7 +153,13 @@ define('INV_MASTER_STOCK_ATTRIB_ID','ID (Max 2 Chars)');
 define('TEXT_CUSTOMER_DETAILS','Customer Details');
 define('TEXT_VENDOR_DETAILS','Vendor Details');
 define('TEXT_ITEM_DETAILS','Item Details');
-
+define('TEXT_ADJ_ITEMS','%s Items');
+define('TEXT_MULTIPLE_ENTRIES','Multiple Adjustments');
+define('TEXT_TRANSFERS','Transfers');
+define('TEXT_FROM_BRANCH','From Branch');
+define('TEXT_DEST_BRANCH','To Branch');
+define('TEXT_TRANSFER_REASON','Reason for Transfer');
+define('TEXT_TRANSFER_ACCT','Transfer Account');
 
 define('INV_MSG_COPY_INTRO', 'Please enter a new SKU ID to copy to:');
 define('INV_MSG_RENAME_INTRO', 'Please enter a new SKU ID to rename this SKU to:');
@@ -178,18 +184,16 @@ define('ORD_JS_SKU_NOT_UNIQUE','No unique matches for this sku could be found. E
 define('SRVCS_DUPLICATE_SHEET_NAME','The price sheet name already exists. Please enter a new sheet name.');
 define('INV_ERROR_DELETE_HISTORY_EXISTS','Cannot delete this inventory item since there is a record in the inventory_history table.');
 define('INV_ERROR_DELETE_ASSEMBLY_PART','Cannot delete this inventory item since it is part of an assembly.');
-
+define('INV_ADJ_QTY_ZERO','Cannot adjust inventory with a zero quantity!');
 // java script errors and messages
 define('AJAX_INV_NO_INFO','Not enough information was passed to retrieve the item details');
 define('JS_SKU_BLANK', '* The new item needs a SKU or UPC Code\n');
-define('JS_COGS_AUTO_CALC','Unit price will be calculated by the system.');
+define('JS_COGS_AUTO_CALC','Note: For negative quantities, the unit price will be calculated by the system.');
 define('JS_NO_SKU_ENTERED','A SKU value is required.\n');
-define('JS_ADJ_VALUE_ZERO','A non-zero adjustment quantity is required.\n');
 define('JS_ASSY_VALUE_ZERO','A non-zero assembly quantity is required.\n');
 define('JS_NOT_ENOUGH_PARTS','Not enough inventory to assemble the desired quantities');
 define('JS_MS_INVALID_ENTRY','Both ID and Description are required fields. Please enter both values and press OK.');
 define('JS_ERROR_NO_SHEET_NAME','The price sheet name cannot be empty.');
-
 // audit log messages
 define('INV_LOG_ADJ','Inventory Adjustment - ');
 define('INV_LOG_ASSY','Inventory Assembly - ');
@@ -199,7 +203,6 @@ define('INV_LOG_PRICE_MGR','Inventory Price Manager - ');
 define('INV_LOG_TRANSFER','Inv Transfer from %s to %s');
 define('PRICE_SHEETS_LOG','Price Sheet - ');
 define('PRICE_SHEETS_LOG_BULK','Bulk Price Manager - ');
-
 // Price sheets defines
 define('PRICE_SHEET_NEW_TITLE','Create a New Price Sheet');
 define('PRICE_SHEET_EDIT_TITLE','Edit Price Sheet - ');
@@ -215,6 +218,6 @@ define('TEXT_EXPIRATION_DATE','Expiration Date');
 define('TEXT_BULK_EDIT','Load Item Pricing');
 define('TEXT_SPECIAL_PRICING','Special Pricing');
 define('PRICE_SHEET_MSG_DELETE','Are you sure you want to delete this price sheet?');
-define('PRICE_SHEET_DEFAULT_DELETED','The default price seet as been deleted, please select a new price sheet!');
+define('PRICE_SHEET_DEFAULT_DELETED','The default price sheet as been deleted, please select a new price sheet!');
 
 ?>

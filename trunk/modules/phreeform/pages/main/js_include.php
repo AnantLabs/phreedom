@@ -42,9 +42,9 @@ function ReportPopup(action, rID) {
     case 'copy':
     case 'rename':
 	  if (action == 'rename') {
-	    message = '<?php echo PHREEFORM_JS_RPT_COPY; ?>';
-	  } else {
 	    message = '<?php echo PHREEFORM_JS_RPT_RENAME; ?>';
+	  } else {
+	    message = '<?php echo PHREEFORM_JS_RPT_COPY; ?>';
 	  }
 	  var name = prompt(message, '');
 	  if (!name) {

@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/main/template_main.php
 //
-// start the form
 echo html_form('contacts', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo', '')   . chr(10);
@@ -29,11 +28,7 @@ $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
-// pull in extra toolbar overrides and additions
-if (count($extra_toolbar_buttons) > 0) {
-	foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
-}
-// add the help file index and build the toolbar
+if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 switch ($type) {
   case 'c': $toolbar->add_help('07.03.02'); break;
   case 'v': $toolbar->add_help('07.02.02'); break;
@@ -42,50 +37,60 @@ switch ($type) {
 }
 if ($search_text) $toolbar->search_text = $search_text;
 echo $toolbar->build_toolbar($add_search = true);
-
 // Build the page
 ?>
-<div class="pageHeading"><?php echo constant('ACT_' . strtoupper($type) . '_HEADING_TITLE'); ?></div>
+<h1><?php echo constant('ACT_' . strtoupper($type) . '_HEADING_TITLE'); ?></h1>
 <div id="filter_bar">
-<table border="0" cellspacing="0" cellpadding="0">
+<table class="ui-widget" style="border-style:none;">
+ <tbody class="ui-widget-content">
   <tr>
 	<td><?php echo TEXT_FILTERS . '&nbsp;' . TEXT_SHOW_INACTIVE . '&nbsp;' . html_checkbox_field('f0', '1', $f0); ?></td>
-	<td><?php echo '&nbsp;' . html_button_field('apply', TEXT_APPLY, 'onclick="form.submit();"'); ?></td>
+	<td><?php echo '&nbsp;' . html_button_field('apply', TEXT_APPLY, 'onclick="document.forms[0].submit();"'); ?></td>
   </tr>
+ </tbody>
 </table>
 </div>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ACT_' . strtoupper($type) . '_TYPE_NAME')); ?></div>
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
-  <tr class="dataTableHeadingRow"><?php  echo $list_header; ?></tr>
-<?php
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ACT_' . strtoupper($type) . '_TYPE_NAME')); ?></div>
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
+  <tr><?php  echo $list_header; ?></tr>
+ </thead>
+ <tbody class="ui-widget-content">
+  <?php
+  $odd = true;
     while (!$query_result->EOF) {
-	  $bkgnd = ($query_result->fields['inactive']) ? ' style="background-color:pink"' : '';
-?>
-  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">
-    <td class="dataTableContent"<?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['short_name']); ?></td>
-    <td class="dataTableContent"<?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($type == 'e' ? $query_result->fields['contact_first'] . ' ' . $query_result->fields['contact_last'] : $query_result->fields['primary_name']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['address1']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['city_town']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['state_province']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['postal_code']); ?></td>
-	<td class="dataTableContent" onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['telephone1']); ?></td>
-	<td class="dataTableContent" align="right">
+	  $bkgnd          = ($query_result->fields['inactive']) ? ' style="background-color:pink"' : '';
+	  $attach_exists  = $query_result->fields['attachments'] ? true : false;
+  ?>
+  <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
+    <td<?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['short_name']); ?></td>
+    <td<?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($type == 'e' ? $query_result->fields['contact_first'] . ' ' . $query_result->fields['contact_last'] : $query_result->fields['primary_name']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['address1']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['city_town']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['state_province']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['postal_code']); ?></td>
+	<td onclick="submitSeq(<?php echo $query_result->fields['id']; ?>, 'edit')"><?php echo htmlspecialchars($query_result->fields['telephone1']); ?></td>
+	<td align="right">
 <?php
 // build the action toolbar
 	  // first pull in any extra buttons, this is dynamic since each row can have different buttons
 	  if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
-
 	  if ($security_level > 1) echo html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="submitSeq(' . $query_result->fields['id'] . ', \'edit\')"') . chr(10);
+      if ($attach_exists) {
+	    echo html_icon('status/mail-attachment.png', TEXT_DOWNLOAD_ATTACHMENT,'small', 'onclick="submitSeq(' . $query_result->fields['id'] . ', \'dn_attach\', true)"') . chr(10);
+	  }
 	  if ($security_level > 3) echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . ACT_WARN_DELETE_ACCOUNT . '\')) submitSeq(' . $query_result->fields['id'] . ', \'delete\')"') . chr(10);
 ?>
 	</td>
   </tr>
 <?php
       $query_result->MoveNext();
+      $odd = !$odd;
     }
 ?>
+ </tbody>
 </table>
-<div class="page_count_right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div class="page_count"><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ACT_' . strtoupper($type) . '_TYPE_NAME')); ?></div>
+<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
+<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . constant('ACT_' . strtoupper($type) . '_TYPE_NAME')); ?></div>
 </form>

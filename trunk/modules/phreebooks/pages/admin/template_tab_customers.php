@@ -19,11 +19,13 @@
 //
 
 ?>
-<div id="customers" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_CUSTOMER_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_customers">
+  <fieldset>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_DEFAULT_GL_ACCOUNTS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td colspan="3"><?php echo CD_02_01_DESC; ?></td>
 	    <td nowrap="nowrap"><?php echo html_combo_box('ar_default_gl_acct', $ar_chart, $_POST['ar_default_gl_acct'] ? $_POST['ar_default_gl_acct'] : AR_DEFAULT_GL_ACCT, ''); ?></td>
@@ -52,8 +54,13 @@
 	    <td colspan="3"><?php echo CD_02_07_DESC; ?></td>
 	    <td><?php echo html_combo_box('ar_def_dep_liab_acct', $ocl_chart, $_POST['ar_def_dep_liab_acct'] ? $_POST['ar_def_dep_liab_acct'] : AR_DEF_DEP_LIAB_ACCT, ''); ?></td>
 	  </tr>
-
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_PAYMENT_TERMS; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td><?php echo CD_02_11_DESC; ?></td>
 	    <td><?php echo html_checkbox_field('ar_use_credit_limit', $inc_chart, $_POST['ar_use_credit_limit'] ? $_POST['ar_use_credit_limit'] : AR_USE_CREDIT_LIMIT, ''); ?></td>
@@ -71,8 +78,17 @@
 	      <?php echo CD_02_15_DESC; ?>
 		</td>
 	  </tr>
-
+	  <tr>
+	    <td colspan="3"><?php echo APPLY_CUSTOMER_CREDIT_LIMIT_DESC; ?></td>
+	    <td><?php echo html_pull_down_menu('apply_customer_credit_limit', $sel_yes_no, $_POST['apply_customer_credit_limit'] ? $_POST['apply_customer_credit_limit'] : APPLY_CUSTOMER_CREDIT_LIMIT, ''); ?></td>
+	  </tr>
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_ACCOUNT_AGING; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td><?php echo CD_02_20_DESC; ?></td>
 	    <td><?php echo html_input_field('ar_aging_heading_1', $_POST['ar_aging_heading_1'] ? $_POST['ar_aging_heading_1'] : AR_AGING_HEADING_1, ''); ?></td>
@@ -97,8 +113,13 @@
 	    <td><?php echo CD_02_19_DESC; ?></td>
 	    <td><?php echo html_input_field('ar_aging_period_3', $_POST['ar_aging_period_3'] ? $_POST['ar_aging_period_3'] : AR_AGING_PERIOD_3, ''); ?></td>
 	  </tr>
-
+	 </tbody>
+	</table>
+	<table class="ui-widget" style="border-collapse:collapse;width:100%">
+	 <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_PREFERENCES; ?></th></tr>
+	 </thead>
+	 <tbody class="ui-widget-content">
 	  <tr>
 	    <td colspan="3"><?php echo CD_02_24_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('ar_calculate_finance_charge', $sel_yes_no, $_POST['ar_calculate_finance_charge'] ? $_POST['ar_calculate_finance_charge'] : AR_CALCULATE_FINANCE_CHARGE, ''); ?></td>
@@ -119,6 +140,7 @@
 	    <td colspan="3"><?php echo CD_02_50_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('ar_tax_before_discount', $sel_yes_no, $_POST['ar_tax_before_discount'] ? $_POST['ar_tax_before_discount'] : AR_TAX_BEFORE_DISCOUNT, ''); ?></td>
 	  </tr>
+	 </tbody>
 	</table>
   </fieldset>
 </div>

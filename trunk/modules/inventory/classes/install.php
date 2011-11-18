@@ -21,8 +21,8 @@ class inventory_admin {
   function inventory_admin() {
     $this->notes = array();
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.2',
-	  'phreebooks' => '3.2',
+	  'phreedom'   => '3.3',
+	  'phreebooks' => '3.3',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(

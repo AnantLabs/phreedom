@@ -17,46 +17,46 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/main/template_main.php
 //
-
-echo html_form('login', FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=validate', 'post', 'onsubmit="return submit_wait();"');
+$companies = load_company_dropdown();
+$single_company = sizeof($companies)==1 ? true : false; 
+echo html_form('login', FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=validate', 'post', 'onsubmit="return submit_wait();"').chr(10);
+if ($single_company) echo html_hidden_field('company', $companies[0]['id']) . chr(10);
 ?>
-
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td align="center" valign="middle"><p>&nbsp;</p><p>&nbsp;</p>
-	  <table width="600" border="0" cellpadding="0" cellspacing="1" bgcolor="#CCCCCC">
+<div style="margin-left:25%;margin-right:25%;margin-top:50px;">
+	  <table class="ui-widget">
+        <thead class="ui-widget-header">
         <tr height="70">
-          <td align="right"><img src="modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Business Toolkit" height="50" /></td>
+          <th style="text-align:right"><img src="modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Business Toolkit" height="50" /></th>
         </tr>
+        </thead>
+        <tbody class="ui-widget-content">
         <tr>
-          <td bgcolor="#FFFFFF">
-		    <table width="100%" border="0" cellspacing="0" cellpadding="5">
+          <td>
+		    <table>
 			  <tr>
 			    <td colspan="2"><?php echo $messageStack->output(); ?></td>
 			  </tr>
               <tr>
-                <td width="35%" class="main">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_NAME; ?></td>
+                <td width="35%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_NAME; ?></td>
                 <td width="65%"><?php echo html_input_field('admin_name', $_POST['admin_name']); ?></td>
               </tr>
               <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_PASS; ?></td>
                 <td><?php echo html_password_field('admin_pass', ''); ?></td>
               </tr>
+<?php if (!$single_company) { ?>
               <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_COMPANY; ?></td>
                 <td><?php echo html_pull_down_menu('company', load_company_dropdown(), $admin_company); ?></td>
               </tr>
+<?php } ?>
               <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_LANGUAGE; ?></td>
                 <td><?php echo html_pull_down_menu('language', load_language_dropdown(), $admin_language); ?></td>
               </tr>
               <tr>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_THEME; ?></td>
-                <td><?php echo html_pull_down_menu('theme', load_theme_dropdown(), $admin_theme); ?></td>
-              </tr>
-              <tr>
                 <td colspan="2" align="right">
-				  <div id="wait_msg" style="display: none;"><?php echo TEXT_FORM_PLEASE_WAIT; ?></div>
+				  <div id="wait_msg" style="display:none;"><?php echo TEXT_FORM_PLEASE_WAIT; ?></div>
 				  <?php echo html_submit_field('submit', TEXT_LOGIN_BUTTON); ?>
 				</td>
               </tr>
@@ -72,8 +72,7 @@ echo html_form('login', FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;act
             </table>
 	      </td>
         </tr>
+        </tbody>
       </table>
-    <p>&nbsp;</p></td>
-  </tr>
-</table>
+</div>
 </form>

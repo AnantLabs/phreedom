@@ -21,6 +21,7 @@
 // Revision history
 // 2011-07-01 - Added version number for revision control
 define('MODULE_PAYMENT_PAYPAL_NVP_VERSION','3.2');
+gen_pull_language('payment');
 
 class paypal_nvp {
   function paypal_nvp() {
@@ -97,10 +98,17 @@ class paypal_nvp {
     return $html;
   }
 
+  function update() {
+    foreach ($this->keys() as $key) {
+      $field = strtolower($key['key']);
+      if (isset($_POST[$field])) write_configure($key['key'], $_POST[$field]);
+    }
+  }
+
   function javascript_validation() {
     $js = 
 	'  if (payment_method == "' . $this->code . '") {' . "\n" .
-    '    var cc_owner = document.getElementById("paypal_nvp_field_0").value;' . "\n" .
+    '    var cc_owner = document.getElementById("paypal_nvp_field_0").value +" "+document.getElementById("paypal_nvp_field_5").value;' . "\n" .
     '    var cc_number = document.getElementById("paypal_nvp_field_1").value;' . "\n" . 
     '    var cc_cvv = document.getElementById("paypal_nvp_field_4").value;' . "\n" . 
     '    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
@@ -135,7 +143,7 @@ class paypal_nvp {
 	   'page' => MODULE_PAYMENT_CC_TEXT_CATALOG_TITLE,
 	   'fields' => array(
 			array(
-				'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
+				'title' => MODULE_PAYMENT_PAYPAL_NVP_TEXT_CREDIT_CARD_OWNER,
 				'field' => html_input_field('paypal_nvp_field_0', $order->paypal_nvp_field_0, 'size="12" maxlength="25"') . '&nbsp;' . html_input_field('paypal_nvp_field_5', $order->paypal_nvp_field_5, 'size="12" maxlength="25"'),
 			),
 			array(
@@ -165,8 +173,7 @@ class paypal_nvp {
 		return false;
 	}
 
-    include_once(DIR_FS_MODULES . 'phreedom/classes/cc_validation.php');
-
+    include_once(DIR_FS_MODULES . 'payment/classes/cc_validation.php');
     $cc_validation = new cc_validation();
     $result = $cc_validation->validate($_POST['paypal_nvp_field_1'], $_POST['paypal_nvp_field_2'], substr($_POST['paypal_nvp_field_3'], 2), $_POST['paypal_nvp_field_4']);
     $error = '';

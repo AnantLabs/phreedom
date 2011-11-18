@@ -18,11 +18,10 @@
 //  Path: /modules/contacts/pages/main/template_b_notes.php
 //
 ?>
-<div id="cat_notes" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_NOTES; ?></h2>
-  <fieldset class="formAreaTitle">
+<div id="tab_notes">
+  <fieldset>
     <legend><?php echo TEXT_NOTES; ?></legend>
-    <table border="0" width="100%" cellspacing="6" cellpadding="0">
+    <table>
 	  <tr>
 	    <td><?php echo html_textarea_field('bm_notes', 120, 30, $cInfo->bm_notes, $parameters = ''); ?></td>
 	  </tr>

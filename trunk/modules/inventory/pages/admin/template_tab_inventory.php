@@ -15,14 +15,13 @@
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
 // | GNU General Public License for more details.                    |
 // +-----------------------------------------------------------------+
-//  Path: /modules/accounts/pages/admin/template_tab_customer.php
+//  Path: /modules/accounts/pages/admin/template_tab_inventory.php
 //
 
 ?>
-<div id="inventory" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_INVENTORY_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_inventory">
+  <fieldset>
+    <table>
 	  <tr><th colspan="5"><?php echo TEXT_DEFAULT_GL_ACCOUNTS; ?></th></tr>
 	  <tr>
 	    <th><?php echo TEXT_INVENTORY_TYPES;   ?></th>

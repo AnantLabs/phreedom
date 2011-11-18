@@ -17,16 +17,15 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/classes/install.php
 //
-
 class phreebooks_admin {
   function phreebooks_admin() {
 	$this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'  => '3.2',
-	  'contacts'  => '3.4',
-	  'inventory' => '3.2',
-	  'payment'   => '3.2',
-	  'phreeform' => '3.2',
+	  'phreedom'  => '3.3',
+	  'contacts'  => '3.5',
+	  'inventory' => '3.3',
+	  'payment'   => '3.3',
+	  'phreeform' => '3.3',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -46,6 +45,7 @@ class phreebooks_admin {
 	  'AR_DEF_DEP_LIAB_ACCT'           => '2400',
 	  'AR_USE_CREDIT_LIMIT'            => '1',
 	  'AR_CREDIT_LIMIT_AMOUNT'         => '2500.00',
+	  'APPLY_CUSTOMER_CREDIT_LIMIT'    => '0',
 	  'AR_PREPAYMENT_DISCOUNT_PERCENT' => '0',
 	  'AR_PREPAYMENT_DISCOUNT_DAYS'    => '0',
 	  'AR_NUM_DAYS_DUE'                => '30',
@@ -175,7 +175,7 @@ class phreebooks_admin {
 		  printed int(11) NOT NULL default '0',
 		  freight double default '0',
 		  discount double NOT NULL default '0',
-		  shipper_code varchar(16) NOT NULL default '',
+		  shipper_code varchar(20) NOT NULL default '',
 		  terms varchar(32) default '0',
 		  sales_tax double NOT NULL default '0',
 		  tax_auths varchar(16) NOT NULL default '0',
@@ -313,6 +313,19 @@ class phreebooks_admin {
 	  if (!file_exists($path . $dir)) mkdir(DIR_FS_MY_FILES . $_SESSION['company'] . '/phreebooks/orders/', 0755, true);
 	  write_configure('ALLOW_NEGATIVE_INVENTORY', '1');
 	  $db_version = '3.2';
+	}
+  	if ($db_version == '3.2') {
+	  write_configure('APPLY_CUSTOMER_CREDIT_LIMIT', '0'); // flag for using credit limit to authorize orders
+	  $db->Execute("ALTER TABLE ".TABLE_JOURNAL_MAIN." CHANGE `shipper_code` `shipper_code` VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT ''");
+	  require_once(DIR_FS_MODULES . 'phreebooks/defaults.php');
+	  if (is_array(glob(DIR_FS_ADMIN.'PHREEBOOKS_DIR_MY_ORDERS*.zip'))) {
+	  	foreach (glob(DIR_FS_ADMIN.'PHREEBOOKS_DIR_MY_ORDERS*.zip') as $file) {
+	  	  $newfile = str_replace('PHREEBOOKS_DIR_MY_ORDERS', '', $file);
+	  	  $newfile = str_replace(DIR_FS_ADMIN, '', $newfile);
+	  	  rename($file,PHREEBOOKS_DIR_MY_ORDERS.$newfile);
+	    }
+	  }
+	  $db_version = '3.3';
 	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));

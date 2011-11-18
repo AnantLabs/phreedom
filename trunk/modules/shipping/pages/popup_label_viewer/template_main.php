@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/popup_label_viewer/template_main.php
 //
-
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -33,18 +32,11 @@ window.opener.location.reload();
 
 <?php 
 echo '<frameset rows="' . $row_string . '" cols="10%,90%">';
-for ($i = 0; $i < count($labels); $i++) { 
-  if (is_file($file_path . $labels[$i] . '.lpt')) { // Thermal label
-  	$image_src = html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=popup_label_image&amp;todo=notify&amp;date=' . $date . '&amp;method=' . $method . '&amp;label=' . $labels[$i], 'SSL');
-  } elseif (is_file($file_path . $labels[$i] . '.pdf')) { // PDF format
-	$image_src = $browser_path . $labels[$i] . '.pdf';
-  } elseif (is_file($file_path . $labels[$i] . '.gif')) { // GIF image
-	$image_src = $browser_path . $labels[$i] . '.gif';
-  } else {
-  	$image_src = html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=popup_label_image', 'SSL');
-  }
-  echo '<frame name="print_' . $i . '" src="' . html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=popup_label_button&amp;index=' . $i, 'SSL') . '" />';
-  echo '<frame name="content_' . $i . '" src="' . $image_src . '" />';
+$idx = 0;
+foreach ($content_list as $content) { 
+  echo '<frame name="print_' . $idx . '" src="' . html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=popup_label_button&amp;index=' . $idx, 'SSL') . '" />';
+  echo '<frame name="content_' . $idx . '" src="' . $content . '" />';
+  $idx++;
 }
 echo '</frameset>';
 echo '<noframes>';

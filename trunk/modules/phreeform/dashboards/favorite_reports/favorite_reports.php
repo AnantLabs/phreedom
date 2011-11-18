@@ -94,7 +94,7 @@ class favorite_reports extends ctl_panel {
 	$report_id   = db_prepare_input($_POST['report_id']);
 	$result      = $db->Execute("select doc_title from " . TABLE_PHREEFORM . " where id = '" . $report_id . "'");
 	$description = $result->fields['doc_title'];
-	$remove_id   = db_prepare_input($_POST[$this->module_id . '_rId']);
+	$remove_id   = db_prepare_input($_POST['favorite_reports_rId']);
 	// do nothing if no title or url entered
 	if (!$remove_id && $report_id == '') return; 
 	// fetch the current params

@@ -26,9 +26,8 @@ $tax_rates_toolbar->icon_list['print']['show']  = false;
 if ($security_level > 1) $tax_rates_toolbar->add_icon('new', 'onclick="loadPopUp(\'tax_rates_new\', 0)"', $order = 10);
 
 ?>
-<div id="tax_rates" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_TAX_RATES; ?></h2>
+<div id="tab_tax_rates">
   <?php echo $tax_rates_toolbar->build_toolbar(); ?>
-  <div class="pageHeading"><?php echo $tax_rates->title; ?></div>
+  <h1><?php echo $tax_rates->title; ?></h1>
   <div id="tax_rates_content"><?php echo $tax_rates->build_main_html(); ?></div>
 </div>

@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/methods/fedex_v7/label_mgr/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
@@ -54,6 +53,10 @@ function check_form() {
 }
 
 // Insert other page specific functions here.
+function paperPrint() {
+  window.location = "<?php echo html_href_link(FILENAME_DEFAULT, 'module=shipping&page=popup_label_viewer&method=' . $shipping_module . '&date=' . $date . '&labels=' . implode(':',$pdf_list), 'SSL'); ?>";
+}
+
 function addRow() {
 	var cell = new Array(5);
 	var newRow = document.getElementById("item_table").insertRow(-1);
@@ -61,13 +64,12 @@ function addRow() {
 	// NOTE: any change here also need to be made below for reload if action fails
 	cell[0] = '<td align="center">';
 	cell[0] += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'style="cursor:pointer" onclick="if (confirm(\''+image_delete_msg+'\')) removeRow('+rowCnt+');"') + '</td>';
-	cell[1] = '<td class="main" align="center"><input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'" value="1" size="6" maxlength="5" style="text-align:right"></td>';
-	cell[2] = '<td class="main" align="center"><input type="text" name="wt_'+rowCnt+'" id="wt_'+rowCnt+'" value="" size="5" maxlength="4" style="text-align:right" onchange="updateWeight('+rowCnt+')"></td>';
-	cell[3] = '<td class="main" align="center"><input type="text" name="len_'+rowCnt+'" id="len_'+rowCnt+'" value="8" size="5" maxlength="4" style="text-align:right"></td>';
-	cell[4] = '<td class="main" align="center"><input type="text" name="wid_'+rowCnt+'" id="wid_'+rowCnt+'" value="6" size="5" maxlength="4" style="text-align:right"></td>';
-	cell[5] = '<td class="main" align="center"><input type="text" name="hgt_'+rowCnt+'" id="hgt_'+rowCnt+'" value="4" size="5" maxlength="4" style="text-align:right"></td>';
-	cell[6] = '<td class="main" align="center"><input type="text" name="ins_'+rowCnt+'" id="ins_'+rowCnt+'" value="0.00" size="8" maxlength="7" style="text-align:right" onchange="updateWeight('+rowCnt+')"></td>';
-
+	cell[1] = '<td align="center"><input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'" value="1" size="6" maxlength="5" style="text-align:right"></td>';
+	cell[2] = '<td align="center"><input type="text" name="wt_' +rowCnt+'" id="wt_' +rowCnt+'" value="" size="5" maxlength="4" style="text-align:right" onchange="updateWeight('+rowCnt+')"></td>';
+	cell[3] = '<td align="center"><input type="text" name="len_'+rowCnt+'" id="len_'+rowCnt+'" value="8" size="5" maxlength="4" style="text-align:right"></td>';
+	cell[4] = '<td align="center"><input type="text" name="wid_'+rowCnt+'" id="wid_'+rowCnt+'" value="6" size="5" maxlength="4" style="text-align:right"></td>';
+	cell[5] = '<td align="center"><input type="text" name="hgt_'+rowCnt+'" id="hgt_'+rowCnt+'" value="4" size="5" maxlength="4" style="text-align:right"></td>';
+	cell[6] = '<td align="center"><input type="text" name="ins_'+rowCnt+'" id="ins_'+rowCnt+'" value="0.00" size="8" maxlength="7" style="text-align:right" onchange="updateWeight('+rowCnt+')"></td>';
 	var newCell;
 	for (var i=0; i<cell.length; i++) {
 		newCell = newRow.insertCell(-1);
@@ -96,7 +98,7 @@ function updateWeight() {
   var temp;
   var weightTotal = 0;
   var valueTotal = 0;
-  for (var i=1; i<(document.getElementById('item_table').rows.length); i++) {
+  for (var i=1; i<(document.getElementById('item_table').rows.length+1); i++) {
 	temp = parseFloat(cleanCurrency(document.getElementById('wt_'+i).value));
 	tempQty = parseFloat(cleanCurrency(document.getElementById('qty_'+i).value));
   	if (!isNaN(temp)) weightTotal += (tempQty * temp);

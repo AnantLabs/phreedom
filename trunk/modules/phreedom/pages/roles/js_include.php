@@ -26,6 +26,9 @@
 var delete_pushed = false;
 
 function init() {
+	$(function() {
+		$('#accesstabs').tabs();
+	});
 }
 
 function check_form() {

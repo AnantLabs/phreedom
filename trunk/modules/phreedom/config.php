@@ -2,8 +2,8 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010 phreedom, LLC                   |
-// | http://www.phreedom.com                                        |
+// | Copyright (c) 2008, 2009, 2010, 2011 Phreesoft, LLC             |
+// | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -21,14 +21,17 @@
 // 3.0 => 2011-01-15 - Converted from stand-alone PhreeBooks release
 // 3.1 => 2011-04-15 - Bug fixes
 // 3.2 => 2011-08-01 - Bug fixes, added roles
+// 3.3 => 2011-11-15 - Bug fixes, theme re-design, jqueryUI integration
 // Module software version information
-define('MODULE_PHREEDOM_VERSION',  '3.2');
+define('MODULE_PHREEDOM_VERSION',  '3.3');
 // Menu Sort Positions
 define('MENU_HEADING_COMPANY_ORDER',  90);
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_USERS',            1);
 define('SECURITY_ID_IMPORT_EXPORT',    2);
 define('SECURITY_ID_ROLES',            5);
+define('SECURITY_ID_HELP',             6);
+define('SECURITY_ID_MY_PROFILE',       7);
 define('SECURITY_ID_CONFIGURATION',   11); // admin for all modules
 define('SECURITY_ID_BACKUP',          18);
 define('SECURITY_ID_ENCRYPTION',      20);
@@ -48,14 +51,40 @@ define('TABLE_REPORTS',        DB_PREFIX . 'reports');
 define('TABLE_REPORT_FIELDS',  DB_PREFIX . 'report_fields');
 define('TABLE_PROJECT_VERSION',DB_PREFIX . 'project_version');
 // Set the title menu
+$pb_headings[0] = array(
+  'text' => TEXT_HOME,
+  'link' => html_href_link(FILENAME_DEFAULT),
+  'icon' => html_icon('actions/go-home.png', TEXT_HOME, 'small'),
+);
 $pb_headings[MENU_HEADING_COMPANY_ORDER] = array(
-  'text' => MENU_HEADING_COMPANY, 
-  'link' => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;mID=cat_company', 'SSL'));
+  'text' => MENU_HEADING_COMPANY,
+  'link' => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;mID=cat_company', 'SSL'),
+);
+$pb_headings[999] = array(
+  'text' => TEXT_LOGOUT,
+  'link' => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=logout', 'SSL'),
+  'icon' => html_icon('actions/system-log-out.png', TEXT_LOGOUT, 'small'),
+);
 // Set the menus
+$menu[] = array(
+  'text'        => TEXT_HELP,
+  'heading'     => MENU_HEADING_COMPANY,
+  'rank'        => 1,
+  'security_id' => SECURITY_ID_HELP,
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreehelp&amp;page=main', 'SSL'),
+  'params'      => 'target="_blank"',
+);
+$menu[] = array(
+  'text'        => BOX_HEADING_PROFILE,
+  'heading'     => MENU_HEADING_COMPANY,
+  'rank'        => 5,
+  'security_id' => SECURITY_ID_MY_PROFILE,
+  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=profile', 'SSL'),
+);
 $menu[] = array(
   'text'        => BOX_HEADING_CONFIGURATION,
   'heading'     => MENU_HEADING_COMPANY,
-  'rank'        => 1,
+  'rank'        => 10,
   'security_id' => SECURITY_ID_CONFIGURATION, 
   'hidden'      => $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 0 ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=admin', 'SSL'),
@@ -64,7 +93,6 @@ if (DEBUG) $menu[] = array(
   'text'        => BOX_HEADING_DEBUG_DL,
   'heading'     => MENU_HEADING_TOOLS,
   'rank'        => 0,
-  'hide'        => true,
   'security_id' => SECURITY_ID_CONFIGURATION,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=debug', 'SSL'),
 );

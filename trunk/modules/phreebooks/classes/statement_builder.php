@@ -138,7 +138,8 @@ class statement_builder {
 	$TextField = '';
 	foreach($Params as $Temp) {
 	  $fieldname = $Temp->fieldname;
-	  $TextField .= AddSep($this->$fieldname, $Temp->processing);
+      $temp = $Temp->formatting ? ProcessData($this->$fieldname, $Temp->formatting) : $this->$fieldname;
+      $TextField .= AddSep($temp, $Temp->processing);
 	}
 	return $TextField;
   }

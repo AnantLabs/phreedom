@@ -112,7 +112,6 @@ if (!$error) switch ($action) {
 	if ($report->reporttype == 'rpt') {
 	  $report->grpbreak             = isset($_POST['grpbreak'])    ? '1' : '0';
 	  $report->truncate             = isset($_POST['deftrunc']) ? $_POST['deftrunc'] : '0';
-	  $report->totalonly            = $_POST['totalonly'];
 	  $report->page->size           = $_POST['papersize'];
 	  $report->page->orientation    = $_POST['paperorientation'];
 	  $report->page->margin->top    = $_POST['margintop'];
@@ -261,7 +260,7 @@ if (!$error) switch ($action) {
 		    $messageStack->add(PHREEFORM_NODATA . ' The failing sql= ' . $sql, 'caution');
 		    $error = true;
 		  } else {
-		    if ($action == 'exp_csv')            GenerateCSVFile ($ReportData, $report);
+		    if ($action == 'exp_csv')  $output = GenerateCSVFile ($ReportData, $report, $delivery_method);
 		    if ($action == 'exp_html') $output = GenerateHTMLFile($ReportData, $report, $delivery_method);
 		    if ($action == 'exp_pdf')  $output = GeneratePDFFile ($ReportData, $report, $delivery_method);
 		  }

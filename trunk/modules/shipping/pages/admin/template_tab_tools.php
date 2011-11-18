@@ -17,15 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/admin/template_tab_tools.php
 //
-
 ?>
-<div id="tools" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_TOOLS; ?></h2>
-  <fieldset class="formAreaTitle">
-  <table align="center" border="0" cellspacing="2" cellpadding="1">
-    <tr>
-	  <th colspan="2"><?php echo SHIPPING_TOOLS_TITLE; ?></th>
-	</tr>
+<div id="tab_tools">
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto;">
+ <thead class="ui-widget-header">
+    <tr><th colspan="2"><?php echo SHIPPING_TOOLS_TITLE; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
     <tr>
 	  <td colspan="2"><?php echo SHIPPING_TOOLS_CLEAN_LOG_DESC; ?></td>
 	</tr>
@@ -52,6 +50,6 @@
 	  <td align="right"><?php echo html_button_field('backup', GEN_ADM_TOOLS_BTN_BACKUP, 'onclick="submitToDo(\'backup\', true)"'); ?></td>
 	  <td><?php echo html_button_field('clean',  GEN_ADM_TOOLS_BTN_CLEAN,  'onclick="if (confirm(\'' . GEN_ADM_TOOLS_BTN_CLEAN_CONFIRM . '\')) submitToDo(\'clean\')"'); ?></td>
 	</tr>
-  </table>
-  </fieldset>
+  </tbody>
+</table>
 </div>

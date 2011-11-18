@@ -37,6 +37,7 @@ class currency {
 	}
 	$title = db_prepare_input($_POST['title']);
 	$code = strtoupper(db_prepare_input($_POST['code']));
+	if ($_POST['decimal_precise'] == '') $_POST['decimal_precise'] = $_POST['decimal_places'];
 	$sql_data_array = array(
 		'title'           => $title,
 		'code'            => $code,
@@ -135,43 +136,32 @@ class currency {
 
   function build_main_html() {
   	global $db, $messageStack;
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-	$heading_array = array(
-		'title' => SETUP_CURRENCY_NAME,
-		'code'  => SETUP_CURRENCY_CODES,
-		'value' => TEXT_VALUE,
+    $content = array();
+	$content['thead'] = array(
+	  'value'  => array(SETUP_CURRENCY_NAME, SETUP_CURRENCY_CODES, TEXT_VALUE, TEXT_ACTION),
+	  'params' => 'width="100%" cellspacing="0" cellpadding="1"',
 	);
-	$result     = html_heading_bar($heading_array, $_GET['list_order']);
-	$output    .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output    .= '  </tr>' . chr(10);
-	// Build field data
-    $query_raw = "select currencies_id, title, code, symbol_left, symbol_right, decimal_point, thousands_point, decimal_places, last_updated, value 
-	    from " . TABLE_CURRENCIES . " order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $currency = $db->Execute($query_raw);
-    while (!$currency->EOF) {
-      $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      if (DEFAULT_CURRENCY == $currency->fields['code']) {
-        $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'currency_edit\', ' . $currency->fields['currencies_id'] . ')"><b>' . htmlspecialchars($currency->fields['title']) . ' (' . TEXT_DEFAULT . ')</b></td>' . chr(10);
-      } else {
-        $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'currency_edit\', ' . $currency->fields['currencies_id'] . ')">' . htmlspecialchars($currency->fields['title']) . '</td>' . chr(10);
-      }
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'currency_edit\', ' . $currency->fields['currencies_id'] . ')">' . $currency->fields['code'] . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right" onclick="loadPopUp(\'currencies_edit\', ' . $currency->fields['currencies_id'] . ')">' . number_format($currency->fields['value'], 8) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($this->security_id > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'currency_edit\', ' . $currency->fields['currencies_id'] . ')"') . chr(10);
-	  if ($this->security_id > 3 && $currency->fields['code'] <> DEFAULT_CURRENCY) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_CURR_DELETE_INTRO . '\')) subjectDelete(\'currency\', ' . $currency->fields['currencies_id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
-      $currency->MoveNext();
+    $result = $db->Execute("select currencies_id, title, code, symbol_left, symbol_right, decimal_point, thousands_point, decimal_places, last_updated, value 
+	    from " . TABLE_CURRENCIES);
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $actions = '';
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'currency_edit\', ' . $result->fields['currencies_id'] . ')"') . chr(10);
+	  if ($this->security_id > 3 && $result->fields['code'] <> DEFAULT_CURRENCY) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_CURR_DELETE_INTRO . '\')) subjectDelete(\'currency\', ' . $result->fields['currencies_id'] . ')"') . chr(10);
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => DEFAULT_CURRENCY==$result->fields['code'] ? '<b>'.htmlspecialchars($result->fields['title']).' ('.TEXT_DEFAULT.')</b>' : htmlspecialchars($result->fields['title']),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'currency_edit\',\''.$result->fields['currencies_id'].'\')"'),
+		array('value' => $result->fields['code'], 
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'currency_edit\',\''.$result->fields['currencies_id'].'\')"'),
+		array('value' => number_format($result->fields['value'], 8),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'currency_edit\',\''.$result->fields['currencies_id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> 'align="right"'),
+	  );
+      $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'currency_list', 'currency') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . SETUP_TITLE_CURRENCIES) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('currency_table', $content);
   }
 
   function build_form_html($action, $id) {
@@ -183,54 +173,58 @@ class currency {
 	} else {
       $cInfo = new objectInfo($result->fields);
 	}
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow">' . chr(10);
+	$output  = '<table class="ui-widget" style="border-style:none;width:100%">' . chr(10);
+	$output .= '  <thead class="ui-widget-header">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <th colspan="2">' . ($action=='new' ? SETUP_INFO_HEADING_NEW_CURRENCY : SETUP_INFO_HEADING_EDIT_CURRENCY) . '</th>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td colspan="2">' . ($action=='new' ? SETUP_CURR_INSERT_INTRO : SETUP_CURR_EDIT_INTRO) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_TITLE . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('title', $cInfo->title) . '</td>' . chr(10);
+	$output .= '    <td nowrap="nowrap">' . html_input_field('title', $cInfo->title, '', true) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_CODE . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('code', $cInfo->code) . '</td>' . chr(10);
+	$output .= '    <td nowrap="nowrap">' . html_input_field('code', $cInfo->code, '', true) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_SYMBOL_LEFT . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('symbol_left', htmlspecialchars($cInfo->symbol_left)) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_SYMBOL_RIGHT . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('symbol_right', htmlspecialchars($cInfo->symbol_right)) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_DECIMAL_POINT . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('decimal_point', $cInfo->decimal_point) . '</td>' . chr(10);
+	$output .= '    <td nowrap="nowrap">' . html_input_field('decimal_point', $cInfo->decimal_point, '', true) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_THOUSANDS_POINT . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('thousands_point', $cInfo->thousands_point) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_DECIMAL_PLACES . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('decimal_places', $cInfo->decimal_places) . '</td>' . chr(10);
+	$output .= '    <td>' . html_input_field('decimal_places', $cInfo->decimal_places, '', true) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_DECIMAL_PRECISE . '</td>' . chr(10);
-	$output .= '    <td>' . html_input_field('decimal_precise', $cInfo->decimal_precise) . '</td>' . chr(10);
+	$output .= '    <td nowrap="nowrap">' . html_input_field('decimal_precise', $cInfo->decimal_precise, '', true) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_CURRENCY_VALUE . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('value', $cInfo->value) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
 	if (DEFAULT_CURRENCY != $cInfo->code) {
-	  $output .= '  <tr class="dataTableRow">' . chr(10);
+	  $output .= '  <tr>' . chr(10);
 	  $output .= '    <td colspan="2">' . html_checkbox_field('default', 'on', false) . ' ' . SETUP_INFO_SET_AS_DEFAULT . '</td>' . chr(10);
       $output .= '  </tr>' . chr(10);
 	}
+	$output .= '  </tbody>' . "\n";
     $output .= '</table>' . chr(10);
     return $output;
   }

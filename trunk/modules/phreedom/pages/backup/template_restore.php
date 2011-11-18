@@ -17,10 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/backup/template_restore.php
 //
-
-// start the form
-// The entire html is handled through the modified BigDump scrtipt
-
+// The entire html is handled through the modified BigDump script
 // Build the page
 include (DIR_FS_MODULES . 'phreedom/includes/bigdump/bigdump.php');
 ?>

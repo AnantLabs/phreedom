@@ -31,6 +31,9 @@
 <?php echo $js_actions; ?>
 
 function init() {
+  $(function() {
+	$('#detailtabs').tabs();
+  });
   SetDisabled();
 
 <?php if ($include_template == 'template_main.php') {
@@ -65,6 +68,25 @@ function check_form() {
 function changeOptions() {
 	LoadDefaults();
 	SetDisabled();
+}
+
+function downloadAttachment(filename) {
+  var file_name = '<?php echo urlencode(CONTACTS_DIR_ATTACHMENTS); ?>'+filename;
+  $.ajax({
+	type: "GET",
+	contentType: "application/json; charset=utf-8",
+	url: 'index.php?module=phreedom&page=ajax&op=phreedom&action=download&file='+file_name,
+	dataType: ($.browser.msie) ? "text" : "xml",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+    },
+	success: downloadResponse
+  });
+}
+
+function downloadResponse(sXML) {
+	var xml = parseXml(sXml);
+	if (!xml) return; 
 }
 
 function LoadDefaults() {
@@ -363,13 +385,13 @@ function addCRMRow() {
   cell += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', '<?php echo TEXT_DELETE; ?>', 'onclick="if (confirm(\'<?php echo TEXT_CRM_DELETE_MSG; ?>\')) removeCRMRow('+rowCnt+');"') + '</td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell = '<td class="main"><input type="text" name="crm_date_'+rowCnt+'" id="crm_date_'+rowCnt+'" value="<?php echo gen_locale_date(date('Y-m-d')); ?>" /></td>';
+  cell = '<td><input type="text" name="crm_date_'+rowCnt+'" id="crm_date_'+rowCnt+'" value="<?php echo gen_locale_date(date('Y-m-d')); ?>" /></td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell = '<td nowrap="nowrap" class="main"><select name="crm_act_'+rowCnt+'" id="crm_act_'+rowCnt+'"></select></td>';
+  cell = '<td nowrap="nowrap"><select name="crm_act_'+rowCnt+'" id="crm_act_'+rowCnt+'"></select></td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell = '<td class="main"><textarea name="crm_note_'+rowCnt+'" id="crm_note_'+rowCnt+'" cols="50" rows="1" maxlength="255"></textarea></td>';
+  cell = '<td><textarea name="crm_note_'+rowCnt+'" id="crm_note_'+rowCnt+'" cols="50" rows="1" maxlength="255"></textarea></td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
   // populate the drop down

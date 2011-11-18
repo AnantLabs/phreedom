@@ -17,21 +17,21 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/admin/template_tab_methods.php
 //
-
 ?>
-<div id="methods" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_SHIPPING_METHODS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="0" cellpadding="1">
+<div id="tab_methods">
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
 	  <tr>
 	    <th colspan="2"><?php echo TEXT_SHIPPING_MODULES_AVAILABLE; ?></th>
 	    <th><?php echo TEXT_SORT_ORDER; ?></th>
 	    <th><?php echo TEXT_ACTION; ?></th>
 	  </tr>
+ </thead>
+ <tbody class="ui-widget-content">
 <?php 
   if (sizeof($methods) > 0) foreach ($methods as $method) {
     $installed = defined('MODULE_SHIPPING_' . strtoupper($method) . '_STATUS');
-	$bkgnd = $installed ? ' style="background-color:lightgreen"' : '';
+	$bkgnd = $installed ? ' class="ui-state-active"' : '';
 	if (file_exists(DIR_WS_MODULES . 'shipping/methods/' . $method . '/images/logo.png')) {
 	  $logo = DIR_WS_MODULES . 'shipping/methods/' . $method . '/images/logo.png';
 	} elseif (file_exists(DIR_WS_MODULES . 'shipping/methods/' . $method . '/images/logo.jpg')) {
@@ -41,9 +41,9 @@
 	} else {
 	  $logo = DIR_WS_MODULES . 'shipping/images/no_logo.png';
 	}
-	echo '      <tr' . $bkgnd . '>' . chr(10);
+	echo '      <tr>' . chr(10);
 	echo '        <td>' . html_image($logo, constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_TITLE'), $width = '', $height = '32', $params = '') . '</td>' . chr(10);
-	echo '        <td>' . 
+	echo '        <td' . $bkgnd . '>' . 
 		constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_TITLE') . ' - ' . 
 		constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_DESCRIPTION') . 
 		'</td>' . chr(10);
@@ -61,7 +61,7 @@
 	  // load the method properties
 	  require_once($method_dir . $method . '/' . $method . '.php');
 	  $properties = new $method();
-	  echo '      <tr id="prop_' . $method . '" style="display:none"><td colspan="3"><table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
+	  echo '      <tr id="prop_' . $method . '" style="display:none"><td colspan="3"><table width="100%" cellspacing="0" cellpadding="1">' . chr(10);
 	  if (defined('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_INTRODUCTION')) {
 	    echo '<tr><td colspan="2">' . constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_INTRODUCTION') . '</td></tr>';
 	  }
@@ -78,6 +78,6 @@
 	}
   }
 ?>
-	</table>
-  </fieldset>
+  </tbody>
+</table>
 </div>

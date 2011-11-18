@@ -17,10 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/pages/main/template_detail.php
 //
-
-// start the form
-echo html_form('contacts', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
-
+echo html_form('contacts', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
 // include hidden fields
 echo html_hidden_field('todo',        '') . chr(10);
 echo html_hidden_field('f0',         $f0) . chr(10);
@@ -30,7 +27,6 @@ echo html_hidden_field('del_add_id',  '') . chr(10);
 echo html_hidden_field('del_pmt_id',  '') . chr(10);
 echo html_hidden_field('del_crm_note','') . chr(10);
 echo html_hidden_field('payment_id',  '') . chr(10);
-
 // customize the toolbar actions
 if ($action == 'properties') {
   $toolbar->icon_list['cancel']['params'] = 'onclick="self.close()"';
@@ -70,9 +66,8 @@ while (!$xtra_tab_list->EOF) {
   $found_one = false;
   $field_list->Move(0);
   $field_list->MoveNext();
-  $xtra_header  = '<div id="cat_' . $xtra_tab_list->fields['id'] . '" class="tabset_content">' . chr(10);
-  $xtra_header .= '  <h2 class="tabset_label">' . $xtra_tab_list->fields['tab_name'] . '</h2>' . chr(10);
-  $xtra_header .= '  <table border="0" cellspacing="2" cellpadding="2">' . chr(10);
+  $xtra_header  = '<div id="tab_' . $field_list->fields['tab_id'] . '">' . chr(10);
+  $xtra_header .= '  <table cellspacing="2" cellpadding="2">' . chr(10);
   while (!$field_list->EOF) {
 	if ($xtra_tab_list->fields['id'] == $field_list->fields['tab_id']) {
 	  $xtra_params = unserialize($field_list->fields['params']);
@@ -89,13 +84,13 @@ while (!$xtra_tab_list->EOF) {
   $xtra_header .= '  </table>';
   $xtra_header .= '</div>' . chr(10);
   if ($found_one) {
-    $extra_tab_li   .= '  <li><a href="#cat_' . $xtra_tab_list->fields['id'] . '">' . $xtra_tab_list->fields['tab_name'] . '</a></li>' . chr(10);
+    $extra_tab_li   .= '  <li><a href="#tab_' . $xtra_tab_list->fields['id'] . '">' . $xtra_tab_list->fields['tab_name'] . '</a></li>' . chr(10);
     $extra_tab_html .= $xtra_header;
   }
   $xtra_tab_list->MoveNext();
 } 
 
-$custom_path    = DIR_FS_MODULES . 'contacts/custom/pages/main/extra_tabs.php';
+$custom_path = DIR_FS_MODULES . 'contacts/custom/pages/main/extra_tabs.php';
 if (file_exists($custom_path)) { include($custom_path); }
 
 function tab_sort($a, $b) {
@@ -105,15 +100,16 @@ function tab_sort($a, $b) {
 usort($tab_list, 'tab_sort');
 
 ?>
-<div class="pageHeading"><?php echo ($action == 'new') ? $page_title_new : constant('ACT_' . strtoupper($type) . '_PAGE_TITLE_EDIT') . ' - ' . $edit_text; ?></div>
-<ul class="tabset_tabs">
+<h1><?php echo ($action == 'new') ? $page_title_new : constant('ACT_' . strtoupper($type) . '_PAGE_TITLE_EDIT') . ' - ' . $edit_text; ?></h1>
+<div id="detailtabs">
+<ul>
 <?php // build the tab list's
   $set_default = false;
   foreach ($tab_list as $value) {
-  	echo '  <li><a href="#cat_' . $value['tag'] . '"' . (!$set_default ? ' class="active"' : '') . '>' . $value['text'] . '</a></li>' . chr(10);
+  	echo add_tab_list('tab_'.$value['tag'],  $value['text']);
 	$set_default = true;
   }
-  echo $extra_tab_li; // user added extra tabs
+  echo $extra_tab_li . chr(10); // user added extra tabs
 ?>
 </ul>
 <?php
@@ -124,7 +120,6 @@ foreach ($tab_list as $value) {
 	include(DIR_FS_WORKING . 'pages/main/template_' . $type . '_' . $value['tag'] . '.php');
   }
 }
-
 // pull in additional custom tabs
 if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
   foreach ($extra_inventory_tabs as $tabs) {
@@ -136,4 +131,5 @@ if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
 }
 echo $extra_tab_html;
 ?>
+</div>
 </form>

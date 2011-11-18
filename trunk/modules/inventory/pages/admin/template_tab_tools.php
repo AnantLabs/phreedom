@@ -18,12 +18,11 @@
 //  Path: /modules/accounts/pages/admin/template_tab_tools.php
 //
 ?>
-<div id="tools" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_TOOLS; ?></h2>
+<div id="tab_tools">
 <fieldset>
 <legend><?php echo INV_TOOLS_VALIDATE_INVENTORY; ?></legend>
 <p><?php echo INV_TOOLS_VALIDATE_INV_DESC; ?></p>
-  <table align="center" border="0" cellspacing="2" cellpadding="1">
+  <table>
     <tr>
 	  <th><?php echo INV_TOOLS_REPAIR_TEST; ?></th>
 	  <th><?php echo INV_TOOLS_REPAIR_FIX; ?></th>
@@ -37,7 +36,7 @@
 <fieldset>
 <legend><?php echo INV_TOOLS_VALIDATE_SO_PO; ?></legend>
 <p><?php echo INV_TOOLS_VALIDATE_SO_PO_DESC; ?></p>
-  <table align="center" border="0" cellspacing="2" cellpadding="1">
+  <table>
     <tr>
 	  <th><?php echo INV_TOOLS_REPAIR_SO_PO; ?></th>
 	</tr>

@@ -72,41 +72,34 @@ class tax_rates_vend {
   function build_main_html() {
   	global $db, $messageStack;
     $tax_authorities_array = gen_build_tax_auth_array();
-    // Build heading bar
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow" valign="top">' . chr(10);
-	$heading_array = array(
-	  'description_short' => SETUP_TAX_DESC_SHORT,
-	  'description_long'  => TEXT_DESCRIPTION,
-	  'account_id'        => SETUP_HEADING_TOTAL_TAX,
-	  'tax_rate'          => SETUP_HEADING_TAX_FREIGHT,
+    $content = array();
+	$content['thead'] = array(
+	  'value' => array(SETUP_TAX_DESC_SHORT, TEXT_DESCRIPTION, SETUP_HEADING_TOTAL_TAX, SETUP_HEADING_TAX_FREIGHT, TEXT_ACTION),
+	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
 	);
-	$result = html_heading_bar($heading_array, $_GET['list_order']);
-	$output .= $result['html_code'];
-	$disp_order = $result['disp_order'];
-    $output .= '  </tr>' . chr(10);
-	// Build field data
-    $query_raw = "select tax_rate_id, description_short, description_long, rate_accounts, freight_taxable 
-		from " . $this->db_table . " where type = '" . $this->type . "' order by $disp_order";
-    $page_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $result = $db->Execute($query_raw);
-    while (!$result->EOF) {
-      $output .= '  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')">' . htmlspecialchars($result->fields['description_short']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')">' . htmlspecialchars($result->fields['description_long']) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')">' . gen_calculate_tax_rate($result->fields['rate_accounts'], $tax_authorities_array) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')">' . ($result->fields['freight_taxable'] ? TEXT_YES : TEXT_NO) . '</td>' . chr(10);
-      $output .= '    <td class="dataTableContent" align="right">' . chr(10);
-	  if ($this->security_id > 1) $output .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
-	  if ($this->security_id > 3) $output .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_DELETE_INTRO . '\')) subjectDelete(\'tax_rates_auth\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
-      $output .= '    </td>' . chr(10);
-      $output .= '  </tr>' . chr(10);
+    $result = $db->Execute("select tax_rate_id, description_short, description_long, rate_accounts, freight_taxable 
+		from " . $this->db_table . " where type = '" . $this->type . "'");
+    $rowCnt = 0;
+	while (!$result->EOF) {
+	  $actions = '';
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'tax_rates_vend_edit\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_DELETE_INTRO . '\')) subjectDelete(\'tax_rates_auth\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
+	  $content['tbody'][$rowCnt] = array(
+	    array('value' => htmlspecialchars($result->fields['description_short']),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_rates_vend_edit\',\''.$result->fields['tax_rate_id'].'\')"'),
+		array('value' => htmlspecialchars($result->fields['description_long']), 
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_rates_vend_edit\',\''.$result->fields['tax_rate_id'].'\')"'),
+		array('value' => gen_calculate_tax_rate($result->fields['rate_accounts'], $tax_authorities_array),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_rates_vend_edit\',\''.$result->fields['tax_rate_id'].'\')"'),
+		array('value' => ($result->fields['freight_taxable'] ? TEXT_YES : TEXT_NO),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_rates_vend_edit\',\''.$result->fields['tax_rate_id'].'\')"'),
+		array('value' => $actions,
+			  'params'=> 'align="right"'),
+	  );
       $result->MoveNext();
+	  $rowCnt++;
     }
-    $output .= '</table>' . chr(10);
-    $output .= '<div class="page_count_right">' . $page_split->display_ajax($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list'], '', 'tax_rates_vend_list', 'tax_rates_vend') . '</div>' . chr(10);
-    $output .= '<div class="page_count">'       . $page_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], SETUP_DISPLAY_NUMBER_OF_TAX_RATES) . '</div>' . chr(10);
-	return $output;
+    return html_datatable('tax_v_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -122,37 +115,41 @@ class tax_rates_vend {
       $cInfo = new objectInfo($result->fields);
 	}
 
-	$output  = '<table border="0" width="100%" cellspacing="0" cellpadding="1">' . chr(10);
-	$output .= '  <tr class="dataTableHeadingRow">' . chr(10);
+	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
+	$output .= '  <thead class="ui-widget-header">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <th colspan="2">' . ($action=='new' ? SETUP_HEADING_NEW_TAX_RATE : SETUP_HEADING_EDIT_TAX_RATE) . '</th>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  </thead>' . "\n";
+	$output .= '  <tbody class="ui-widget-content">' . "\n";
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td colspan="2">' . ($action=='new' ? SETUP_TAX_INSERT_INTRO : SETUP_TAX_EDIT_INTRO) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_DESC_SHORT . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('description_short', $cInfo->description_short, 'size="16" maxlength="15"') . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_DESC_LONG . '</td>' . chr(10);
 	$output .= '    <td>' . html_input_field('description_long', $cInfo->description_long, 'size="33" maxlength="64"') . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_TAX_AUTHORITIES . '</td>' . chr(10);
 	$output .= '    <td>' . html_hidden_field('rate_accounts', $cInfo->rate_accounts) . $this->draw_tax_auths($cInfo->rate_accounts, $tax_authorities_array) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_TAX_AUTH_ADD . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('tax_auth_id_add', $this->get_tax_auths()) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_TAX_AUTH_DELETE . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('tax_auth_id_delete', $this->get_selected_tax_auths($cInfo->rate_accounts, $tax_authorities_array)) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	$output .= '  <tr class="dataTableRow">' . chr(10);
+	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . SETUP_INFO_FREIGHT_TAXABLE . '</td>' . chr(10);
 	$output .= '    <td>' . html_radio_field('freight_taxable', '0', !$cInfo->freight_taxable) . TEXT_NO . html_radio_field('freight_taxable', '1', $cInfo->freight_taxable) . TEXT_YES . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
+	$output .= '  </tbody>' . "\n";
     $output .= '</table>' . chr(10);
     return $output;
   }

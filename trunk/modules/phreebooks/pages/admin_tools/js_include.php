@@ -23,8 +23,11 @@
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-<?php echo js_calendar_init($cal_start); ?>
-<?php echo js_calendar_init($cal_end); ?>
+<?php 
+for ($i = 0; $i<12; $i++) { 
+	echo js_calendar_init($cal_end[$i]);
+}
+?>
 
 function init() {
 }

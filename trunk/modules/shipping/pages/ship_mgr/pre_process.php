@@ -33,7 +33,7 @@ $directory_array = array();
 $installed_modules = load_all_methods('shipping');
 
 /***************   hook for custom actions  ***************************/
-$custom_path = DIR_FS_MODULES . 'custom/pages/ship_mgr/extra_actions.php';
+$custom_path = DIR_FS_WORKING . 'custom/pages/ship_mgr/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
 
 /***************   Act on the action request   *************************/

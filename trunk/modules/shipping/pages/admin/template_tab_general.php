@@ -17,13 +17,13 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/admin/template_tab_general.php
 //
-
 ?>
-<div id="general" class="tabset_content">
-  <h2 class="tabset_label"><?php echo TEXT_GENERAL_SETTINGS; ?></h2>
-  <fieldset class="formAreaTitle">
-    <table border="0" width="100%" cellspacing="1" cellpadding="1">
+<div id="tab_general">
+<table class="ui-widget" style="border-collapse:collapse;width:100%">
+ <thead class="ui-widget-header">
 	  <tr><th colspan="4"><?php echo TEXT_SHIPPING_PREFS; ?></th></tr>
+ </thead>
+ <tbody class="ui-widget-content">
 	  <tr>
 	    <td colspan="3"><?php echo sprintf(CONTACT_SHIP_FIELD_REQ, GEN_CONTACT); ?></td>
 	    <td><?php echo html_pull_down_menu('address_book_ship_contact_req', $sel_yes_no, $_POST['address_book_ship_contact_req'] ? $_POST['address_book_ship_contact_req'] : ADDRESS_BOOK_SHIP_CONTACT_REQ, ''); ?></td>
@@ -49,7 +49,7 @@
 	    <td><?php echo html_pull_down_menu('address_book_ship_postal_code_req', $sel_yes_no, $_POST['address_book_ship_postal_code_req'] ? $_POST['address_book_ship_postal_code_req'] : ADDRESS_BOOK_SHIP_POSTAL_CODE_REQ, ''); ?></td>
 	  </tr>
 
-	  <tr><th colspan="4"><?php echo TEXT_PAGKAGE_DEFAULTS; ?></th></tr>
+	  <tr class="ui-widget-header"><th colspan="4"><?php echo TEXT_PAGKAGE_DEFAULTS; ?></th></tr>
 	  <tr>
 	    <td colspan="3"><?php echo CD_10_01_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('shipping_default_weight_unit', gen_build_pull_down($shipping_defaults['weight_unit']), $_POST['shipping_default_weight_unit'] ? $_POST['shipping_default_weight_unit'] : SHIPPING_DEFAULT_WEIGHT_UNIT, ''); ?></td>
@@ -98,7 +98,7 @@
 	    <td nowrap="nowrap"><?php echo TEXT_DEFAULT . ' ' . html_pull_down_menu('shipping_default_split_large_shipments_checked', $sel_checked, $_POST['shipping_default_split_large_shipments_checked'] ? $_POST['shipping_default_split_large_shipments_checked'] : SHIPPING_DEFAULT_SPLIT_LARGE_SHIPMENTS_CHECKED, ''); ?></td>
 	    <td nowrap="nowrap"><?php echo TEXT_VALUE . ' ' . html_input_field('shipping_default_split_large_shipments_value', $_POST['shipping_default_split_large_shipments_value'] ? $_POST['shipping_default_split_large_shipments_value'] : SHIPPING_DEFAULT_SPLIT_LARGE_SHIPMENTS_VALUE, 'size="10" style="text-align:right"'); ?></td>
 	  </tr>
-	  <tr><th colspan="4"><?php echo TEXT_SHIPMENT_DEFAULTS; ?></th></tr>
+	  <tr class="ui-widget-header"><th colspan="4"><?php echo TEXT_SHIPMENT_DEFAULTS; ?></th></tr>
 	  <tr>
 	    <td><?php echo CD_10_26_DESC; ?></td>
 	    <td><?php echo html_pull_down_menu('shipping_default_delivery_confirmation_show', $sel_show, $_POST['shipping_default_delivery_confirmation_show'] ? $_POST['shipping_default_delivery_confirmation_show'] : SHIPPING_DEFAULT_DELIVERY_COMFIRMATION_SHOW, ''); ?></td>
@@ -147,6 +147,6 @@
 	    <td nowrap="nowrap"><?php echo TEXT_DEFAULT . ' ' . html_pull_down_menu('shipping_default_return_service_checked', $sel_checked, $_POST['shipping_default_return_service_checked'] ? $_POST['shipping_default_return_service_checked'] : SHIPPING_DEFAULT_RETURN_SERVICE_CHECKED, ''); ?></td>
 	    <td nowrap="nowrap"><?php echo TEXT_VALUE . ' ' . html_pull_down_menu('shipping_default_return_service', gen_build_pull_down($shipping_defaults['return_label']), $_POST['shipping_default_return_service'] ? $_POST['shipping_default_return_service'] : SHIPPING_DEFAULT_RETURN_SERVICE, ''); ?></td>
 	  </tr>
-	</table>
-  </fieldset>
+  </tbody>
+</table>
 </div>

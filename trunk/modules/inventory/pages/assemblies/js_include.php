@@ -34,19 +34,16 @@ function init() {
 function check_form() {
   var error = 0;
   var error_message = "<?php echo JS_ERROR; ?>";
-
   var sku = document.getElementById('sku_1').value;
   if (sku == '') { // check for sku not blank
   	error_message += '<?php echo JS_NO_SKU_ENTERED; ?>';
 	error = 1;
   }
-
   var qty = document.getElementById('qty_1').value;
   if (qty == '' || qty == '0') { // check for quantity non-zero
   	error_message += '<?php echo JS_ASSY_VALUE_ZERO; ?>';
 	error = 1;
   }
-
   if (error == 1) {
     alert(error_message);
     return false;
@@ -59,7 +56,7 @@ function clearForm() {
   document.getElementById('id').value                  = 0;
   document.getElementById('store_id').value            = 0;
   document.getElementById('purchase_invoice_id').value = '';
-  document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT, time()); ?>';
+  document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT); ?>';
   document.getElementById('sku_1').value               = '';
   document.getElementById('serial_1').value            = '';
   document.getElementById('desc_1').value              = '';
@@ -67,17 +64,16 @@ function clearForm() {
   document.getElementById('qty_1').value               = '';
   document.getElementById('bal_1').value               = '';
   // delete the current rows, if any
-  while (document.getElementById("item_table").rows.length > 1) document.getElementById("item_table").deleteRow(-1);
+  while (document.getElementById("item_table").rows.length > 0) document.getElementById("item_table").deleteRow(-1);
 }
 
-function InventoryList() {
+function InventoryList(rowCnt) {
   var bID = document.getElementById('store_id').value;
   var sku = document.getElementById('sku_1').value;
-  window.open("index.php?module=inventory&page=popup_inv&list=1&type=v&f1=as&storeID="+bID+"&search_text="+sku,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
+  window.open("index.php?module=inventory&page=popup_inv&list=1&type=v&f1=as&rowID="+rowCnt+"&storeID="+bID+"&search_text="+sku,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function OpenAssyList() {
-  clearForm();
   window.open("index.php?module=inventory&page=popup_assy&list=1","inv_assy_open","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
 }
 
@@ -98,6 +94,7 @@ function processEditAssembly(sXml) {
   var sku = '';
   var xml = parseXml(sXml);
   if (!xml) return;
+  clearForm();
   var id = $(xml).find("id").first().text();
   document.getElementById('id').value                  = id;
   document.getElementById('store_id').value            = $(xml).find("store_id").text();
@@ -137,12 +134,14 @@ function loadSkuStock(sku) {
   });
 }
 
-function loadSkuDetails(iID) {
+function loadSkuDetails(iID, rowCnt) {
   var bID = document.getElementById('store_id').value;
+  var sku = iID==0 ? document.getElementById('sku_'+rowCnt).value : '';
+  if (sku == text_search) return;
   $.ajax({
     type: "GET",
     contentType: "application/json; charset=utf-8",
-	url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&iID='+iID+'&bID='+bID,
+	url: 'index.php?module=inventory&page=ajax&op=inv_details&iID='+iID+'&sku='+sku+'&bID='+bID+'&rID='+rowCnt,
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -155,6 +154,7 @@ function processSkuDetails(sXml) { // call back function
   var text = '';
   var xml = parseXml(sXml);
   if (!xml) return;
+  if ($(xml).find("result").text()) return; // not enough or too many hits
   document.getElementById('sku_1').value       = $(xml).find("sku").text();
   document.getElementById('sku_1').style.color = '';
   if (document.getElementById('desc_1').value == '') { // do not overwrite if already there
@@ -164,57 +164,56 @@ function processSkuDetails(sXml) { // call back function
   var type = $(xml).find("inventory_type").text();
   if (type=='sr' || type=='sa') document.getElementById('serial_row').style.display = '';
   // clear list and add the new data
-  while (document.getElementById("item_table").rows.length > 1) document.getElementById("item_table").deleteRow(-1);
+  while (document.getElementById("item_table").rows.length > 0) document.getElementById("item_table").deleteRow(-1);
   var j = 1;
   $(xml).find("bom").each(function() {
 	addListRow();
+	if ($(this).find("bom_quantity_on_hand").text() == 'NA') {
+	  var stock = '-';	
+	} else {
+	  var stock = parseFloat($(this).find("bom_quantity_on_hand").text());
+	  if (document.getElementById('id').value > 0) { // add back in edit amount
+	    stock += parseFloat(document.getElementById('qty_1').value) * parseFloat($(this).find("bom_qty").text());
+	  }
+	}
 	document.getElementById('assy_sku_'+j).value  = $(this).find("bom_sku").text();
 	document.getElementById('assy_desc_'+j).value = $(this).find("bom_description_short").text();
 	document.getElementById('qty_reqd_'+j).value  = $(this).find("bom_qty").text();
 	document.getElementById('assy_qty_'+j).value  = $(this).find("bom_qty").text();
-	document.getElementById('stk_'+j).value       = $(this).find("bom_quantity_on_hand").text();
+	document.getElementById('stk_'+j).value       = stock;
     j++;
   });
-  addListRow();
-  document.getElementById('assy_desc_'+j).value = '<?php echo TEXT_TOTAL; ?>';
   updateBalance();
 }
 
 function addListRow() {
-	var cell     = new Array(2);
-	var newRow   = document.getElementById("item_table").insertRow(-1);
-	var rowCnt   = newRow.rowIndex;
-	var newCella = newRow.insertCell(-1); // sku data
-	newCella.innerHTML = '<td class="main" align="right"><input type="text" name="assy_sku_'+rowCnt+'" id="assy_sku_'+rowCnt+'" readonly="readonly" size="15"><\/td>';
-	var newCellb = newRow.insertCell(-1); // description data
-	newCellb.innerHTML = '<td class="main" align="right"><input type="text" name="assy_desc_'+rowCnt+'" id="assy_desc_'+rowCnt+'" readonly="readonly" size="35"><\/td>';
-	var newCellc = newRow.insertCell(-1); // qty required
-	newCellc.innerHTML = '<td class="main" align="right"><input type="hidden" name="qty_reqd_'+rowCnt+'" id="qty_reqd_'+rowCnt+'"><input type="text" name="assy_qty_'+rowCnt+'" id="assy_qty_'+rowCnt+'" readonly="readonly" style="text-align:right" size="10"><\/td>';
-	var newCelld = newRow.insertCell(-1); // qty in stock
-	newCelld.innerHTML = '<td class="main" align="right"><input type="text" name="stk_'+rowCnt+'" id="stk_'+rowCnt+'" readonly="readonly" style="text-align:right" size="10"><\/td>';
+	var cell    = new Array();
+	var newRow  = document.getElementById("item_table").insertRow(-1);
+	var rowCnt  = newRow.rowIndex;
+	var newCell = newRow.insertCell(-1);
+	newCell.innerHTML = '<input type="text" name="assy_sku_'+rowCnt+'" id="assy_sku_'+rowCnt+'" readonly="readonly" size="15">';
+	var newCell = newRow.insertCell(-1);
+	newCell.innerHTML = '<input type="text" name="assy_desc_'+rowCnt+'" id="assy_desc_'+rowCnt+'" readonly="readonly" size="35">';
+	var newCell = newRow.insertCell(-1);
+	newCell.innerHTML = '<input type="hidden" name="qty_reqd_'+rowCnt+'" id="qty_reqd_'+rowCnt+'"><input type="text" name="assy_qty_'+rowCnt+'" id="assy_qty_'+rowCnt+'" readonly="readonly" style="text-align:right" size="10">';
+	var newCell = newRow.insertCell(-1);
+	newCell.innerHTML = '<input type="text" name="stk_'+rowCnt+'" id="stk_'+rowCnt+'" readonly="readonly" style="text-align:right" size="10">';
 }
 
-function removeListRow(delRowCnt) {
-  document.getElementById("item_table").deleteRow(-1);
-} 
-
 function checkBalances() {
-	var qtyNeeded;
-	var qtyStock;
-	var qtyCheck;
-	var error = false;
-	for (var i=1; i<document.getElementById('item_table').rows.length-1; i++) {
-		qtyNeeded = document.getElementById('assy_qty_'+i).value;
-		qtyStock = document.getElementById('stk_'+i).value;
-		qtyCheck = qtyStock - qtyNeeded;
-		if (qtyCheck < 0) {
-			document.getElementById('stk_'+i).style.color = 'red';
-			error = true;
-		} else {
-			document.getElementById('stk_'+i).style.color = '';
-		}
+  var qtyCheck;
+  var error = false;
+  for (var i=0, j=1; i<document.getElementById('item_table').rows.length; i++, j++) {
+	if (isNaN(document.getElementById('stk_'+j).value)) continue;
+	qtyCheck = parseFloat(document.getElementById('stk_'+j).value) - parseFloat(document.getElementById('assy_qty_'+j).value);
+	if (qtyCheck < 0) {
+	  document.getElementById('stk_'+j).style.color = 'red';
+	  error = true;
+	} else {
+	  document.getElementById('stk_'+j).style.color = '';
 	}
-	if (error) alert('<?php echo JS_NOT_ENOUGH_PARTS; ?>');
+  }
+  if (error) alert('<?php echo JS_NOT_ENOUGH_PARTS; ?>');
 }
 
 function updateBalance() {
@@ -222,22 +221,18 @@ function updateBalance() {
 	var stock = parseFloat(document.getElementById('stock_1').value);
 	if (isNaN(stock)) stock = 0;
 	var build = parseFloat(document.getElementById('qty_1').value);
-	if (isNaN(build)) {
-		build = 0;
-	} else {
-		totalNeeded    = 0;
-		totalAvailable = 0;
-		// update qty required
-		for (var i=1; i<document.getElementById('item_table').rows.length-1; i++) {
-			qtyMin          = parseFloat(document.getElementById('qty_reqd_'+i).value);
-			newQtyNeeded    = build * qtyMin;
-			totalNeeded    += newQtyNeeded;
-			totalAvailable += parseFloat(document.getElementById('stk_'+i).value);
-			document.getElementById('assy_qty_'+i).value = newQtyNeeded;
-		}
-		document.getElementById('assy_qty_'+i).value = totalNeeded;
-		document.getElementById('stk_'+i).value      = totalAvailable;
+	if (isNaN(build)) build = 0;
+	var totalNeeded    = 0;
+	var totalAvailable = 0;
+	for (var i=0, j=1; i<document.getElementById('item_table').rows.length; i++, j++) {
+		qtyMin          = parseFloat(document.getElementById('qty_reqd_'+j).value);
+		newQtyNeeded    = build * qtyMin;
+		totalNeeded    += newQtyNeeded;
+		totalAvailable += isNaN(document.getElementById('stk_'+j).value) ? 0 : parseFloat(document.getElementById('stk_'+j).value);
+		document.getElementById('assy_qty_'+j).value = newQtyNeeded;
 	}
+	document.getElementById('total_needed').value = totalNeeded;
+	document.getElementById('total_stock').value  = totalAvailable;
 	var st = new String(stock + build);
 	document.getElementById('bal_1').value = st;
 	checkBalances();

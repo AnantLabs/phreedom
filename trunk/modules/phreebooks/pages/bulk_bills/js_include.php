@@ -51,7 +51,7 @@ function check_form() {
 // Insert other page specific functions here.
 function checkShipAll() {
   var amt_due;
-  for (var i=1; i<document.getElementById("item_table").rows.length; i++) {
+  for (var i=1; i<document.getElementById("item_table").rows.length+1; i++) {
   	amt_due = parseFloat(document.getElementById('amt_'+i).value);
 	if (document.getElementById('pay_'+i).disabled == false && amt_due > 0) {
 	  document.getElementById('pay_'+i).checked = true;
@@ -98,24 +98,6 @@ function bbUpdatePayValues(rowCnt) {
 	}
 	updateTotalPrices();
 }
-
-/*
-function updateTotalPrices() {
-  var temp = '';
-  var total = 0;
-  var start_balance = cleanCurrency(document.getElementById('acct_balance').value);
-  for (var i=1; i<document.getElementById("item_table").rows.length; i++) {
-	if (document.getElementById('total_'+i).value) {
-		temp = cleanCurrency(document.getElementById('total_'+i).value);
-		total += parseFloat(temp);
-	}
-  }
-  var total_checks = new String(total);
-  document.getElementById('total').value = formatCurrency(total_checks);
-  temp = new String(start_balance - total_checks);
-  document.getElementById('end_balance').value = formatCurrency(temp);
-}
-*/
 
 // -->
 </script>

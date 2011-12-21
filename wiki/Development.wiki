@@ -60,4 +60,6 @@ Normally you submit a few patches and then the project manager makes the decisio
  * vTiger Interface
  * sugarCRM Interface - commercial
  * Ubercart
+ * Virtuemart
+ * WordPress e-commerce
  * google Checkout

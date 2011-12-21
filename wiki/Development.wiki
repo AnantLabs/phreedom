@@ -61,5 +61,5 @@ Normally you submit a few patches and then the project manager makes the decisio
  * sugarCRM Interface - commercial
  * Ubercart
  * Virtuemart
- * WordPress eCommerce
+ * Word Press e-Commerce
  * google Checkout

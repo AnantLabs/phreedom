@@ -10,3 +10,5 @@ This page is a list of user wishes that have been granted dev status. You as a u
 == Development Approved Wish List ==
 
 *  Inventory adjustment page to have multiple line item entry much like inventory transfer is now.
+=== Point of Sale ===
+* Rounding of Totals, an admin config setting.

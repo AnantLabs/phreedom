@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -38,14 +38,10 @@ define('DIR_FS_MY_FILES',  DIR_FS_ADMIN . 'my_files/');
 define('FILENAME_DEFAULT', 'index');
 
 // define the inventory types that are tracked in cost of goods sold
-  define('COG_ITEM_TYPES','si,sr,ms,mi,as');
+define('COG_ITEM_TYPES','si,sr,ms,mi,as');
   
 // set the type of request (secure or not)
-  $request_type = (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1' || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']),'SSL') || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']),'SSL'))  ? 'SSL' : 'NONSSL';
-
-// Define how do we update currency exchange rates, possible values are 'oanda' 'xe' or ''
-define('CURRENCY_SERVER_PRIMARY', 'oanda');
-define('CURRENCY_SERVER_BACKUP',  'xe');
+$request_type = (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1' || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']),'SSL') || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']),'SSL'))  ? 'SSL' : 'NONSSL';
 
 require_once(DIR_FS_ADMIN . 'includes/common_functions.php');
 require_once(DIR_FS_ADMIN . 'includes/common_classes.php');
@@ -106,7 +102,7 @@ gen_pull_language('phreedom', 'menu');
 
 $currencies   = new currencies;
 $messageStack = new messageStack;
-if (get_cfg_var('safe_mode')) echo 'Operating in Safe Mode. This is bad!)';
+if (get_cfg_var('safe_mode')) echo 'Operating in Safe Mode. (This is bad!)';
 // check if a default currency is set
 if (!defined('DEFAULT_CURRENCY')) $messageStack->add(ERROR_NO_DEFAULT_CURRENCY_DEFINED, 'error');
 // include the password crypto functions

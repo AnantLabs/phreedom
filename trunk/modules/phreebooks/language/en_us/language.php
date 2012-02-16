@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -143,7 +143,6 @@ define('TEXT_BEGINNING_BALANCE','Beginning Balance');
 define('TEXT_ENDING_BALANCE','Ending Balance');
 define('TEXT_DEPOSIT','Deposit');
 define('TEXT_DELETE_ATTACHMENT','Delete Attachment');
-define('TEXT_DOWNLOAD_ATTACHMENT','Download Attachment');
 // Form Messages
 define('ACT_ERROR_NO_ACCOUNT_ID','When adding a new Customer/Vendor, the ID field is required, please enter an unique id.');
 define('AR_CONTACT_STATUS','Customer Status');

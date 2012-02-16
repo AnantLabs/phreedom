@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -155,16 +155,18 @@ class entry_builder {
 	  $line_tax = $this->taxes[$result->fields['taxable']];
 	  if ($result->fields['gl_type'] == 'sos' || $result->fields['gl_type'] == 'por') {
 		$this->line_items[$index]['invoice_full_price']  = $result->fields['full_price'];
-		$this->line_items[$index]['invoice_unit_price']  = ($result->fields['qty']) ? ($price / $result->fields['qty']) : 0;
-		$this->line_items[$index]['invoice_discount']    = ($result->fields['full_price'] == 0) ? 0 : ($result->fields['full_price'] - ($price / $result->fields['qty'])) / $result->fields['full_price'];
+		$this->line_items[$index]['invoice_unit_price']  = $result->fields['qty'] ? ($price / $result->fields['qty']) : 0;
+		$this->line_items[$index]['invoice_discount']    = $result->fields['full_price'] == 0 ? 0 : ($result->fields['full_price'] - ($price / $result->fields['qty'])) / $result->fields['full_price'];
 		$this->line_items[$index]['invoice_qty']         = $result->fields['qty'];
 		$this->line_items[$index]['invoice_sku']         = $result->fields['sku'];
 		$this->line_items[$index]['invoice_description'] = $result->fields['description'];
 		$this->line_items[$index]['invoice_serial_num']  = $result->fields['serialize_number'];
 		$this->line_items[$index]['qty_on_backorder']    = max(0, $this->line_items[$index]['qty_on_backorder'] - $result->fields['qty']);
 		$this->line_items[$index]['invoice_line_tax']    = $line_tax * $price;
-		$this->line_items[$index]['invoice_price']       = (1 + $line_tax) * $price; // line item price with tax
-		$this->invoice_subtotal += (1 + $line_tax) * $price;
+		$this->line_items[$index]['invoice_price']       = $price;
+		$this->line_items[$index]['invoice_price_w_tax'] = (1 + $line_tax) * $price; // line item price with tax
+		$this->invoice_subtotal   += $price;
+		$this->inv_subtotal_w_tax += (1 + $line_tax) * $price;
 	  }
 	  if ($result->fields['gl_type'] == 'tax') {
 		$tax_list[] = $result->fields['description'] . ' - ' . $currencies->format_full($price);
@@ -300,6 +302,7 @@ class entry_builder {
 	$output[] = array('id' => 'tax_auths',           'text' => RW_EB_TAX_AUTH);
 	$output[] = array('id' => 'tax_text',            'text' => RW_EB_TAX_DETAILS);
 	$output[] = array('id' => 'invoice_subtotal',    'text' => RW_EB_INV_SUBTOTAL);
+	$output[] = array('id' => 'inv_subtotal_w_tax',  'text' => RW_EB_INV_SUB_W_TAX);
 	$output[] = array('id' => 'total_amount',        'text' => RW_EB_INV_TOTAL);
 	$output[] = array('id' => 'currencies_code',     'text' => RW_EB_CUR_CODE);
 	$output[] = array('id' => 'currencies_value',    'text' => RW_EB_CUR_EXC_RATE);
@@ -369,6 +372,7 @@ class entry_builder {
 	$output[] = array('id' => 'invoice_unit_price',  'text' => RW_EB_INV_UNIT_PRICE);
 	$output[] = array('id' => 'invoice_discount',    'text' => RW_EB_INV_DISCOUNT);
 	$output[] = array('id' => 'invoice_price',       'text' => RW_EB_INV_PRICE);
+	$output[] = array('id' => 'invoice_price_w_tax', 'text' => RW_EB_INV_PRICE_W_TAX);
 	$output[] = array('id' => 'invoice_line_tax',    'text' => RW_EB_INV_LINE_TAX);
 	$output[] = array('id' => 'invoice_sku',         'text' => RW_EB_INV_SKU);
 	$output[] = array('id' => 'invoice_serial_num',  'text' => RW_EB_INV_SERIAL_NUM);

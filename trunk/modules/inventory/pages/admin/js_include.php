@@ -27,8 +27,8 @@
 function init() {
   $(function() { // initialize tables
 	$('#admintabs').tabs();
-    $('#tab_table').dataTable();
-    $('#field_table').dataTable();
+    $('#tab_table').dataTable( dataTables_i18n );
+    $('#field_table').dataTable( dataTables_i18n );
   });
 }
 

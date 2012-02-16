@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -26,7 +26,7 @@ function load_company_dropdown($include_select = false) {
 	if ($file <> '.' && $file <> '..' && is_dir(DIR_FS_MY_FILES . $file)) {
 	  if (file_exists(DIR_FS_MY_FILES . $file . '/config.txt')) convert_cfg($file);
 	  if (file_exists(DIR_FS_MY_FILES . $file . '/config.php')) {
-		require_once(DIR_FS_MY_FILES . $file . '/config.php');
+		require_once (DIR_FS_MY_FILES . $file . '/config.php');
 		$output[$i] = array(
 		  'text' => constant($file . '_TITLE'), 
 		  'file' => $file,
@@ -191,7 +191,7 @@ function admin_remove_tables($tables) {
 
 function admin_add_report_heading($doc_title, $doc_group) {
   global $db;
-  $result = $db->Execute("select id from " . TABLE_PHREEFORM . " where doc_group = '" . $doc_group . "'");
+  $result = $db->Execute("select id from ".TABLE_PHREEFORM." where doc_group = '$doc_group'");
   if ($result->RecordCount() < 1) {
     $db->Execute("INSERT INTO ".TABLE_PHREEFORM." (parent_id, doc_type, doc_title, doc_group, doc_ext, security, create_date) VALUES 
       (0, '0', '" . $doc_title . "', '".$doc_group."', '0', 'u:0;g:0', now())");
@@ -205,8 +205,8 @@ function admin_add_report_heading($doc_title, $doc_group) {
 function admin_add_report_folder($parent_id, $doc_title, $doc_group, $doc_ext) {
   global $db;
   $error = false;
-  $result = $db->Execute("select id from " . TABLE_PHREEFORM . " 
-    where doc_group = '" . $doc_group . "'" . " and doc_ext = '" . $doc_ext . "'");
+  if ($parent_id == '') return true;
+  $result = $db->Execute("select id from ".TABLE_PHREEFORM." where doc_group = '$doc_group' and doc_ext = '$doc_ext'");
   if ($result->RecordCount() < 1) {
     $db->Execute("INSERT INTO ".TABLE_PHREEFORM." (parent_id, doc_type, doc_title, doc_group, doc_ext, security, create_date) VALUES 
       (".$parent_id.", '0', '" . $doc_title . "', '".$doc_group."', '".$doc_ext."', 'u:0;g:0', now())");

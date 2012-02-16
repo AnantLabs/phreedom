@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/popup_shipping/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
@@ -47,9 +46,6 @@ function init() {
 		document.getElementById('pkg_item_count').value = window.opener.document.getElementById('item_count').value;
 		document.getElementById('pkg_weight').value     = window.opener.document.getElementById('weight').value;
 		document.getElementById('pkg_total').value      = window.opener.document.getElementById('total').value;
-		if (window.opener.document.getElementById(formName).terminal_date.value) {
-			document.step1.ship_date.value = window.opener.document.getElementById(formName).terminal_date.value;
-		}
 		if (document.getElementById('cod_amount')) {
 			document.getElementById('cod_amount').value = window.opener.document.getElementById('total').value;
 		}

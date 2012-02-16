@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -37,5 +37,9 @@ define('PF_DEFAULT_ORIENTATION_TEXT','Sets the default page orientation for repo
 define('PF_DEFAULT_TRIM_LENGTH_TEXT','Sets the trim length of report and form names when listing in directory format (default: 25)');
 define('PF_DEFAULT_ROWSPACE_TEXT','Sets the separation between the heading rows for reports (default: 2)');
 define('PDF_APP_TEXT','Sets the default PDF generator application. Note: TCPDF is required for UTF-8 and Bar Code generation.');
-
+// Tools
+define('PHREEFORM_TOOLS_REBUILD_TITLE','PhreeForm Stucture Verification / Rebuild');
+define('PHREEFORM_TOOLS_REBUILD_DESC','This tool verifies, and rebuilds the report and form structure. It will re-load the folder structure, make sure there are no orphaned reports and clean out any phreefom table entries that don\'t have a report/form file associated with it');
+define('PHREEFORM_TOOLS_REBUILD_SUBMIT','Start Structure Verify/Rebuild');
+define('PHREEFORM_TOOLS_REBUILD_SUCCESS','Successfully rebuilt report table. The number of reports rebuilt was %s. %s orphaned reports were placed in the Miscellaneous folder.');
 ?>

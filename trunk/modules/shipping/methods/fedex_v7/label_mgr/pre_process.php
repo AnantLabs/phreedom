@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,14 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/methods/fedex_v7/label_mgr/pre_process.php
 //
-
 $shipping_module = 'fedex_v7';
 /**************  include page specific files    *********************/
 load_specific_method('shipping', $shipping_module);
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/shipping.php');
 require_once(DIR_FS_WORKING . 'classes/shipping.php');
-
 /**************   page specific initialization  *************************/
 $error      = false;
 $auto_print = false;
@@ -32,7 +30,6 @@ $label_data = NULL;
 $pdf_list   = array();
 $sInfo      = new shipment();
 $action     = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'label':
@@ -106,18 +103,19 @@ switch ($action) {
 	  $file_path = SHIPPING_DEFAULT_LABEL_DIR . $shipping_module . '/' . str_replace('-', '/', $date) . '/';
 	  // fetch the tracking labels
 	  foreach ($labels_array as $tracking_num) {
-		$file_name = $file_path . $tracking_num . '.lpt';
-		if (is_file($file_name)) { // it's a thermal label
-		  if (!$handle = fopen($file_name, 'r')) $error = $messageStack->add('Cannot open file (' . $file_name . ')','error');
-		  $label_data .= fread($handle, filesize($file_path));
-		  fclose($handle);
-		  if (!$error) $auto_print = true;
+	    foreach (glob($file_path . $tracking_num . '*.*') as $filename) {
+	      if (substr($filename, -3) == 'lpt') { // it's a thermal label
+		    if (!$handle = fopen($filename, 'r')) $error = $messageStack->add('Cannot open file (' . $filename . ')','error');
+		    $label_data .= fread($handle, filesize($filename));
+		    fclose($handle);
+		    if (!$error) $auto_print = true;
+	      } elseif (substr($filename, -3) == 'pdf') { // it's a pdf image label
+		    $pdf_list[] = $tracking_num; // it's a pdf image label
+	      }
 	    }
-		$file_name = $file_path . $tracking_num . '.pdf';
-		if (is_file($file_name)) $pdf_list[] = $tracking_num; // it's a pdf image label
-	  }
-	  if (!$auto_print) { // just pdf, go there now
-	    gen_redirect(html_href_link(FILENAME_DEFAULT, 'module=shipping&page=popup_label_viewer&method=' . $shipping_module . '&date=' . $sInfo->ship_date . '&labels=' . implode(':', $labels_array), 'SSL'));	
+	    if (!$auto_print) { // just pdf, go there now
+	      gen_redirect(html_href_link(FILENAME_DEFAULT, 'module=shipping&page=popup_label_viewer&method=' . $shipping_module . '&date=' . $sInfo->ship_date . '&labels=' . implode(':', $labels_array), 'SSL'));	
+	    }
 	  }
 	  $label_data = str_replace("\r", "", addslashes($label_data)); // for javascript multi-line
 	  $label_data = str_replace("\n", "\\n", $label_data);
@@ -135,21 +133,21 @@ switch ($action) {
 	$file_path = SHIPPING_DEFAULT_LABEL_DIR . $shipping_module . '/' . str_replace('-', '/', $date) . '/';
 	// fetch the tracking labels
 	foreach ($labels_array as $tracking_num) {
-	  if (file_exists($file_name = $file_path . $tracking_num . '.lpt')) { // it's a thermal label
-		if (!$handle = fopen($file_name, 'r')) $error = $messageStack->add('Cannot open file (' . $file_name . ')','error');
-		$label_data .= fread($handle, filesize($file_path));
-		fclose($handle);
-		if (!$error) {
+	  foreach (glob($file_path . $tracking_num . '*.*') as $filename) {
+	    if (substr($filename, -3) == 'lpt') { // it's a thermal label
+		  if (!$handle = fopen($filename, 'r')) $error = $messageStack->add('Cannot open file (' . $filename . ')','error');
+		  $label_data .= fread($handle, filesize($filename));
+		  fclose($handle);
 		  $auto_print = true;
-		  $label_data = str_replace("\r", "", addslashes($label_data)); // for javascript multi-line
-		  $label_data = str_replace("\n", "\\n", $label_data);
-		}
-	  } elseif (file_exists($file_name = $file_path . $tracking_num . '.pdf')) { // it's a pdf image label
-		$pdf_list[] = $tracking_num;
+	    } elseif (substr($filename, -3) == 'pdf') { // it's a pdf image label
+		  $pdf_list[] = $tracking_num;
+	    }
 	  }
 	}
+	$label_data = str_replace("\r", "", addslashes($label_data)); // for javascript multi-line
+	$label_data = str_replace("\n", "\\n", $label_data);
 	if (!$auto_print) { // just pdf, go there now
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, 'module=shipping&page=popup_label_viewer&method=' . $shipping_module . '&date=' . $date . '&labels=' . $labels, 'SSL'));	
+		gen_redirect(html_href_link(FILENAME_DEFAULT, 'module=shipping&page=popup_label_viewer&method=' . $shipping_module . '&date=' . $date . '&labels=' . $labels, 'SSL'));	
 	}
     break;
 

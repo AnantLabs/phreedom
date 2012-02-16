@@ -26,7 +26,6 @@ require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/shipping.php');
 require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
 require_once(DIR_FS_WORKING . 'classes/install.php');
-
 /**************   page specific initialization  *************************/
 $error      = false; 
 $method_dir = DIR_FS_WORKING . 'methods/';
@@ -39,8 +38,10 @@ if (substr($action, 0, 8) == 'install_') {
 } elseif (substr($action, 0, 7) == 'remove_') {
   $method = substr($action, 7);
   $action = 'remove';
+} elseif (substr($action, 0, 7) == 'signup_') {
+  $method = substr($action, 7);
+  $action = 'signup';
 }
-
 // load the available methods
 $methods = array();
 $contents = scandir($method_dir);
@@ -50,14 +51,10 @@ foreach ($contents as $choice) {
 	$methods[] = $choice;
   }
 }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'install':
-	if ($security_level < 4) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+  	validate_security($security_level, 4);
 	require_once($method_dir . $method . '/' . $method . '.php');
 	$properties = new $method();
 	write_configure('MODULE_SHIPPING_' . strtoupper($method) . '_STATUS', '1');
@@ -66,11 +63,8 @@ switch ($action) {
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	break;
   case 'remove';
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
-	require_once($method_dir . $method . '/' . $method . '.php');
+  	validate_security($security_level, 4);
+  	require_once($method_dir . $method . '/' . $method . '.php');
 	$properties = new $method();
 	if (method_exists($properties, 'remove')) $properties->remove(); // handle special case removal, db, files, etc
 	foreach ($properties->keys() as $key) { // remove all of the keys from the configuration table
@@ -80,11 +74,8 @@ switch ($action) {
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	break;
   case 'save':
-	if ($security_level < 3) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL')); 
-	}
-	// foreach method if enabled, save info
+  	validate_security($security_level, 3);
+    // foreach method if enabled, save info
 	if (sizeof($methods) > 0) foreach ($methods as $shipper) {
 	  if (defined('MODULE_SHIPPING_' . strtoupper($shipper) . '_STATUS')) {
 	    require_once($method_dir . $shipper . '/' . $shipper . '.php');
@@ -99,6 +90,13 @@ switch ($action) {
     }
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
     break;
+  case 'signup':
+  	validate_security($security_level, 4);
+	require_once($method_dir . $method.'/'.$method.'.php');
+	$properties = new $method();
+	if (method_exists($properties, 'signup')) $properties->signup();
+//	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+	break;
   case 'backup':
     $carrier   = db_prepare_input($_POST['carrier']);
 	$fy_month  = db_prepare_input($_POST['fy_month']);
@@ -107,7 +105,7 @@ switch ($action) {
 	// set execution time limit to a large number to allow extra time 
 	if (ini_get('max_execution_time') < 20000) set_time_limit(20000);
 	$backup              = new backup;
-	$backup->source_dir  = DIR_FS_MY_FILES . $_SESSION['company'] . '/shipping/labels/' . $carrier . '/' . $fy_year . '/' . $fy_month . '/';
+	$backup->source_dir  = DIR_FS_MY_FILES . $_SESSION['company'].'/shipping/labels/'.$carrier.'/'.$fy_year.'/'.$fy_month.'/';
 	$backup->dest_dir    = DIR_FS_MY_FILES . 'backups/';
 	switch ($conv_type) {
 	  case 'bz2': 
@@ -139,24 +137,20 @@ switch ($action) {
 	break;
   default:
 }
-
 /*****************   prepare to display templates  *************************/
 // build some general pull down arrays
 $sel_yes_no = array(
  array('id' => '0', 'text' => TEXT_NO),
  array('id' => '1', 'text' => TEXT_YES),
 );
-
 $sel_checked = array(
  array('id' => '0', 'text' => TEXT_UNCHECKED),
  array('id' => '1', 'text' => TEXT_CHECKED),
 );
-
 $sel_show = array(
  array('id' => '0', 'text' => TEXT_HIDE),
  array('id' => '1', 'text' => TEXT_SHOW),
 );
-
 $sel_fy_month = array(
   array('id' => '01', 'text'=> TEXT_JAN),
   array('id' => '02', 'text'=> TEXT_FEB),
@@ -171,12 +165,10 @@ $sel_fy_month = array(
   array('id' => '11', 'text'=> TEXT_NOV),
   array('id' => '12', 'text'=> TEXT_DEC),
 );
-
 $sel_fy_year = array();
 for ($i = 0; $i < 8; $i++) {
   $sel_fy_year[] = array('id' => date('Y')-$i, 'text' => date('Y')-$i);
 }
-
 $sel_method = array();
 $sel_method[] = array('id' => '', 'text' => GEN_HEADING_PLEASE_SELECT);
 foreach ($methods as $value) {
@@ -184,11 +176,8 @@ foreach ($methods as $value) {
     $sel_method[] = array('id' => $value, 'text' => constant('MODULE_SHIPPING_' . strtoupper($value) . '_TEXT_TITLE'));
   }
 }
-
 $include_header   = true;
 $include_footer   = true;
-$include_tabs     = true;
-$include_calendar = false;
 $include_template = 'template_main.php';
 define('PAGE_TITLE', MODULE_SHIPPING_TITLE);
 ?>

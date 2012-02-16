@@ -97,7 +97,7 @@
 		<align><![CDATA[L]]></align>
 		<total><![CDATA[0]]></total>
 	</fieldlist>
-		<security><![CDATA[u:1;g:]]></security>
+		<security><![CDATA[u:0;g:0]]></security>
 		<datelist><![CDATA[a]]></datelist>
 		<datedefault><![CDATA[a]]></datedefault>
 	<grouplist>

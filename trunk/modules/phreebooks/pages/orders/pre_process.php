@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -180,6 +180,9 @@ switch ($action) {
 		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 		break;
 	}
+	// currency values (convert to DEFAULT_CURRENCY to store in db)
+	$order->currencies_code     = db_prepare_input($_POST['currencies_code']);
+	$order->currencies_value    = db_prepare_input($_POST['currencies_value']);
 	// load bill to and ship to information
 	$order->short_name          = db_prepare_input(($_POST['search'] <> TEXT_SEARCH) ? $_POST['search'] : '');
 	$order->bill_add_update     = isset($_POST['bill_add_update']) ? $_POST['bill_add_update'] : 0;
@@ -244,9 +247,6 @@ switch ($action) {
 	$order->item_count          = db_prepare_input($_POST['item_count']);
 	$order->weight              = db_prepare_input($_POST['weight']);
 	$order->printed             = db_prepare_input($_POST['printed']);
-	// currency values (convert to DEFAULT_CURRENCY to store in db)
-	$order->currencies_code     = db_prepare_input($_POST['currencies_code']);
-	$order->currencies_value    = db_prepare_input($_POST['currencies_value']);
 	$order->subtotal            = $currencies->clean_value(db_prepare_input($_POST['subtotal']), $order->currencies_code) / $order->currencies_value; // don't need unless for verification
 	$order->disc_gl_acct_id     = db_prepare_input($_POST['disc_gl_acct_id']);
 	$order->discount            = $currencies->clean_value(db_prepare_input($_POST['discount']), $order->currencies_code) / $order->currencies_value;
@@ -257,10 +257,10 @@ switch ($action) {
 	$order->total_amount        = $currencies->clean_value(db_prepare_input($_POST['total']), $order->currencies_code) / $order->currencies_value;
 	// load item row data
 	$x = 1;
-	while (isset($_POST['qty_' . $x]) ) { // while there are item rows to read in
+	while (isset($_POST['qty_' . $x])) { // while there are item rows to read in
 	  if (!$_POST['qty_' . $x] && !$_POST['pstd_' . $x]) {
 	    $x++;
-		continue; // skip item line
+	    continue; // skip item line
 	  }
 	  // Error check some input fields
 	  //if ($_POST['pstd_' . $x] == "") $error = $messageStack->add(GEN_ERRMSG_NO_DATA . "Qty", 'error');	  
@@ -269,6 +269,7 @@ switch ($action) {
 	  $order->item_rows[] = array(
 		'id'                => db_prepare_input($_POST['id_' . $x]),
 		'so_po_item_ref_id' => db_prepare_input($_POST['so_po_item_ref_id_' . $x]),
+		'item_cnt'			=> db_prepare_input($_POST['item_cnt_' . $x]),
 		'gl_type'           => GL_TYPE,
 		'qty'               => $currencies->clean_value(db_prepare_input($_POST['qty_' . $x]), $order->currencies_code),
 		'pstd'              => $currencies->clean_value(db_prepare_input($_POST['pstd_' . $x]), $order->currencies_code),
@@ -440,18 +441,9 @@ $js_proj_list = 'var proj_list = new Array(' . count($proj_list) . ');' . chr(10
 for ($i = 0; $i < count($proj_list); $i++) {
   $js_proj_list .= 'proj_list[' . $i . '] = new dropDownData("' . $proj_list[$i]['id'] . '", "' . $proj_list[$i]['text'] . '");' . chr(10);
 }
-
 // see if current user points to a employee for sales rep default
 $result = $db->Execute("select account_id from " . TABLE_USERS . " where admin_id = " . $_SESSION['admin_id']);
 $default_sales_rep = $result->fields['account_id'] ? $result->fields['account_id'] : '0';
-
-if (JOURNAL_ID == 19) { // load available payment modules
-  $payment_modules = load_all_methods('payment');
-  foreach ($payment_modules as $pmt_class) {
-	$class  = $pmt_class['id'];
-	$$class = new $class;
-  }
-}
 
 // Load shipping methods
 if (defined('MODULE_SHIPPING_STATUS')) {

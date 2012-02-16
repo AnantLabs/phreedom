@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -42,17 +42,11 @@ class storepickup {
   }
 
   function quote($pkg = '') {
-	$quote    = array();
 	$arrRates = array();
-	$methods  = array('1DEam','1Dam','1Dpm','2Dpm','3Dpm','GND','GDR');
-	foreach ($methods as $value) {
-	  $arrRates[$this->code][$value]['book']  = MODULE_SHIPPING_STOREPICKUP_COST;
-	  $arrRates[$this->code][$value]['quote'] = MODULE_SHIPPING_STOREPICKUP_COST;
-	  $arrRates[$this->code][$value]['cost']  = MODULE_SHIPPING_STOREPICKUP_COST;
-	}
-	$quote['result'] = 'success';
-	$quote['rates']  = $arrRates;
-	return $quote;
+	$arrRates[$this->code]['GND']['book']  = '';
+	$arrRates[$this->code]['GND']['quote'] = MODULE_SHIPPING_STOREPICKUP_COST;
+	$arrRates[$this->code]['GND']['cost']  = '';
+	return array('result' => 'success', 'rates' => $arrRates);
   }
 
 }

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,7 +17,6 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/shipping/pages/popup_shipping/pre_process.php
 //
-
 define('DEFAULT_MOD_DIR', DIR_FS_MODULES . 'shipping/methods/');
 $security_level = validate_user(0, true);
 /**************  include page specific files  *********************/
@@ -25,12 +24,10 @@ gen_pull_language('contacts');
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_WORKING . 'functions/shipping.php');
 require_once(DIR_FS_WORKING . 'classes/shipping.php');
-
 /**************   page specific initialization  *************************/
 $error       = false;
 $pkg         = new shipment();
 $action      = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-
 $methods     = array();
 $files       = scandir(DEFAULT_MOD_DIR);
 foreach ($files as $choice) {
@@ -39,11 +36,9 @@ foreach ($files as $choice) {
     $methods[] = $choice;
   }
 }
-
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/popup_shipping/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'rates':
@@ -64,16 +59,13 @@ switch ($action) {
 	$pkg->saturday_pickup        = isset($_POST['saturday_pickup']) ? '1' : '0';
 	$pkg->saturday_delivery      = isset($_POST['saturday_delivery']) ? '1' : '0';
 	$pkg->hazardous_material     = isset($_POST['hazardous_material']) ? '1' : '0';
-
 	// read the modules installed
 	$rates = array();
 	foreach ($methods as $method) {
 	  if (isset($_POST['ship_method_' . $method])) {
-//echo 'finding rate for ' . $value['id'] . '<br />';
 		require_once(DEFAULT_MOD_DIR . $method . '/' . $method . '.php');
 		$subject = new $method;
 		$result = $subject->quote($pkg); // will return false if there was an error
-//echo $value['id'] . ' rate array='; print_r($result); echo '<br />';
 		if (is_array($result)) {
 		  $rates = array_merge_recursive($result, $rates);
 		} else {
@@ -81,12 +73,10 @@ switch ($action) {
 		}
 	  }
 	}
-//echo 'Final rate array='; print_r($rates); echo '<br />';
 	if ($error) $action = ''; // reload selection form
 	break;
   default:
 }
-
 /*****************   prepare to display templates  *************************/
 $cal_ship = array(
   'name'      => 'dateShipped',
@@ -96,12 +86,10 @@ $cal_ship = array(
   'default'   => date(DATE_FORMAT),
   'params'    => array('align' => 'left'),
 );
-
 $include_header   = false;
 $include_footer   = false;
 $include_tabs     = false;
 $include_calendar = true;
-
 switch ($action) {
   case 'rates':
     $include_template = 'template_detail.php';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -65,6 +65,7 @@ define('TEXT_GROUP_CODE','Group Code');
 define('TEXT_GROUP_MEMBER','Group Member');
 define('TEXT_GROUP_PAGE_BREAK','Group Page Break');
 define('TEXT_GROUP_TOTAL_FOR','Group Total For:');
+define('TEXT_IMAGE_LINK','Path to Image (combined with field)');
 define('TEXT_IMPORT_ALL','Import All Reports From This Directory');
 define('TEXT_IMPORT_ALL_DESC','To import all reports listed above, click here:');
 define('TEXT_IMPORT_ONE','Import Selected Report');
@@ -206,6 +207,7 @@ define('TEXT_PORTRAIT','Portrait');
 define('TEXT_LANDSCAPE','Landscape');
 define('TEXT_LEGAL','Legal');
 define('TEXT_LETTER','Letter');
+define('TEXT_TABLOID','Tabloid');
 // Text formatting for text and company blocks
 define('PF_FRM_COMMA','Comma (,)');
 define('PF_FRM_COMMASP','Comma-Space');
@@ -223,6 +225,7 @@ define('PF_FRM_DATATABLEDUP','Copy of Data Table');
 define('PF_FRM_DATATOTAL','Data Total');
 define('PF_FRM_FIXEDTXT','Fixed Text Field');
 define('PF_FRM_IMAGE','Image - JPG or PNG');
+define('PF_FRM_IMAGE_LINK','Image Link');
 define('PF_FRM_LINE','Line');
 define('PF_FRM_PAGENUM','Page Number');
 define('PF_FRM_RECTANGLE','Rectangle');

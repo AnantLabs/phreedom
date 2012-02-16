@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -28,7 +28,7 @@ class freeshipper {
 
   function keys() {
     return array(
-      array('key' => 'MODULE_SHIPPING_FREESHIPPER_TITLE',      'default' => 'Free Shipping'),
+      array('key' => 'MODULE_SHIPPING_FREESHIPPER_TITLE',      'default' => MODULE_SHIPPING_FREESHIPPER_TITLE_SHORT),
       array('key' => 'MODULE_SHIPPING_FREESHIPPER_COST',       'default' => '0.00', 'properties' => 'size="10" style="text-align:right"'),
       array('key' => 'MODULE_SHIPPING_FREESHIPPER_HANDLING',   'default' => '0.00', 'properties' => 'size="10" style="text-align:right"'),
       array('key' => 'MODULE_SHIPPING_FREESHIPPER_SORT_ORDER', 'default' => '25'),
@@ -43,17 +43,16 @@ class freeshipper {
   }
 
   function quote($pkg = '') {
-	$quote    = array();
-	$arrRates = array();
-	$methods  = array('1DEam','1Dam','1Dpm','2Dpm','3Dpm','GND','GDR');
-	foreach ($methods as $value) {
-	  $arrRates[$this->code][$value]['book']  = MODULE_SHIPPING_FREESHIPPER_COST + MODULE_SHIPPING_FREESHIPPER_HANDLING;
-	  $arrRates[$this->code][$value]['quote'] = MODULE_SHIPPING_FREESHIPPER_COST + MODULE_SHIPPING_FREESHIPPER_HANDLING;
-	  $arrRates[$this->code][$value]['cost']  = MODULE_SHIPPING_FREESHIPPER_COST + MODULE_SHIPPING_FREESHIPPER_HANDLING;
+    global $shipping_defaults;
+  	$arrRates = array();
+	foreach ($shipping_defaults['service_levels'] as $key => $value) {
+	  if (defined($this->code.'_'.$key)) {
+		$arrRates[$this->code][$key]['book']  = '';
+	    $arrRates[$this->code][$key]['quote'] = MODULE_SHIPPING_FREESHIPPER_COST + MODULE_SHIPPING_FREESHIPPER_HANDLING;
+	    $arrRates[$this->code][$key]['cost']  = '';
+	  }
 	}
-	$quote['result'] = 'success';
-	$quote['rates']  = $arrRates;
-	return $quote;
+	return array('result' => 'success', 'rates' => $arrRates);
   }
 }
 ?>

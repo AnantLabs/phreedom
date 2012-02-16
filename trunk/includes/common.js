@@ -1,7 +1,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -231,6 +231,63 @@ function AlertError(MethodName,e)  {
   else {  alert(MethodName + " Exception: " + e.description); }
 }
 
+// Chart functions
+chartProps = new Object();
+google.load('visualization', '1.0', {'packages':['corechart']});
+google.setOnLoadCallback(drawChart);
+function drawChart() {}
+
+function phreedomChart() {
+  var modID = chartProps.modID;
+  var func  = chartProps.func;
+  var d0    = chartProps.d0;
+  $.ajax({
+	type: "GET",
+	contentType: "application/json; charset=utf-8",
+	url: 'index.php?module=phreedom&page=ajax&op=phreedom&action=chart&modID='+modID+'&fID='+func+'&d0='+d0,
+	dataType: ($.browser.msie) ? "text" : "xml",
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	  alert ("Ajax Error: " + errorThrown + '-' + XMLHttpRequest.responseText + "\nStatus: " + textStatus);
+	},
+	success: phreedomChartResp
+  });
+}
+
+function phreedomChartResp(sXml) {
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  var error = $(xml).find("error").text();
+  if (error) { alert (error); }
+  else { // activate the chart response
+	$('#'+chartProps.divID).dialog("option", "title", $(xml).find("title").text());
+	$('#'+chartProps.divID).dialog("option", "width", parseInt($(xml).find("width").text())+40);
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', $(xml).find("label_text").text());
+    data.addColumn('number', $(xml).find("value_text").text());
+    var rowCnt = parseInt($(xml).find("rowCnt").text());
+    var divID  = document.getElementById(chartProps.divID);
+    data.addRows(rowCnt);
+    rowCnt = 0;
+    $(xml).find("chartData").each(function() {
+      data.setCell(rowCnt, 0, $(this).find("string").text());
+      data.setCell(rowCnt, 1, parseFloat($(this).find("number").text()));
+      rowCnt++;
+    });
+    var options = {'title':$(xml).find("title").text(), 'width':$(xml).find("width").text(), 'height':$(xml).find("height").text()};
+    switch ($(xml).find("type").text()) {
+      default:
+      case 'pie':    var chart = new google.visualization.PieChart(divID);    break;
+      case 'bar':    var chart = new google.visualization.BarChart(divID);    break;
+      case 'column': var chart = new google.visualization.ColumnChart(divID); break;
+      case 'guage':  var chart = new google.visualization.Guage(divID);       break;
+      case 'line':   var chart = new google.visualization.LineChart(divID);   break;
+//    case 'map':    var chart = new google.visualization.Map(divID);         break;
+    }
+    chart.draw(data, options);
+	$('#'+chartProps.divID).dialog('open');
+  }
+}
+
 // ******************** functions used for combo box scripting ***********************************
 var fActiveMenu = false;
 var oOverMenu   = false;
@@ -411,12 +468,11 @@ function parseXml(xml) {
 
 // ajax pair to reload tab on pages
 function tabPage(subject, action, rID) {
-  var list = document.getElementById(subject+'_list').value;
   if (subject) {
     $.ajax({
       type: "GET",
       contentType: "application/json; charset=utf-8",
-	  url: 'index.php?module=phreedom&page=ajax&op=tab_details&mod='+module+'&subject='+subject+'&list='+list+'&action='+action+'&rID='+rID,
+	  url: 'index.php?module=phreedom&page=ajax&op=tab_details&mod='+module+'&subject='+subject+'&action='+action+'&rID='+rID,
       dataType: ($.browser.msie) ? "text" : "xml",
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -432,7 +488,6 @@ function processTabPage(sXml) {
   if (!xml) return;
   subject = $(xml).find("subject").text();
   if (!subject) alert('no subject returned');
-  document.getElementById(subject+'_list').value = $(xml).find("page").text();
   obj = document.getElementById(subject+'_content');
   obj.innerHTML = $(xml).find("htmlContents").text();
   if ($(xml).find("message").text()) alert($(xml).find("message").text());

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -34,28 +34,27 @@ if ($include_header) { ?>
   <script type="text/javascript">
     ddsmoothmenu.init({
 	  mainmenuid: "smoothmenu",
-	  orientation: '<?php echo MY_MENU=='left'?'v':'h'?>',
-	  classname: '<?php echo MY_MENU=='left'?'ddsmoothmenu-v':'ddsmoothmenu'?>',
+	  orientation: '<?php echo MY_MENU=='left'?'v':'h';?>',
+	  classname: '<?php echo MY_MENU=='left'?'ddsmoothmenu-v':'ddsmoothmenu';?>',
 	  contentsource: "markup"
     })
   </script>
 <?php } // end include_header
 
-if ($include_calendar) { // create the date format for the calendar (different from php)
-  $cal_format =  preg_replace(array('/m/','/d/','/Y/'), array('mm', 'dd', 'yy'), DATE_FORMAT);
-  define('DATE_FORMAT_CALENDAR', $cal_format);
-  // load the date format configuration values
-  if      (file_exists(DIR_FS_MODULES . 'phreedom/custom/language/'.$_SESSION['language'].'/datepicker.php')) {
-   include_once       (DIR_FS_MODULES . 'phreedom/custom/language/'.$_SESSION['language'].'/datepicker.php');
-  } elseif(file_exists(DIR_FS_MODULES . 'phreedom/language/'       .$_SESSION['language'].'/datepicker.php')) {
-   include_once       (DIR_FS_MODULES . 'phreedom/language/'       .$_SESSION['language'].'/datepicker.php');
-  } else include_once (DIR_FS_MODULES . 'phreedom/language/en_us/datepicker.php');
-  // wrappers to initialize jquery UI calendar, both javascript and html
+// set up to use jquery UI calendar format
+$cal_format =  preg_replace(array('/m/','/d/','/Y/'), array('mm', 'dd', 'yy'), DATE_FORMAT);
+define('DATE_FORMAT_CALENDAR', $cal_format);
+// wrappers to initialize jquery UI calendar, both javascript and html
+if (!function_exists('js_calendar_init')) {
   function js_calendar_init($properties = NULL) {
-	return 'addLoadEvent(function() { $("#'.$properties['fieldname'].'").datepicker(); });';
+    return 'addLoadEvent(function() { $("#'.$properties['fieldname'].'").datepicker(); });';
   }
+}
+if (!function_exists('html_calendar_field')) {
   function html_calendar_field($properties = NULL) {
-	return html_input_field($properties['fieldname'], $properties['default']);
+    return html_input_field($properties['fieldname'], $properties['default']);
   }
-} /// end include_calendar 
+}
 ?>
+<script type="text/javascript">var js_cal_date_format = '<?php echo DATE_FORMAT_CALENDAR; ?>';</script>
+  

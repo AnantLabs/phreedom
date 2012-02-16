@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -36,7 +36,7 @@ function check_form() {
 
 function clearForm() {
   document.getElementById('id').value                  = 0;
-  document.getElementById('store_id').value            = <?php echo $_SESSION['admin_prefs']['def_store_id']; ?>;
+  document.getElementById('store_id').value            = <?php echo $_SESSION['admin_prefs']['def_store_id'] ? $_SESSION['admin_prefs']['def_store_id'] : 0; ?>;
   document.getElementById('purchase_invoice_id').value = '';
   document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT); ?>';
   document.getElementById('adj_reason').value          = '';
@@ -86,7 +86,7 @@ function processSkuStock(sXml) {
   document.getElementById('sku_'+rCnt).value      = $(xml).find("sku").text();
   document.getElementById('sku_'+rCnt).style.color= '';
   document.getElementById('stock_'+rCnt).value    = parseFloat($(xml).find("branch_qty_in_stock").text());
-  document.getElementById('price_'+rCnt).value    = $(xml).find("item_cost").text();
+  document.getElementById('price_'+rCnt).value    = formatCurrency($(xml).find("item_cost").text());
   document.getElementById('serial_'+rCnt).value   = '';
   document.getElementById('acct_'+rCnt).value     = $(xml).find("account_inventory_wage").text();
   document.getElementById('def_cost_'+rCnt).value = $(xml).find("item_cost").text();

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -32,6 +32,7 @@ $jID       = db_prepare_input($_GET['jID']);
 $so_po     = db_prepare_input($_GET['so_po']); // pull from a so/po for invoice/receipt
 $just_ship = db_prepare_input($_GET['ship_only']);
 define('JOURNAL_ID',$jID);
+$cog_types = explode(',', COG_ITEM_TYPES);
 $error = false;
 $sID   = $cID; // set ship contact ID equal to bill contact ID
 switch (JOURNAL_ID) {
@@ -138,11 +139,10 @@ if (sizeof($order->fields) > 0) {
 		  $subtotal   += $total;
 		  $inv_details = $db->Execute("select inventory_type, inactive, item_weight, quantity_on_hand, lead_time 
 		    from " . TABLE_INVENTORY . " where sku = '" . $ordr_items->fields['sku'] . "'");
-		  $cog_types = explode(',', COG_ITEM_TYPES);
 		  if (!in_array($inv_details->fields['inventory_type'], $cog_types)) $inv_details->fields['quantity_on_hand'] = 'NA';
 		  $item_list[] = array(
 			'so_po_item_ref_id' => $ordr_items->fields['id'],
-			'qty'               => $ordr_items->fields['qty'],
+		    'qty'               => $ordr_items->fields['qty'],
 			'sku'               => $ordr_items->fields['sku'],
 			'gl_type'           => $ordr_items->fields['gl_type'],
 			'description'       => $ordr_items->fields['description'],
@@ -202,18 +202,21 @@ if (sizeof($order->fields) > 0) {
 	    $total = $ordr_items->fields['credit_amount'] + $ordr_items->fields['debit_amount'];
 	  	if (in_array($ordr_items->fields['gl_type'], array('poo', 'soo', 'por', 'sos'))) {
 		  $subtotal += $total;
-		  $inv_details = $db->Execute("select inactive, item_weight, quantity_on_hand, lead_time 
+		  $inv_details = $db->Execute("select inactive, inventory_type, item_weight, quantity_on_hand, lead_time 
 		    from " . TABLE_INVENTORY . " where sku = '" . $ordr_items->fields['sku'] . "'");
-		} else if ($ordr_items->fields['gl_type'] == 'dsc') {
+		  $inv_details->fields['quantity_on_hand'] = $ordr_items->fields['qty'] + $inv_details->fields['quantity_on_hand'];
+		  if (!in_array($inv_details->fields['inventory_type'], $cog_types)) $inv_details->fields['quantity_on_hand'] = 'NA';
+	  	} else if ($ordr_items->fields['gl_type'] == 'dsc') {
 		  $discount = $ordr_items->fields['credit_amount'] + $ordr_items->fields['debit_amount'];
 		} else {
 		  $inv_details = new objectInfo();
 		}
-	    if ($so_po_ref_id) {
 //$debug .= ' processing quantity_on_hand = ' . $inv_details->fields['quantity_on_hand'] . ' and total = ' . $total . chr(10);
+		if ($so_po_ref_id) {
 		  for ($i = 0; $i < count($item_list); $i++) {
 		    if ($ordr_items->fields['so_po_item_ref_id'] && $item_list[$i]['so_po_item_ref_id'] == $ordr_items->fields['so_po_item_ref_id']) {
 			  $item_list[$i]['id']          = $ordr_items->fields['id'];
+			  $item_list[$i]['item_cnt']    = $ordr_items->fields['item_cnt'];
 			  $item_list[$i]['gl_type']     = $ordr_items->fields['gl_type'];
 			  $item_list[$i][$qty_pstd]     = $ordr_items->fields['qty'];
 			  $item_list[$i]['description'] = $ordr_items->fields['description'];
@@ -236,7 +239,8 @@ if (sizeof($order->fields) > 0) {
 	    if (!$found) {	// it's an addition to the po/so entered at the purchase/sales window
 		  $item_list[] = array(
 			'id'          => $ordr_items->fields['id'],
-			'gl_type'     => $ordr_items->fields['gl_type'],
+			'item_cnt'    => $ordr_items->fields['item_cnt'],
+		    'gl_type'     => $ordr_items->fields['gl_type'],
 			$qty_pstd     => $ordr_items->fields['qty'],
 			'sku'         => $ordr_items->fields['sku'],
 			'description' => $ordr_items->fields['description'],

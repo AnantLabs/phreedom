@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -564,6 +564,35 @@ class encryption {
 	}
 	$this->adj = 1.75;
 	$this->mod = 3;
+  }
+
+  function encrypt_cc($params) {
+  	global $messageStack;
+	if (strlen($_SESSION['admin_encrypt']) < 1) {
+	  $messageStack->add(ACT_NO_KEY_EXISTS,'error');
+	  return false;
+	}
+	if ($params['number']) {
+	  $params['number'] = preg_replace("/[^0-9]/", "", $params['number']);
+	  $hint  = substr($params['number'], 0, 4);
+	  for ($a = 0; $a < (strlen($params['number']) - 8); $a++) $hint .= '*'; 
+	  $hint .= substr($params['number'], -4);
+	  $payment = array( // the sequence is important!
+		$params['name'],
+		$params['number'],
+		$params['exp_mon'],
+		$params['exp_year'],
+		$params['cvv2'],
+	  );
+	  $val = implode(':', $payment).':';
+	  if (!$enc_value = $this->encrypt($_SESSION['admin_encrypt'], $val, 128)) {
+		$messageStack->add('Encryption error - ' . implode('. ', $encrypt->errors), 'error');
+		return false;
+	  }
+	}
+	if (strlen($params['exp_year']) == 2) $params['exp_year'] = '20'.$params['exp_year'];
+	$exp_date = $params['exp_year'].'-'.$params['exp_mon'].'-01';
+	return array('hint' => $hint, 'encoded' => $enc_value, 'exp_date' => $exp_date);
   }
 
   function decrypt ($key, $source) {

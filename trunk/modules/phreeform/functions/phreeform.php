@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -391,7 +391,7 @@ function BuildForm($report, $delivery_method = 'D') { // for forms only
 	// Let's build the sql field list for the general data fields (not totals, blocks or tables)
 	$strField = array();
 	foreach ($report->fieldlist as $key => $field) { // check for a data field and build sql field list
-	  if ($field->type == 'Data' || $field->type == 'BarCode') { // then it's data field make sure it's not empty
+	  if (in_array($field->type, array('Data','BarCode','ImgLink'))) { // then it's data field make sure it's not empty
 		if ($field->boxfield[0]->fieldname) {
 		  $strField[] = prefixTables($field->boxfield[0]->fieldname) . ' as d' . $key;
 		} else { // the field is empty, bad news, error and exit
@@ -1006,10 +1006,11 @@ function BuildDataArray($sql, $report) { // for reports only
 		}
 		$GrpWorking = $myrow[$GrpField]; // set to new grouping value
 	  }
-	  $OutputArray[$RowCnt][0] = 'd'; // let the display class know its a data element
+
 	  foreach($Seq as $key => $TableCtl) { // 
 	    if ($report->totalonly <> '1') { // insert data into output array and set to next column
-		  $OutputArray[$RowCnt][$ColCnt] = ProcessData($myrow[$TableCtl['fieldname']], $TableCtl['processing']);
+		  $OutputArray[$RowCnt][0] = 'd'; // let the display class know its a data element
+	      $OutputArray[$RowCnt][$ColCnt] = ProcessData($myrow[$TableCtl['fieldname']], $TableCtl['processing']);
 	    }
 	    $ColCnt++;
 	    if ($TableCtl['total']) { // add to the running total if need be

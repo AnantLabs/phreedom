@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -47,6 +47,7 @@ echo $toolbar->build_toolbar();
 <ul>
 <?php
   echo add_tab_list('tab_general', TEXT_GENERAL);
+  echo add_tab_list('tab_tools',   TEXT_TOOLS);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
     echo add_tab_list('tab_custom',TEXT_CUSTOM_TAB); 
   }
@@ -55,6 +56,7 @@ echo $toolbar->build_toolbar();
 </ul>
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_general.php');
+  require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_tools.php');
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
     require (DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php');
   }

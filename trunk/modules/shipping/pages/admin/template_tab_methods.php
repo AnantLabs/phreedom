@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -28,7 +28,8 @@
 	  </tr>
  </thead>
  <tbody class="ui-widget-content">
-<?php 
+<?php
+  $odd = true;
   if (sizeof($methods) > 0) foreach ($methods as $method) {
     $installed = defined('MODULE_SHIPPING_' . strtoupper($method) . '_STATUS');
 	$bkgnd = $installed ? ' class="ui-state-active"' : '';
@@ -41,7 +42,7 @@
 	} else {
 	  $logo = DIR_WS_MODULES . 'shipping/images/no_logo.png';
 	}
-	echo '      <tr>' . chr(10);
+	echo '      <tr class="' . ($odd?'odd':'even') . '">' . chr(10);
 	echo '        <td>' . html_image($logo, constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_TITLE'), $width = '', $height = '32', $params = '') . '</td>' . chr(10);
 	echo '        <td' . $bkgnd . '>' . 
 		constant('MODULE_SHIPPING_' . strtoupper($method) . '_TEXT_TITLE') . ' - ' . 
@@ -76,6 +77,7 @@
 	  echo '<tr><td colspan="3"><hr /></td></tr>';
 	  echo '      </table></td></tr>' . chr(10);
 	}
+	$odd = !$odd;
   }
 ?>
   </tbody>

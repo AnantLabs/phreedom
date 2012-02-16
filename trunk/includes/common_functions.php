@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -465,13 +465,13 @@
 
   function gen_add_audit_log($action, $ref_id = '', $amount = '') {
 	if ($action == '' || !isset($action)) die ('Error, call to audit log with no description');
-	$ref_id = db_prepare_input($ref_id);
 	$fields = array(
-	  'user_id' => $_SESSION['admin_id'] ? $_SESSION['admin_id'] : '1',
-	  'action'  => substr(db_prepare_input($action), 0, 64), // limit to field length
+	  'user_id'   => $_SESSION['admin_id'] ? $_SESSION['admin_id'] : '1',
+	  'action'    => substr($action, 0, 64), // limit to field length
+	  'ip_address'=> $_SERVER['REMOTE_ADDR'],
 	);
-	if ($ref_id <> '') $fields['reference_id'] = substr(db_prepare_input($ref_id), 0, 32); // limit to field length
-	if ($amount <> '') $fields['amount']       = (real)$amount;
+	if ($ref_id) $fields['reference_id'] = substr($ref_id, 0, 32); // limit to field length
+	if ($amount) $fields['amount']       = (real)$amount;
 	db_perform(TABLE_AUDIT_LOG, $fields, 'insert');
   }
 
@@ -918,6 +918,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
 /**************************************************************************************************************/
   function db_perform($table, $data, $action = 'insert', $parameters = '') {
     global $db;
+    if (!is_array($data)) return false;
     reset($data);
     if ($action == 'insert') {
       $query = 'insert into ' . $table . ' (';
@@ -1335,20 +1336,6 @@ function charConv($string, $in, $out) {
 	$out .= "//IGNORE";
 	return iconv($in, $out, $string);
 }
-
-  function quote_oanda_currency($code, $base = DEFAULT_CURRENCY) {
-    $page = file('http://www.oanda.com/convert/fxdaily?value=1&redirected=1&exch=' . $code .  '&format=CSV&dest=Get+Table&sel_list=' . $base);
-    $match = array();
-    preg_match('/(.+),(\w{3}),([0-9.]+),([0-9.]+)/i', implode('', $page), $match);
-    return (sizeof($match) > 0) ? $match[3] : false;
-  }
-
-  function quote_xe_currency($to, $from = DEFAULT_CURRENCY) {
-    $page = file('http://www.xe.net/ucc/convert.cgi?Amount=1&From=' . $from . '&To=' . $to);
-    $match = array();
-    preg_match('/[0-9.]+\s*' . $from . '\s*=\s*([0-9.]+)\s*' . $to . '/', implode('', $page), $match);
-    return (sizeof($match) > 0) ? $match[1] : false;
-  }
 
   function strtolower_utf8($string){
     $convert_from = array(

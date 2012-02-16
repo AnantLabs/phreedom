@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -23,8 +23,6 @@ echo html_hidden_field('todo',        '') . chr(10);
 echo html_hidden_field('f0',         $f0) . chr(10);
 echo html_hidden_field('id',  $cInfo->id) . chr(10);
 echo html_hidden_field('rowSeq',      '') . chr(10);
-echo html_hidden_field('del_add_id',  '') . chr(10);
-echo html_hidden_field('del_pmt_id',  '') . chr(10);
 echo html_hidden_field('del_crm_note','') . chr(10);
 echo html_hidden_field('payment_id',  '') . chr(10);
 // customize the toolbar actions
@@ -66,12 +64,12 @@ while (!$xtra_tab_list->EOF) {
   $found_one = false;
   $field_list->Move(0);
   $field_list->MoveNext();
-  $xtra_header  = '<div id="tab_' . $field_list->fields['tab_id'] . '">' . chr(10);
-  $xtra_header .= '  <table cellspacing="2" cellpadding="2">' . chr(10);
+  $xtra_header  = '<div id="tab_' . $xtra_tab_list->fields['id'] . '">' . chr(10);
+  $xtra_header .= '  <table>' . chr(10);
   while (!$field_list->EOF) {
 	if ($xtra_tab_list->fields['id'] == $field_list->fields['tab_id']) {
 	  $xtra_params = unserialize($field_list->fields['params']);
-	  $temp =explode(':',$xtra_params['contact_type']);
+	  $temp = explode(':',$xtra_params['contact_type']);
 	  while ($value = array_shift($temp)){
 	  	if (substr($value, 0, 1) == $type) {
 		    $xtra_header .= xtra_field_build_entry($field_list->fields, $cInfo) . chr(10);
@@ -100,7 +98,7 @@ function tab_sort($a, $b) {
 usort($tab_list, 'tab_sort');
 
 ?>
-<h1><?php echo ($action == 'new') ? $page_title_new : constant('ACT_' . strtoupper($type) . '_PAGE_TITLE_EDIT') . ' - ' . $edit_text; ?></h1>
+<h1><?php echo PAGE_TITLE; ?></h1>
 <div id="detailtabs">
 <ul>
 <?php // build the tab list's
@@ -121,12 +119,10 @@ foreach ($tab_list as $value) {
   }
 }
 // pull in additional custom tabs
-if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
-  foreach ($extra_inventory_tabs as $tabs) {
+if (isset($extra_contact_tabs) && is_array($extra_contact_tabs)) {
+  foreach ($extra_contact_tabs as $tabs) {
     $file_path = DIR_FS_WORKING . 'custom/pages/main/' . $tabs['tab_filename'] . '.php';
-    if (file_exists($file_path)) {
-	  require($file_path);
-	}
+    if (file_exists($file_path)) { require($file_path);	}
   }
 }
 echo $extra_tab_html;

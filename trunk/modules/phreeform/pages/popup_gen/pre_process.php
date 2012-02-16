@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -71,7 +71,9 @@ if ($rID) {
       if (isset($_GET['xmax'])) $report->xfilterlist[0]->max_val   = $_GET['xmax'];
     }
   } else {
-    $title  = $result->fields['doc_title'];
+    $frm_grp = $db->Execute("select doc_title from " . TABLE_PHREEFORM . " 
+    where doc_group = '" . $gID . "' and (doc_ext = 'ff' || doc_ext = 'ff') limit 1");
+  	$title  = $frm_grp->fields['doc_title'];
     $r_list = array();
     while(!$result->EOF) {
       $r_list[] = array('id' => $result->fields['id'], 'text' => $result->fields['doc_title']);

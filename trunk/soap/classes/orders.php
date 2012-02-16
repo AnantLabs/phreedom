@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -102,6 +102,7 @@ class xml_orders extends parser {
 	  $this->order['payment']['hint']        = $order->Payment->CardHint;
 	  $temp                                  = $order->Payment->CardEncodeValue;
 	  $this->order['payment']['encval']      = base64_decode(strtr($temp, '-_,', '+/='));
+	  $this->order['payment']['expdate']     = $order->Payment->CardExpDate;
 // End - additional operations added by PhreeSoft for PPS
 	  // <Customer> and <Billing> and <Shipping>
 	  $types = array ('customer', 'billing', 'shipping');
@@ -184,7 +185,7 @@ class xml_orders extends parser {
 	$psOrd->purchase_invoice_id = db_prepare_input($this->order['order_id']);
 	$psOrd->purch_order_id      = db_prepare_input($this->order['purch_order_id']);
 	$psOrd->shipper_code        = db_prepare_input($this->order['freight_carrier']);
-// BOF - Added by PhreeSoft for Portable Power Systems to map the shipping codes to PhreeBooks Codes
+// BOF - Added by PhreeSoft for to map the shipping codes to Phreedom Codes
 	$psOrd->shipper_code        = substr($psOrd->shipper_code, 0, 16);
 	switch ($psOrd->shipper_code) {
 	  default: 
@@ -203,12 +204,12 @@ class xml_orders extends parser {
 	  case 'UPS (Next Day):':  $psOrd->shipper_code = 'ups:1Dam';        break;
 	  case 'FREE SHIPPING! (': $psOrd->shipper_code = 'usps:3Dpm';       break;
 	  case 'Flat (Best Way):': $psOrd->shipper_code = 'usps:2Dpm';       break;
+	  case 'Store Pickup (Wa': $psOrd->shipper_code = 'freeshipper:GDR'; break;
 	}
-// EOF - Added by PhreeSoft for PPS
+// EOF - Added by PhreeSoft
 
 	/* Values below are not used at this time
 	$psOrd->sales_tax_auths
-	$psOrd->terms
 	$psOrd->drop_ship = 0;
 	$psOrd->waiting = 0;
 	$psOrd->closed = 0;
@@ -224,6 +225,7 @@ class xml_orders extends parser {
 	$psOrd->bill_address_id     = $result['bill_address_id'];
 	$psOrd->ship_acct_id        = $result['ship_acct_id'];
 	$psOrd->ship_address_id     = $result['ship_address_id'];
+	if ($result['terms']) $psOrd->terms = $result['terms'];
 	// Phreebooks requires a primary name or the order is not valid, use company name if exists, else contact name
 	if ($this->order['billing']['primary_name'] == '') {
 	  $psOrd->bill_primary_name = $this->order['billing']['contact'];
@@ -325,17 +327,14 @@ class xml_orders extends parser {
 		'ref_2'     => $psOrd->bill_address_id,
 		'hint'      => $this->order['payment']['hint'],
 		'enc_value' => $this->order['payment']['encval'],
+		'exp_date'  => $this->order['payment']['exp_date'], // db format (YYYY-MM-DD)
 	  );
 	  $result = $db->Execute("select id from " . TABLE_DATA_SECURITY . " 
 		where module = 'contacts' 
 		and ref_1 = '" . $psOrd->bill_acct_id . "' 
 		and ref_2 = '" . $psOrd->bill_address_id . "' 
 		and hint  = '" . $this->order['payment']['hint'] . "'");
-	  if ($result->RecordCount() > 0) {
-		db_perform(TABLE_DATA_SECURITY, $sql_array, 'update', 'id = ' . $result->fields['id']);
-	  } else {
-		db_perform(TABLE_DATA_SECURITY, $sql_array, 'insert');
-	  }
+	  db_perform(TABLE_DATA_SECURITY, $sql_array, $result->RecordCount() ? 'update' : 'insert', 'id = '.$result->fields['id']);
 	}
 // End - additional operations added by PhreeSoft for PPS
 
@@ -347,7 +346,7 @@ class xml_orders extends parser {
   function checkForCustomerExists($psOrd) {
 	global $db;
 	$output = array();
-	$result = $db->Execute("select id from " . TABLE_CONTACTS . " 
+	$result = $db->Execute("select id, special_terms from ".TABLE_CONTACTS." 
 		where type = 'c' and short_name = '" . $psOrd->short_name . "'");
 	if ($result->RecordCount() == 0) { // create new record
 	  $output['bill_acct_id']    = '';
@@ -356,6 +355,7 @@ class xml_orders extends parser {
 	} else {
 	  $output['bill_acct_id'] = $result->fields['id'];
 	  $output['ship_acct_id'] = $output['bill_acct_id']; // no drop ships allowed
+	  $output['terms']        = $result->fields['special_terms'];
 	  // find main address to update as billing address
 	  $result = $db->Execute("select address_id from " . TABLE_ADDRESS_BOOK . " 
 		where type = 'cm' and ref_id = " . $output['bill_acct_id']);

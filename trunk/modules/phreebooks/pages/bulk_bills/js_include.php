@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,13 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/bulk_bills/js_include.php
 //
-
 ?>
 <script type="text/javascript">
 <!--
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
-var journalID    = '<?php echo JOURNAL_ID; ?>';
+var journalID = '<?php echo JOURNAL_ID; ?>';
 <?php echo js_calendar_init($cal_bills0); ?>
 <?php echo js_calendar_init($cal_bills1); ?>
 <?php echo js_calendar_init($cal_bills2); ?>
@@ -79,7 +78,7 @@ function updateLineTotal(rowCnt) {
 }
 
 function bbUpdatePayValues(rowCnt) {
-	var postDate = document.getElementById('post_date').value;
+	var postDate = cleanDate(document.getElementById('post_date').value);
 	var discDate = document.getElementById('discdate_'+rowCnt).value;
 	if (document.getElementById('pay_'+rowCnt).checked) {
 		var amount = parseFloat(document.getElementById('amt_'+rowCnt).value);

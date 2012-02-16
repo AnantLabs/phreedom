@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -476,6 +476,69 @@ function load_cash_acct_balance($post_date, $gl_acct_id, $period) {
       $db->transCommit();
 	  return $cnt;
 	}
+  }
+
+  function calculate_aging($id, $type = 'c', $special_terms = '0') {
+  	global $db;
+  	$output = array();
+  	if (!$id) return $output;
+  	$today         = date('Y-m-d');
+  	$terms         = explode(':', $special_terms);
+  	$credit_limit  = $terms[4] ? $terms[4] : constant(($type=='v'?'AP':'AR').'_CREDIT_LIMIT_AMOUNT');
+	$due_days      = $terms[3] ? $terms[3] : constant(($type=='v'?'AP':'AR').'_NUM_DAYS_DUE');
+	$due_date      = gen_specific_date($today, -$due_days);
+	$late_30 = gen_specific_date($today, ($type == 'v') ? -AP_AGING_DATE_1 : -AR_AGING_PERIOD_1);
+	$late_60 = gen_specific_date($today, ($type == 'v') ? -AP_AGING_DATE_2 : -AR_AGING_PERIOD_2);
+	$late_90 = gen_specific_date($today, ($type == 'v') ? -AP_AGING_DATE_3 : -AR_AGING_PERIOD_3);
+	$output = array(
+	  'balance_0'  => '0',
+	  'balance_30' => '0',
+	  'balance_60' => '0',
+	  'balance_90' => '0',
+	);
+	$inv_jid = ($type == 'v') ? '6, 7' : '12, 13';
+	$pmt_jid = ($type == 'v') ? '20' : '18';
+	$total_outstanding = 0;
+	$past_due          = 0;
+	$sql = "select id from " . TABLE_JOURNAL_MAIN . " 
+		where bill_acct_id = " . $id . " and journal_id in (" . $inv_jid . ") and closed = '0'";
+	$open_inv = $db->Execute($sql);
+	while(!$open_inv->EOF) {
+	  $sql = "select m.post_date, sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
+	    from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
+	    where m.id = " . $open_inv->fields['id'] . " and journal_id in (" . $inv_jid . ") and i.gl_type <> 'ttl' group by m.id";
+	  $result = $db->Execute($sql);
+	  $total_billed = $result->fields['credits'] - $result->fields['debits'];
+	  $post_date    = $result->fields['post_date'];
+	  $sql = "select sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
+	    from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
+	    where i.so_po_item_ref_id = " . $open_inv->fields['id'] . " and m.journal_id = " . $pmt_jid . " and i.gl_type = 'pmt'";
+	  $result = $db->Execute($sql);
+	  $total_paid = $result->fields['credits'] - $result->fields['debits'];
+	  $balance = $total_billed - $total_paid;
+	  if ($type == 'v') $balance = -$balance;
+	  // start the placement in aging array
+	  if ($post_date < $due_date) $past_due += $balance;
+	  if ($post_date < $late_90) {
+		$output['balance_90'] += $balance;
+	    $total_outstanding += $balance;
+	  } elseif ($post_date < $late_60) {
+		$output['balance_60'] += $balance;
+	    $total_outstanding += $balance;
+	  } elseif ($post_date < $late_30) {
+		$output['balance_30'] += $balance;
+	    $total_outstanding += $balance;
+	  } elseif ($post_date <= $today) {
+		$output['balance_0']  += $balance;
+	    $total_outstanding += $balance;
+	  } // else it's in the future
+	  $open_inv->MoveNext();
+	}
+	$output['total']        = $total_outstanding;
+	$output['past_due']     = $past_due;
+	$output['credit_limit'] = $credit_limit;
+	$output['terms_lang']   = gen_terms_to_language($special_terms, false, ($type=='v'?'AP':'AR'));
+	return $output;
   }
 
 ?>

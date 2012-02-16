@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -37,8 +37,8 @@ function check_form() {
 function clearForm() {
   document.getElementById('id').value                  = 0;
   document.getElementById('ref_id').value              = 0;
-  document.getElementById('source_store_id').value     = <?php echo $_SESSION['admin_prefs']['def_store_id']; ?>;
-  document.getElementById('dest_store_id').value       = <?php echo $_SESSION['admin_prefs']['def_store_id']; ?>;
+  document.getElementById('source_store_id').value     = <?php echo $_SESSION['admin_prefs']['def_store_id'] ? $_SESSION['admin_prefs']['def_store_id'] : 0; ?>;
+  document.getElementById('dest_store_id').value       = <?php echo $_SESSION['admin_prefs']['def_store_id'] ? $_SESSION['admin_prefs']['def_store_id'] : 0; ?>;
   document.getElementById('purchase_invoice_id').value = '';
   document.getElementById('post_date').value           = '<?php echo date(DATE_FORMAT); ?>';
   document.getElementById('adj_reason').value          = '';

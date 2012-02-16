@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -30,6 +30,7 @@ define('TEXT_GIF','GIF');
 define('TEXT_THERMAL','Thermal');
 define('TEXT_PAGKAGE_DEFAULTS','Package Defaults');
 define('TEXT_SHIPMENT_DEFAULTS','Shipment Defaults');
+define('TEXT_SHIPMENTS_ON','Shipments On: ');
 define('TEXT_REMOVE_MESSAGE','Are you sure you want to remove this shipping method?');
 define('SHIPPING_BUTTON_CREATE_LOG_ENTRY','Create a Shipment Entry');
 define('SHIPPING_SET_BY_SYSTEM',' (Set by the system)');
@@ -74,7 +75,6 @@ define('SHIPPING_EMAIL_SENDER_ADD','Sender E-mail Address');
 define('SHIPPING_EMAIL_RECIPIENT_ADD','Recipient E-mail Address');
 define('SHIPPING_TEXT_EXCEPTION','Exception');
 define('SHIPPING_TEXT_DELIVER','Deliver');
-define('SHIPPING_PRINT_LABEL','Print Label');
 define('SHIPPING_BILL_CHARGES_TO','Bill charges to');
 define('SHIPPING_THIRD_PARTY','Recpt/Third Party Acct #');
 define('SHIPPING_THIRD_PARTY_ZIP','Third Party Postal Code');

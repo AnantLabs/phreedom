@@ -23,9 +23,12 @@
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
 function init() {
-	$(function() {
-		$('#admintabs').tabs();
-	});
+  $(function() { $('#admintabs').tabs(); });
+  var dlg = $('#shipping_dialog').dialog({ 
+	  autoOpen: false,
+	  buttons: { "<?php echo TEXT_SUBMIT; ?>": function() { $(this).dialog('close'); document.getElementById('todo').form.submit(); } }
+  });
+  dlg.parent().appendTo($("#admin"));
 }
 
 function check_form() {
@@ -39,6 +42,30 @@ function toggleProperties(id) {
   } else {
     document.getElementById(id).style.display = 'none';
   }
+}
+
+function getDialog(method, template) {
+  if (!method || !template) return;
+  $.ajax({
+    type: "GET",
+    contentType: "application/json; charset=utf-8",
+    url: 'index.php?module=shipping&page=ajax&op=shipping&action=form&method='+method+'&template='+template,
+    dataType: ($.browser.msie) ? "text" : "xml",
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+    },
+	success: fillDialog
+  });
+}
+
+function fillDialog(sXml) {
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  if ($(xml).find("message").text()) alert ($(xml).find("message").text());
+  if ($(xml).find("width").text()) $("#shipping_dialog").dialog("option", "width", parseInt($(xml).find("width").text()));
+  document.getElementById('todo').value = $(xml).find("action").text();
+  document.getElementById('shipping_dialog').innerHTML = $(xml).find("html").text();
+  $('#shipping_dialog').dialog('open');
 }
 
 // -->

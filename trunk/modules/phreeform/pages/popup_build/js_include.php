@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -188,15 +188,9 @@ function boxLoadResp(sXml) {
   if (!xml) return;
   if ($(xml).find("message").text()) {
     var rowID = $(xml).find("rowID").text();
-    while (document.getElementById('fld_tbl_'+rowID).rows.length > 1) document.getElementById('fld_tbl_'+rowID).deleteRow(-1);
-    var boxRow = document.getElementById('fld_tbl_'+rowID).insertRow(-1);
+    var boxRow = document.getElementById('fld_box_'+rowID);
+	boxRow.innerHTML = $(xml).find("html").text();
 //	boxRow.style.display = 'none';
-	boxRow.id       = 'fld_box_'+rowID; 
-	var newCell     = boxRow.insertCell(-1);
-	newCell.colSpan = '8'; 
-	newCell.bgColor = '#bbd8d8';
-	newCell.border  = 'solid 1px #000';
-	newCell.innerHTML = $(xml).find("html").text();
   }
 }
 
@@ -385,61 +379,32 @@ function buildRow(idTable, rIndex, boxID) {
 	  attr[9]  = 'right';
       break;
 	case 'field_setup_frm':
-	  var contents = '<td colSpan="8">';
       newCell = newRow.insertCell(-1);
 	  newCell.colSpan = '8'; 
-	  var proptable   = document.createElement("table");
-	  proptable.id    = 'fld_tbl_'+rowCnt;
-	  proptable.width = '100%';
+	  newCell.nowrap = 'nowrap'; 
+	  var proptable   = document.createElement("div");
 	  newCell.appendChild(proptable);
-      var boxRow = document.getElementById('fld_tbl_'+rowCnt).insertRow(-1);
-	  cell[0]  = '<?php echo html_input_field('fld_desc[]'); ?>';
-	  cell[1]  = '<?php echo html_input_field('fld_abs[]', '', 'size="6" maxlength="4"'); ?>';
-	  cell[2]  = '<?php echo html_input_field('fld_ord[]', '', 'size="6" maxlength="4"'); ?>';
-	  cell[3]  = '<?php echo html_input_field('fld_wid[]', '', 'size="6" maxlength="4"'); ?>';
-	  cell[4]  = '<?php echo html_input_field('fld_hgt[]', '', 'size="6" maxlength="4"'); ?>';
+	  cell[0]  = '<?php echo html_input_field('fld_desc[]', '','size="20" maxlength="25"'); ?>';
+	  cell[0] += '<?php echo html_input_field('fld_abs[]', '', 'size="6" maxlength="4"'); ?>';
+	  cell[0] += '<?php echo html_input_field('fld_ord[]', '', 'size="6" maxlength="4"'); ?>';
+	  cell[0] += '<?php echo html_input_field('fld_wid[]', '', 'size="6" maxlength="4"'); ?>';
+	  cell[0] += '<?php echo html_input_field('fld_hgt[]', '', 'size="6" maxlength="4"'); ?>';
 	  if (document.getElementById('serialform').checked) {
-	    cell[5]  = '<?php echo str_replace("'", "\'", html_pull_down_menu('fld_brk[]',  $nyChoice, '1', '')); ?>';
-	    temp     = '<?php echo str_replace("'", "\'", html_pull_down_menu('fld_type_row_TBD', gen_build_pull_down($FormEntries), '', 'onchange="boxLoad(this.value, row_TBD)"')); ?>';
-	    cell[6]  = temp.replace(/row_TBD/g, rowCnt);
-	    temp     = '<?php echo html_hidden_field('row_id[]', 'row_TBD'); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('actions/view-fullscreen.png',     TEXT_MOVE,       'small', 'style="cursor:move"', '', '', 'move_fld_row_TBD')); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png',   TEXT_DELETE,     'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'field_setup_frm\', \'delete\')"')); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'onclick="boxProperties(row_TBD)"')); ?>';
-	    cell[7]  = temp.replace(/row_TBD/g, rowCnt);
-	  } else {
-	    temp     = '<?php echo str_replace("'", "\'", html_pull_down_menu('fld_type_row_TBD', gen_build_pull_down($FormEntries), '', 'onchange="boxLoad(this.value, row_TBD)"')); ?>';
-	    cell[5]  = temp.replace(/row_TBD/g, rowCnt);
-	    temp     = '<?php echo html_hidden_field('row_id[]', 'row_TBD'); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('actions/view-fullscreen.png',     TEXT_MOVE,       'small', 'style="cursor:move"', '', '', 'move_fld_row_TBD')); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png',   TEXT_DELETE,     'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'field_setup_frm\', \'delete\')"')); ?>';
-	    temp    += '<?php echo str_replace("'", "\'", html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'onclick="boxProperties(row_TBD)"')); ?>';
-	    cell[6]  = temp.replace(/row_TBD/g, rowCnt);
+	    cell[0] += '<?php echo str_replace("'", "\'", html_pull_down_menu('fld_brk[]',  $nyChoice, '1', '')); ?>';
 	  }
-	  attr[0]   = 'center'; size[0] = '25%';
-	  attr[1]   = 'center'; size[1] = '10%';
-	  attr[2]   = 'center'; size[2] = '10%';
-	  attr[3]   = 'center'; size[3] = '10%';
-	  attr[4]   = 'center'; size[4] = '10%';
-	  if (document.getElementById('serialform').checked) {
-	    attr[5] = 'center'; size[5] = '10%';
-	    attr[6] = 'center'; size[6] = '15%';
-	    attr[7] = 'right';  size[7] = '10%';  wrap[7] = 'nowrap';
-	  } else {
-	    attr[5] = 'center'; size[5] = '25%';
-	    attr[6] = 'right';  size[6] = '10%';  wrap[6] = 'nowrap';
-	  }
-	  // re-init the table for movement
-	  var table = document.getElementById(idTable);
-	  var tableDnD = new TableDnD();
-	  tableDnD.init(table);
-	  for (var i=0; i<cell.length; i++) {
-		newCell = boxRow.insertCell(-1);
-		newCell.innerHTML = cell[i];
-		if (attr[i]) newCell.align  = attr[i]; 
-		if (size[i]) newCell.width  = size[i]; 
-		if (wrap[i]) newCell.nowrap = wrap[i]; 
-	  }
+	  temp     = '<?php echo str_replace("'", "\'", html_pull_down_menu('fld_type_row_TBD', gen_build_pull_down($FormEntries), '', 'onchange="boxLoad(this.value, row_TBD)"')); ?>';
+	  temp    += '<?php echo html_hidden_field('row_id[]', 'row_TBD'); ?>';
+	  temp    += '<?php echo '&nbsp;'.str_replace("'", "\'", html_icon('actions/view-fullscreen.png', TEXT_MOVE,       'small', 'style="cursor:move"', '', '', 'move_fld_row_TBD')) . '&nbsp;'; ?>';
+	  temp    += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png',   TEXT_DELETE,     'small', 'onclick="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'field_setup_frm\', \'delete\')"')) . '&nbsp;'; ?>';
+	  temp    += '<?php echo str_replace("'", "\'", html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'onclick="boxProperties(row_TBD)"')); ?>';
+	  cell[0] += temp.replace(/row_TBD/g, rowCnt);
+	  newCell.innerHTML = cell[0];
+	  var boxDiv     = document.createElement("div");
+	  boxDiv.id      = 'fld_box_'+rowCnt;
+	  boxDiv.colSpan = '8'; 
+	  boxDiv.bgColor = '#bbd8d8';
+	  boxDiv.border  = 'solid 1px #000';
+	  newCell.appendChild(boxDiv);
 	  boxLoad('', rowCnt); // call ajax box build
 	  skipBuild = true;
       break;

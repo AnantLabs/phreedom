@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -72,7 +72,7 @@ echo $toolbar->build_toolbar($add_search = true);
 				case 12: $search_journal = 10; break;
 				case 13: $search_journal = 12; break;
 			}
-			$open_order_array = load_open_orders($acct_id, $search_journal);
+			$open_order_array = $cInfo->load_open_orders($acct_id, $search_journal);
 			if ($open_order_array) {
 				$selection = html_pull_down_menu('open_order_' . $pointer, $open_order_array, '', 'onchange="setReturnOrder(' . $pointer . ')"');
 				$cancel_single_result_exit = true;

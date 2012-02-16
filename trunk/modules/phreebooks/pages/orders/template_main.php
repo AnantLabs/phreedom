@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -73,7 +73,7 @@ if ($security_level > 1 && in_array(JOURNAL_ID, array(3, 9))) {
   $toolbar->icon_list['cvt_quote']['icon'] = 'emblems/emblem-symbolic-link.png';
   $toolbar->icon_list['cvt_quote']['text'] = JOURNAL_ID == 3 ? ORD_CONVERT_TO_RFQ_PO : ORD_CONVERT_TO_SO_INV;
 }
-if ($security_level > 1 && JOURNAL_ID == 10 && validate_user(SECURITY_ID_PURCHASE_ORDER) > 1) {
+if ($security_level > 1 && JOURNAL_ID == 10 && $_SESSION['admin_security'][SECURITY_ID_PURCHASE_ORDER] > 1) {
   $toolbar->add_icon('cvt_quote', 'onclick="convertSO()"', 13);
   $toolbar->icon_list['cvt_quote']['icon'] = 'emblems/emblem-symbolic-link.png';
   $toolbar->icon_list['cvt_quote']['text'] = ORD_CONVERT_TO_PO;
@@ -129,7 +129,7 @@ echo $toolbar->build_toolbar();
 	<p align="right"><?php echo html_icon('actions/go-next.png', TEXT_CONTINUE, 'small', 'onclick="checkOverride();"'); ?></p>
 </div>
 <h1><?php echo constant('ORD_TEXT_' . JOURNAL_ID . '_WINDOW_TITLE'); ?></h1>
-<table class="ui-widget" style="width:100%;">
+<table class="ui-widget" style="width:97%;">
  <tbody class="ui-widget-content">
   <tr>
     <td>
@@ -138,7 +138,7 @@ echo $toolbar->build_toolbar();
 	    <tr>
 		  <td width="33%">
 			<?php echo ORD_ACCT_ID . ' ' . html_input_field('search', isset($order->short_name) ? $order->short_name : TEXT_SEARCH, 'size="21" maxlength="20" onfocus="clearField(\'search\', \'' . TEXT_SEARCH . '\')" onblur="setField(\'search\', \'' . TEXT_SEARCH . '\');"');
-			      echo '&nbsp;' . html_icon('actions/system-search.png', TEXT_SEARCH, 'small', 'align="top" style="cursor:pointer" onclick="accountGuess(true)"'); 
+			      echo '&nbsp;' . html_icon('actions/system-search.png', TEXT_SEARCH, 'small', 'align="top" style="cursor:pointer" onclick="AccountList()"'); 
 			      echo '&nbsp;' . html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'align="top" style="cursor:pointer" onclick="ContactProp()"'); 
 			?>
           </td>
@@ -243,7 +243,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   </tr>
   <tr>
 	<td>
-      <table style="width:100%;">
+      <table style="border-collapse:collapse;width:100%;">
 		<thead class="ui-widget-header">
         <tr>
           <th><?php echo in_array(JOURNAL_ID, array(6,9,10,12)) ? ORD_HEADING_NUMBER_4 : TEXT_REFERENCE_NUMBER; ?></th>
@@ -277,11 +277,12 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
   </tr>
   <tr>
 	<td id="productList">
-      <table style="width:100%;">
+      <table style="border-collapse:collapse;width:100%;">
 		<thead class="ui-widget-header">
 <?php if (SINGLE_LINE_ORDER_SCREEN) { ?>
         <tr>
           <th><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+          <th><?php echo TEXT_ITEM; ?></th>
           <th><?php echo TEXT_COLUMN_1_TITLE; ?></th>
           <th><?php echo TEXT_COLUMN_2_TITLE; ?></th>
           <th><?php echo TEXT_SKU; ?></th>
@@ -293,7 +294,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
         </tr>
 <?php } else { // two line order screen ?>
         <tr>
-          <th rowspan="2"><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
+          <th><?php echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small'); ?></th>
           <th><?php echo TEXT_COLUMN_1_TITLE; ?></th>
           <th><?php echo TEXT_COLUMN_2_TITLE; ?></th>
           <th><?php echo TEXT_SKU; ?></th>
@@ -301,6 +302,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
           <th colspan="2"><?php echo TEXT_PROJECT; ?></th>
         </tr>
         <tr>
+          <th><?php echo TEXT_ITEM; ?></th>
           <th colspan="3"><?php echo TEXT_GL_ACCOUNT; ?></th>
           <th><?php echo TEXT_PRICE; ?></th>
           <th><?php echo TEXT_DISCOUNT; ?></th>
@@ -317,11 +319,14 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				echo '<tr>' . chr(10);
 				// turn off delete icon if required
 				if (($order->item_rows[$j]['so_po_item_ref_id']) || ((JOURNAL_ID == 4 || JOURNAL_ID == 10) && $order->item_rows[$j]['pstd'])) {
-					echo '  <td rowspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 2) . '" align="center">&nbsp;</td>' . chr(10);
+					echo '  <td align="center">&nbsp;</td>' . chr(10);
 					$sku_enable = false;
 				} else {
-					echo '  <td rowspan="' . ((SINGLE_LINE_ORDER_SCREEN) ? 1 : 2) . '" align="center">' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_ROW_DELETE_ALERT . '\')) removeInvRow(' . $i . ');"') . '</td>' . chr(10);
+					echo '  <td align="center">' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . TEXT_ROW_DELETE_ALERT . '\')) removeInvRow(' . $i . ');"') . '</td>' . chr(10);
 					$sku_enable = true;
+				}
+				if (SINGLE_LINE_ORDER_SCREEN) {
+				  echo '  <td>' . html_input_field('item_cnt_' . $i, $order->item_rows[$j]['item_cnt'], 'size="3" maxlength="3" readonly="readonly"') . '</td>' . chr(10);
 				}
 				echo '  <td nowrap="nowrap" align="center">';
 				echo html_input_field('qty_' . $i, $order->item_rows[$j]['qty'], ($item_col_1_enable ? '' : ' readonly="readonly"') . ' size="7" maxlength="6" onchange="updateRowTotal(' . $i . ', true)" style="text-align:right"');
@@ -344,6 +349,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				} else {
 				  echo '  <td colspan="2">' . html_pull_down_menu('proj_' . $i, $proj_list, $order->item_rows[$j]['proj']) . '</td>' . chr(10);
 				  echo '</tr>' . chr(10) . '<tr>' . chr(10);
+				  echo '  <td>' . html_input_field('item_cnt_' . $i, $order->item_rows[$j]['item_cnt'], 'size="3" maxlength="3" readonly="readonly"') . '</td>' . chr(10);
 				  echo '  <td colspan="3">' . html_pull_down_menu('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct']) . '</td>' . chr(10);
 				  echo '  <td>' . html_input_field('full_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
 				  echo '  <td>' . html_input_field('disc_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -24,6 +24,7 @@ define('CP_SO_STATUS_TITLE','Open Sales Orders');
 define('CP_SO_STATUS_DESCRIPTION','Lists sales orders with current open status. Links to reveiw the sales order are also provided.');
 define('CP_SO_STATUS_SECURITY',SECURITY_ID_SALES_ORDER);
 
-define('CP_SO_STATUS_NO_RESULTS','No results found!');
+define('CP_SO_STATUS_SORT_ORDER','Sort Order by Post Date');
+define('CP_SO_STATUS_HIDE_FUTURE','Restrict to Today and Earlier');
 
 ?>

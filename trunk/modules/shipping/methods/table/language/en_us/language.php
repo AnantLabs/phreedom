@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -30,13 +30,7 @@ define('MODULE_SHIPPING_TABLE_HANDLING_DESC', 'Handling fee for this shipping me
 define('MODULE_SHIPPING_TABLE_SORT_ORDER_DESC', 'Sort order of display. Determines the order which this method appears on all generted lists.');
 
 // Shipping Methods
-define('table_1DEam','Best Way');
-define('table_1Dam', 'Sender Paid 2 Day');
-define('table_1Dpm', 'Sender Paid 1 Day');
-define('table_2Dpm', 'Courier');
-define('table_3Dpm', 'Sender Paid Economy');
-define('table_GND',  'Local Delivery');
-define('table_GDR',  'Customer Pickup');
+define('table_GND', 'Table Rate');
 
 define('SHIPPING_TABLE_SHIPMENTS_ON','Table Rate Shipments on ');
 

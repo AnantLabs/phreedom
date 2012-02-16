@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -97,6 +97,10 @@ define('GEN_ADM_TOOLS_CLEAN_LOG_CLEAN','Clean Out Audit Log');
 define('GEN_ADM_TOOLS_BTN_CLEAN_CONFIRM','Are you sure you want to delete these log records?');
 define('GEN_ADM_TOOLS_BTN_BACKUP','Backup Now!');
 define('GEN_ADM_TOOLS_BTN_CLEAN','Clean Now!');
+define('GEN_ADM_TOOLS_SECURITY_HEADING','Clean Data Security Values');
+define('GEN_ADM_TOOLS_SECURITY_DESC','This tool cleans all data security values with a expiration date prior to a selected date. WARNING: This operation cannot be undone!');
+define('TEXT_CLEAN_BEFORE','Clean all values with expiration date before:');
+define('TEXT_CLEAN_SECURITY_SUCCESS','Successfully removed %s data security records.');
 define('GL_HEADING_BEGINNING_BALANCES','Chart of Accounts - Beginning Balances');
 define('GL_HEADING_IMPORT_BEG_BALANCES','Import Beginning Balances');
 define('GL_BTN_IMP_BEG_BALANCES','Import Inventory, Accounts Payable, Accounts Receivable Beginning Balances');

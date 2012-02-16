@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -27,7 +27,7 @@ $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['params'] = 'onclick="if (confirm(\'' . SHIPPING_DELETE_CONFIRM . '\')) submitToDo(\'delete\')"';
 $toolbar->icon_list['print']['params']  = 'onclick="submitToDo(\'label\')"';
-$toolbar->icon_list['print']['text']    = SHIPPING_PRINT_LABEL;
+$toolbar->icon_list['print']['text']    = SHIPPING_TEXT_PRINT_LABEL;
 if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('09.01');
 echo $toolbar->build_toolbar();
@@ -38,12 +38,7 @@ echo $toolbar->build_toolbar();
   <applet name="jZebra" code="jzebra.RawPrintApplet.class" archive="<?php echo DIR_WS_ADMIN . 'modules/phreedom/includes/jzebra/jzebra.jar'; ?>" width="16" height="16">
     <param name="printer" value="<?php echo MODULE_SHIPPING_FEDEX_V7_PRINTER_NAME; ?>">
   </applet>
-  <?php 
-    echo html_button_field('print_label', TEXT_PRINT,       'onclick="labelPrint()"');
-    if (sizeof($pdf_list) > 0) {
-	  echo '<br /><br />' . TEXT_PRINT_PDF_DOCUMENTS . ' ' . html_button_field('print_paper', TEXT_PRINT_PAPER, 'onclick="paperPrint()"');
-	}
-  ?>
+  <?php echo html_button_field('print_label', TEXT_PRINT, 'onclick="labelPrint()"'); ?>
 <?php } else { ?>
   <table>
   <tr><td width="50%" valign="top">

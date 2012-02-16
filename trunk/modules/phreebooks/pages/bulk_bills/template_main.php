@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -147,7 +147,7 @@ echo $toolbar->build_toolbar();
 	  echo html_hidden_field('amt_' . $idx,          $amount_due) . chr(10);
 	  echo html_hidden_field('inv_' . $idx,          $query_result->fields['purchase_invoice_id']) . chr(10);
 	  echo html_hidden_field('origdisc_' . $idx,     $currencies->clean_value($discount)) . chr(10);
-	  echo html_hidden_field('discdate_' . $idx,     gen_locale_date($due_dates['early_date'])) . chr(10);
+	  echo html_hidden_field('discdate_' . $idx,     $due_dates['early_date']) . chr(10);
 	  echo html_hidden_field('acct_' . $idx,         $query_result->fields['gl_acct_id']) . chr(10);
 	  // End hidden fields
 	  echo '</td>' . chr(10);

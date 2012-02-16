@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -19,7 +19,10 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('DASHBOARD_OPEN_INV_VERSION','3.2');
+// 2011-12-20 - Updated to show invoice balance, was total invoice amount 
+define('DASHBOARD_OPEN_INV_VERSION','3.3');
+
+require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 
 class open_inv extends ctl_panel {
   function open_inv() {
@@ -68,10 +71,11 @@ class open_inv extends ctl_panel {
 	  $contents = CP_OPEN_INV_NO_RESULTS;
 	} else {
 	  while (!$result->EOF) {
-	 	$total += $result->fields['total_amount'];
-		$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['total_amount'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
+	  	$inv_balance = $result->fields['total_amount'] - fetch_partially_paid($result->fields['id']);
+	 	$total += $inv_balance;
+		$contents .= '<div style="float:right">' . $currencies->format_full($inv_balance, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
 		$contents .= '<div>';
-		$contents .= '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $result->fields['id'] . '&amp;jID=12&amp;action=edit', 'SSL') . '">';
+		$contents .= '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID='.$result->fields['id'].'&amp;jID=12&amp;action=edit', 'SSL') . '">';
 		$contents .= $result->fields['purchase_invoice_id'] . ' - ';
 		$contents .= htmlspecialchars($result->fields['bill_primary_name']);
 		$contents .= '</a></div>' . chr(10);

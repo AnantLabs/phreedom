@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -25,10 +25,11 @@ function build_bom_list($id, $error = false) {
 	$x = 1;
 	while (isset($_POST['sku_' . $x])) { // while there are item rows to read in
 	  $bom_list[] = array(
-		'id'          => db_prepare_input($_POST['id_' . $x]),
-		'sku'         => db_prepare_input($_POST['sku_' . $x]),
+		'id'          => db_prepare_input($_POST['id_'   . $x]),
+		'sku'         => db_prepare_input($_POST['sku_'  . $x]),
 		'description' => db_prepare_input($_POST['desc_' . $x]),
-		'qty'         => db_prepare_input($_POST['qty_' . $x]));
+		'qty'         => db_prepare_input($_POST['qty_'  . $x]),
+	  );
 	  $x++;
     }
   } else { // pull the information from the database
@@ -290,19 +291,24 @@ function build_bom_list($id, $error = false) {
 
   function inv_calculate_sales_price($qty, $sku_id, $contact_id = 0, $type = 'c') {
     global $db, $currencies;
+	$price_sheet = '';
+	$contact_tax = 1;
 	if ($contact_id) {
-	  $customer = $db->Execute("select type, price_sheet from " . TABLE_CONTACTS . " where id = '" . $contact_id . "'");
-	  $type = $customer->fields['type'];
-	} else {
-	  $customer->fields['price_sheet'] == '';
+	  $contact = $db->Execute("select type, price_sheet, tax_id from " . TABLE_CONTACTS . " where id = '" . $contact_id . "'");
+	  $type        = $contact->fields['type'];
+	  $price_sheet = $contact->fields['price_sheet'];
+	  $contact_tax = $contact->fields['tax_id'];
 	}
 	// get the inventory prices
-	$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v from " . TABLE_INVENTORY . " 
-	  where id = '" . $sku_id . "'");
+	$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v, item_taxable, purch_taxable 
+	  from " . TABLE_INVENTORY . " where id = '" . $sku_id . "'");
 	$inv_price_sheet = ($type == 'v') ? $inventory->fields['price_sheet_v'] : $inventory->fields['price_sheet'];
+	// set the default tax rates
+	$purch_tax = ($contact_tax == 0 && $type=='v') ? 0 : $inventory->fields['purch_taxable'];
+	$sales_tax = ($contact_tax == 0 && $type=='c') ? 0 : $inventory->fields['item_taxable'];
 	// determine what price sheet to use, priority: customer, inventory, default
-	if ($customer->fields['price_sheet']  <> '') {
-	  $sheet_name = $customer->fields['price_sheet'];
+	if ($price_sheet <> '') {
+	  $sheet_name = $price_sheet;
 	} elseif ($inv_price_sheet <> '') {
 	  $sheet_name = $inv_price_sheet;
 	} else {
@@ -331,14 +337,14 @@ function build_bom_list($id, $error = false) {
 	if ($levels) {
 	  $prices = inv_calculate_prices($inventory->fields['item_cost'], $inventory->fields['full_price'], $levels);
 	  $price = '0.0';
-	  foreach ($prices as $value) if ($qty >= $value['qty']) $price = $currencies->clean_value($value['price']);
+	  if(is_array($prices)) foreach ($prices as $value) if ($qty >= $value['qty']) $price = $currencies->clean_value($value['price']);
 	} else {
-	  $price = ($type == 'v') ? $inventory->fields['item_cost'] : $inventory->fields['full_price'];
+	  $price = ($type=='v') ? $inventory->fields['item_cost'] : $inventory->fields['full_price'];
 	}
-	return $price;
+	return array('price'=>$price, 'sales_tax'=>$sales_tax, 'purch_tax'=>$purch_tax);
   }
 
-function inv_status_open_orders($journal_id, $gl_type) {	// checks order status for order balances, items received/shipped
+function inv_status_open_orders($journal_id, $gl_type) { // checks order status for order balances, items received/shipped
   global $db;
   $item_list = array();
   $orders = $db->Execute("select id from " . TABLE_JOURNAL_MAIN . " 

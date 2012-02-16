@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -24,9 +24,9 @@ require(DIR_FS_MODULES . 'inventory/defaults.php');
 require(DIR_FS_MODULES . 'inventory/functions/inventory.php');
 /**************   page specific initialization  *************************/
 // One of the following identifers is required.
-$sku = db_prepare_input($_GET['sku']); // specifies the sku, could be a search field as well
-$UPC = db_prepare_input($_GET['upc']); // specifies the upc code
-$iID = db_prepare_input($_GET['iID']); // specifies the item database id
+$sku    = db_prepare_input($_GET['sku']); // specifies the sku, could be a search field as well
+$UPC    = db_prepare_input($_GET['upc']); // specifies the upc code
+$iID    = db_prepare_input($_GET['iID']); // specifies the item database id
 // optional for more detailed operation
 $bID    = db_prepare_input($_GET['bID']); // specifies the branch ID
 $cID    = db_prepare_input($_GET['cID']); // specifies the contact ID
@@ -55,7 +55,7 @@ if ($iID) {
 
 $vendor_search = false;
 $vendor        = in_array($jID, array(3,4,6,7)) ? true : false;
-if ($vendor) {
+if ($vendor) { // just search for products from that vendor for purchases
   $first_search  = $search . " and vendor_id = '" . $cID . "'";
   $inventory     = $db->Execute("select * from " . TABLE_INVENTORY . $first_search);
   $vendor_search = $inventory->recordCount() ? true : false;
@@ -116,9 +116,16 @@ if ($result->RecordCount() == 0) {
     $result->MoveNext();
   }
 }
-// load prices
-$sales_price = strval(inv_calculate_sales_price(abs($qty), $iID, $cID, $vendor ? 'v' : 'c'));
-//$debug .= 'journal = ' . $jID . ' and cID = ' . $cID . ' and price = ' . $sales_price . chr(10);
+// load prices, tax
+$prices = inv_calculate_sales_price(abs($qty), $iID, $cID, $vendor ? 'v' : 'c');
+$sales_price = strval($prices['price']);
+$inventory->fields['item_taxable']  = strval($prices['sales_tax']);
+$inventory->fields['purch_taxable'] = strval($prices['purch_tax']);
+//$debug .= 'sales_tax = ' . $prices['sales_tax'] . ' and purch tax = ' . $prices['purch_tax'] . ' and price = ' . $sales_price . chr(10);
+// Load default tax to use
+if ($cID) {
+	
+}
 // load sku stock status and open orders
 $stock_note = array();
 switch($jID) {

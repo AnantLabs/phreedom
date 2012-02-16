@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -20,14 +20,11 @@
 /**************   Check user security   *****************************/
 $xml = NULL;
 $security_level = validate_ajax_user();
-
 /**************  include page specific files    *********************/
 gen_pull_language('contacts');
-
 /**************   page specific initialization  *************************/
 $cID   = db_prepare_input($_GET['cID']);
 $error = false;
-
   // select the customer and build the contact record
 $contact    = $db->Execute("select * from " . TABLE_CONTACTS . " where id = '" . $cID . "'");
 $type       = $contact->fields['type'];
@@ -59,7 +56,6 @@ if (defined('MODULE_SHIPPING_STATUS') && $ship_add->fields) while (!$ship_add->E
   $xml .= "\t</ShipAddress>\n";
   $ship_add->MoveNext();
 }
-
 echo createXmlHeader() . $xml . createXmlFooter();
 die;
 ?>

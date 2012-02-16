@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -27,13 +27,6 @@ $employee_types = array(
   's' => TEXT_SALES_REP,
   'b' => TEXT_BUYER,
 );
-
-$address_types = array(
-  $_GET['type'] . 'm', // mailing address (1 only)
-  $_GET['type'] . 's', // shipping addresses
-  $_GET['type'] . 'b', // billing addresses
-);
-if ($_GET['type'] <> 'i') $address_types[] = 'im'; // add contacts
 
 $project_cost_types = array(
  'LBR' => COST_TYPE_LBR,

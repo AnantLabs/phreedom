@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -55,16 +55,23 @@ if ($custom_html) { // load the template only as the rest of the html will be ge
   <script type="text/javascript" src="includes/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="includes/jquery-ui-1.8.16.custom.min.js"></script>
   <script type="text/javascript" src="includes/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="includes/common.js"></script>
-<?php require_once(DIR_FS_ADMIN . DIR_WS_THEMES . '/config.php'); ?>
-<?php // load the javascript specific, required
-  $js_include_path = DIR_FS_WORKING . 'pages/' . $page . '/js_include.php';
-  if (file_exists($js_include_path)) { require_once($js_include_path); } 
-    else die('No js_include file, looking for the file: ' . $js_include_path);
-  // load the custom javascript if present
-  $js_include_path = DIR_FS_WORKING . 'custom/pages/' . $page . '/extra_js.php';
-  if (file_exists($js_include_path)) { require_once($js_include_path); }
-  if (SESSION_AUTO_REFRESH == '1') echo '<script type="text/javascript">addLoadEvent(refreshSessionClock);</script>' . chr(10);
+<?php 
+require_once(DIR_FS_ADMIN . DIR_WS_THEMES . '/config.php');
+// load the jquery and javascript translations
+if      (file_exists($js_i18n = 'modules/phreedom/custom/language/'.$_SESSION['language'].'/jquery_i18n.js')) {
+} elseif(file_exists($js_i18n = 'modules/phreedom/language/'       .$_SESSION['language'].'/jquery_i18n.js')) {
+} else               $js_i18n = 'modules/phreedom/language/en_us/jquery_i18n.js';
+echo '  <script type="text/javascript" src="'.$js_i18n.'"></script>'."\n";
+// load the javascript specific, required
+$js_include_path = DIR_FS_WORKING . 'pages/' . $page . '/js_include.php';
+if (file_exists($js_include_path)) { require_once($js_include_path); } 
+  else die('No js_include file, looking for the file: ' . $js_include_path);
+// load the custom javascript if present
+$js_include_path = DIR_FS_WORKING . 'custom/pages/' . $page . '/extra_js.php';
+if (file_exists($js_include_path)) { require_once($js_include_path); }
+if (SESSION_AUTO_REFRESH == '1') echo '  <script type="text/javascript">addLoadEvent(refreshSessionClock);</script>' . chr(10);
 ?>
   <script type="text/javascript">addLoadEvent(init);</script>
  </head>
@@ -75,7 +82,7 @@ if ($custom_html) { // load the template only as the rest of the html will be ge
   <!-- Menu -->
   <?php if ($include_header) { require_once(DIR_FS_ADMIN . DIR_WS_THEMES . '/menu.php'); } ?>
   <!-- Template -->
-  <div style="overflow:hidden"><?php if (is_file($template_path)) { require($template_path); } else die('No template file: ' . $template_path); ?></div>
+  <div><?php if (is_file($template_path)) { require($template_path); } else die('No template file: ' . $template_path); ?></div>
   <!-- Footer -->
   <?php if ($include_footer) { // Hook for custom logo
   $image_path = defined('FOOTER_LOGO') ? FOOTER_LOGO : (DIR_WS_ADMIN . 'modules/phreedom/images/phreesoft_logo.png');

@@ -35,7 +35,6 @@ switch ($action) {
     $admin_pass     = db_prepare_input($_POST['admin_pass']);
     $admin_company  = $_SESSION['companies'][$_POST['company']];
     $admin_language = db_prepare_input($_POST['language']);
-    $admin_theme    = db_prepare_input($_POST['theme']);
     $sql = "select admin_id, admin_name, inactive, display_name, admin_email, admin_pass, account_id, admin_prefs, admin_security 
 		from " . TABLE_USERS . " where admin_name = '" . db_input($admin_name) . "'";
 	$result = false;
@@ -61,7 +60,6 @@ switch ($action) {
 	  $cookie_exp = 2592000 + time(); // one month
 	  setcookie('pb_company' , $admin_company,  $cookie_exp);
 	  setcookie('pb_language', $admin_language, $cookie_exp);
-	  setcookie('pb_theme',    $admin_theme,    $cookie_exp);
 	  // load init functions for each module and execute
 	  require(DIR_FS_MODULES . 'phreedom/classes/install.php');
 	  $phreedom = new phreedom_admin();
@@ -212,32 +210,38 @@ switch ($action) {
 
 /*****************   prepare to display templates  *************************/
 // prepare to display form
-if(isset($_COOKIE['pb_company'])) {
-  $admin_company  = $_COOKIE['pb_company'];
-  $admin_language = $_COOKIE['pb_language'];
-  $admin_theme    = $_COOKIE['pb_theme'];
-} else{
-  $admin_company  = defined('DEFAULT_COMPANY')  ? DEFAULT_COMPANY  : '';
-  $admin_language = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : '';
-  $admin_theme    = 'default';
-}
-
-$include_header   = true;
-$include_footer   = true;
-$include_tabs     = false;
-$include_calendar = false;
+$include_header = true;
+$include_footer = true;
 
 switch ($action) {
   case 'login':
   case 'pw_lost_sub':
   case 'pw_lost_req':
-	$include_header   = false;
-	$include_footer   = false;
-	if ($_GET['req'] == 'pw_lost_req') {
-	  $include_template = 'template_pw_lost.php';
+  	$companies       = load_company_dropdown();
+  	$single_company  = sizeof($companies)==1 ? true : false;
+  	$languages       = load_language_dropdown();
+	$single_language = sizeof($languages)==1 ? true : false;
+	if ($_POST['company']) { // find default company
+	  $company_index = $_POST['company'];
 	} else {
-	  $include_template = 'template_login.php';
+	  $default_company = defined('DEFAULT_COMPANY') ? DEFAULT_COMPANY : '';
+	  if ($_COOKIE['pb_company']) $default_company = $_COOKIE['pb_company'];
+	  foreach ($companies as $key => $value) {
+		if ($_SESSION['companies'][$key] == $default_company) $company_index = $key;
+	  }
 	}
+	if ($_POST['language']) { // find default language
+	  $language_index = $_POST['language'];
+	} else {
+	  $default_language = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : 'en_us';
+	  if ($_COOKIE['pb_language']) $default_language = $_COOKIE['pb_language'];
+	  foreach ($languages as $value) {
+		if ($value['id'] == $default_language) $language_index = $value['id'];
+	  }
+	}
+	$include_template = $_GET['req']=='pw_lost_req' ? 'template_pw_lost.php' : 'template_login.php';
+  	$include_header   = false;
+	$include_footer   = false;
 	define('PAGE_TITLE', TITLE);
     break;
   case 'crash':
@@ -249,10 +253,10 @@ switch ($action) {
 	  session_destroy();
 	  gen_redirect(html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=login', 'SSL'));	
 	}
-	$cp_boxes = $db->Execute("select * from " . TABLE_USERS_PROFILES . " 
-		where user_id = '" . $_SESSION['admin_id'] . "' and menu_id = '" . $menu_id . "' order by column_id, row_id");
+	$cp_boxes = $db->Execute("select * from ".TABLE_USERS_PROFILES." 
+		where user_id = '".$_SESSION['admin_id']."' and menu_id = '$menu_id' order by column_id, row_id");
 	$include_template = 'template_main.php';
-	define('PAGE_TITLE', COMPANY_NAME . ' - ' . TITLE);
+	define('PAGE_TITLE', COMPANY_NAME.' - '.TITLE);
 	break;
 }
 

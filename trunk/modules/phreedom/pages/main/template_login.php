@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,10 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/pages/main/template_main.php
 //
-$companies = load_company_dropdown();
-$single_company = sizeof($companies)==1 ? true : false; 
 echo html_form('login', FILENAME_DEFAULT, 'module=phreedom&amp;page=main&amp;action=validate', 'post', 'onsubmit="return submit_wait();"').chr(10);
-if ($single_company) echo html_hidden_field('company', $companies[0]['id']) . chr(10);
+if ($single_company)  echo html_hidden_field('company',  $companies[0]['id']) . chr(10);
+if ($single_language) echo html_hidden_field('language', $languages[0]['id']) . chr(10);
 ?>
 <div style="margin-left:25%;margin-right:25%;margin-top:50px;">
 	  <table class="ui-widget">
@@ -47,15 +46,17 @@ if ($single_company) echo html_hidden_field('company', $companies[0]['id']) . ch
 <?php if (!$single_company) { ?>
               <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_COMPANY; ?></td>
-                <td><?php echo html_pull_down_menu('company', load_company_dropdown(), $admin_company); ?></td>
+                <td><?php echo html_pull_down_menu('company', $companies, $company_index); ?></td>
+              </tr>
+<?php } ?>
+<?php if (!$single_language) { ?>
+              <tr>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_LANGUAGE; ?></td>
+                <td><?php echo html_pull_down_menu('language', $languages, $language_index); ?></td>
               </tr>
 <?php } ?>
               <tr>
-                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_LANGUAGE; ?></td>
-                <td><?php echo html_pull_down_menu('language', load_language_dropdown(), $admin_language); ?></td>
-              </tr>
-              <tr>
-                <td colspan="2" align="right">
+                <td colspan="2" align="right">&nbsp;
 				  <div id="wait_msg" style="display:none;"><?php echo TEXT_FORM_PLEASE_WAIT; ?></div>
 				  <?php echo html_submit_field('submit', TEXT_LOGIN_BUTTON); ?>
 				</td>

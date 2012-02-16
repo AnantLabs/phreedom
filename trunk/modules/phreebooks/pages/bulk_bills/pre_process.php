@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -22,18 +22,16 @@ $security_level = validate_user(SECURITY_ID_SELECT_PAYMENT);
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');
 require_once(DIR_FS_WORKING . 'classes/gen_ledger.php');
 require_once(DIR_FS_WORKING . 'classes/banking.php');
-
 /**************   page specific initialization  *************************/
 define('JOURNAL_ID',20);
 define('GL_TYPE','chk');
 define('POPUP_FORM_TYPE','bnk:chk');
 define('AUDIT_LOG_DESC',ORD_TEXT_20_WINDOW_TITLE);
-
-$post_success       = false;
-$error              = false;
-$action             = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
-$post_date          = ($_POST['post_date']) ? gen_db_date($_POST['post_date']) : ($_GET['post_date'] ? $_GET['post_date'] : date('Y-m-d', time()));
-$_GET['post_date']  = $post_date;
+$post_success      = false;
+$error             = false;
+$action            = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
+$post_date         = ($_POST['post_date']) ? gen_db_date($_POST['post_date']) : ($_GET['post_date'] ? $_GET['post_date'] : date('Y-m-d', time()));
+$_GET['post_date'] = $post_date;
 $period = gen_calculate_period($post_date);
 if (!$period) { // bad post_date was submitted
   $action = '';
@@ -57,7 +55,6 @@ if (!$purchase_invoice_id) {
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/bills/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
-
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'print':
@@ -66,7 +63,6 @@ switch ($action) {
 		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 		break;
 	}
-
 	// read the input data, place into array
 	$payment_list = array();
 	for ($i=1; $i<count($_POST); $i++) {
@@ -83,14 +79,12 @@ switch ($action) {
 		);
 	  }
 	}
-
 	// error check input
 	if (!count($payment_list)) {
 		$messageStack->add(GL_ERROR_NO_ITEMS, 'error');
 		$error = true;
 		break;
 	}
-
 	// ***************************** START TRANSACTION *******************************
 	$first_payment_ref = $purchase_invoice_id; // first check number, needed for printing
 	$db->transStart();
@@ -178,10 +172,8 @@ switch ($action) {
 /*****************   prepare to display templates  *************************/
 // load the gl account beginning balance
 $acct_balance = load_cash_acct_balance($post_date, $gl_acct_id, $period);
-
 // load gl accounts
 $gl_array_list = gen_coa_pull_down();
-
 // build the list header
 $heading_array = array(
   'post_date'           => BNK_INVOICE_DATE,
@@ -193,22 +185,17 @@ $result = html_heading_bar($heading_array, $_GET['list_order'], array(TEXT_NOTES
 $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 if (!$disp_order) $disp_order = 'post_date';
-
 // build the list for the page selected
 $field_list = array('m.id', 'm.journal_id', 'm.post_date', 'm.total_amount', 'm.terms', 'm.gl_acct_id',  
 	'm.purchase_invoice_id', 'm.purch_order_id', 'm.bill_acct_id', 'm.bill_primary_name', 'm.waiting');
-		
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-
 $query_raw = "select " . implode(', ', $field_list) . " 
 	from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_CONTACTS . " a on m.bill_acct_id = a.id 
 	where a.type = 'v' and m.journal_id in (6, 7) and m.closed = '0' 
 	order by $disp_order, post_date";
-
 $query_result = $db->Execute($query_raw);
-
-$cal_bills0 = array(
+$cal_bills0   = array(
   'name'      => 'datePosted',
   'form'      => 'bulk_bills',
   'fieldname' => 'post_date',
@@ -232,10 +219,8 @@ $cal_bills2 = array(
   'default'   => gen_locale_date($discount_date),
   'params'    => array('align' => 'left'),
 );
-
 $include_header   = true;
 $include_footer   = true;
-$include_tabs     = false;
 $include_calendar = true;
 $include_template = 'template_main.php';
 define('PAGE_TITLE', ORD_TEXT_20_V_WINDOW_TITLE);

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -120,13 +120,6 @@ class fields {
 		break;
 	  case 'multi_check_box':	
 		$params['default'] = db_prepare_input($_POST['radio_default']);
-		$choices = explode(',',$params['default']);
-		$max_choice_size = 0;
-		while ($choice = array_shift($choices)) {
-			$a_choice = explode(':',$choice);
-			if ($a_choice[2] == 1) $values['entry_params'] = " default '" . $a_choice[0] . "'";
-			if (strlen($a_choice[0]) > $max_choice_size) $max_choice_size = strlen($a_choice[0]);
-		}
 		$values['entry_type'] = 'text';
 		break;	
 	  case 'date':
@@ -249,7 +242,7 @@ class fields {
 	  $result = $db->Execute("select id, entry_type, field_name, description, params, tab_id
 	    from " . TABLE_EXTRA_FIELDS . " where id = '" . $id . "'");
 	  $params = unserialize($result->fields['params']);
-	  foreach ($params as $key => $value) $result->fields[$key] = $value;
+	  if (is_array($params)) foreach ($params as $key => $value) $result->fields[$key] = $value;
 	  $form_array = xtra_field_prep_form($result->fields);
       $cInfo = new objectInfo($form_array);
 	}

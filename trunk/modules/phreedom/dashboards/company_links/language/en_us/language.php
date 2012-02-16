@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -20,7 +20,7 @@
 
 define('CP_COMPANY_LINKS_TITLE','Company Links');
 define('CP_COMPANY_LINKS_DESCRIPTION','Lists URLs for all users as company wide links. ');
-define('CP_COMPANY_LINKS_SECURITY',4);
+define('CP_COMPANY_LINKS_SECURITY',SECURITY_ID_PHREEFORM);
 
 define('CP_COMPANY_LINKS_NO_RESULTS','No results found!');
 

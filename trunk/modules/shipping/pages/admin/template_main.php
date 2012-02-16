@@ -52,4 +52,5 @@ echo $toolbar->build_toolbar();
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_stats.php');
 ?>
 </div>
+<div id="shipping_dialog">&nbsp;</div>
 </form>

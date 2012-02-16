@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -22,16 +22,8 @@
 <?php // ***********************  History Section  ****************************** ?>
   <fieldset>
     <legend><?php echo ACT_ACT_HISTORY; ?></legend>
-	  <table class="ui-widget" style="border-style:none;width:100%;">
-		<tbody class="ui-widget-content">
-		  <tr>
-		    <td width="50%"><?php echo constant('ACT_' . strtoupper($type) . '_FIRST_DATE') . ' ' . gen_locale_date($cInfo->first_date); ?></td>
-		  </tr>
-		  <tr>
-		    <td width="50%"><?php echo constant('ACT_' . strtoupper($type) . '_LAST_DATE1') . ' ' . gen_locale_date($cInfo->last_update); ?></td>
-		  </tr>
-	   </tbody>
-	</table>
+    <p><?php echo constant('ACT_'.strtoupper($type).'_FIRST_DATE').' '.gen_locale_date($cInfo->first_date); ?></p>
+    <p width="50%"><?php echo constant('ACT_'.strtoupper($type).'_LAST_DATE1').' '.gen_locale_date($cInfo->last_update); ?></p>
   </fieldset>
 
   <fieldset>
@@ -51,16 +43,19 @@
 		 </thead>
 		 <tbody class="ui-widget-content">
 		  <?php // first SO/PO
-	    $result = load_open_orders($cInfo->id, '10', false, LIMIT_HISTORY_RESULTS);
+	    $result = $cInfo->load_open_orders($cInfo->id, '10', false, LIMIT_HISTORY_RESULTS);
 		$odd = true;
 	    if ($result) {
 		  array_shift($result); // the first entry is for new stuff, don't display
 		  foreach ($result as $value) {
-		    echo '<tr class="'.($odd?"odd":"even").'"><td><a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . ($type == 'v' ? 4 : 10) . '&amp;oID=' . $value['id'], 'SSL') . '">' . $value['purchase_invoice_id'] . '</a></td>';
+		    echo '<tr class="'.($odd?"odd":"even").'">';
+		    echo '<td>';
+			echo html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="window.open(\'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . ($type == 'v' ? 4 : 10) . '&amp;oID=' . $value['id'], 'SSL') . '\',\'_blank\')"');
+		    echo '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . ($type == 'v' ? 4 : 10) . '&amp;oID=' . $value['id'], 'SSL') . '">' . $value['purchase_invoice_id'] . '</a></td>';
 		    echo '<td>' . ($value['purch_order_id'] ? $value['purch_order_id'] : '&nbsp;') . '</td>';
 		    echo '<td align="center">' . gen_locale_date($value['post_date']) . '</td>';
 		    echo '<td align="center">' . ($value['closed'] ? '&nbsp;' : TEXT_YES) . '</td>';
-		    echo '<td align="right">' . $currencies->format($value['total_amount']) . '</td></tr>';
+		    echo '<td align="right">'  . $currencies->format($value['total_amount']) . '</td></tr>' . chr(10);
 		    $odd = !$odd;
 		  }
 		} else {
@@ -81,13 +76,16 @@
 		 </thead>
 		 <tbody class="ui-widget-content">
 		  <?php // then Sales/Purchases
-	    $result = load_open_orders($cInfo->id, '12, 13, 19', false, LIMIT_HISTORY_RESULTS);
+	    $result = $cInfo->load_open_orders($cInfo->id, '12,13,19', false, LIMIT_HISTORY_RESULTS);
 		$odd = true;
 		if ($result) {
 		  array_shift($result); // the first entry is for new stuff, don't display
 		  foreach ($result as $value) {
 		    $closed = $value['closed_date'] <> '0000-00-00' ? gen_locale_date($value['closed_date']) : ($value['closed'] ? TEXT_YES : '&nbsp;');
-		    echo '<tr class="'.($odd?"odd":"even").'"><td><a href="'   . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . $value['journal_id'] . '&amp;oID=' . $value['id'], 'SSL') . '">' . $value['purchase_invoice_id'] . '</a></td>';
+		    echo '<tr class="'.($odd?"odd":"even").'">';
+		    echo '<td>';
+			echo html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="window.open(\'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . $value['journal_id'] . '&amp;oID=' . $value['id'], 'SSL') . '\',\'_blank\')"');
+		    echo '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;action=edit&amp;jID=' . $value['journal_id'] . '&amp;oID=' . $value['id'], 'SSL') . '">' . $value['purchase_invoice_id'] . '</a></td>';
 		    echo '<td>' . ($value['purch_order_id'] ? $value['purch_order_id'] : '&nbsp;') . '</td>';
 		    echo '<td align="center">' . gen_locale_date($value['post_date']) . '</td>';
 		    echo '<td align="center">' . $closed . '</td>';

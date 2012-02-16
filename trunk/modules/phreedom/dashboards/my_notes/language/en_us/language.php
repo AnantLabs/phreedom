@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -20,7 +20,7 @@
 
 define('CP_MY_NOTES_TITLE','My Notes');
 define('CP_MY_NOTES_DESCRIPTION','Allows posting notes and reminders.');
-define('CP_MY_NOTES_SECURITY',4);
+define('CP_MY_NOTES_SECURITY',SECURITY_ID_MY_PROFILE);
 
 define('CP_MY_NOTES_NO_RESULTS','No results found!');
 

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -21,8 +21,11 @@
 // 2011-07-01 - Added version number for revision control
 define('MODULE_SHIPPING_FEDEX_V7_VERSION','3.2');
 
+define('FEDEX_V7_COST_OFFSET',3.00); // constant to add to cost for reconciliation notifications
 define('FEDEX_V7_COST_FACTOR',0.10); // percent of allowed cost over actual charge
 define('FEDEX_V7_MAX_SINGLE_BOX_WEIGHT', 150); // maximum single box weight for small package in pounds
+define('FEDEX_MAX_SMART_POST_WEIGHT',7); // maximum weight to use Smart Post service
+define('FEDEX_SMARTPOST_HUB_ID','5802'); // 5802 for Denver, CO
 define('FEDEX_V7_TRACKING_URL','http://www.fedex.com/Tracking?ascend_header=1&amp;clienttype=dotcom&amp;cntry_code=us&amp;language=english&amp;tracknumbers=');
 // Set the defaults for Thermal printing
 define('LABELORIENTATION_THERMAL', 'STOCK_4X6.75_LEADING_DOC_TAB'); 
@@ -36,7 +39,9 @@ define('DOCTABCONTENT', 'Zone001'); // (Zone001, Barcoded)
 define('fedex_v7_1DEam', MODULE_SHIPPING_FEDEX_V7_1DM);
 define('fedex_v7_1Dam',  MODULE_SHIPPING_FEDEX_V7_1DA);
 define('fedex_v7_1Dpm',  MODULE_SHIPPING_FEDEX_V7_1DP);
+define('fedex_v7_2Dam',  MODULE_SHIPPING_FEDEX_V7_2DA);
 define('fedex_v7_2Dpm',  MODULE_SHIPPING_FEDEX_V7_2DP);
+define('fedex_v7_3Dam',  MODULE_SHIPPING_FEDEX_V7_3DA);
 define('fedex_v7_3Dpm',  MODULE_SHIPPING_FEDEX_V7_3DS);
 define('fedex_v7_GND',   MODULE_SHIPPING_FEDEX_V7_GND);
 define('fedex_v7_GDR',   MODULE_SHIPPING_FEDEX_V7_GDR);
@@ -52,14 +57,10 @@ define('fedex_v7_EcoFrt',MODULE_SHIPPING_FEDEX_V7_ECF);
 define('MODULE_SHIPPING_FEDEX_RATE_WSDL_VERSION','10');
 define('PATH_TO_TEST_RATE_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestRateService_v10.wsdl');
 define('PATH_TO_RATE_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/RateService_v10.wsdl');
-//define('PATH_TO_TEST_RATE_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestRateService_v7.wsdl');
-//define('PATH_TO_RATE_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/RateService_v7.wsdl');
 
 define('MODULE_SHIPPING_FEDEX_SHIP_WSDL_VERSION','10');
 define('PATH_TO_TEST_SHIP_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestShipService_v10.wsdl');
 define('PATH_TO_SHIP_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/ShipService_v10.wsdl');
-//define('PATH_TO_TEST_SHIP_WSDL',  DIR_FS_WORKING . 'methods/fedex_v7/TestShipService_v7.wsdl');
-//define('PATH_TO_SHIP_WSDL',       DIR_FS_WORKING . 'methods/fedex_v7/ShipService_v7.wsdl');
 
 define('PATH_TO_TEST_CLOSE_WSDL', DIR_FS_WORKING . 'methods/fedex_v7/TestCloseService_v2.wsdl');
 define('PATH_TO_TRACK_WSDL',      DIR_FS_WORKING . 'methods/fedex_v7/TrackService_v4.wsdl');
@@ -83,8 +84,10 @@ class fedex_v7 {
 	'FIRST_OVERNIGHT'        => '1DEam',
 	'PRIORITY_OVERNIGHT'     => '1Dam',
 	'STANDARD_OVERNIGHT'     => '1Dpm',
-	'FEDEX_2_DAY'            => '2Dpm',
-	'FEDEX_EXPRESS_SAVER'    => '3Dpm',
+	'FEDEX_2_DAY_AM'         => '2Dam',
+    'FEDEX_2_DAY'            => '2Dpm',
+	'SMART_POST'             => '3Dam',
+    'FEDEX_EXPRESS_SAVER'    => '3Dpm',
 	'FEDEX_GROUND'           => 'GND',
 	'GROUND_HOME_DELIVERY'   => 'GDR',
 	'INTERNATIONAL_FIRST'    => 'I2DEam',
@@ -99,7 +102,6 @@ class fedex_v7 {
 //	'EUROPE_FIRST_INTERNATIONAL_PRIORITY',
 //	'INTERNATIONAL_ECONOMY_FREIGHT',
 //	'INTERNATIONAL_PRIORITY_FREIGHT',
-//	'SMART_POST',
   );
 
   var $FedExPickupMap = array(
@@ -202,6 +204,7 @@ class fedex_v7 {
 		  array('id' => '2Dpm',  'text' => MODULE_SHIPPING_FEDEX_V7_2DP),
 		  array('id' => '2DFrt', 'text' => MODULE_SHIPPING_FEDEX_V7_2DF),
 		  array('id' => '3Dpm',  'text' => MODULE_SHIPPING_FEDEX_V7_3DS),
+		  array('id' => '3Dam',  'text' => MODULE_SHIPPING_FEDEX_V7_3DA),
 		  array('id' => '3DFrt', 'text' => MODULE_SHIPPING_FEDEX_V7_3DF),
 		  array('id' => 'GND',   'text' => MODULE_SHIPPING_FEDEX_V7_GND),
 		  array('id' => 'GDR',   'text' => MODULE_SHIPPING_FEDEX_V7_GDR),
@@ -311,6 +314,8 @@ class fedex_v7 {
 		if (is_object($response->RateReplyDetails)) $response->RateReplyDetails = array($response->RateReplyDetails);
 		if (is_array($response->RateReplyDetails)) foreach ($response->RateReplyDetails as $rateReply) {
 		  $service = $this->FedExRateCodes[$rateReply->ServiceType];
+//echo 'rateReply->ServiceType = '; print_r($rateReply->ServiceType); echo '<br>';
+		  if ($service == '3Dam' && $pkg->pkg_weight > FEDEX_MAX_SMART_POST_WEIGHT) continue;
 		  if (in_array($service, $user_choices)) {
 			$temp = array(); // ground and freight are not in an array so convert
 			if (is_array($rateReply->RatedShipmentDetails)) {
@@ -322,19 +327,21 @@ class fedex_v7 {
 			  switch ($details->ShipmentRateDetail->RateType) {
 				default:
 				case 'PAYOR_ACCOUNT':
-				  $arrRates[$this->code][$service]['cost']  = $details->ShipmentRateDetail->TotalNetCharge->Amount;
+				  $arrRates[$this->code][$service]['cost']   = $details->ShipmentRateDetail->TotalNetCharge->Amount;
 				  if (isset($rateReply->CommitDetails->CommitTimestamp)) {
 					$arrRates[$this->code][$service]['note'] = 'Commit: ' . date("D M j g:i a", strtotime($rateReply->CommitDetails->CommitTimestamp));
+				  } elseif (isset($rateReply->CommitDetails->MaximumTransitTime)) {
+					$arrRates[$this->code][$service]['note'] = ' Commit: ' . date("D M j g:i a", strtotime($this->calculateDelivery($rateReply->CommitDetails->MaximumTransitTime, $pkg->residential_address)));
 				  } elseif (isset($rateReply->CommitDetails->TransitTime)) {
 					$arrRates[$this->code][$service]['note'] = ' Commit: ' . date("D M j g:i a", strtotime($this->calculateDelivery($rateReply->CommitDetails->TransitTime, $pkg->residential_address)));
 				  } else {
 					$arrRates[$this->code][$service]['note'] = '';
 				  }
-				  $arrRates[$this->code][$service]['book']  = $details->ShipmentRateDetail->TotalBaseCharge->Amount;
-				  $arrRates[$this->code][$service]['quote'] = $arrRates[$this->code][$service]['book'];
-				  break;
+				  // fall through as book and quote are the same for both types
 				case 'RATED_ACCOUNT':
-				  $arrRates[$this->code][$service]['book']  = $details->ShipmentRateDetail->TotalBaseCharge->Amount;
+				  $surcharges = $details->ShipmentRateDetail->TotalSurcharges->Amount;
+				  $baserate   = $details->ShipmentRateDetail->TotalBaseCharge->Amount;
+				  $arrRates[$this->code][$service]['book']  = $baserate + $surcharges;
 				  $arrRates[$this->code][$service]['quote'] = $arrRates[$this->code][$service]['book'];
 				  break;
 				case 'PAYOR_MULTIWEIGHT':
@@ -425,6 +432,11 @@ class fedex_v7 {
 		'CountryCode'   => $pkg->ship_from_country_iso2,
 	  ),
 	);
+	// SmartPost
+	$request['RequestedShipment']['SmartPostDetail'] = array(
+	  'Indicia' => $pkg->pkg_weight < 0.1 ? 'PRESORTED_STANDARD' : 'PARCEL_SELECT',
+	  'HubId'   => FEDEX_SMARTPOST_HUB_ID, // 5802 for Denver, CO
+	);
 	$request['RequestedShipment']['RateRequestTypes'] = 'ACCOUNT'; // choices are ACCOUNT or LIST
 	if ($ltl && MODULE_SHIPPING_FEDEX_V7_LTL_ACCOUNT_NUMBER) {
 	  $request['RequestedShipment']['FreightShipmentDetail'] = array(
@@ -511,7 +523,7 @@ class fedex_v7 {
 		    $response = $client->processShipment($request);
 //echo 'Request <pre>' . htmlspecialchars($client->__getLastRequest()) . '</pre>';
 //echo 'Response <pre>' . htmlspecialchars($client->__getLastResponse()) . '</pre>';
-//echo 'rate response array = '; print_r($response); echo '<br />';
+//echo 'label response array = '; print_r($response); echo '<br />';
 		    if ($response->HighestSeverity != 'FAILURE' && $response->HighestSeverity != 'ERROR') {
 				if ($key == 0) {
 					$sInfo->master_tracking = $response->CompletedShipmentDetail->MasterTrackingId;
@@ -520,32 +532,45 @@ class fedex_v7 {
 				$book_cost = 0;
 				$del_date = '';
 				if (isset($response->CompletedShipmentDetail->OperationalDetail->DeliveryDate)) {
-					$del_code  = $response->CompletedShipmentDetail->OperationalDetail->DestinationServiceArea;
-					$guar_time = $this->calculateDeliveryTime($sInfo->ship_method, $del_code, $sInfo->residential_address);
-					$del_date  = $response->CompletedShipmentDetail->OperationalDetail->DeliveryDate . ' ' . $guar_time;
+				  $del_code  = $response->CompletedShipmentDetail->OperationalDetail->DestinationServiceArea;
+				  $guar_time = $this->calculateDeliveryTime($sInfo->ship_method, $del_code, $sInfo->residential_address);
+				  $del_date  = $response->CompletedShipmentDetail->OperationalDetail->DeliveryDate . ' ' . $guar_time;
+				} elseif (isset($response->CompletedShipmentDetail->OperationalDetail->MaximumTransitTime)) {
+				  $del_date  = $this->calculateDelivery($response->CompletedShipmentDetail->OperationalDetail->MaximumTransitTime, $sInfo->residential_address);
 				} elseif (isset($response->CompletedShipmentDetail->OperationalDetail->TransitTime)) {
 				  $del_date  = $this->calculateDelivery($response->CompletedShipmentDetail->OperationalDetail->TransitTime, $sInfo->residential_address);
 				}
-				if (is_array($response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails)) {
-				  foreach ($response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails as $rate) {
+				if (is_array($response->CompletedShipmentDetail->CompletedPackageDetails->PackageRating->PackageRateDetails)) {
+				  foreach ($response->CompletedShipmentDetail->CompletedPackageDetails->PackageRating->PackageRateDetails as $rate) {
 				    switch($rate->RateType) {
 				      case 'PAYOR_ACCOUNT_PACKAGE':
-				      case 'PAYOR_ACCOUNT_SHIPMENT': $net_cost  = $rate->TotalNetCharge->Amount; break;
+				      case 'PAYOR_ACCOUNT_SHIPMENT': $net_cost  = $rate->NetCharge->Amount; break;
 					  case 'PAYOR_LIST_SHIPMENT':
-					  case 'PAYOR_LIST_PACKAGE':     $book_cost = $rate->TotalNetCharge->Amount; break;
+					  case 'PAYOR_LIST_PACKAGE':     $book_cost = $rate->NetCharge->Amount; break;
 				    }
 				  }
 				}
 				if ($response->CompletedShipmentDetail->CarrierCode == 'FXFR') { // LTL Freight
-					$is_ltl   = true; // special handling for freight, hard coded label types for now
-					$tracking = $response->CompletedShipmentDetail->MasterTrackingId->TrackingNumber;
-					$zone     = '';
-					foreach ($response->CompletedShipmentDetail->ShipmentDocuments as $document) $labels[] = $document->Parts->Image;					
+				  $is_ltl   = true; // special handling for freight, hard coded label types for now
+				  $tracking = $response->CompletedShipmentDetail->MasterTrackingId->TrackingNumber;
+				  $zone     = '';
+				  foreach ($response->CompletedShipmentDetail->ShipmentDocuments as $document) $labels[] = $document->Parts->Image;					
 				} else {
-					$is_ltl    = false;
-					$tracking  = $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber;
-					$zone      = $response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails->RateZone;
-					$labels[]  = $response->CompletedShipmentDetail->CompletedPackageDetails->Label->Parts->Image;
+				  $is_ltl    = false;
+				  $zone      = $response->CompletedShipmentDetail->ShipmentRating->ShipmentRateDetails->RateZone;
+				  $labels[]  = $response->CompletedShipmentDetail->CompletedPackageDetails->Label->Parts->Image;
+				  if (is_array($response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds)) { // Smart Post
+					foreach ($response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds as $track_num) {
+					  if ($track_num->TrackingIdType == 'GROUND') $tracking = $track_num->TrackingNumber;
+					}
+				  } else {
+					$tracking = $response->CompletedShipmentDetail->CompletedPackageDetails->TrackingIds->TrackingNumber;
+				  }
+				}
+				if (!$tracking) {
+				  $messageStack->add('Error - No tracking found in return string.','error');
+//echo 'label response array = '; print_r($response); echo '<br />';
+				  return false;
 				}
 				$fedex_results[$key] = array(
 					'ref_id'        => $sInfo->purchase_invoice_id . '-' . ($key + 1),
@@ -565,8 +590,9 @@ class fedex_v7 {
 				  foreach ($labels as $label) {
 					$this->returned_label = $label;
 					// check for label to be for thermal printer or plain paper
-					if (!$is_ltl && MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') { // keep the thermal label encoded for now
+					if (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') { // keep the thermal label encoded for now
 						$file_name = $tracking . ($cnt > 0 ? '-'.$cnt : '') . '.lpt'; // thermal printer
+						if ($is_ltl && $cnt > 0) $file_name = $tracking . '-' .$cnt . '.pdf'; // BOL must be PDF
 					} else {
 						$file_name = $tracking . ($cnt > 0 ? '-'.$cnt : '') . '.pdf'; // plain paper
 					}
@@ -674,6 +700,13 @@ class fedex_v7 {
 			'Residential'         => $pkg->residential_address ? '1' : '0',
 		  ),
 		);
+		// SmartPost
+		if ($pkg->ship_method == '3Dam') {
+		  $request['RequestedShipment']['SmartPostDetail'] = array(
+		    'Indicia' => $pkg->total_weight < 1 ? 'PRESORTED_STANDARD' : 'PARCEL_SELECT',
+		    'HubId'   => FEDEX_SMARTPOST_HUB_ID,
+		  );
+		}
 		$request['RequestedShipment']['ShippingChargesPayment'] = array(
 		  'PaymentType'   => $this->PaymentMap[$pkg->bill_charges],
 		);
@@ -701,10 +734,10 @@ class fedex_v7 {
 					'CountryCode'         => gen_get_country_iso_2_from_3(COMPANY_COUNTRY),
 				  ),
 				),
-//				'PrintedReferences' => array(
-//				  'Type' => 'SHIPPER_ID_NUMBER',
-//				  'Value' => 'RBB1057',
-//				),
+				'PrintedReferences' => array(
+				  'Type'  => 'SHIPPER_ID_NUMBER',
+				  'Value' => $pkg->purchase_invoice_id,
+				),
 				'Role'                 => 'SHIPPER', // valid values are SHIPPER, THIRD_PARTY, and CONSIGNEE
 				'PaymentType'          => 'PREPAID', // $pkg->bill_charges // valid values are COLLECT and PREPAID
 				'CollectTermsType'     => 'STANDARD',
@@ -878,14 +911,13 @@ class fedex_v7 {
 				'ShippingDocumentTypes'     => array('FREIGHT_ADDRESS_LABEL'),
 				'FreightAddressLabelDetail' => array(
 					'Format' => array(
-						'ImageType'          => 'PDF',
-						'StockType'          => 'PAPER_4X6',
+						'ImageType'          => (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') ? 'EPL2' : 'PDF',
+						'StockType'          => (MODULE_SHIPPING_FEDEX_V7_PRINTER_TYPE == 'Thermal') ? LABELORIENTATION_THERMAL : 'PAPER_4X6',
 						'ProvideInstuctions' => '0',
 					),
 		            'Copies' => '1',
 				),
 			);
-//echo 'FedEx Express XML Label Submit String:'; print_r($request); echo '<br />';
 		} else {
 			$request['RequestedShipment']['LabelSpecification']['ImageType'] = 'PDF';
 			$request['RequestedShipment']['LabelSpecification']['LabelStockType'] = LABELORIENTATION_PDF;
@@ -1225,19 +1257,26 @@ class fedex_v7 {
 	  if ($ref_num) {
 	    $result = $db->Execute("select cost from " . TABLE_SHIPPING_LOG . " where ref_id = '" . $ref_num . "'");
 	    if ($result->RecordCount() == 0) {
-	      $output .= sprintf(SHIPPING_FEDEX_RECON_NO_RECORDS, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name) . "\n";
+	      $output .= sprintf(SHIPPING_FEDEX_RECON_NO_RECORDS, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name, $cost) . "\n";
 	      continue;
 	    } elseif ($result->recordCount() > 1) {
-	      $output .= sprintf(SHIPPING_FEDEX_RECON_TOO_MANY, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name) . "\n";
+	      $output .= sprintf(SHIPPING_FEDEX_RECON_TOO_MANY, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name, $cost) . "\n";
 	      continue;
 	    }
 	  } else {
-	    $output .= sprintf(SHIPPING_FEDEX_RECON_NO_RECORDS, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name) . "\n";
+	    $output .= sprintf(SHIPPING_FEDEX_RECON_NO_RECORDS, $ship_date, $ref_num, $track_num, $ship_name, $rcv_name, $cost) . "\n";
 	    continue;
 	  }
-	  $estimate = $result->fields['cost'] * (1 + FEDEX_V7_COST_FACTOR);
+	  $estimate = ($result->fields['cost'] + FEDEX_V7_COST_OFFSET) * (1 + FEDEX_V7_COST_FACTOR);
 	  if ($cost > $estimate) {
-	    $output .= sprintf(SHIPPING_FEDEX_RECON_COST_OVER, $ship_date, $ref_num, $track_num, $record['Net Charge Amount'], $result->fields['cost']) . "\n";
+	  	$output .= sprintf(SHIPPING_FEDEX_RECON_COST_OVER, $ship_date, $ref_num, $track_num, $cost, $result->fields['cost']) . "\n";
+	  }
+	  $inv_num = strpos($ref_num, '-') ? substr($ref_num, 0, strpos($ref_num, '-')) : $ref_num;
+	  $result = $db->Execute("select freight from ".TABLE_JOURNAL_MAIN." where purchase_invoice_id = '$inv_num'");
+	  $invoiced = ($result->RecordCount() == 0) ? 0 : $result->fields['freight'];
+	  $estimate = ($invoiced + FEDEX_V7_COST_OFFSET) * (1 + FEDEX_V7_COST_FACTOR);
+	  if ($cost > $estimate) {
+	    $output .= sprintf(SHIPPING_FEDEX_RECON_COST_OVER_INV, $ship_date, $ref_num, $track_num, $cost, $invoiced) . "\n";
 	  }
 	  $reconciled[] = $ref_num;
 	  $count++;

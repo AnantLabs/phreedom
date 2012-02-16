@@ -1,7 +1,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -55,12 +55,9 @@ function ClearForm() {
   loadNewBalance(defaultGlAcct);
 }
 
-function accountGuess(force) {
+function AccountList() {
   var guess = document.getElementById('search').value;
-  if (!force) {
-    if (document.getElementById('bill_acct_id').value) return; // data has already been filled
-  }
-  if (!post_error && (force || (guess != text_search && guess != ''))) {
+  if (guess != text_search && guess != '') {
     $.ajax({
       type: "GET",
       contentType: "application/json; charset=utf-8",
@@ -69,25 +66,27 @@ function accountGuess(force) {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
       },
-	  success: processGuess
+	  success: AccountListResp
     });
+  } else { // force the popup
+	  AccountListResp();
   }
 }
 
-function processGuess(sXml) {
+function AccountListResp(sXml) {
   var xml = parseXml(sXml);
-  if (!xml) return;
+//  if (!xml) return;
   if ($(xml).find("result").text() == 'success') {
-    var cID = $(xml).find("id").first().text();
-	ajaxBillData(cID, 0, journalID);
-  } else {
+    var cID = $(xml).find("cID").text();
+    ajaxBillData(cID, 0, journalID);
+  } else { // search result <> 1
 	var search_text = document.getElementById('search').value;
     window.open('index.php?module=phreebooks&page=popup_bills_accts&list=1&jID='+journalID+"&type="+account_type+"&search_text="+search_text,"invoices","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
   }
 }
 
 function OpenOrdrList(currObj) {
-  window.open('index.php?module=phreebooks&page=popup_bills&list=1&form=bills_form&jID='+journalID+"&type="+account_type,"invoices","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
+  window.open('index.php?module=phreebooks&page=popup_bills&list=1&jID='+journalID+"&type="+account_type,"invoices","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function popupWindowCvv() {

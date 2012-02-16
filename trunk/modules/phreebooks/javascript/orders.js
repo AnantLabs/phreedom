@@ -1,7 +1,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -177,7 +177,7 @@ function orderFillAddress(xml, type, fill_address) {
 		insertValue('search',          $(this).find("short_name").text());
 		insertValue('acct_1',          default_inv_acct);
 		insertValue('rep_id',          $(this).find("dept_rep_id").text());
-		insertValue('ship_gl_acct_id', $(this).find("ship_gl_acct_id").text());
+		if($(this).find("ship_gl_acct_id").text() != '') insertValue('ship_gl_acct_id', $(this).find("ship_gl_acct_id").text());
 		custCreditLimit              = $(this).find("credit_remaining").text();
 		var rowCnt = 1;
 		while(true) {
@@ -301,24 +301,25 @@ function fillOrder(xml) {
 	    case 'sos':
 	    case 'poo':
 	    case 'por':
-		  insertValue('id_'  + jIndex,                $(this).find("id").text());
-		  insertValue('so_po_item_ref_id_'  + jIndex, $(this).find("so_po_item_ref_id").text());
-		  insertValue('qty_' + jIndex,                $(this).find("qty").text());
-		  insertValue('pstd_' + jIndex,               $(this).find("pstd").text());
-		  insertValue('sku_'  + jIndex,               $(this).find("sku").text());
-		  insertValue('desc_'  + jIndex,              $(this).find("description").text());
-		  insertValue('proj_'  + jIndex,              $(this).find("proj_id").text());
-		  insertValue('date_1_'  + jIndex,            $(this).find("date_1").text());
-		  insertValue('acct_'  + jIndex,              $(this).find("gl_account").text());
-		  insertValue('tax_'  + jIndex,               $(this).find("taxable").text());
-		  insertValue('full_'  + jIndex,              $(this).find("full_price").text());
-		  insertValue('weight_'  + jIndex,            $(this).find("weight").text());
-		  insertValue('serial_'  + jIndex,            $(this).find("serialize").text());
-		  insertValue('stock_'  + jIndex,             $(this).find("stock").text());
-		  insertValue('inactive_'  + jIndex,          $(this).find("inactive").text());
-		  insertValue('lead_' + jIndex,               $(this).find("lead").text());
-		  insertValue('price_' + jIndex,              $(this).find("unit_price").text());
-		  insertValue('total_' + jIndex,              $(this).find("total").text());
+		  insertValue('id_' + jIndex,                $(this).find("id").text());
+		  insertValue('item_cnt_' + jIndex,          $(this).find("item_cnt").text());
+		  insertValue('so_po_item_ref_id_' + jIndex, $(this).find("so_po_item_ref_id").text());
+		  insertValue('qty_' + jIndex,               $(this).find("qty").text());
+		  insertValue('pstd_' + jIndex,              $(this).find("pstd").text());
+		  insertValue('sku_'  + jIndex,              $(this).find("sku").text());
+		  insertValue('desc_'  + jIndex,             $(this).find("description").text());
+		  insertValue('proj_'  + jIndex,             $(this).find("proj_id").text());
+		  insertValue('date_1_'  + jIndex,           $(this).find("date_1").text());
+		  insertValue('acct_'  + jIndex,             $(this).find("gl_account").text());
+		  insertValue('tax_'  + jIndex,              $(this).find("taxable").text());
+		  insertValue('full_'  + jIndex,             $(this).find("full_price").text());
+		  insertValue('weight_'  + jIndex,           $(this).find("weight").text());
+		  insertValue('serial_'  + jIndex,           $(this).find("serialize").text());
+		  insertValue('stock_'  + jIndex,            $(this).find("stock").text());
+		  insertValue('inactive_'  + jIndex,         $(this).find("inactive").text());
+		  insertValue('lead_' + jIndex,              $(this).find("lead").text());
+		  insertValue('price_' + jIndex,             $(this).find("unit_price").text());
+		  insertValue('total_' + jIndex,             $(this).find("total").text());
 	      if ($(this).find("so_po_item_ref_id").text() || ((journalID == '04' || journalID == '10') && $(this).find("pstd").text())) {
 	        // don't allow sku to change, hide the sku search icon
 	        document.getElementById('sku_' + jIndex).readOnly = true;
@@ -338,72 +339,56 @@ function fillOrder(xml) {
   });
 }
 
-function accountGuess(force) {
-  if (force) {
-	AccountList();
-	return;
-  } 
-  if (post_error) return; // leave the data there, since form was reloaded with failed post data
-  if (document.getElementById('id').value) return; // if there's an id, it's an edit, return
-  var warn = true;
+function AccountList() {
   var guess = document.getElementById('search').value;
-  // test for data already in the form
-  if (guess != text_search && guess != '') {
-    if (document.getElementById('bill_acct_id').value ||
-        document.getElementById('bill_primary_name').value != default_array[0]) {
-          warn = confirm(warn_form_modified);
-	}
-	if (warn) {
-	  $.ajax({
-		type: "GET",
-		contentType: "application/json; charset=utf-8",
-		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
-		dataType: ($.browser.msie) ? "text" : "xml",
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-		},
-		success: processGuess
-	  });
-    }
+  var override = document.getElementById('bill_add_update').checked ? true : false; // force popup if Add/Update checked
+  if (guess != text_search && guess != '' && !override) {
+    $.ajax({
+	  type: "GET",
+	  contentType: "application/json; charset=utf-8",
+	  url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
+	  dataType: ($.browser.msie) ? "text" : "xml",
+	  error: function(XMLHttpRequest, textStatus, errorThrown) {
+	    alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	  },
+	  success: AccountListResp
+    });
+  } else { // force the popup
+	AccountListResp();
   }
 }
 
-function processGuess(sXml) {
+function AccountListResp(sXml) {
   var xml = parseXml(sXml);
-  if (!xml) return;
+//  if (!xml) return;
   if ($(xml).find("result").text() == 'success') {
-    fillOrderData(xml);
+	var cID = $(xml).find("cID").text();
+	ajaxOrderData(cID, 0, journalID, false, false);
   } else {
-	AccountList();
+    var fill = '';
+    switch (journalID) {
+	  case '3':
+	  case '4':
+	  case '6':
+	  case '7':
+	  case '20': fill = 'bill'; break;
+	  case '9':
+	  case '10':
+	  case '12':
+	  case '13':
+	  case '18': fill = 'both'; break;
+	  default:
+    }
+    window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&fill="+fill+"&jID="+journalID+"&search_text="+document.getElementById('search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
   }
-}
-
-function AccountList(currObj) {
-  var fill = '';
-  switch (journalID) {
-	case '3':
-	case '4':
-	case '6':
-	case '7':
-	case '20':
-	case '21': fill = 'bill'; break;
-	case '9':
-	case '10':
-	case '12':
-	case '13':
-	case '18':
-	case '19': fill = 'both'; break;
-	default:
-  }
-  window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&form=orders&fill="+fill+"&jID="+journalID+"&search_text="+document.getElementById('search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
 }
 
 function DropShipList(currObj) {
-	window.open("index.php?module=contacts&page=popup_accts&type=c&form=orders&fill=ship&jID="+journalID+"&search_text="+document.getElementById('ship_search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
+	window.open("index.php?module=contacts&page=popup_accts&type=c&fill=ship&jID="+journalID+"&search_text="+document.getElementById('ship_search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
 }
 
 function OpenOrdrList(currObj) {
-  window.open("index.php?module=phreebooks&page=popup_orders&form=orders&jID="+journalID,"search_po","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
+  window.open("index.php?module=phreebooks&page=popup_orders&jID="+journalID,"search_po","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function OpenRecurList(currObj) {
@@ -581,10 +566,16 @@ function addInvRow() {
     rowCnt  = (newRow2.rowIndex - 1)/2;
   }
 // NOTE: any change here also need to be made to template form for reload if action fails
-  cell    = buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"');
-  newCell = newRow.insertCell(-1);
-  newCell.innerHTML = cell;
-  if (single_line_list != '1') newCell.rowSpan = 2;
+    cell    = buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"');
+    newCell = newRow.insertCell(-1);
+    newCell.innerHTML = cell;
+//  if (single_line_list != '1') newCell.rowSpan = 2;
+  if (single_line_list == '1') {
+    cell    = '<input type="text" name="item_cnt_'+rowCnt+'" id="item_cnt_'+rowCnt+'" value="'+rowCnt+'" size="3" maxlength="3" readonly="readonly" />';
+    newCell = newRow.insertCell(-1);
+    newCell.innerHTML = cell;
+    newCell.align     = 'center';
+  }
   cell    = '<input type="text" name="qty_'+rowCnt+'" id="qty_'+rowCnt+'"'+(item_col_1_enable == '1' ? " " : " readonly=\"readonly\"")+' size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
@@ -630,6 +621,9 @@ function addInvRow() {
   }
   // second row ( or continued first row if option selected)
   if (single_line_list != '1') {
+	cell    = '<input type="text" name="item_cnt_'+rowCnt+'" id="item_cnt_'+rowCnt+'" value="'+rowCnt+'" size="3" maxlength="3" readonly="readonly" />';
+	newCell = newRow2.insertCell(-1);
+	newCell.innerHTML = cell;
     cell = '<select name="acct_'+rowCnt+'" id="acct_'+rowCnt+'"></select>';
     newCell = newRow2.insertCell(-1);
   } else {
@@ -885,7 +879,7 @@ function updateTotalPrices() {
 	  case  '4':
 	  case  '9':
 	  case '10':
-   	    item_count      += parseFloat(document.getElementById('qty_'+i).value);
+   	    item_count      += document.getElementById('qty_'+i).value ? parseFloat(document.getElementById('qty_'+i).value) : 0;
   	    shipment_weight += document.getElementById('qty_'+i).value * document.getElementById('weight_'+i).value;
 	    break;
 	  case  '6':
@@ -896,7 +890,7 @@ function updateTotalPrices() {
 	  case '19':
 	  case '20':
 	  case '21':
-   	    item_count      += parseFloat(document.getElementById('pstd_'+i).value);
+   	    item_count      += document.getElementById('pstd_'+i).value ? parseFloat(document.getElementById('pstd_'+i).value) : 0;
   	    shipment_weight += document.getElementById('pstd_'+i).value * document.getElementById('weight_'+i).value;
 	    break;
 	  default:
@@ -933,7 +927,6 @@ function updateTotalPrices() {
 
   var nst = new String(taxable_subtotal);
   document.getElementById('sales_tax').value = formatCurrency(nst);
-
   document.getElementById('item_count').value = item_count;
   document.getElementById('weight').value = shipment_weight;
   var st = new String(subtotal);

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -80,6 +80,7 @@ class phreedom_admin {
 		  id int(15) NOT NULL auto_increment,
 		  action_date timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
 		  user_id int(11) NOT NULL default '0',
+		  ip_address varchar(15) NOT NULL default '0.0.0.0',
 		  reference_id varchar(32) NOT NULL default '',
 		  action varchar(64) default NULL,
 		  amount float(10,2) NOT NULL default '0.00',
@@ -116,6 +117,7 @@ class phreedom_admin {
 		  ref_2 int(11) NOT NULL DEFAULT '0',
 		  hint varchar(255) NOT NULL DEFAULT '',
 		  enc_value varchar(255) NOT NULL DEFAULT '',
+		  exp_date date NOT NULL DEFAULT '2049-12-31',
 		  PRIMARY KEY (id)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
 	  TABLE_EXTRA_FIELDS => "CREATE TABLE " . TABLE_EXTRA_FIELDS . " (
@@ -241,9 +243,13 @@ class phreedom_admin {
 	  }
 	  write_configure(PHREEHELP_FORCE_RELOAD, '1');
 	}
-  	if (MODULE_PHREEDOM_STATUS < '3.2') {
+    	if (MODULE_PHREEDOM_STATUS < '3.2') {
 	  if (!db_field_exists(TABLE_USERS, 'is_role')) $db->Execute("ALTER TABLE ".TABLE_USERS." ADD is_role ENUM('0','1') NOT NULL DEFAULT '0' AFTER admin_id");
 	}
+    if (MODULE_PHREEDOM_STATUS < '3.4') {
+	  if (!db_field_exists(TABLE_DATA_SECURITY, 'exp_date')) $db->Execute("ALTER TABLE ".TABLE_DATA_SECURITY." ADD exp_date DATE NOT NULL DEFAULT '2049-12-31' AFTER enc_value");
+	  if (!db_field_exists(TABLE_AUDIT_LOG, 'ip_address'))   $db->Execute("ALTER TABLE ".TABLE_AUDIT_LOG    ." ADD ip_address VARCHAR(15) NOT NULL AFTER user_id");
+    }
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');

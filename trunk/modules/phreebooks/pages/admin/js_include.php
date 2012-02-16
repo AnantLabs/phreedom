@@ -27,11 +27,11 @@
 function init() {
   $(function() { // initialize tables
 	$('#admintabs').tabs();
-    $('#coa_table').dataTable();
-    $('#tax_c_table').dataTable();
-    $('#tax_v_table').dataTable();
-    $('#tax_auth_c_table').dataTable();
-    $('#tax_auth_v_table').dataTable();
+    $('#coa_table').dataTable( dataTables_i18n );
+    $('#tax_c_table').dataTable( dataTables_i18n );
+    $('#tax_v_table').dataTable( dataTables_i18n );
+    $('#tax_auth_c_table').dataTable( dataTables_i18n );
+    $('#tax_auth_v_table').dataTable( dataTables_i18n );
   });
 }
 

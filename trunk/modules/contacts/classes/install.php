@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -21,8 +21,8 @@ class contacts_admin {
   function contacts_admin() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.3',
-	  'phreebooks' => '3.3',
+	  'phreedom'   => '3.4',
+	  'phreebooks' => '3.4',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -92,6 +92,7 @@ class contacts_admin {
 	  TABLE_CONTACTS_LOG => "CREATE TABLE " . TABLE_CONTACTS_LOG . " (
 		  log_id int(11) NOT NULL auto_increment,
 		  contact_id int(11) NOT NULL default '0',
+		  entered_by int(11) NOT NULL default '0',
 		  log_date datetime NOT NULL default '0000-00-00',
 		  action varchar(32) NOT NULL default '',
 		  notes text,
@@ -189,6 +190,10 @@ class contacts_admin {
 	  if ( db_field_exists(TABLE_CURRENT_STATUS, 'next_vend_id_desc')) $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_vend_id_desc");
 	  if (!db_field_exists(TABLE_CONTACTS, 'attachments')) $db->Execute("ALTER TABLE " . TABLE_CONTACTS . " ADD attachments TEXT NOT NULL AFTER tax_id");
     }
+    if (MODULE_CONTACTS_STATUS < '3.7') {
+      if (!db_field_exists(TABLE_CONTACTS_LOG, 'entered_by')) $db->Execute("ALTER TABLE " . TABLE_CONTACTS_LOG . " ADD entered_by INT(11) NOT NULL DEFAULT '0' AFTER contact_id");
+    }
+
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');
@@ -243,23 +248,23 @@ class contacts_admin {
 	$db->Execute("INSERT INTO " . TABLE_ADDRESS_BOOK . " VALUES (17, 17, 'em', 'Mary Johnson', '', '6541 First St', '', 'Anytown', 'CO', '80234', 'USA', '303-555-7426', '', '', '', 'nary@mycomapny.com', '', '');");
 	// Data for table `contacts`
 	$db->Execute("TRUNCATE TABLE " . TABLE_CONTACTS);
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (1, 'v', 'Obscure Video', '0', '', '', '', '', '2000', '', '', '', '3:1:10:30:2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (2, 'c', 'CompuHouse', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (3, 'v', 'Speedy Electronics', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (4, 'c', 'Computer Repair', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (5, 'v', 'LCDisplays', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (6, 'v', 'Big Box', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (7, 'c', 'Smith, John', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (8, 'c', 'JimBaker', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (9, 'c', 'Culver', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (10, 'c', 'PartsLocator', '0', '', '', '', '', '4000', '', '', '', '3:0:10:30:2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (11, 'v', 'Accurate Input', '0', '', '', '', '', '2000', '', '', 'SK200706', '3:0:10:30:2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (12, 'v', 'BackMeUp', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (13, 'v', 'Closed Cases', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (14, 'v', 'MegaWatts', '0', '', '', '', '', '2000', '', '', 'MW20070301', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (1, 'v', 'Obscure Video', '0', '', '', '', '', '2000', '', '', '', '3:1:10:30:2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (2, 'c', 'CompuHouse', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (3, 'v', 'Speedy Electronics', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (4, 'c', 'Computer Repair', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (5, 'v', 'LCDisplays', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (6, 'v', 'Big Box', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (7, 'c', 'Smith, John', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (8, 'c', 'JimBaker', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (9, 'c', 'Culver', '0', '', '', '', '', '4000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (10, 'c', 'PartsLocator', '0', '', '', '', '', '4000', '', '', '', '3:0:10:30:2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (11, 'v', 'Accurate Input', '0', '', '', '', '', '2000', '', '', 'SK200706', '3:0:10:30:2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (12, 'v', 'BackMeUp', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (13, 'v', 'Closed Cases', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (14, 'v', 'MegaWatts', '0', '', '', '', '', '2000', '', '', 'MW20070301', '0::::2500.00', '', '0', '', now(), NULL, NULL, NULL);");
 	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (15, 'v', 'Slipped Disk', '0', '', '', '', '', '2000', '', '', '', '0::::2500.00', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (16, 'e', 'John', '0', 'John', '', 'Smith', '', 'b', '', 'Sales', '', '::::', '', '', '', now(), NULL, NULL, NULL);");
-	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (17, 'e', 'Mary', '0', 'Mary', '', 'Johnson', '', 'e', '', 'Accounting', '', '::::', '', '', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (16, 'e', 'John', '0', 'John', '', 'Smith', '', 'b', '', 'Sales', '', '::::', '', '0', '', now(), NULL, NULL, NULL);");
+	$db->Execute("INSERT INTO " . TABLE_CONTACTS . " VALUES (17, 'e', 'Mary', '0', 'Mary', '', 'Johnson', '', 'e', '', 'Accounting', '', '::::', '', '0', '', now(), NULL, NULL, NULL);");
 	// Data for table `departments`
 	$db->Execute("TRUNCATE TABLE " . TABLE_DEPARTMENTS);
 	$db->Execute("INSERT INTO " . TABLE_DEPARTMENTS . " VALUES ('1', 'Sales', 'Sales', '0', '', 2, '0');");

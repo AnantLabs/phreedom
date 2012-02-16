@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -64,7 +64,9 @@ define('MODULE_SHIPPING_FEDEX_V7_GDR','Home Delivery');
 define('MODULE_SHIPPING_FEDEX_V7_1DM','First Overnight');
 define('MODULE_SHIPPING_FEDEX_V7_1DA','Priority Overnight');
 define('MODULE_SHIPPING_FEDEX_V7_1DP','Standard Overnight');
+define('MODULE_SHIPPING_FEDEX_V7_2DA','Express 2 Day A.M.');
 define('MODULE_SHIPPING_FEDEX_V7_2DP','Express 2 Day');
+define('MODULE_SHIPPING_FEDEX_V7_3DA','Smart Post');
 define('MODULE_SHIPPING_FEDEX_V7_3DS','Express Saver');
 define('MODULE_SHIPPING_FEDEX_V7_XDM','Int. First');
 define('MODULE_SHIPPING_FEDEX_V7_XPR','Int. Priority');
@@ -122,9 +124,10 @@ define('TEXT_PRINT_PAPER','Print Paper Documents');
 define('SHIPPING_FEDEX_ERROR_POSTAL_CODE','Postal Code is required to use the FedEx module');
 define('SHIPPING_FEDEX_RECON_TITLE','FedEx Reconciliation Report generated: ');
 define('SHIPPING_FEDEX_RECON_INTRO','Invoice Number: %s dated %s');
-define('SHIPPING_FEDEX_RECON_NO_RECORDS','Ship Date: %s Reference %s, tracking # %s - No records were found, shipment from %s to %s');
-define('SHIPPING_FEDEX_RECON_TOO_MANY','Ship Date: %s Reference %s, tracking # %s - Too many references were found, shipment from %s to %s');
+define('SHIPPING_FEDEX_RECON_NO_RECORDS','Ship Date: %s Reference %s, tracking # %s - No records were found, shipment from %s to %s costing %s');
+define('SHIPPING_FEDEX_RECON_TOO_MANY','Ship Date: %s Reference %s, tracking # %s - Too many references were found, shipment from %s to %s costing %s');
 define('SHIPPING_FEDEX_RECON_COST_OVER','Ship Date: %s Reference %s, tracking # %s - The billed cost: (%s) quoted cost: (%s)');
+define('SHIPPING_FEDEX_RECON_COST_OVER_INV','Ship Date: %s Reference %s, tracking # %s - The billed cost: (%s) is greater than the invoiced cost: (%s)');
 define('SHIPPING_FEDEX_RECON_SUMMARY','Total number of records reconcilied: %s');
 
 ?>

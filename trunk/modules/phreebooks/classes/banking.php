@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -228,47 +228,24 @@ class banking extends journal {
 	}
 
 	function encrypt_payment($method, $card_key_pos = false) {
-	  global $db, $messageStack;
-	  if (strlen($_SESSION['admin_encrypt']) > 1) {
-		$tmp = array();
-		$cnt = 0;
-		$hint_val = false;
-		while (true) {
-			if (!isset($_POST[$method . '_field_' . $cnt])) break;
-			$tmp[] = db_prepare_input($_POST[$method . '_field_' . $cnt]);
-			if ($cnt === $card_key_pos) $hint_val = trim(db_prepare_input($_POST[$method . '_field_' . $cnt]));
-			$cnt++;
-		}
-
-		if (sizeof($tmp) > 0) {
-			$hint = '';
-			if ($hint_val) {
-			  $hint = substr($hint_val, 0, 1);
-			  for ($a = 0; $a < (strlen($hint_val) - 5); $a++) $hint .= '*'; 
-			  $hint .= substr($hint_val, -4);
-			}
-			$encrypt = new encryption();
-			if (!$enc_value = $encrypt->encrypt($_SESSION['admin_encrypt'], implode(':', $tmp), 128)) {
-				$messageStack->add('Encryption error - ' . implode('. ',$encrypt->errors), 'error');
-				return false;
-			}
-			$encryption_array = array(
-				'hint'      => $hint,
-				'module'    => 'contacts',
-				'enc_value' => $enc_value,
-				'ref_1'     => $this->bill_acct_id,
-				'ref_2'     => $this->bill_address_id,
-			);
-			if ($this->payment_id) {
-			  db_perform(TABLE_DATA_SECURITY, $encryption_array, 'update', 'id = ' . $this->payment_id);
-			} else {
-			  db_perform(TABLE_DATA_SECURITY, $encryption_array, 'insert');
-			}
-		}
-	  } else {
-	    $messageStack->add(BNK_PAYMENT_NOT_SAVED,'error');
-		return false;
-	  }
+	  $encrypt = new encryption();
+	  $cc_info = array(
+		'name'    => db_prepare_input($_POST[$method.'_field_0']),
+		'number'  => db_prepare_input($_POST[$method.'_field_1']),
+		'exp_mon' => db_prepare_input($_POST[$method.'_field_2']),
+		'exp_year'=> db_prepare_input($_POST[$method.'_field_3']),
+		'cvv2'    => db_prepare_input($_POST[$method.'_field_4']),
+	  );
+	  if (!$enc_value = $encrypt->encrypt_cc($cc_info)) return false;
+	  $payment_array = array(
+		'hint'      => $enc_value['hint'],
+		'module'    => 'contacts',
+		'enc_value' => $enc_value['encoded'],
+		'ref_1'     => $this->bill_acct_id,
+		'ref_2'     => $this->bill_address_id,
+		'exp_date'  => $enc_value['exp_date'],
+	  );
+	  db_perform(TABLE_DATA_SECURITY, $payment_array, $this->payment_id ? 'update' : 'insert', 'id = '.$this->payment_id);
 	  return true;
 	}
 

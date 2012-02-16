@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -21,11 +21,11 @@ class phreebooks_admin {
   function phreebooks_admin() {
 	$this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'  => '3.3',
-	  'contacts'  => '3.5',
-	  'inventory' => '3.3',
-	  'payment'   => '3.3',
-	  'phreeform' => '3.3',
+	  'phreedom'  => '3.4',
+	  'contacts'  => '3.6',
+	  'inventory' => '3.4',
+	  'payment'   => '3.4',
+	  'phreeform' => '3.4',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -142,6 +142,7 @@ class phreebooks_admin {
 	  TABLE_JOURNAL_ITEM => "CREATE TABLE " . TABLE_JOURNAL_ITEM . " (
 		  id int(11) NOT NULL auto_increment,
 		  ref_id int(11) NOT NULL default '0',
+		  item_cnt int(11) NOT NULL default '0',
 		  so_po_item_ref_id int(11) default NULL,
 		  gl_type char(3) NOT NULL default '',
 		  reconciled BOOL NOT NULL DEFAULT '0',
@@ -260,15 +261,15 @@ class phreebooks_admin {
     global $db, $messageStack;
 	$error = false;
 	// load some current status values
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_po_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_po_num VARCHAR( 16 ) NOT NULL DEFAULT '5000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_so_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_so_num VARCHAR( 16 ) NOT NULL DEFAULT '10000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_inv_num'))       $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_inv_num VARCHAR( 16 ) NOT NULL DEFAULT '20000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_check_num'))     $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_check_num VARCHAR( 16 ) NOT NULL DEFAULT '100';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_deposit_num'))   $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_deposit_num VARCHAR( 16 ) NOT NULL DEFAULT '';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_cm_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_cm_num VARCHAR( 16 ) NOT NULL DEFAULT 'CM1000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_vcm_num'))       $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_vcm_num VARCHAR( 16 ) NOT NULL DEFAULT 'VCM1000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_ap_quote_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_ap_quote_num VARCHAR( 16 ) NOT NULL DEFAULT 'RFQ1000';");
-	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_ar_quote_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_ar_quote_num VARCHAR( 16 ) NOT NULL DEFAULT 'QU1000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_po_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_po_num VARCHAR( 16 ) NOT NULL DEFAULT '5000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_so_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_so_num VARCHAR( 16 ) NOT NULL DEFAULT '10000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_inv_num'))      $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_inv_num VARCHAR( 16 ) NOT NULL DEFAULT '20000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_check_num'))    $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_check_num VARCHAR( 16 ) NOT NULL DEFAULT '100';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_deposit_num'))  $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_deposit_num VARCHAR( 16 ) NOT NULL DEFAULT '';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_cm_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_cm_num VARCHAR( 16 ) NOT NULL DEFAULT 'CM1000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_vcm_num'))      $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_vcm_num VARCHAR( 16 ) NOT NULL DEFAULT 'VCM1000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_ap_quote_num')) $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_ap_quote_num VARCHAR( 16 ) NOT NULL DEFAULT 'RFQ1000';");
+	if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_ar_quote_num')) $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." ADD next_ar_quote_num VARCHAR( 16 ) NOT NULL DEFAULT 'QU1000';");
 	// copy standard images to phreeform images directory
 	$dir_source = DIR_FS_MODULES  . 'phreebooks/images/';
 	$dir_dest   = DIR_FS_MY_FILES . $_SESSION['company'] . '/phreeform/images/';
@@ -282,7 +283,7 @@ class phreebooks_admin {
   }
 
   function initialize($module) {
-    if (AUTO_UPDATE_PERIOD) {
+  	if (AUTO_UPDATE_PERIOD) {
 	  require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 	  gen_auto_update_period();
 	}
@@ -327,9 +328,13 @@ class phreebooks_admin {
 	  }
 	  $db_version = '3.3';
 	}
+	if ($db_version == '3.3') {
+	  if (!db_field_exists(TABLE_JOURNAL_ITEM, 'item_cnt')) $db->Execute("ALTER TABLE ".TABLE_JOURNAL_ITEM." ADD item_cnt INT(11) NOT NULL DEFAULT '0' AFTER ref_id");
+	  $db_version = '3.4';
+	}
 	if (!$error) {
-	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
-   	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');
+	  write_configure('MODULE_'.strtoupper($module).'_STATUS', constant('MODULE_'.strtoupper($module).'_VERSION'));
+   	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_'.strtoupper($module).'_VERSION')), 'success');
 	}
 	return $error;
   }
@@ -337,15 +342,15 @@ class phreebooks_admin {
   function remove($module) {
     global $db;
 	$error = false;
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_po_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_po_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_so_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_so_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_inv_num'))       $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_inv_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_check_num'))     $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_check_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_deposit_num'))   $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_deposit_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_cm_num'))        $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_cm_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_vcm_num'))       $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_vcm_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_ap_quote_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_ap_quote_num");
-    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_ar_quote_num'))  $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_ar_quote_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_po_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_po_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_so_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_so_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_inv_num'))      $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_inv_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_check_num'))    $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_check_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_deposit_num'))  $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_deposit_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_cm_num'))       $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_cm_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_vcm_num'))      $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_vcm_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_ap_quote_num')) $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_ap_quote_num");
+    if (db_field_exists(TABLE_CURRENT_STATUS, 'next_ar_quote_num')) $db->Execute("ALTER TABLE ".TABLE_CURRENT_STATUS." DROP next_ar_quote_num");
     return $error;
   }
 

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -86,13 +86,13 @@ class journal {
 	  $this->journal_rows[$i]['id'] = db_insert_id();
 	}
 	$messageStack->debug("\n\nStarting auxilliary post functions ...");
-	// Inventory needs to be posted first because function may add additional journal rows for COGS
+  	// Inventory needs to be posted first because function may add additional journal rows for COGS
 	if (!$this->Post_inventory()) return false; 
 	if (!$this->Post_chart_balances()) return false;	// post the chart of account values
 	if (!$this->Post_account_sales_purchases()) return false;
-
 	if (sizeof($this->repost_ids) > 0) { // rePost any journal entries unPosted to rollback COGS calculation (if edit)
 	  $messageStack->debug("\nStarting to Post re-post_ids to be Posted = " . arr2string($this->repost_ids));
+	  $cnt = 0;
 	  while ($id = array_shift($this->repost_ids)) {
 		$messageStack->debug("\n\nRe-posting as part of Post - Journal main id = " . $id);
 		$gl_entry = $this->unPost_entry[$id];
@@ -106,6 +106,7 @@ class journal {
 		}
 		$this->affected_accounts = gen_array_key_merge($this->affected_accounts, $gl_entry->affected_accounts);
 		$this->first_period = min($gl_entry->period, $this->first_period);
+		
 	  }
 	}
 	if (!$skip_balance) {
@@ -815,8 +816,10 @@ class journal {
 	  while (!$result->EOF) {
 		$working_qty -= $result->fields['qty'];
 		if ($working_qty >= 0) { // repost this journal entry and remove the owed record since we will repost all the negative quantities necessary
-		  $messageStack->debug("\nCOGS calculation is queing ID: " . $result->fields['journal_main_id'] . " to re-post.");
-		  $this->repost_ids[$result->fields['journal_main_id']] = $result->fields['journal_main_id'];
+		  if ($result->fields['journal_main_id'] <> $this->id) { // prevent infinite loop
+		    $messageStack->debug("\nCOGS calculation is queing ID: " . $result->fields['journal_main_id'] . " to re-post.");
+			$this->repost_ids[$result->fields['journal_main_id']] = $result->fields['journal_main_id'];
+		  }
 		  $db->Execute("delete from " . TABLE_INVENTORY_COGS_OWED . " where id = " . $result->fields['id']);
 		}
 		if ($working_qty <= 0) break; // we are finished listing all records that will be affected by this inv receipt

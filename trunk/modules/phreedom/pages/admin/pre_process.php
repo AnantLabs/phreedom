@@ -30,7 +30,6 @@ require_once(DIR_FS_WORKING . 'functions/phreedom.php');
 require_once(DIR_FS_WORKING . 'classes/backup.php');
 require_once(DIR_FS_WORKING . 'classes/install.php');
 require_once(DIR_FS_WORKING . 'classes/currency.php');
-
 /**************   page specific initialization  *************************/
 $error  = false; 
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
@@ -71,10 +70,7 @@ $status_values = $db->Execute("select * from " . TABLE_CURRENT_STATUS);
 switch ($action) {
   case 'install':
   case 'update':
-	if ($security_level < 4) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+  	validate_security($security_level, 4);
 	// load the module installation class
 	if (!file_exists(DIR_FS_MODULES . $method . '/classes/install.php')) {
 	  $messageStack->add(sprintf('Looking for the installation script for module %s, but could not locate it. The module cannot be installed!', $method),'error');
@@ -112,10 +108,7 @@ switch ($action) {
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	break;
   case 'remove':
-	if ($security_level < 4) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+  	validate_security($security_level, 4);
 	// load the module installation class
 	if (!file_exists(DIR_FS_MODULES . $method . '/classes/install.php')) {
 	  $messageStack->add(sprintf('Looking for the installation script for module %s, but could not locate it. The module cannot be installed!', $method),'error');
@@ -133,10 +126,7 @@ switch ($action) {
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	break;
   case 'save':
-	if ($security_level < 3) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL')); 
-	}
+  	validate_security($security_level, 3);
 	// save general tab
 	foreach ($install->keys as $key => $default) {
 	  $field = strtolower($key);
@@ -151,11 +141,8 @@ switch ($action) {
 	$default_tab_id = 'company';
     break;
   case 'delete':
-	if ($security_level < 4) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  break;
-	}
-    $subject = $_POST['subject'];
+  	validate_security($security_level, 4);
+  	$subject = $_POST['subject'];
     $id      = $_POST['rowSeq'];
 	if (!$subject || !$id) break;
     if ($$subject->btn_delete($id)) $close_popup = true;
@@ -303,10 +290,7 @@ switch ($action) {
 	$default_tab_id = 'manager';
 	break;
   case 'ordr_nums':
-	if ($security_level < 3) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
-	}
+  	validate_security($security_level, 3);
 	// read in the requested status values
 	$sequence_array = array();
 	foreach ($status_fields as $status_field) {
@@ -323,6 +307,12 @@ switch ($action) {
 	}
 	$default_tab_id = 'tools';
 	break;
+  case 'clean_security':
+	$clean_date = gen_db_date($_POST['clean_date']);
+	if (!$clean_date) break;
+	$result = $db->Execute("delete from ".TABLE_DATA_SECURITY." where exp_date < '".$clean_date."'");
+	$messageStack->add(sprintf(TEXT_CLEAN_SECURITY_SUCCESS, $result->AffectedRows()), 'success');
+	break;
   default:
 }
 
@@ -332,7 +322,6 @@ $sel_yes_no = array(
  array('id' => '0', 'text' => TEXT_NO),
  array('id' => '1', 'text' => TEXT_YES),
 );
-
 $sel_transport = array(
   array('id' => 'PHP',        'text' => 'PHP'),
   array('id' => 'sendmail',   'text' => 'sendmail'),
@@ -341,31 +330,32 @@ $sel_transport = array(
   array('id' => 'smtpauth',   'text' => 'smtpauth'),
   array('id' => 'Qmail',      'text' => 'Qmail'),
 );
-
 $sel_linefeed = array(
   array('id' => 'LF',   'text' => 'LF'),
   array('id' => 'CRLF', 'text' => 'CRLF'),
 );
-
 $sel_format = array(
   array('id' => 'TEXT', 'text' => 'TEXT'),
   array('id' => 'HTML', 'text' => 'HTML'),
 );
-
 $sel_order_lines = array(
   array('id' => '0', 'text' => TEXT_DOUBLE_MODE),
   array('id' => '1', 'text' => TEXT_SINGLE_MODE),
 );
-
 $sel_ie_method = array(
   array('id' => 'l', 'text' => TEXT_LOCAL),
   array('id' => 'd', 'text' => TEXT_DOWNLOAD),
 );
-
+$cal_clean = array(
+  'name'      => 'cleanDate',
+  'form'      => 'admin',
+  'fieldname' => 'clean_date',
+  'imagename' => 'btn_date_1',
+  'default'   => gen_locale_date(date('Y-m-d')),
+  'params'    => array('align' => 'left'),
+);
 $include_header   = true;
 $include_footer   = true;
-$include_tabs     = true;
-$include_calendar = false;
 $include_template = 'template_main.php';
 define('PAGE_TITLE', BOX_GENERAL_ADMIN);
 

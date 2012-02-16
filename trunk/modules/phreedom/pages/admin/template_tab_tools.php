@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -36,6 +36,15 @@
 	  <td colspan="2" align="right"><?php echo html_button_field('ordr_nums', GEN_ADM_TOOLS_BTN_SAVE, 'onclick="submitToDo(\'ordr_nums\')"'); ?></td>
     </tr>
   </table>
+</fieldset>
+
+<fieldset>
+<legend><?php echo GEN_ADM_TOOLS_SECURITY_HEADING; ?></legend>
+  <p><?php echo GEN_ADM_TOOLS_SECURITY_DESC; ?></p>
+  <p align="center">
+    <?php echo TEXT_CLEAN_BEFORE . ' ' . html_calendar_field($cal_clean); ?>
+	<?php echo html_button_field('clean_security', GEN_ADM_TOOLS_BTN_CLEAN, 'onclick="submitToDo(\'clean_security\')"'); ?>
+  </p>
 </fieldset>
 
 </div>

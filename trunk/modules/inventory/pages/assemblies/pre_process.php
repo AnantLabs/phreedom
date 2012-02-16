@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -85,7 +85,7 @@ switch ($action) {
 	  gen_add_audit_log(INV_LOG_ASSY . ($action=='save' ? TEXT_SAVE : TEXT_EDIT), $sku, $qty);
 	  $messageStack->add_session(INV_POST_ASSEMBLY_SUCCESS . $sku, 'success');
 	  if (DEBUG) $messageStack->write_debug();
-//	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
+	  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	  // *************** END TRANSACTION *************************
 	}
 	break;

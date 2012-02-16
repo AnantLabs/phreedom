@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -60,7 +60,7 @@ class PDF extends TCPDF {
 	  global $report, $FieldValues;
 	  $tempValues = $FieldValues;
 	  foreach ($report->fieldlist as $key => $field) {
-//if ($field->type == 'TBlk') { echo 'key = ' . $key . ' and field = '; print_r($field); echo '<br>'; }
+//if ($field->type == 'ImgLink') { echo 'key = ' . $key . ' and field = '; print_r($field); echo '<br>'; }
 		switch ($field->type) {
 		  case "Data": 
 			$field->text = array_shift($tempValues); // fill the data to display
@@ -74,9 +74,10 @@ class PDF extends TCPDF {
 		  case "CBlk": 
 		  case "PgNum":   $this->FormText($field);    break;
 		  case "Img":     $this->FormImage($field);   break;
+		  case "ImgLink": $this->FormImgLink($field, array_shift($tempValues)); break;
 		  case "Line":    $this->FormLine($field);    break;
 		  case "Rect":    $this->FormRect($field);    break;
-		  case "BarCode": $this->FormBarCode($field); break;
+		  case "BarCode": $this->FormBarCode($field, array_shift($tempValues)); break;
 		  default: // do nothing
 		}
 	  }
@@ -147,6 +148,30 @@ class PDF extends TCPDF {
 	  }
 	}
 
+	function FormImgLink($Params, $data) {
+	  $path = PF_DIR_DEF_IMAGE_LINK . $Params->text . $data;
+	  if (isset($Params->boxfield[0]->processing)) $path = ProcessData($path, $Params->boxfield[0]->processing);
+	  $ext = strtolower(substr($path, -3));
+	  if (is_file($path) && ($ext == 'jpg' || $ext == 'jpeg')) { // TBD - Fails for png images on prod server, restrict to jpg
+	  	$this->Image($path, $Params->abscissa, $Params->ordinate, $Params->width, $Params->height);
+	  } else { // no image was found at the specified path, draw a box
+		// check for any data entered
+		if (!isset($Params->abscissa)) { // then no information was entered for this entry, set some defaults
+		  $Params->abscissa = '10';
+		  $Params->ordinate = '10';
+		  $Params->width    = '50';
+		  $Params->height   = '20';
+		}
+		$this->SetXY($Params->abscissa, $Params->ordinate);
+		$this->SetFont(PDF_DEFAULT_FONT, '', '10');
+		$this->SetTextColor(255, 0, 0);
+		$this->SetDrawColor(255, 0, 0);
+		$this->SetLineWidth(0.35);
+		$this->SetFillColor(255);
+		$this->Cell('30', '20', TEXT_NO_IMAGE, 1, 0, 'C');
+	  }
+	}
+
 	function FormLine($Params) {
 	  if (!isset($Params->abscissa)) return;	// don't do anything if data array has not been set
 	  $FC = explode(':', $Params->bordercolor);
@@ -187,28 +212,34 @@ class PDF extends TCPDF {
 	  $this->Rect($Params->abscissa, $Params->ordinate, $Params->width, $Params->height, $DrawFill);
 	}
 
-	function FormBarCode($Params) {
+	function FormBarCode($Params, $data) {
 	  if (!isset($Params->abscissa)) return;	// don't do anything if data array has not been set
 	  if (PDF_APP  <> 'TCPDF') {  // need to use TCPDF to generate bar codes.
 		$Params->text = 'Barcodes Require TCPDF';
 		$this->FormText($Params);
 		return;
 	  }
-	  $style = array();
-	  $style['position']    = 'L'; // center image in box area
-	  $style['border']      = $Params->bordershow ? true : false; // border around image
-	  $style['padding']     = 4; // in user units
-	  $style['text']        = true; // print text below barcode
-	  $style['font']        = $Params->font;
-	  $style['fontsize']    = $Params->size;
-	  $style['stretchtext'] = 1; // 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing
-	  $style['fgcolor']     = explode(':', $Params->color);
+	  $style = array(
+	    'position'    => '', 
+	    'border'      => $Params->bordershow ? true : false, 
+//	    'padding'     => 2, // in user units
+	    'text'        => true, // print text below barcode
+	    'font'        => $Params->font,
+	    'fontsize'    => $Params->size,
+	    'stretchtext' => 1, // 0 = disabled; 1 = horizontal scaling only if necessary; 2 = forced horizontal scaling; 3 = character spacing only if necessary; 4 = forced character spacing
+	    'fgcolor'     => explode(':', $Params->color),
+	    'stretch' => false,
+	    'fitwidth' => true,
+//	    'cellfitalign' => '',
+//	    'hpadding' => 'auto',
+//	    'vpadding' => 'auto',
+	  );
 	  switch ($Params->fillshow) {
 		default:
 		case '0': $style['bgcolor'] = false; break;
 		case '1': $style['bgcolor'] = explode(':', $Params->fillcolor); break;
 	  }
-	  $this->write1DBarcode($Params->text, $Params->barcodetype, $Params->abscissa, $Params->ordinate, $Params->width, $Params->height, 0.4, $style, 'N');
+	  $this->write1DBarcode($data, $Params->boxfield[0]->processing, $Params->abscissa, $Params->ordinate, $Params->width, $Params->height, 0.4, $style, 'N');
 	}
 
 	function FormText($Params) {

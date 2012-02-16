@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,11 +17,12 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/contacts/language/en_us/language.php
 //
-
+//
+// Titles and Headings
+define('CONTACTS_CHART_SALES_TITLE','Monthly Sales');
 // Account table fields - common to all account types
 define('ACT_POPUP_WINDOW_TITLE', 'Contact Search');
 define('ACT_POPUP_TERMS_WINDOW_TITLE', 'Payment Terms');
-
 // General defines
 define('ACT_CATEGORY_I_ADDRESS','Add/Edit Contact');
 define('TEXT_BUYER','Buyer');

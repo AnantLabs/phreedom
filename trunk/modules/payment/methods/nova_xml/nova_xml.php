@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -209,7 +209,7 @@ class nova_xml {
 		'ssl_cvv2cvc2'           => $_POST['nova_xml_field_4'] ? $_POST['nova_xml_field_4'] : '',
 		'ssl_description'        => $description,
 		'ssl_invoice_number'     => (MODULE_PAYMENT_NOVA_XML_TESTMODE == 'Test' ? 'TEST-' : '') . $order->purchase_invoice_id,
-        'ssl_customer_code'      => $order->bill_short_name,
+        'ssl_customer_code'      => str_replace('&', '-', $order->bill_short_name),
 		'ssl_company'            => str_replace('&', '-', $order->bill_primary_name),
 		'ssl_first_name'         => $order->bill_first_name, // passed with credit card form
 		'ssl_last_name'          => $order->bill_last_name, // passed with credit card form
@@ -288,7 +288,8 @@ class nova_xml {
 
     // SEND DATA BY CURL SECTION
     // Post order info data to Nova, make sure you have cURL support installed
-    $url     = 'https://www.myvirtualmerchant.com/VirtualMerchant/processxml.do' . $data;
+//echo 'sending data = '.$data.'<br>';
+	$url     = 'https://www.myvirtualmerchant.com/VirtualMerchant/processxml.do' . $data;
     $ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -317,7 +318,8 @@ class nova_xml {
 		$results[$key] = $value;
 		if ($runaway_loop_counter++ > 1000) break;
 	}
-
+//echo 'receive data = '; print_r($results); echo '<br>';
+	
     $this->transaction_id = $results['ssl_txn_id'];
     $this->auth_code = $results['ssl_approval_code'];
 

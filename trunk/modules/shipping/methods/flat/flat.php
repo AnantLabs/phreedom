@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -45,9 +45,11 @@ class flat {
     global $shipping_defaults;
 	$arrRates = array();
 	foreach ($shipping_defaults['service_levels'] as $key => $value) {
-	  $arrRates[$this->code][$key]['book']  = MODULE_SHIPPING_FLAT_COST;
-	  $arrRates[$this->code][$key]['quote'] = MODULE_SHIPPING_FLAT_COST;
-	  $arrRates[$this->code][$key]['cost']  = MODULE_SHIPPING_FLAT_COST;
+	  if (defined($this->code.'_'.$key)) {
+	    $arrRates[$this->code][$key]['book']  = '';
+	    $arrRates[$this->code][$key]['quote'] = MODULE_SHIPPING_FLAT_COST;
+	    $arrRates[$this->code][$key]['cost']  = '';
+	  }
 	}
 	return array('result' => 'success', 'rates' => $arrRates);
   }

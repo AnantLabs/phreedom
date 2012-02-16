@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -17,6 +17,11 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreedom/classes/currency.php
 //
+// define how do we update currency exchange rates. Possible values are 'oanda' 'yahoo'
+// xe no longer works as of 2012-02-01
+
+define('CURRENCY_SERVER_PRIMARY', 'oanda');
+define('CURRENCY_SERVER_BACKUP',  'yahoo');
 
 class currency {
 
@@ -77,24 +82,22 @@ class currency {
   	global $db, $messageStack;
 	$message = array();
 /* commented out so everyone can update currency exchange rates
-	if ($this->security_id < 1) {
-		$messageStack->add(ERROR_NO_PERMISSION,'error');
-		return false;
-	}
+  	validate_security($security_level, 1);
 */
 	$server_used = CURRENCY_SERVER_PRIMARY;
 	$currency = $db->Execute("select currencies_id, code, title from " . $this->db_table);
 	while (!$currency->EOF) {
-	  if ($currency->fields['code'] == $this->def_currency) {
+	  if ($currency->fields['code'] == $this->def_currency) { // skip default currency
 	    $currency->MoveNext();
 		continue;
 	  }
-	  $quote_function = 'quote_' . CURRENCY_SERVER_PRIMARY . '_currency';
-	  $rate = $quote_function($currency->fields['code'], $this->def_currency);
+	  $quote_function = 'quote_'.CURRENCY_SERVER_PRIMARY;
+	  $rate = $this->$quote_function($currency->fields['code'], $this->def_currency);
 	  if (empty($rate) && (gen_not_null(CURRENCY_SERVER_BACKUP))) {
+		$message[] = sprintf(SETUP_WARN_PRIMARY_SERVER_FAILED, CURRENCY_SERVER_PRIMARY, $currency->fields['title'], $currency->fields['code']);
 		$messageStack->add(sprintf(SETUP_WARN_PRIMARY_SERVER_FAILED, CURRENCY_SERVER_PRIMARY, $currency->fields['title'], $currency->fields['code']), 'caution');
-		$quote_function = 'quote_' . CURRENCY_SERVER_BACKUP . '_currency';
-		$rate = $quote_function($currency->fields['code'], $this->def_currency);
+		$quote_function = 'quote_'.CURRENCY_SERVER_BACKUP;
+		$rate = $this->$quote_function($currency->fields['code'], $this->def_currency);
 		$server_used = CURRENCY_SERVER_BACKUP;
 	  }
 	  if ($rate <> 0) {
@@ -103,12 +106,27 @@ class currency {
 		$message[] = sprintf(SETUP_INFO_CURRENCY_UPDATED, $currency->fields['title'], $currency->fields['code'], $server_used);
 		$messageStack->add(sprintf(SETUP_INFO_CURRENCY_UPDATED, $currency->fields['title'], $currency->fields['code'], $server_used), 'success');
 	  } else {
+	  	
+		$message[] = sprintf(SETUP_ERROR_CURRENCY_INVALID, $currency->fields['title'], $currency->fields['code'], $server_used);
 		$messageStack->add(sprintf(SETUP_ERROR_CURRENCY_INVALID, $currency->fields['title'], $currency->fields['code'], $server_used), 'error');
 	  }
 	  $currency->MoveNext();
 	}
 	if (sizeof($message) > 0) $this->message = implode("\n", $message);
 	return true;
+  }
+
+  function quote_oanda($code, $base = DEFAULT_CURRENCY) {
+  	$page = file('http://www.oanda.com/convert/fxdaily?value=1&redirected=1&exch='.$code.'&format=CSV&dest=Get+Table&sel_list=' . $base);
+  	$match = array();
+  	preg_match('/(.+),(\w{3}),([0-9.]+),([0-9.]+)/i', implode('', $page), $match);
+  	return (sizeof($match) > 0) ? $match[3] : false;
+  }
+  
+  function quote_yahoo($to, $from = DEFAULT_CURRENCY) {
+  	$page = file_get_contents('http://finance.yahoo.com/d/quotes.csv?e=.csv&f=sl1d1t1&s='.$from.$to.'=X');
+  	if ($page) $parts = explode(',', trim($page));
+  	return ($parts[1] > 0) ? $parts[1] : false;
   }
 
   function btn_delete($id = 0) {

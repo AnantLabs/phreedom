@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -22,6 +22,7 @@ define('DEFAULT_MODULE','phreebooks'); // for importing selection dropdown
 define('PF_DIR_MY_REPORTS',  DIR_FS_MY_FILES . $_SESSION['company'] . '/phreeform/');
 define('PF_WEB_MY_REPORTS',  DIR_WS_MY_FILES . $_SESSION['company'] . '/phreeform/');
 define('PF_DIR_DEF_REPORTS', 'modules/' . DEFAULT_MODULE . '/language/' . DEFAULT_LANGUAGE . '/reports/');
+define('PF_DIR_DEF_IMAGE_LINK', DIR_FS_MY_FILES . $_SESSION['company'] . '/');
 define('nl',"\n");
 
 $phreeformTypes = array(
@@ -43,14 +44,21 @@ if (PDF_APP == 'TCPDF') {
 
 // Paper sizes supported in fpdf class, includes dimensions width, length in mm for page setup
 $PaperSizes = array (
+  'Legal:216:357'  => TEXT_LEGAL,
+  'Letter:216:282' => TEXT_LETTER,
   'A3:297:420'     => 'A3',
   'A4:210:297'     => 'A4',
   'A5:148:210'     => 'A5',
-  'Legal:216:357'  => TEXT_LEGAL,
-  'Letter:216:282' => TEXT_LETTER,
 );
-if (PDF_APP == 'TCPDF') { // TCPDF supports more paper sizes
-// TBD - add TCPDF paper sizes
+if (PDF_APP == 'TCPDF') { // TCPDF supports more paper sizes, see website for all available
+  $PaperSizes['A0:841x1189']     = 'A0';
+  $PaperSizes['A1:594:841']      = 'A1';
+  $PaperSizes['A2:420:594']      = 'A2';
+  $PaperSizes['A6:105:148']      = 'A6';
+  $PaperSizes['A7:74:105']       = 'A7';
+  $PaperSizes['A8:52:74']        = 'A8';
+  $PaperSizes['A9:37:52']        = 'A9';
+  $PaperSizes['Tabloid:279:432'] = TEXT_TABLOID;
 }
 
 // Available font sizes in units: points
@@ -223,6 +231,7 @@ $FormEntries = array(
   'Ttl'     => PF_FRM_DATATOTAL,
   'Text'    => PF_FRM_FIXEDTXT,
   'Img'     => PF_FRM_IMAGE,
+  'ImgLink' => PF_FRM_IMAGE_LINK,
   'Rect'    => PF_FRM_RECTANGLE,
   'Line'    => PF_FRM_LINE,
   'CDta'    => PB_PF_COMPANY_DATA,
@@ -316,13 +325,13 @@ function ProcessData($strData, $Process) {
 	case "neg":     return -$strData;
 	case "n2wrd":   return value_to_words_en_us($strData);
 	case "rnd2d":   if (!is_numeric($strData)) return $strData;
-	                  else return number_format(round($strData, 2), 2, '.', '');
+	                return number_format(round($strData, 2), 2, '.', '');
 	case "date":    return gen_locale_date($strData);
-	case "null-dlr":return (!$strData) ? '' : '$ ' . number_format($strData, 2);
+	case "null-dlr":return (real)$strData == 0 ? '' : '$ ' . number_format($strData, 2);
 	case "dlr":     if (!is_numeric($strData)) return $strData;
-	                  else return '$ ' . number_format(round($strData, 2), 2);
+	                return '$ ' . number_format(round($strData, 2), 2);
 	case "euro":    if (!is_numeric($strData)) return $strData;
-	                  else return chr(128) . ' ' . number_format(round($strData, 2), 2); // assumes standard FPDF fonts
+	                return chr(128) . ' ' . number_format(round($strData, 2), 2); // assumes standard FPDF fonts
 	case 'yesBno':  return ($strData) ? TEXT_YES : '';
 	case 'blank':   return '';
 	case 'printed': return ($strData) ? '' : TEXT_DUPLICATE;

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -115,7 +115,7 @@ function box_build($properties, $i) {
       $output .= ' <thead class="ui-widget-header">' . nl;
       $output .= '  <tr>' . nl;
       $output .= '    <th>' . TEXT_FIELDNAME . '</th>' . nl;
-      $output .= '    <th>' . TEXT_BAR_CODE_TYPE . '</th>' . nl;
+      $output .= '    <th>' . TEXT_TYPE . '</th>' . nl;
       $output .= '   </tr>' . nl;
       $output .= ' </thead><tbody class="ui-widget-content">' . nl;
       $output .= '   <tr>' . nl;
@@ -123,7 +123,7 @@ function box_build($properties, $i) {
       $output .= '    <td>' . html_pull_down_menu('box_proc_' . $i . '[]', gen_build_pull_down($BarCodeTypes), $properties->boxfield[0]->processing) . '</td>' . nl;
       $output .= '  </tr>' . nl;
       $output .= ' </tbody></table>' . nl;
-	  $output .= box_build_attributes($properties, $i);
+	  $output .= box_build_attributes($properties, $i, false, false);
 	  break;
     case 'CBlk':
       $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;"><tr><td>' . nl;
@@ -204,6 +204,25 @@ function box_build($properties, $i) {
       $output .= '    <td>' . html_pull_down_menu('img_file_' . $i, ReadImages(), $properties->filename, 'size="6"') . '</td>' . nl;
       $output .= '  </tr>'  . nl;
       $output .= ' </tbody></table>' . nl;
+	  break;
+	case 'ImgLink':
+      $output .= '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;
+      $output .= ' <thead class="ui-widget-header">' . nl;
+      $output .= '  <tr>'   . nl;
+      $output .= '    <th>' . PHREEFORM_TBLFNAME . '</th>' . nl;
+      $output .= '    <th>' . TEXT_PROCESSING . '</th>' . nl;
+      $output .= '  </tr>'  . nl;
+      $output .= ' </thead><tbody class="ui-widget-content">' . nl;
+      $output .= '  <tr>'   . nl;
+      $output .= '    <td>' . html_combo_box     ('box_fld_'  . $i . '[]', $kFields, $properties->boxfield[0]->fieldname, 'onclick="updateFieldList(this)"')  . '</td>' . nl;
+      $output .= '    <td>' . html_pull_down_menu('box_proc_' . $i . '[]', $pFields, $properties->boxfield[0]->processing) . '</td>' . nl;
+      $output .= '  </tr>'  . nl;
+      $output .= '  <tr class="ui-widget-header"><th colspan="2">' . TEXT_IMAGE_LINK . '</th></tr>' . nl;
+      $output .= '  <tr>' . nl;
+      $output .= '    <td align="center" colspan="2">' . html_input_field('box_txt_' . $i, $properties->text ? $properties->text : DIR_WS_MY_FILES, 'size="40"') . '</td>' . nl;
+      $output .= '  </tr>' . nl;
+      $output .= ' </tbody></table>' . nl;
+//	  $output .= box_build_attributes($properties, $i, false, false, false, false);
 	  break;
 	case 'Line':
       $output  = '<table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">' . nl;

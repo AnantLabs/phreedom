@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -26,7 +26,7 @@ require_once('pages/main/pre_process.php');
  <head>
   <title><?php echo PAGE_TITLE; ?></title>
   <meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>" />
-  <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+  <link rel="shortcut icon" type="image/ico" href="../favicon.ico" />
   <link rel="stylesheet" type="text/css" href="../themes/default/css/start/stylesheet.css" />
   <link rel="stylesheet" type="text/css" href="../themes/default/css/start/jquery_datatables.css" />
   <link rel="stylesheet" type="text/css" href="../themes/default/css/start/jquery-ui.css" />

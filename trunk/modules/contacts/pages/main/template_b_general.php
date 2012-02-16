@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -44,23 +44,15 @@
 <?php // *********************** Mailing/Main Address (only one allowed) ****************************** ?>
   <fieldset>
     <legend><?php echo ACT_CATEGORY_M_ADDRESS; ?></legend>
-    <table>
-      <?php 
-	    $var_name = $type . 'm_address';
-		$temp_array = $cInfo->$var_name;
-		$tmp = array();
-		if (is_array($temp_array)) foreach ($temp_array[0] as $key => $value) {
-		  $tmp[$type . 'm_' . $key] = $value;
-		}
-		$aInfo = new objectInfo($tmp);
-	  	echo draw_address_fields($aInfo, $type . 'm', false, false, false); 
-	  ?>
+    <table id="<?php echo $type; ?>m_address_form" class="ui-widget" style="border-collapse:collapse;width:100%;">
+      <?php echo draw_address_fields($cInfo->address['m'][0], $type.'m', false, false, false); ?>
     </table>
   </fieldset>
 <?php // *********************** Attachments  ************************************* ?>
+  <div>
    <fieldset>
-   <legend><?php echo 'Attachments'; ?></legend>
-   <table class="ui-widget" style="width:100%">
+   <legend><?php echo TEXT_ATTACHMENTS; ?></legend>
+   <table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;">
     <thead class="ui-widget-header">
      <tr><th colspan="3"><?php echo TEXT_ATTACHMENTS; ?></th></tr>
     </thead>
@@ -72,8 +64,8 @@
       <th><?php echo TEXT_ACTION; ?></th>
      </tr>
 <?php 
-if (sizeof($attachments) > 0) { 
-  foreach ($attachments as $key => $value) {
+if (sizeof($cInfo->attachments) > 0) {
+  foreach ($cInfo->attachments as $key => $value) {
     echo '<tr>';
     echo ' <td>' . html_checkbox_field('rm_attach_'.$key, '1', false) . '</td>' . chr(10);
     echo ' <td>' . $value . '</td>' . chr(10);
@@ -86,4 +78,5 @@ if (sizeof($attachments) > 0) {
     </tbody>
    </table>
    </fieldset>
+  </div>
 </div>

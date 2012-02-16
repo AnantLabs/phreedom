@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -96,6 +96,7 @@ define('ERROR_TEXT_DB_USERNAME_ISEMPTY', 'The database user name cannot empty');
 define('ERROR_TEXT_DB_PASSWORD_ISEMPTY', 'The database password cannot be empty');
 define('MSG_ERROR_MODULE_INSTALL','There were errors installing module: %s. See above messages for more details.');
 define('MSG_ERROR_CANNOT_CONNECT_DB','I cannot connect to the database, please check your settings. error returned: ');
+define('MSG_ERROR_INNODB_NOT_ENABLED','MYSQL InnoDB engine is not installed!. Phreedom requires the transaction capability of MySQL\'s InnoDB engine to operate properly.');
 define('MSG_ERROR_CONFIGURE_EXISTS','The file includes/configure.php exists, this may indicate that Phreedom has already been installed or is being re-installed. This file must be removed for the installation to complete successfully!');
 // template_finish
 define('TITLE_FINISH','Finish - Phreedom Small Business Solutions');

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -24,8 +24,9 @@
 // 3.3 => 2011-04-15 - CRM additions, bug fixes
 // 3.4 => 2011-08-01 - bug fixes
 // 3.5 => 2011-11-15 - bug fixes, attachments, themeroller changes
+// 3.6 => 2012-02-15 - bug fixes, improved CRM, clean up forms
 // Module software version information
-define('MODULE_CONTACTS_VERSION',     '3.5');
+define('MODULE_CONTACTS_VERSION',     '3.6');
 // Menu Sort Positions
 define('MENU_HEADING_CUSTOMERS_ORDER',   10);
 define('MENU_HEADING_VENDORS_ORDER',     20);

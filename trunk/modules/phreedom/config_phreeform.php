@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -30,17 +30,17 @@ function pf_process_phreedom($strData, $Process) {
   global $currencies, $posted_currencies;
   switch ($Process) {
 	case "rnd_dec":   if (!is_numeric($strData)) return $strData;
-	                  else return $currencies->format($strData);
+	                  return $currencies->format($strData);
 	case "rnd_pre":   if (!is_numeric($strData)) return $strData;
-	                  else return $currencies->precise($strData);
+	                  return $currencies->precise($strData);
 	case "def_cur":   if (!is_numeric($strData)) return $strData;
-	                  else return $currencies->format_full($strData, true, DEFAULT_CURRENCY, 1);
+	                  return $currencies->format_full($strData, true, DEFAULT_CURRENCY, 1);
 	case "null_dcur": if (!is_numeric($strData)) return $strData;
-	                  else return (!$strData) ? '' : $currencies->format_full($strData, true, DEFAULT_CURRENCY, 1);
+	                  return (real)$strData == 0 ? '' : $currencies->format_full($strData, true, DEFAULT_CURRENCY, 1);
 	case "posted_cur":if (!is_numeric($strData)) return $strData;
-	                  else return $currencies->format_full($strData, true, $posted_currencies['currencies_code'], $posted_currencies['currencies_value']);
+	                  return $currencies->format_full($strData, true, $posted_currencies['currencies_code'], $posted_currencies['currencies_value']);
 	case "null_pcur": if (!is_numeric($strData)) return $strData;
-	                  else return (!$strData) ? '' : $currencies->format_full($strData, true, $posted_currencies['currencies_code'], $posted_currencies['currencies_value']);
+	                  return (real)$strData == 0 ? '' : $currencies->format_full($strData, true, $posted_currencies['currencies_code'], $posted_currencies['currencies_value']);
 	case "rep_id":    return pb_get_user_name($strData);
 	default: // Do nothing
   }

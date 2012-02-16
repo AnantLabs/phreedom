@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -387,7 +387,8 @@ class orders extends journal {
 		if ($this->item_rows[$i][$qty_pstd]) { // make sure the quantity line is set and not zero
 		  $this->journal_rows[] = array(
 			'id'                      => $this->item_rows[$i]['id'],	// retain the db id (used for updates)
-			'so_po_item_ref_id'       => $this->item_rows[$i]['so_po_item_ref_id'],	// item reference id for so/po line items
+			'item_cnt'                => $this->item_rows[$i]['item_cnt'],
+		    'so_po_item_ref_id'       => $this->item_rows[$i]['so_po_item_ref_id'],	// item reference id for so/po line items
 			'gl_type'                 => $this->gl_type,
 			'sku'                     => $this->item_rows[$i]['sku'],
 			'qty'                     => $this->item_rows[$i][$qty_pstd],

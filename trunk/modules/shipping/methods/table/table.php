@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -59,32 +59,20 @@ class table {
   }
 
   function quote($pkg = '') {
-    if (MODULE_SHIPPING_TABLE_MODE == 'price') {
-      $order_total = $pkg->pkg_total;
-    } else { // weight
-      $order_total = $pkg->pkg_weight;
-    }
-    $table_cost = split("[:,]", MODULE_SHIPPING_TABLE_COST);
-    $size = sizeof($table_cost);
+    $order_total = (MODULE_SHIPPING_TABLE_MODE == 'price') ? $pkg->pkg_total : $pkg->pkg_weight;
+    $table_cost  = split("[:,]", MODULE_SHIPPING_TABLE_COST);
+    $size        = sizeof($table_cost);
     for ($i= 0, $n = $size; $i < $n; $i += 2) {
       if ($order_total <= $table_cost[$i]) {
         $shipping = $table_cost[$i+1];
         break;
       }
     }
-	$quote = array();
 	$arrRates  = array();
-	if ($pkg->pkg_item_count) {
-	  $methods = array('1DEam','1Dam','1Dpm','2Dpm','3Dpm','GND','GDR');
-	  foreach ($methods as $value) {
-		$arrRates[$this->code][$value]['book']  = $shipping + MODULE_SHIPPING_TABLE_HANDLING;
-		$arrRates[$this->code][$value]['quote'] = $shipping + MODULE_SHIPPING_TABLE_HANDLING;
-		$arrRates[$this->code][$value]['cost']  = $shipping + MODULE_SHIPPING_TABLE_HANDLING;
-	  }
-	}
-	$quote['result'] = 'success';
-	$quote['rates']  = $arrRates;
-	return $quote;
+	$arrRates[$this->code]['GND']['book']  = '';
+	$arrRates[$this->code]['GND']['quote'] = $shipping + MODULE_SHIPPING_TABLE_HANDLING;
+	$arrRates[$this->code]['GND']['cost']  = '';
+	return array('result' => 'success', 'rates' => $arrRates);
   }
 }
 ?>

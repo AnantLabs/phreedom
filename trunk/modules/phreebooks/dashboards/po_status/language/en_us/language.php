@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -24,6 +24,7 @@ define('CP_PO_STATUS_TITLE','Open Purchase Orders');
 define('CP_PO_STATUS_DESCRIPTION','Lists purchase orders with current open status. Links to reveiw the purchase order are also provided.');
 define('CP_PO_STATUS_SECURITY',SECURITY_ID_PURCHASE_ORDER);
 
-define('CP_PO_STATUS_NO_RESULTS','No results found!');
+define('CP_PO_STATUS_SORT_ORDER','Sort Order by Post Date');
+define('CP_PO_STATUS_HIDE_FUTURE','Restrict to Today and Earlier');
 
 ?>

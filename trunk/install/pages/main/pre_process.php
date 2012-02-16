@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -181,8 +181,16 @@ switch ($action) {
 	  $db = new queryFactory();
 	  if (!$db->connect($db_host, $db_username, $db_password, $db_name)) {
 	    $error = $messageStack->add(MSG_ERROR_CANNOT_CONNECT_DB . $db->show_error(), 'error');
+	  } else { // test for InnoDB support
+	    $result = $db->Execute("show engines");
+	    $innoDB_enabled = false;
+	    while (!$result->EOF) {
+		  if ($result->fields['Engine'] == 'InnoDB') $innoDB_enabled = true;
+		  $result->MoveNext();
+	    }
+	    if (!$innoDB_enabled) $error = $messageStack->add(MSG_ERROR_INNODB_NOT_ENABLED, 'error');
 	  }
-	}
+    }
 	if (!$error) {
 	  $params   = array();
 	  $contents = scandir(DIR_FS_MODULES);

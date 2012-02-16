@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -36,9 +36,9 @@ echo $toolbar->build_toolbar();
   <tr><th colspan="5"><?php echo ACT_POPUP_TERMS_WINDOW_TITLE; ?></th></tr>
  </thead>
  <tbody class="ui-widget-content">
-  <tr><td colspan="5"><?php echo ACT_TERMS_DUE . ': ' . $special_terms . ACT_TERMS_CREDIT_LIMIT . $currencies->format($credit_limit); ?></td></tr>
-<?php if ($past_due <> 0) { ?>
-  <tr><td colspan="5"><?php echo ACT_AMT_PAST_DUE . $currencies->format($past_due); ?></td></tr>
+  <tr><td colspan="5"><?php echo ACT_TERMS_DUE . ': ' . $new_data['terms_lang'] . ACT_TERMS_CREDIT_LIMIT . $currencies->format($new_data['credit_limit']); ?></td></tr>
+<?php if ($new_data['past_due'] <> 0) { ?>
+  <tr><td colspan="5"><?php echo ACT_AMT_PAST_DUE . $currencies->format($new_data['past_due']); ?></td></tr>
 <?php } ?>
  </tbody>
 </table>
@@ -46,11 +46,11 @@ echo $toolbar->build_toolbar();
  <thead class="ui-widget-header">
   <tr><th colspan="5"><?php echo ACT_ACT_HISTORY; ?></th></tr>
   <tr>
-	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_1 : AR_AGING_HEADING_1; ?></th>
-	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_2 : AR_AGING_HEADING_2; ?></th>
-	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_3 : AR_AGING_HEADING_3; ?></th>
-	<th align="center"><?php echo ($type == 'AP') ? AP_AGING_HEADING_4 : AR_AGING_HEADING_4; ?></th>
-	<th align="center"><?php echo TEXT_TOTAL; ?></th>
+	<th><?php echo ($type == 'AP') ? AP_AGING_HEADING_1 : AR_AGING_HEADING_1; ?></th>
+	<th><?php echo ($type == 'AP') ? AP_AGING_HEADING_2 : AR_AGING_HEADING_2; ?></th>
+	<th><?php echo ($type == 'AP') ? AP_AGING_HEADING_3 : AR_AGING_HEADING_3; ?></th>
+	<th><?php echo ($type == 'AP') ? AP_AGING_HEADING_4 : AR_AGING_HEADING_4; ?></th>
+	<th><?php echo TEXT_TOTAL; ?></th>
   </tr>
  </thead>
  <tbody class="ui-widget-content">
@@ -59,7 +59,7 @@ echo $toolbar->build_toolbar();
 	<td align="center"><?php echo $currencies->format($new_data['balance_30']); ?></td>
 	<td align="center"><?php echo $currencies->format($new_data['balance_60']); ?></td>
 	<td align="center"><?php echo $currencies->format($new_data['balance_90']); ?></td>
-	<td align="center"><?php echo $currencies->format($total_outstanding); ?></td>
+	<td align="center"><?php echo $currencies->format($new_data['total']); ?></td>
   </tr>
  </tbody>
 </table>

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -19,23 +19,22 @@
 //
 ?>
 <div id="tab_addbook">
-<?php
-// *********************** SHIPPING ADDRESSES  *************************************
+<?php // *********************** SHIPPING ADDRESSES  *************************************
   if (defined('MODULE_SHIPPING_STATUS')) { // show shipping address for customers and vendors
     echo '  <fieldset>';
     echo '    <legend>' . ACT_CATEGORY_S_ADDRESS . '</legend>';
-    echo '    <table width="100%" cellspacing="2" cellpadding="2">';
+    echo '    <table id="'.$type.'s_address_form" class="ui-widget" style="border-style:none;width:100%;">';
     echo '      <tr><td>' . ACT_SHIPPING_MESSAGE . '</td></tr>';
-    echo draw_address_fields($cInfo, $type . 's', true);
+    echo draw_address_fields($cInfo, $type.'s', true);
     echo '    </table>';
     echo '  </fieldset>';
   }
-// *********************** BILLING/BRANCH ADDRESSES  *********************************
+  // *********************** BILLING/BRANCH ADDRESSES  *********************************
     echo '<fieldset>';
-    echo '  <legend>' . ACT_CATEGORY_B_ADDRESS . '</legend>';
-    echo '  <table width="100%" cellspacing="2" cellpadding="2">';
+    echo '  <legend>' . ACT_CATEGORY_B_ADDRESS . '</legend>'; 
+    echo '  <table id="'.$type.'b_address_form" class="ui-widget" style="border-collapse:collapse;width:100%;">';
     echo '    <tr><td>' . ACT_BILLING_MESSAGE . '</td></tr>';
-    echo draw_address_fields($cInfo, $type . 'b', true);
+    echo draw_address_fields($cInfo, $type.'b', true);
     echo '  </table>';
     echo '</fieldset>';
 ?>

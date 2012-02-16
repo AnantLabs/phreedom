@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -18,7 +18,7 @@
 //  Path: /modules/phreeform/custom/classes/statement_builder.php
 //
 gen_pull_language('phreebooks');
-require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php'); // needed to calculate terms
+require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php'); // needed to calculate terms, aging
 
 class statement_builder {
   function statement_builder() {
@@ -37,32 +37,26 @@ class statement_builder {
 	  where c.id = " . $this->bill_acct_id . " and a.type like '%m'";
 	$result = $db->Execute($sql);
 	while (list($key, $value) = each($result->fields)) $this->$key = db_prepare_input($value);
-
-	$dates   = gen_build_sql_date($report->datedefault, $report->datefield);
-	$late_0  = gen_specific_date($today, 1);
-	$late_30 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_1 : -AR_AGING_PERIOD_1);
-	$late_60 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_2 : -AR_AGING_PERIOD_2);
-	$late_90 = gen_specific_date($today, ($this->type == 'v') ? -AP_AGING_DATE_3 : -AR_AGING_PERIOD_3);
-	$this->balance_0     = 0;
-	$this->balance_30    = 0;
-	$this->balance_60    = 0;
-	$this->balance_90    = 0;
-	$this->prior_balance = 0;
-	$balances = fill_paid_invoice_array(0, $this->bill_acct_id, $this->type);
-	if (is_array($balances['invoices'])) foreach ($balances['invoices'] as $open_inv) {
-	  $negate = (in_array($result->fields['journal_id'], array(7, 13))) ? true : false;
-	  $balance  = $negate ? -$open_inv['total_amount'] : $open_inv['total_amount'];
-	  if       ($open_inv['post_date'] < $late_90) {
-		$this->balance_90 += $balance;
-	  } elseif ($open_inv['post_date'] < $late_60) {
-		$this->balance_60 += $balance;
-	  } elseif ($open_inv['post_date'] < $late_30) {
-		$this->balance_30 += $balance;
-	  } else {
-		$this->balance_0  += $balance;
-	  }
-	  if ($open_inv['post_date'] < $dates['start_date']) $this->prior_balance += $balance;
-	}
+	// Load the prior balance and aging, first aging
+	$result = calculate_aging($this->bill_acct_id, $result->fields['type'], $result->fields['special_terms']);
+	$this->balance_0     = $result['balance_0'];
+	$this->balance_30    = $result['balance_30'];
+	$this->balance_60    = $result['balance_60'];
+	$this->balance_90    = $result['balance_90'];
+//  $this->total         = $result['total'];
+//  $this->past_due      = $result['past_due'];
+//  $this->credit_limit  = $result['credit_limit'];
+//  $this->terms_lang    = $result['terms_lang'];
+	// now prior balance
+	$dates  = gen_build_sql_date($report->datedefault, $report->datefield);
+	$sql = "select sum(i.debit_amount - i.credit_amount) as prior_balance 
+		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
+		where m.bill_acct_id = " . $this->bill_acct_id . " 
+		and m.post_date < '" . $dates['start_date'] . "' 
+		and (m.closed_date >= '" . $dates['start_date'] . "' or m.closed = '0') 
+		and m.journal_id in (6, 7, 12, 13) and i.gl_type in ('ttl', 'dsc')";
+	$result = $db->Execute($sql);
+	$this->prior_balance = $result->fields['prior_balance'];
 
 	$strDates = str_replace('post_date', 'm.post_date', $dates['sql']);
 	$this->line_items = array();
@@ -194,6 +188,6 @@ class statement_builder {
 	$output[] = array('id' => 'total_amount',        'text' => RW_SB_BALANCE_DUE);
 	return $output;
   }
-
+  
 }
 ?>

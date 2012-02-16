@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -43,35 +43,27 @@ require_once(DIR_FS_WORKING . 'pages/popup_build/box_html.php'); // box template
 	<tbody class="ui-widget-content">
 <?php for ($i = 0; $i < sizeof($report->fieldlist); $i++) { ?>
     <tr>
-	  <td colspan="8">
-	    <table id="fld_tbl_<?php echo $i; ?>" class="ui-widget" style="border-style:none;width:100%">
-		  <tbody class="ui-widget-content">
-		  <tr>
-		    <td width="25%" align="center"><?php echo html_input_field('fld_desc[]',   $report->fieldlist[$i]->description, 'size="20" maxlength="25"'); ?></td>
-		    <td width="10%" align="center"><?php echo html_input_field('fld_abs[]',    $report->fieldlist[$i]->abscissa,    'size="6" maxlength="4"'); ?></td>
-		    <td width="10%" align="center"><?php echo html_input_field('fld_ord[]',    $report->fieldlist[$i]->ordinate,    'size="6" maxlength="4"'); ?></td>
-		    <td width="10%" align="center"><?php echo html_input_field('fld_wid[]',    $report->fieldlist[$i]->width,       'size="6" maxlength="4"'); ?></td>
-		    <td width="10%" align="center"><?php echo html_input_field('fld_hgt[]',    $report->fieldlist[$i]->height,      'size="6" maxlength="4"'); ?></td>
-<?php if ($report->serialform) { ?>
-		    <td width="10%" align="center"><?php echo html_pull_down_menu('fld_brk[]', $sel_yes_no, $report->fieldlist[$i]->rowbreak); ?></td>
-		    <td width="15%" align="center"><?php echo html_pull_down_menu('fld_type_'.$i, gen_build_pull_down($FormEntries), $report->fieldlist[$i]->type, 'onchange="boxLoad(this.value, ' . $i . ')"'); ?></td>
-<?php } else {?>
-		    <td width="25%" align="center"><?php echo html_pull_down_menu('fld_type_'.$i, gen_build_pull_down($FormEntries), $report->fieldlist[$i]->type, 'onchange="boxLoad(this.value, ' . $i . ')"'); ?></td>
-<?php } ?>
-		    <td width="10%" nowrap="nowrap" align="right"><?php 
-		  	  echo html_hidden_field('row_id[]', $i) . chr(10);
-			  echo html_icon('actions/view-fullscreen.png',     TEXT_MOVE,       'small', 'style="cursor:move"', '', '', 'move_fld_'.$i) . chr(10);
-			  echo html_icon('emblems/emblem-unreadable.png',   TEXT_DELETE,     'small', 'onmouseup="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'field_setup_frm\', \'delete\')"') . chr(10);
-			  echo html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'onmouseup="boxProperties('.$i.')"') . chr(10);
-			?></td>
-		  </tr>
-		  <tr id="fld_box_<?php echo $i; ?>" style="display:none">
-		    <td colspan="8" style="background-color:#bbd8d8; border:solid 1px #000">
+	  <td colspan="8" nowrap="nowrap">
+	   <div >
+		<?php 
+		  echo html_input_field('fld_desc[]',   $report->fieldlist[$i]->description, 'size="20" maxlength="25"'); 
+		  echo html_input_field('fld_abs[]',    $report->fieldlist[$i]->abscissa,    'size="6" maxlength="4"'); 
+		  echo html_input_field('fld_ord[]',    $report->fieldlist[$i]->ordinate,    'size="6" maxlength="4"'); 
+		  echo html_input_field('fld_wid[]',    $report->fieldlist[$i]->width,       'size="6" maxlength="4"'); 
+		  echo html_input_field('fld_hgt[]',    $report->fieldlist[$i]->height,      'size="6" maxlength="4"'); 
+if ($report->serialform) { 
+		  echo html_pull_down_menu('fld_brk[]', $sel_yes_no, $report->fieldlist[$i]->rowbreak);
+}
+		  echo html_pull_down_menu('fld_type_'.$i, gen_build_pull_down($FormEntries), $report->fieldlist[$i]->type, 'onchange="boxLoad(this.value, ' . $i . ')"');
+		  echo html_hidden_field('row_id[]', $i) . chr(10);
+		  echo html_icon('actions/view-fullscreen.png',     TEXT_MOVE,       'small', 'style="cursor:move"', '', '', 'move_fld_'.$i) . chr(10);
+		  echo html_icon('emblems/emblem-unreadable.png',   TEXT_DELETE,     'small', 'onmouseup="if (confirm(\'' . TEXT_DELETE_ENTRY . '\')) rowAction(\'field_setup_frm\', \'delete\')"') . chr(10);
+		  echo html_icon('actions/document-properties.png', TEXT_PROPERTIES, 'small', 'onmouseup="boxProperties('.$i.')"') . chr(10);
+		?>
+		  <div id="fld_box_<?php echo $i; ?>" style="display:none;background-color:#bbd8d8; border:solid 1px #000">
 			  <?php echo box_build($report->fieldlist[$i], $i); ?>
-			</td>
-		  </tr>
-	      </tbody>
-	    </table>
+		  </div>
+	   </div>
 	  </td>
     </tr>
 <?php } ?>

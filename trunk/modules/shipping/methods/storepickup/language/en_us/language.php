@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -29,14 +29,7 @@ define('MODULE_SHIPPING_STOREPICKUP_COST_DESC', 'The shipping cost for all order
 define('MODULE_SHIPPING_STOREPICKUP_SORT_ORDER_DESC', 'Sort order of display. Determines the order which this method appears on all generted lists.');
 
 // Shipping Methods
-define('storepickup_1DEam','Best Way');
-define('storepickup_1Dam', 'Sender Paid 2 Day');
-define('storepickup_1Dpm', 'Sender Paid 1 Day');
-define('storepickup_2Dpm', 'Courier');
-define('storepickup_3Dpm', 'Sender Paid Economy');
-define('storepickup_GND',  'Local Delivery');
-define('storepickup_GDR',  'Customer Pickup');
-
+define('storepickup_GND', 'Store Pickup');
 
 define('SHIPPING_STOREPICKUP_SHIPMENTS_ON','Store Pickup Shipments on ');
 

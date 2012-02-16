@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -20,7 +20,6 @@
 /**************   Check user security   *****************************/
 $security_level = validate_ajax_user();
 /**************  include page specific files    *********************/
-require(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $error       = false;
 $debug       = NULL;
@@ -29,53 +28,27 @@ $search_text = db_prepare_input($_GET['guess']);
 $type        = db_prepare_input($_GET['type']);
 $jID         = db_prepare_input($_GET['jID']);
 
-define('JOURNAL_ID', $jID);
-// select the customer and build the contact record
-if (isset($search_text) && $search_text <> '') {
+if ($search_text) {
   $search_fields = array('a.primary_name', 'a.contact', 'a.telephone1', 'a.telephone2', 'a.address1', 
 	'a.address2', 'a.city_town', 'a.postal_code', 'c.short_name');
   $search = ' and (' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\')';
+  $result = $db->Execute("select c.id from ".TABLE_CONTACTS." c left join ".TABLE_ADDRESS_BOOK." a on c.id = a.ref_id 
+	where a.type = '".$type."m' and c.inactive='0' ".$search." limit 2");
+  if ($result->RecordCount() == 1) { // check to make sure there are no open SO/POs
+    $cID = $result->fields['id'];
+  	if (in_array($jID, array(6,12))) {
+  	  $result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where closed = '0' and bill_acct_id = $cID limit 1");
+  	  if ($result->RecordCount() > 0) $error = true;
+  	}
+  } else { $error = true; }
+} else { $error = true; }
+
+if (!$error) {
+  $xml .= xmlEntry('cID',   $cID);
+  $xml .= xmlEntry('result','success');
 } else {
-  echo createXmlHeader() . xmlEntry('result', 'fail') . createXmlFooter();
-  die;
+  $xml .=  xmlEntry('result', 'fail');
 }
-$query_raw = "select c.id from " . TABLE_CONTACTS . " c left join " . TABLE_ADDRESS_BOOK . " a on c.id = a.ref_id 
-	where a.type = '" . $type . "m'" . $search . " limit 2";
-$result = $db->Execute($query_raw);
-if ($result->RecordCount() <> 1) {
-  echo createXmlHeader() . xmlEntry('result', 'fail') . createXmlFooter();
-  die;
-}
-$cID = $result->fields['id'];
-// select the customer and build the contact record
-$contact = $db->Execute("select * from " . TABLE_CONTACTS . " where id = '" . $cID . "'");
-$type    = $contact->fields['type'];
-define('ACCOUNT_TYPE', $type);
-$bill_add = $db->Execute("select * from " . TABLE_ADDRESS_BOOK . " 
-  where ref_id = '" . $cID . "' and type in ('" . $type . "m', '" . $type . "b')");
-//$debug .= 'contact ID = ' . $cID . ', type = ' . $type . chr(10);
-// determine how much the customer owes and remaining credit
-$invoices = fill_paid_invoice_array(0, $cID, $type);
-$terms    = explode(':', $contact->fields['special_terms']);
-$contact->fields['credit_limit'] = $terms[4] ? $terms[4] : ($type == 'v' ? AP_CREDIT_LIMIT_AMOUNT : AR_CREDIT_LIMIT_AMOUNT);
-$contact->fields['credit_remaining'] = $contact->fields['credit_limit'] - $invoices['balance'];
-// fetch the line items
-$item_list = $invoices['invoices'];
-if (sizeof($item_list) == 0) {
-  echo createXmlHeader() . xmlEntry('result', 'fail') . createXmlFooter(); die;
-}
-// build the form data
-$xml .= xmlEntry('result', 'success');
-$xml .= "<BillContact>\n";
-foreach ($contact->fields as $key => $value) $xml .= "\t" . xmlEntry($key, $value);
-if ($bill_add->fields) while (!$bill_add->EOF) {
-  $xml .= "\t<Address>\n";
-  foreach ($bill_add->fields as $key => $value) $xml .= "\t\t" . xmlEntry($key, $value);
-  $xml .= "\t</Address>\n";
-  $bill_add->MoveNext();
-}
-$xml .= "</BillContact>\n";
 if ($debug) $xml .= xmlEntry('debug', $debug);
-echo createXmlHeader() . $xml . createXmlFooter();
-die;
+echo createXmlHeader() . $xml . createXmlFooter(); die;
 ?>

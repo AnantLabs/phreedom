@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -126,7 +126,7 @@ function updatePrice(sheetID) {
 	}
 	var tot = new String(price);
 	document.getElementById('price_'+refID).value = formatPrecise(tot);
-	document.getElementById('margin_'+refID).value = formatPrecise(tot/item_cost);
+	document.getElementById('margin_'+refID).value = (item_cost != 0) ? formatPrecise(tot/item_cost) : '';
   }
 }
 

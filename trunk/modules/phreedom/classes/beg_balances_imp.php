@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -234,7 +234,7 @@ class beg_bal_import {
   function processInventory($upload_name) {
 	global $coa, $db, $currencies, $messageStack;
 	if (!$this->cyberParse($upload_name)) return false;
-	$post_date = gen_specific_date(date('Y-m-d',time()), $day_offset = -1);
+	$post_date = gen_specific_date(date('Y-m-d'), $day_offset = -1);
 	$glEntry   = new journal();
 	$sku_list  = array();
 	$coa_list  = array();

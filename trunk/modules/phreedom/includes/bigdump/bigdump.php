@@ -128,15 +128,15 @@ foreach ($_REQUEST as $key => $val)
   </script>
   <script type="text/javascript" src="includes/common.js"></script>
   <script type="text/javascript" src="modules/phreedom/includes/jquery/jquery-1.4.3.min.js"></script>
-  <?php require_once(DIR_FS_ADMIN . 'themes/' . $_SESSION['admin_prefs']['theme'] . '/config.php'); ?>
-  <?php
+  <?php 
+  if (!$_SESSION['admin_prefs']['theme']) $_SESSION['admin_prefs']['theme'] = 'default';
+  require_once(DIR_FS_ADMIN . 'themes/' . $_SESSION['admin_prefs']['theme'] . '/config.php');
   // load the language file
-  include_once(DIR_FS_MODULES . 'phreedom/includes/bigdump/language/' . $_SESSION['language'] . '/language.php');
+  include_once(DIR_FS_MODULES . 'phreedom/includes/bigdump/language/'.$_SESSION['language'].'/language.php');
   // load the javascript specific, required
   $js_include_path = DIR_FS_WORKING . 'pages/' . $page . '/js_include.php';
   if (file_exists($js_include_path)) { require($js_include_path); } else die('No js_include file');
-  ?>
-<?php // ****************************** EOF - Mods by PhreeSoft **************************************** ?>
+// ****************************** EOF - Mods by PhreeSoft **************************************** ?>
 
 <style type="text/css">
 <!--

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -39,6 +39,7 @@ function build_js_methods($methods) {
 
 function GetXMLString($y, $SubmitURL, $GetPost) {
   global $cURLpath;
+  $output = array();
   $ch = curl_init(); /// initialize a cURL session 
   curl_setopt($ch, CURLOPT_URL, $SubmitURL); 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -49,16 +50,16 @@ function GetXMLString($y, $SubmitURL, $GetPost) {
   $xyz = curl_exec($ch); 
   // Check for errors
   $curlerrornum = curl_errno($ch);
-  $curlerror = curl_error($ch);
+  $curlerror    = curl_error($ch);
   if ($curlerrornum) { 
-	$UPSQuote['result'] = 'error';
-	$UPSQuote['message'] = 'XML Read Error (cURL) #'.$curlerrornum.'. Description='.$curlerror.'.<br />';
+	$output['result'] = 'error';
+	$output['message'] = 'XML Read Error (cURL) #'.$curlerrornum.'. Description='.$curlerror.'.<br />';
   } else {
-	$UPSQuote['result'] = 'success';
-	$UPSQuote['xmlString'] = $xyz;
+	$output['result'] = 'success';
+	$output['xmlString'] = $xyz;
   }
   curl_close ($ch);
-  return $UPSQuote;
+  return $output;
 }
 
 ?>

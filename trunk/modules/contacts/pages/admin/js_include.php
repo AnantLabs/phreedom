@@ -25,12 +25,12 @@
 function init() {
   $(function() { // initialize tables
 	$('#admintabs').tabs();
-    $('#tab_table').dataTable();
-    $('#field_table').dataTable();
-    $('#dept_table').dataTable();
-    $('#dept_type_table').dataTable();
-    $('#proj_cost_table').dataTable();
-    $('#proj_phase_table').dataTable();
+    $('#tab_table').dataTable( dataTables_i18n );
+    $('#field_table').dataTable( dataTables_i18n );
+    $('#dept_table').dataTable( dataTables_i18n );
+    $('#dept_type_table').dataTable( dataTables_i18n );
+    $('#proj_cost_table').dataTable( dataTables_i18n );
+    $('#proj_phase_table').dataTable( dataTables_i18n );
   });
 }
 

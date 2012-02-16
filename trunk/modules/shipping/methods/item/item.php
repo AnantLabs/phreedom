@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -43,19 +43,12 @@ class item {
   }
 
   function quote($pkg = '') {
-	$quote    = array();
+	if (!$pkg->pkg_item_count) $pkg->pkg_item_count = 1;
 	$arrRates = array();
-	if ($pkg->pkg_item_count) {
-	  $methods = array('1DEam','1Dam','1Dpm','2Dpm','3Dpm','GND','GDR');
-	  foreach ($methods as $value) {
-		$arrRates[$this->code][$value]['book']  = ($pkg->pkg_item_count * MODULE_SHIPPING_ITEM_COST) + MODULE_SHIPPING_ITEM_HANDLING;
-		$arrRates[$this->code][$value]['quote'] = ($pkg->pkg_item_count * MODULE_SHIPPING_ITEM_COST) + MODULE_SHIPPING_ITEM_HANDLING;
-		$arrRates[$this->code][$value]['cost']  = ($pkg->pkg_item_count * MODULE_SHIPPING_ITEM_COST) + MODULE_SHIPPING_ITEM_HANDLING;
-	  }
-    }
-	$quote['result'] = 'success';
-	$quote['rates'] = $arrRates;
-	return $quote;
+	$arrRates[$this->code]['GND']['book']  = '';
+	$arrRates[$this->code]['GND']['quote'] = ($pkg->pkg_item_count * MODULE_SHIPPING_ITEM_COST) + MODULE_SHIPPING_ITEM_HANDLING;
+	$arrRates[$this->code]['GND']['cost']  = '';
+	return array('result' => 'success', 'rates' => $arrRates);
   }
 }
 ?>

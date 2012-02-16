@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -43,6 +43,45 @@ switch ($action) {
 			$xml .= '</menu>'.chr(10);
 		}
 		break;
+	case 'chart':
+		$modID = $_GET['modID'];
+		$fID   = $_GET['fID'];
+		$x     = 0;
+		$data  = array();
+		while (isset($_GET['d'.$x])) {
+			$data[$x] = $_GET['d'.$x];
+			$x++;
+		}
+		if (file_exists(DIR_FS_MODULES.$modID.'/functions/'.$modID.'.php')) {
+			gen_pull_language($modID);
+			require_once(DIR_FS_MODULES.$modID.'/functions/'.$modID.'.php');
+			if ($results = get_chart_data($fID, $data)) {
+				$xml .= xmlEntry('modID',  $_GET['modID']);
+				$xml .= xmlEntry('type',   $results['type']);
+				$xml .= xmlEntry('title',  $results['title']);
+				$xml .= xmlEntry('width',  $results['width']);
+				$xml .= xmlEntry('height', $results['height']);
+				$xml .= xmlEntry('rowCnt', sizeof($results['data']));
+				if (sizeof($results['data']) > 0) {
+				  foreach ($results['data'] as $value) {
+				    $xml .= '<chartData>';
+				  	$xml .= xmlEntry('string', $value['label']);
+					$xml .= xmlEntry('number', $value['value']);
+				    $xml .= '</chartData>';
+				  }
+				} else {
+					$xml .= xmlEntry('error', 'No data returned from function call!');
+				}
+			} else {
+				$xml .= xmlEntry('error', 'No data returned from function call!');
+				break;
+			}
+		} else {
+			$xml .= xmlEntry('error', 'Could not find module function file to process!');
+			break;
+		}
+		break;
+
 	default: die;
 }
 echo createXmlHeader() . $xml . createXmlFooter();

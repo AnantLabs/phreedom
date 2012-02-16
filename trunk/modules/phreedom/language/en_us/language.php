@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
+// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -98,6 +98,7 @@ define('TEXT_DISPLAY_NUMBER', 'Displaying <b>%d</b> to <b>%d</b> (of <b>%d</b>) 
 define('TEXT_DBL_PREC','Double Precision');
 define('TEXT_DOWN','Down');
 define('TEXT_DOWNLOAD','Download');
+define('TEXT_DOWNLOAD_ATTACHMENT','Download Attachment');
 define('TEXT_EDIT','Edit');
 define('GEN_EMAIL','Email');
 define('TEXT_EMAIL','Email: ');
@@ -153,6 +154,7 @@ define('TEXT_INSTALL', 'Install');
 define('TEXT_INVOICE', 'Invoice');
 define('TEXT_INVOICES', 'Invoices');
 define('TEXT_IN_LIST', 'In List (csv)');
+define('TEXT_ITEM', 'Item');
 define('TEXT_ITEMS', 'Items');
 define('TEXT_LEFT','Left');
 define('TEXT_LENGTH','Length');
@@ -174,7 +176,7 @@ define('TEXT_NA','N/A'); // not applicable
 define('TEXT_NEXT','Next');
 define('TEXT_NO','No');
 define('TEXT_NO_DOCUMENTS','No documents have been found!');
-define('ACT_NO_RESULTS','No Results Found');
+define('ACT_NO_RESULTS','No Results Found!');
 define('TEXT_NONE', 'None');
 define('TEXT_NOT_USED','Not Used');
 define('TEXT_NOTE', 'Note:');
@@ -264,6 +266,7 @@ define('TEXT_STATUS','Status');
 define('TEXT_STATISTICS','Statistics');
 define('TEXT_STDCOLOR','Standard Color');
 define('GEN_STORE_ID', 'Store ID');
+define('TEXT_SUBMIT','Submit');
 define('TEXT_SUCCESS','Success');
 define('TEXT_SYSTEM','System');
 define('TEXT_TABLE','Table');

@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary PhreePOS, multi language, multi currency Point of Sale module.
 
 = Introduction =
 

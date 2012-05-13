@@ -1,4 +1,4 @@
-#summary PhreePOS, multi language, multi currency Point of Sale module.
+#summary Multi Language, Multi Currency Point of Sale module.
 
 = Introduction =
 

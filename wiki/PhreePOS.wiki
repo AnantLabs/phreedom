@@ -6,10 +6,17 @@ This page for dev info of the phreePOS module
 
 = Details =
 
-
+  * Auto fill Customer,set in user defaults. Auto fill Currency, and Location set in customer defaults.
+  * Post to GL accounts set in user defaults.
+  * Line item discount.
   * Except more then one currency during a sale.
   * Show change due to the customer in the currency that the sale is made in.
   * Till reconciliation,
     * Open till (starting cash count) before a sale can be made.
     * Pay out, a popup window to enter cash paid out for expenses and bank deposits.
     * Close till (ending cash count) to show any short or over amount. Must take into account more then one currency accepted.
+
+ * POS Hardware
+   * Support a pole display
+   * Open an electronic cash drawer.
+   * Support debit cards and PIN pads.

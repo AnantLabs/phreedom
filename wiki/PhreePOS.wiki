@@ -19,8 +19,20 @@
     * Open till (starting cash count) before a sale can be made.
     * Pay out, a popup window to enter cash paid out for expenses and bank deposits.
     * Close till (ending cash count) to show any short or over amount. Must take into account more then one currency accepted.
+12-05-15 Rene " I am done with the normal class I will turn to this part of the module. This will be done by a separate class and a new journal-id."
+ 
 
  * POS Hardware
    * Support a pole display
    * Open an electronic cash drawer.
    * Support debit cards and PIN pads.
+12-05-15 Rene "Some of this would require a java application but I haven't seen one yet. Any suggestions on this part?" 
+
+== Notes ==
+12-05-15 Rene
+ * After selecting a inventory item the picture will be shown.
+ * You can select a sales rep.
+ * There are till's / cash-drawers. ( this would allow for multiple pos for one store.)
+ * You can round the end total in different ways.
+ * You can choose if you want to show lines with tax or without.
+ * I am still working on the class that is to save the transaction.

@@ -1,8 +1,12 @@
 #summary Multi Language, Multi Currency Point of Sale module.
 
 = Introduction =
+*Project Manager:* for this module.
+ Rene Kervezee
 
-This page for dev info of the phreePOS module
+*List of sponsors:* who have pledged monetary support for this module.
+ Alvin Martin<br>
+ lankeeyankee 
 
 = Details =
 

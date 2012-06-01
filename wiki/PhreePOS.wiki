@@ -20,7 +20,11 @@
     * Pay out, a popup window to enter cash paid out for expenses and bank deposits.
     * Close till (ending cash count) to show any short or over amount. Must take into account more then one currency accepted.
 12-05-15 Rene " I am done with the normal class I will turn to this part of the module. This will be done by a separate class and a new journal-id."
- 
+ * Module Configuration, (module admin, properties)
+  * Allow sales of inventory items resulting in negative stock levels? Y/N
+  * Allow enter an order level discount value or percent? Y/N
+  * Allow enter an item level discount value or percent? Y/N
+
 
  * POS Hardware
    * Support a pole display

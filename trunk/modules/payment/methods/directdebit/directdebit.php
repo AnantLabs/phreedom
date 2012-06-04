@@ -19,7 +19,7 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_DIRECTDEBIT_VERSION','3.2');
+define('MODULE_PAYMENT_DIRECTDEBIT_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 
 class directdebit extends payment {
@@ -29,7 +29,7 @@ class directdebit extends payment {
   
   public function __construct(){
   	parent::__construct();
-    $this->payment_fields = implode(':', array($_POST['directdebit_field_0']));
+    $this->payment_fields = implode(':', array($this->field_0));
   }
 
   function selection() {
@@ -40,7 +40,7 @@ class directdebit extends payment {
 	  'fields' => array(
 			array(
 			  'title' => MODULE_PAYMENT_DIRECTDEBIT_TEXT_REF_NUM,
-			  'field' => html_input_field($this->code . '_field_0', $order->directdebit_ref, 'size="33" maxlength="32"'),
+			  'field' => html_input_field($this->code . '_field_0', $this->field_0, 'size="33" maxlength="32"'),
 			),
 		),
 	);

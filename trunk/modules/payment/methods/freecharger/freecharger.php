@@ -19,7 +19,7 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_FREECHARGER_VERSION','3.2');
+define('MODULE_PAYMENT_FREECHARGER_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 class freecharger extends payment {
   public $title       = MODULE_PAYMENT_FREECHARGER_TEXT_TITLE;
@@ -28,7 +28,7 @@ class freecharger extends payment {
   
   public function __construct(){
   	parent::__construct();
-    $this->payment_fields = implode(':', array($_POST['directdebit_field_0']));
+    $this->payment_fields = '';
   }
 }
 ?>

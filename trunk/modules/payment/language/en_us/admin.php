@@ -32,5 +32,6 @@ define('OPEN_POS_DRAWER_DESC','Allow the pos drawer to open when payment is sele
 define('OPEN_POS_DRAWER','0');
 define('SORT_ORDER_DESC', 'Sort order of display. Lowest is displayed first.');
 define('POS_GL_ACCT_DESC','POS gl account payment type');
+define('SHOW_IN_POS_DESC','Show this payment in PhreePOS');
 
 ?>

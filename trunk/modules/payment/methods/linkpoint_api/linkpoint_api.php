@@ -21,7 +21,7 @@
 // 2009-08-01 - Author: Harry Lu
 // 2010-08-17 - Modified by PhreeSoft
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_LINKPOINT_API_VERSION','3.2');
+define('MODULE_PAYMENT_LINKPOINT_API_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 @define('MODULE_PAYMENT_LINKPOINT_API_CODE_DEBUG', 'off'); // debug for programmer use only
 
@@ -32,39 +32,30 @@ class linkpoint_api extends payment {
   public $enabled, $payment_status, $auth_code, $transaction_id;
   public $_logDir = DIR_FS_SQL_CACHE;
 
-	// class constructor
   public function __construct(){
   	global $order, $messageStack;
   	parent::__construct();
-//		$this->enabled = MODULE_PAYMENT_LINKPOINT_API_STATUS ? true : false; // Whether the module is installed or not
-//		$this->title   = MODULE_PAYMENT_LINKPOINT_API_TEXT_ADMIN_TITLE; // Payment module title in Admin
-		if ($this->enabled && !function_exists('curl_init'))
-			$messageStack->add_session(MODULE_PAYMENT_LINKPOINT_API_TEXT_ERROR_CURL_NOT_FOUND, 'error');
-
-//		$this->description = MODULE_PAYMENT_LINKPOINT_API_TEXT_DESCRIPTION; // Descriptive Info about module in Admin
-//		$this->sort_order  = MODULE_PAYMENT_LINKPOINT_API_SORT_ORDER; // Sort Order of this payment option on the customer payment page
-		$this->code_debug  = (MODULE_PAYMENT_LINKPOINT_API_CODE_DEBUG == 'debug') ? true : false;
-
-		// set error messages if misconfigured
-		if (MODULE_PAYMENT_LINKPOINT_API_STATUS) {
-			$pemFileDir = DIR_FS_WORKING . '/payment/modules/linkpoint_api/' . MODULE_PAYMENT_LINKPOINT_API_LOGIN . '.pem';
-
-			if (MODULE_PAYMENT_LINKPOINT_API_LOGIN == 'EnterYourStoreNumber') {
-				$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_NOT_CONFIGURED;
-			} elseif (MODULE_PAYMENT_LINKPOINT_API_LOGIN != '' && !file_exists($pemFileDir)) {
-				$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_PEMFILE_MISSING;
-			} elseif (MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE != 'LIVE: Production') {
-				$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_TEST_MODE;
-			}
+	if ($this->enabled && !function_exists('curl_init')) $messageStack->add_session(MODULE_PAYMENT_LINKPOINT_API_TEXT_ERROR_CURL_NOT_FOUND, 'error');
+	$this->code_debug  = (MODULE_PAYMENT_LINKPOINT_API_CODE_DEBUG == 'debug') ? true : false;
+	// set error messages if misconfigured
+	if (MODULE_PAYMENT_LINKPOINT_API_STATUS) {
+		$pemFileDir = DIR_FS_WORKING . '/payment/modules/linkpoint_api/' . MODULE_PAYMENT_LINKPOINT_API_LOGIN . '.pem';
+		if (MODULE_PAYMENT_LINKPOINT_API_LOGIN == 'EnterYourStoreNumber') {
+			$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_NOT_CONFIGURED;
+		} elseif (MODULE_PAYMENT_LINKPOINT_API_LOGIN != '' && !file_exists($pemFileDir)) {
+			$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_PEMFILE_MISSING;
+		} elseif (MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE != 'LIVE: Production') {
+			$this->title .= MODULE_PAYMENT_LINKPOINT_API_TEXT_TEST_MODE;
 		}
-		$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_LOGIN',                    'default' => 'YourStoreNumber'			, 'text' => MODULE_PAYMENT_LINKPOINT_API_LOGIN_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE','default' => 'LIVE: Production'			, 'text' => MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_AUTHORIZATION_MODE',       'default' => 'Immediate Charge/Capture'	, 'text' => MODULE_PAYMENT_LINKPOINT_API_AUTHORIZATION_MODE_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_FRAUD_ALERT',              'default' => '1'							, 'text' => MODULE_PAYMENT_LINKPOINT_API_FRAUD_ALERT_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_STORE_DATA',               'default' => '1'							, 'text' => MODULE_PAYMENT_LINKPOINT_API_STORE_DATA_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE',         'default' => 'Production'				, 'text' => MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_DESC);
-	    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_DEBUG',                    'default' => 'Off'						, 'text' => MODULE_PAYMENT_LINKPOINT_API_DEBUG_DESC);
 	}
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_LOGIN',                    'default' => 'YourStoreNumber'			, 'text' => MODULE_PAYMENT_LINKPOINT_API_LOGIN_DESC);
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE','default' => 'LIVE: Production'			, 'text' => MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_RESPONSE_DESC);
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_AUTHORIZATION_MODE',       'default' => 'Immediate Charge/Capture'	, 'text' => MODULE_PAYMENT_LINKPOINT_API_AUTHORIZATION_MODE_DESC);
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_FRAUD_ALERT',              'default' => '1'							, 'text' => MODULE_PAYMENT_LINKPOINT_API_FRAUD_ALERT_DESC);
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_STORE_DATA',               'default' => '1'							, 'text' => MODULE_PAYMENT_LINKPOINT_API_STORE_DATA_DESC);
+	$this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE',         'default' => 'Production'				, 'text' => MODULE_PAYMENT_LINKPOINT_API_TRANSACTION_MODE_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_LINKPOINT_API_DEBUG',                    'default' => 'Off'						, 'text' => MODULE_PAYMENT_LINKPOINT_API_DEBUG_DESC);
+  }
 
   function configure($key) {
     switch ($key) {
@@ -74,7 +65,7 @@ class linkpoint_api extends payment {
 		  array('id' => 'TESTING: Successful', 'text' => TEXT_TEST_SUCCESS),
 		  array('id' => 'TESTING: Decline',    'text' => TEXT_TEST_FAIL),
 	    );
-	    return html_pull_down_menu(strtolower($key), $temp, constant($key));
+        return html_pull_down_menu(strtolower($key), $temp, constant($key));
 	  case 'MODULE_PAYMENT_LINKPOINT_API_AUTHORIZATION_MODE':
 	    $temp = array(
 		  array('id' => 'Authorize Only',           'text' => TEXT_AUTHORIZE),
@@ -108,124 +99,115 @@ class linkpoint_api extends payment {
   }
 
   function javascript_validation() {
-	$js = 'var payment_value = document.getElementById("shipper_code").value; '  . "\n" .
-		'  if (payment_value == "' . $this->code . '") {' . "\n" .
-		'    var cc_owner = document.getElementById("linkpoint_api_cc_owner").value;' . "\n" .
-		'    var cc_number = document.getElementById("linkpoint_api_cc_number").value;' . "\n" .
-		'    var cc_cvv = document.getElementById("linkpoint_api_cc_cvv").value;' . "\n" .
-		'    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
-		'      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER . '";' . "\n" .
-		'      error = 1;' . "\n" .
-		'    }' . "\n" .
-		'    if (cc_number == "" || cc_number.length < ' . CC_NUMBER_MIN_LENGTH . ') {' . "\n" .
-		'      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_NUMBER . '";' . "\n" .
-		'      error = 1;' . "\n" .
-		'    }' . "\n" .
-		//'    if (cc_cvv == "" || cc_cvv.length < "3") {' . "\n".
-		//'       error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_CVV . '";' . "\n" .
-		//'       error = 1;' . "\n" .
-		//'    }' . "\n" .
-		'  }' . "\n";
+	$js = 'if (payment_method == "' . $this->code . '") {' . "\n" .
+	'    var cc_owner  = document.getElementById("'.get_called_class().'_field_0").value;' . "\n" .
+	'    var cc_number = document.getElementById("'.get_called_class().'_field_1").value;' . "\n" .
+	'    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
+	'      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER . '\n";' . "\n" .
+	'      error = 1;' . "\n" .
+	'    }' . "\n" .
+	'    if (cc_number == "" || cc_number.length < ' . CC_NUMBER_MIN_LENGTH . ') {' . "\n" .
+	'      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_NUMBER . '\n";' . "\n" .
+	'      error = 1;' . "\n" .
+	'    }' . "\n" .
+	
+	'    var cc_cvv    = document.getElementById("'.get_called_class().'_field_4").value;' . "\n" .
+	'    if (cc_cvv == "" || cc_cvv.length < "3") {' . "\n".
+	'       error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_CVV . '\n";' . "\n" .
+	'       error = 1;' . "\n" .
+	'    }' . "\n" .
+	'  }' . "\n";
 	return $js;		
   }
+  /**
+   * Display Credit Card Information Submission Fields on the Checkout Payment Page
+   *
+   * @return array
+   */
+  function selection() {
+    global $order;
 
-	// Display Credit Card Information Submission Fields on the Checkout Payment Page
-	function selection() {
-		global $order;
+    for ($i=1; $i<13; $i++) {
+      $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B',mktime(0,0,0,$i,1,2000)));
+    }
 
-		for ($i = 1; $i < 13; $i++) {
-			$expires_month[] = array (
-				'id' => sprintf('%02d', $i),
-				'text' => strftime('%B - (%m)', mktime(0, 0, 0, $i, 1, 2000))
-			);
-		}
+    $today = getdate();
+    for ($i = $today['year']; $i < $today['year'] + 10; $i++) {
+      $expires_year[] = array('id' => strftime('%Y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
+    }
+    $selection = array (
+	  'id'     => $this->code,
+	  'page'   => $this->title,
+	  'fields' => array (
+	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
+			    'field' => html_input_field(get_called_class().'_field_0', $this->field_0)),
+	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
+		     	'field' => html_input_field(get_called_class().'_field_1', $this->field_1)),
+	    array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
+			    'field' => html_pull_down_menu(get_called_class().'_field_2', $expires_month, $this->field_2) . '&nbsp;' . html_pull_down_menu(get_called_class().'_field_3', $expires_year, $this->field_3)),
+		array ( 'title' => MODULE_PAYMENT_CC_TEXT_CVV,
+				'field' => html_input_field(get_called_class().'_field_4', $this->field_4, 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',)
+	  ));
+    return $selection;
+  }
+  /**
+   * Evaluates the Credit Card Type for acceptance and the validity of the Credit Card Number & Expiration Date
+   *
+   */
+  function pre_confirmation_check() {
+    global $messageStack;
 
-		$today = getdate();
-		for ($i = $today['year']; $i < $today['year'] + 10; $i++) {
-			$expires_year[] = array (
-				'id' => strftime('%y', mktime(0, 0, 0, 1, 1, $i)),
-				'text' => strftime('%Y', mktime(0, 0, 0, 1, 1, $i))
-			);
-		}
-		
-		$selection = array (
-			'id' => $this->code,
-			'page' => $this->title,
-			'fields' => array (
-				array ( 'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
-						'field' => html_input_field('linkpoint_api_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'], 'id="' . $this->code . '-cc-owner"' ),
-						'tag' => $this->code . '-cc-owner' ),
-				array ( 'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
-						'field' => html_input_field('linkpoint_api_cc_number', $ccnum, 'id="' . $this->code . '-cc-number"' ),
-						'tag' => $this->code . '-cc-number' ),
-				array ( 'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
-						'field' => html_pull_down_menu('linkpoint_api_cc_expires_month', $expires_month, '', 'id="' . $this->code . '-cc-expires-month"' ) . '&nbsp;' . html_pull_down_menu('linkpoint_api_cc_expires_year', $expires_year, '', 'id="' . $this->code . '-cc-expires-year"' ),
-						'tag' => $this->code . '-cc-expires-month' ),
-				array ( 'title' => MODULE_PAYMENT_CC_TEXT_CVV,
-						'field' => html_input_field('linkpoint_api_cc_cvv', '', 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',
-						'tag' => $this->code . '-cc-cvv' )
-			));
-
-		return $selection;
+	// if the card number has the blanked out middle number fields, it has been processed, show message that 
+	// the charges were not processed through the merchant gateway and continue posting payment.
+	if (strpos($this->field_1, '*') !== false) {
+    	$messageStack->add(MODULE_PAYMENT_CC_NO_DUPS, 'caution');
+		return false;
 	}
 
-	// Evaluates the Credit Card Type for acceptance and the validity of the Credit Card Number & Expiration Date
-	function pre_confirmation_check() {
-		global $order, $db, $messageStack;
+    $result = $this->validate();
+    $error = '';
+    switch ($result) {
+      case -1:
+        $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($this->cc_card_number, 0, 4));
+        break;
+      case -2:
+      case -3:
+      case -4:
+        $error = TEXT_CCVAL_ERROR_INVALID_DATE;
+        break;
+      case false:
+        $error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
+        break;
+    }
 
-		include_once('modules/general/classes/cc_validation.php');
+    if (($result == false) || ($result < 1)) {
+		$has_error = true;
+		$payment_error_return = 'payment_error=' . $this->code;
+		$error_info2 = '&error=' . urlencode($error) . '&linkpoint_api_cc_owner=' . urlencode($this->field_0) . '&linkpoint_api_cc_expires_month=' . $this->field_2 . '&linkpoint_api_cc_expires_year=' . $this->field_3;
+		$messageStack->add($error . '<!-- [' . $this->code . '] -->', 'error');
+		if (MODULE_PAYMENT_LINKPOINT_API_STORE_DATA) {
+			$cc_type         = $this->cc_card_type;
+			$cc_number_clean = $this->cc_card_number;
+			$cc_expiry_month = $this->cc_expiry_month;
+			$cc_expiry_year  = $this->cc_expiry_year;
+			$error_returned  = $payment_error_return . $error_info2;
 
-		$cc_validation = new cc_validation();
-		$result = $cc_validation->validate($_POST['linkpoint_api_cc_number'], $_POST['linkpoint_api_cc_expires_month'], $_POST['linkpoint_api_cc_expires_year']);
-		$error = '';
-		$has_error = false;
-		switch ($result) {
-			case -1 :
-				$error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($cc_validation->cc_number, 0, 4));
-				break;
-			case -2 :
-			case -3 :
-			case -4 :
-				$error = TEXT_CCVAL_ERROR_INVALID_DATE;
-				break;
-			case false :
-				$error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
-				break;
-		}
+			$cc_number = (strlen($cc_number_clean) > 8) ? substr($cc_number_clean, 0, 4) . str_repeat('X', (strlen($cc_number_clean) - 8)) . substr($cc_number_clean, -4) : substr($cc_number_clean, 0, 3) . '**short**';
 
-		// save errors which occur during checkout_payment validation phase but haven't been sent to gateway yet
-		if (($result == false) || ($result < 1)) {
-			$has_error = true;
-			$payment_error_return = 'payment_error=' . $this->code;
-			$error_info2 = '&error=' . urlencode($error) . '&linkpoint_api_cc_owner=' . urlencode($_POST['linkpoint_api_cc_owner']) . '&linkpoint_api_cc_expires_month=' . $_POST['linkpoint_api_cc_expires_month'] . '&linkpoint_api_cc_expires_year=' . $_POST['linkpoint_api_cc_expires_year'];
-			
-			//$messageStack->add_session($error . '<!-- [' . $this->code . '] -->', 'error');
-			$messageStack->add($error . '<!-- [' . $this->code . '] -->', 'error');
-
-			if (MODULE_PAYMENT_LINKPOINT_API_STORE_DATA) {
-				$cc_type = $cc_validation->cc_type;
-				$cc_number_clean = $cc_validation->cc_number;
-				$cc_expiry_month = $_POST['linkpoint_api_cc_expires_month'];
-				$cc_expiry_year = $_POST['linkpoint_api_cc_expires_year'];
-				$error_returned = $payment_error_return . $error_info2;
-
-				$cc_number = (strlen($cc_number_clean) > 8) ? substr($cc_number_clean, 0, 4) . str_repeat('X', (strlen($cc_number_clean) - 8)) . substr($cc_number_clean, -4) : substr($cc_number_clean, 0, 3) . '**short**';
-
-				while (strstr($error_returned, '%3A'))
-					$error_returned = str_replace('%3A', ' ', $error_returned);
-				while (strstr($error_returned, '%2C'))
-					$error_returned = str_replace('%2C', ' ', $error_returned);
-				while (strstr($error_returned, '+'))
-					$error_returned = str_replace('+', ' ', $error_returned);
-				$error_returned = str_replace('&', ' &amp;', $error_returned);
-				$cust_info = $error_returned;
-
-				$message = addslashes($message);
-				$cust_info = addslashes($cust_info);
-				$all_response_info = addslashes($all_response_info);
+			while (strstr($error_returned, '%3A'))
+				$error_returned = str_replace('%3A', ' ', $error_returned);
+			while (strstr($error_returned, '%2C'))
+				$error_returned = str_replace('%2C', ' ', $error_returned);
+			while (strstr($error_returned, '+'))
+				$error_returned = str_replace('+', ' ', $error_returned);
+			$error_returned = str_replace('&', ' &amp;', $error_returned);
+			$cust_info = $error_returned;
+			$message = addslashes($message);
+			$cust_info = addslashes($cust_info);
+			$all_response_info = addslashes($all_response_info);
 
 
-		        //  Store Transaction history in Database
+	        //  Store Transaction history in Database
 /* original Harry Lu sql converted to PhreeBooks format
 		        $sql_data_array= array(array('fieldName'=>'lp_trans_num', 'value'=>'', 'type'=>'string'),
 	                               array('fieldName'=>'order_id', 'value'=>0, 'type'=>'integer'),
@@ -274,11 +256,6 @@ class linkpoint_api extends payment {
 		}
 
 		// if no error, continue with validated data:
-		$this->cc_card_type    = $cc_validation->cc_type;
-		$this->cc_card_number  = $cc_validation->cc_number;
-		$this->cc_expiry_month = $cc_validation->cc_expiry_month;
-		$this->cc_expiry_year  = $cc_validation->cc_expiry_year;
-		
 		return $has_error;
 	}
 
@@ -288,11 +265,11 @@ class linkpoint_api extends payment {
 			'title' => $this->title . ': ' . $this->cc_card_type,
 			'fields' => array (
 				array ( 'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
-						'field' => $_POST['linkpoint_api_cc_owner']	),
+						'field' => $this->field_0 ),
 				array (	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
 						'field' => str_repeat('X', (strlen($this->cc_card_number) - 4)) . substr($this->cc_card_number, -4)	),
 				array (	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
-						'field' => strftime('%B, %Y', mktime(0, 0, 0, $_POST['linkpoint_api_cc_expires_month'], 1, '20' . $_POST['linkpoint_api_cc_expires_year'])))
+						'field' => strftime('%B, %Y', mktime(0, 0, 0, $this->field_2, 1, '20' . $this->field_3)))
 			));
 
 		return $confirmation;
@@ -302,13 +279,13 @@ class linkpoint_api extends payment {
 	 */
 	function process_button() {
 		// These are hidden fields on the checkout confirmation page
-		$process_button_string = html_hidden_field('cc_owner', $_POST['linkpoint_api_cc_owner']) .
+		$process_button_string = html_hidden_field('cc_owner', $this->field_0) .
 		html_hidden_field('cc_expires', $this->cc_expiry_month . substr($this->cc_expiry_year, -2)) .
 		html_hidden_field('cc_expires_month', $this->cc_expiry_month) .
 		html_hidden_field('cc_expires_year', substr($this->cc_expiry_year, -2)) .
 		html_hidden_field('cc_type', $this->cc_card_type) .
 		html_hidden_field('cc_number', $this->cc_card_number) .
-		html_hidden_field('cc_cvv', $_POST['linkpoint_api_cc_cvv']);
+		html_hidden_field('cc_cvv', $this->field_4);
 		$process_button_string .= html_hidden_field(session_name(), session_id());
 
 		return $process_button_string;
@@ -348,28 +325,28 @@ class linkpoint_api extends payment {
 		$myorder["chargetotal"] = $order->total_amount;
 
 		// CARD INFO
-		$myorder["cardnumber"] = $_POST['linkpoint_api_cc_number']; //$_POST['cc_number']; //harry
-		$myorder["cardexpmonth"] = $_POST['linkpoint_api_cc_expires_month']; // $_POST['cc_expires_month']; //harry
-		$myorder["cardexpyear"] = $_POST['linkpoint_api_cc_expires_year']; // $_POST['cc_expires_year']; //harry
+		$myorder["cardnumber"]   = $this->field_1; //$_POST['cc_number']; //harry
+		$myorder["cardexpmonth"] = $this->field_2; // $_POST['cc_expires_month']; //harry
+		$myorder["cardexpyear"]  = $this->field_3; // $_POST['cc_expires_year']; //harry
 		$myorder["cvmindicator"] = "provided";
-		$myorder["cvmvalue"] = $_POST['linkpoint_api_cc_cvv']; //$_POST['cc_cvv']; //harry
+		$myorder["cvmvalue"]     = $this->field_4; //$_POST['cc_cvv']; //harry
 
 
 		// BILLING INFO
-		$myorder["userid"] = $_POST['bill_acct_id']; //$order->bill_primary_name; //$_SESSION['customer_id']; //harry
+		$myorder["userid"]     = $_POST['bill_acct_id']; //$order->bill_primary_name; //$_SESSION['customer_id']; //harry
 		$myorder["customerid"] = $_POST['bill_acct_id']; //$order->bill_primary_name; //$_SESSION['customer_id']; //harry
-		$myorder["name"] = htmlentities($_POST['cc_owner'], ENT_QUOTES, 'UTF-8'); 
-		$myorder["company"] = htmlentities($order->bill_primary_name); // htmlentities($order->billing['company'], ENT_QUOTES, 'UTF-8'); //harry
-		$myorder["address1"] = htmlentities($order->bill_address1); //htmlentities($order->billing['street_address'], ENT_QUOTES, 'UTF-8'); //harry
-		$myorder["address2"] = htmlentities($order->bill_address2); //htmlentities($order->billing['suburb'], ENT_QUOTES, 'UTF-8'); //harry
-		$myorder["city"] = $order->bill_city_town; // $order->billing['city']; //harry
-		$myorder["state"] = $order->bill_state_province; //$order->billing['state']; //harry
-		$myorder["country"] = $order->bill_country_code; //$order->billing['country']['iso_code_2']; //harry
-		//$myorder["phone"] = $order->customer['telephone']; //harry
+		$myorder["name"]       = htmlentities($this->field_0, ENT_QUOTES, 'UTF-8'); 
+		$myorder["company"]    = htmlentities($order->bill_primary_name); // htmlentities($order->billing['company'], ENT_QUOTES, 'UTF-8'); //harry
+		$myorder["address1"]   = htmlentities($order->bill_address1); //htmlentities($order->billing['street_address'], ENT_QUOTES, 'UTF-8'); //harry
+		$myorder["address2"]   = htmlentities($order->bill_address2); //htmlentities($order->billing['suburb'], ENT_QUOTES, 'UTF-8'); //harry
+		$myorder["city"]       = $order->bill_city_town; // $order->billing['city']; //harry
+		$myorder["state"]      = $order->bill_state_province; //$order->billing['state']; //harry
+		$myorder["country"]    = $order->bill_country_code; //$order->billing['country']['iso_code_2']; //harry
+		//$myorder["phone"]    = $order->customer['telephone']; //harry
 		//$myorder["fax"]      = $order->customer['fax'];
-		//$myorder["email"] = $order->customer['email_address']; //harry
-		$myorder["addrnum"] = htmlentities($order->bill_address1); // $order->billing['street_address']; // Required for AVS. If not provided, transactions will downgrade. //harry
-		$myorder["zip"] = $order->bill_postal_code; // $order->billing['postcode']; // Required for AVS. If not provided, transactions will downgrade. //harry
+		//$myorder["email"]    = $order->customer['email_address']; //harry
+		$myorder["addrnum"]    = htmlentities($order->bill_address1); // $order->billing['street_address']; // Required for AVS. If not provided, transactions will downgrade. //harry
+		$myorder["zip"]        = $order->bill_postal_code; // $order->billing['postcode']; // Required for AVS. If not provided, transactions will downgrade. //harry
 
 		// SHIPPING INFO
 		/* harry

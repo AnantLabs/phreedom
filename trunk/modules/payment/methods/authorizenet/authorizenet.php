@@ -19,7 +19,7 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_AUTHORIZENET_VERSION','3.2');
+define('MODULE_PAYMENT_AUTHORIZENET_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 // authorize.net AIM payment method class
 // Portions copyright Copyright 2003-2010 Zen Cart Development Team
@@ -27,8 +27,8 @@ require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 class authorizenet extends payment {
   public $title       = MODULE_PAYMENT_AUTHORIZENET_TEXT_TITLE;
   public $description = MODULE_PAYMENT_AUTHORIZENET_TEXT_DESCRIPTION;
-  public $sort_order  = 5 ; 
-  var $enabled;   // $enabled determines whether this module shows or not... in catalog.
+  public $sort_order  = 5;
+  public $enabled;   // $enabled determines whether this module shows or not... in catalog.
   var $delimiter = '|';//$delimiter determines what separates each field of returned data from authorizenet
   // $encapChar denotes what character is used to encapsulate the response fields
   var $encapChar = '*';
@@ -39,11 +39,9 @@ class authorizenet extends payment {
   var $reportable_submit_data = array();
 
   public function __construct(){
-  	global $order, $messageStack;
   	parent::__construct();
-	$this->payment_fields = implode(':', array($_POST['authorizenet_field_0'], $card_number, $_POST['authorizenet_field_2'], $_POST['authorizenet_field_3'], $_POST['authorizenet_field_4']));
 	$this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_LOGIN',              'default' => ''										, 'text' => MODULE_PAYMENT_AUTHORIZENET_LOGIN_DESC);
-	$this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_TXNKEY',             'default' => 'Test'									, 'text' => MODULE_PAYMENT_AUTHORIZENET_TXNKEY_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_TXNKEY',             'default' => 'Test'									, 'text' => MODULE_PAYMENT_AUTHORIZENET_TXNKEY_DESC);
 	$this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_MD5HASH',            'default' => '*Set A Hash Value at AuthNet Admin*'	, 'text' => MODULE_PAYMENT_AUTHORIZENET_MD5HASH_DESC);
 	$this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_TESTMODE',           'default' => 'Test'									, 'text' => MODULE_PAYMENT_AUTHORIZENET_TESTMODE_DESC);
 	$this->key[] = array('key' => 'MODULE_PAYMENT_AUTHORIZENET_AUTHORIZATION_TYPE', 'default' => 'Capture'								, 'text' => MODULE_PAYMENT_AUTHORIZENET_AUTHORIZATION_TYPE_DESC);
@@ -57,7 +55,7 @@ class authorizenet extends payment {
 		  array('id' => 'Test',       'text' => TEXT_TEST),
 		  array('id' => 'Production', 'text' => TEXT_PRODUCTION),
 	    );
-	    return html_pull_down_menu(strtolower($key['key']), $temp, constant($key));
+	    return html_pull_down_menu(strtolower($key), $temp, constant($key));
 	  case 'MODULE_PAYMENT_AUTHORIZENET_AUTHORIZATION_TYPE':
 	    $temp = array(
 		  array('id' => 'Authorize', 'text' => TEXT_AUTHORIZE),
@@ -71,7 +69,7 @@ class authorizenet extends payment {
 	    );
 	    return html_pull_down_menu(strtolower($key), $temp, constant($key));
 	  default:
-	  	return parent::configure($key);
+	    return parent::configure($key);
     }
   }
 
@@ -109,29 +107,26 @@ class authorizenet extends payment {
     global $order;
 
     for ($i=1; $i<13; $i++) {
-      $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B - (%m)',mktime(0,0,0,$i,1,2000)));
+     $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B - (%m)',mktime(0,0,0,$i,1,2000)));
     }
 
     $today = getdate();
-    for ($i=$today['year']; $i < $today['year']+10; $i++) {
-      $expires_year[] = array('id' => strftime('%y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
+    for ($i = $today['year']; $i < $today['year'] + 10; $i++) {
+      $expires_year[] = array('id' => strftime('%Y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
     }
-    $onFocus = ' onfocus="methodSelect(\'pmt-' . $this->code . '\')"';
-
     $selection = array(
 	  'id'     => $this->code,
-	  'page' => MODULE_PAYMENT_CC_TEXT_CATALOG_TITLE,
+	  'page'   => $this->title,
 	  'fields' => array(
-	    array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
-			  	'field' => html_input_field('authorizenet_field_0', $order->authorizenet_field_0)),
-		array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
-			  	'field' => html_input_field('authorizenet_field_1', $order->authorizenet_field_1)),
-		array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
-			  	'field' => html_pull_down_menu('authorizenet_field_2', $expires_month, $order->authorizenet_field_2) . '&nbsp;' . html_pull_down_menu('authorizenet_field_3', $expires_year, $order->authorizenet_field_3)),
+	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
+			    'field' => html_input_field(get_called_class().'_field_0', $this->field_0)),
+	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
+		     	'field' => html_input_field(get_called_class().'_field_1', $this->field_1)),
+	    array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
+			    'field' => html_pull_down_menu(get_called_class().'_field_2', $expires_month, $this->field_2) . '&nbsp;' . html_pull_down_menu(get_called_class().'_field_3', $expires_year, $this->field_3)),
 		array ( 'title' => MODULE_PAYMENT_CC_TEXT_CVV,
-				'field' => html_input_field('authorizenet_field_4', $order->authorizenet_field_4, 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',)
+				'field' => html_input_field(get_called_class().'_field_4', $this->field_4, 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',)
 	  ));
-
     return $selection;
   }
   /**
@@ -143,40 +138,33 @@ class authorizenet extends payment {
 
 	// if the card number has the blanked out middle number fields, it has been processed, show message that 
 	// the charges were not processed through the merchant gateway and continue posting payment.
-	if (strpos($_POST['authorizenet_field_1'],'*') !== false) {
+	if (strpos($this->field_1, '*') !== false) {
     	$messageStack->add(MODULE_PAYMENT_CC_NO_DUPS, 'caution');
 		return false;
 	}
 
-    include_once(DIR_FS_MODULES . 'payment/classes/cc_validation.php');
-
-    $cc_validation = new cc_validation();
-    $result = $cc_validation->validate($_POST['authorizenet_field_1'], $_POST['authorizenet_field_2'], $_POST['authorizenet_field_3']);
+    $result = $this->validate();
     $error = '';
     switch ($result) {
       case -1:
-      $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($cc_validation->cc_number, 0, 4));
-      break;
+        $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($this->cc_card_number, 0, 4));
+        break;
       case -2:
       case -3:
       case -4:
-      $error = TEXT_CCVAL_ERROR_INVALID_DATE;
-      break;
+        $error = TEXT_CCVAL_ERROR_INVALID_DATE;
+        break;
       case false:
-      $error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
-      break;
+        $error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
+        break;
     }
 
-    if ( ($result == false) || ($result < 1) ) {
+    if (($result == false) || ($result < 1)) {
       $messageStack->add($error . '<!-- ['.$this->code.'] -->', 'error');
       return true;
     }
 
-    $this->cc_card_type    = $cc_validation->cc_type;
-    $this->cc_card_number  = $cc_validation->cc_number;
-    $this->cc_cvv2         = $_POST['authorizenet_field_4'];
-    $this->cc_expiry_month = $cc_validation->cc_expiry_month;
-    $this->cc_expiry_year  = $cc_validation->cc_expiry_year;
+    $this->cc_cvv2         = $this->field_4;
 	return false;
   }
   /**
@@ -188,14 +176,12 @@ class authorizenet extends payment {
 
 	// if the card number has the blanked out middle number fields, it has been processed, the message that 
 	// the charges were not processed were set in pre_confirmation_check, just return to continue without processing.
-	if (strpos($_POST['authorizenet_field_1'], '*') !== false) {
-		return false;
-	}
+	if (strpos($this->field_1, '*') !== false) return false;
 
-    $order->info['cc_expires'] = $_POST['authorizenet_field_2'] . $_POST['authorizenet_field_3'];
-    $order->info['cc_owner'] = $_POST['authorizenet_field_0'];
-	$this->cc_card_owner = $_POST['authorizenet_field_0'];
-    $order->info['cc_cvv'] = $_POST['authorizenet_field_4'];
+    $order->info['cc_expires'] = $this->field_2 . $this->field_3;
+    $order->info['cc_owner']   = $this->field_0;
+	$this->cc_card_owner       = $this->field_0;
+    $order->info['cc_cvv']     = $this->field_4;
 
 //    $order->info['cc_type']    = $_POST['cc_type'];
     $sessID = session_id();
@@ -230,7 +216,7 @@ class authorizenet extends payment {
 	  'x_method'             => 'CC',
 	  'x_amount'             => $order->total_amount,
 	  'x_currency_code'      => DEFAULT_CURRENCY,
-	  'x_card_num'           => preg_replace('/ /', '', $_POST['authorizenet_field_1']),
+	  'x_card_num'           => preg_replace('/ /', '', $this->field_1),
 	  'x_exp_date'           => $order->info['cc_expires'],
 	  'x_card_code'          => $order->info['cc_cvv'],
 	  'x_email_customer'     => MODULE_PAYMENT_AUTHORIZENET_EMAIL_CUSTOMER == '1' ? 'TRUE': 'FALSE',
@@ -301,13 +287,13 @@ class authorizenet extends payment {
     global $request_type;
     // Populate an array that contains all of the data to be sent to Authorize.net
     $submit_data = array_merge(array(
-	  'x_login' => trim(MODULE_PAYMENT_AUTHORIZENET_LOGIN),
-	  'x_tran_key' => trim(MODULE_PAYMENT_AUTHORIZENET_TXNKEY),
+	  'x_login'          => trim(MODULE_PAYMENT_AUTHORIZENET_LOGIN),
+	  'x_tran_key'       => trim(MODULE_PAYMENT_AUTHORIZENET_TXNKEY),
 	  'x_relay_response' => 'FALSE',
-	  'x_delim_data' => 'TRUE',
-	  'x_delim_char' => $this->delimiter,  // The default delimiter is a comma
-	  'x_encap_char' => $this->encapChar,  // The divider to encapsulate response fields
-	  'x_version' => '3.1',  // 3.1 is required to use CVV codes
+	  'x_delim_data'     => 'TRUE',
+	  'x_delim_char'     => $this->delimiter,  // The default delimiter is a comma
+	  'x_encap_char'     => $this->encapChar,  // The divider to encapsulate response fields
+	  'x_version'        => '3.1',  // 3.1 is required to use CVV codes
 	  ), $submit_data);
 
     if(MODULE_PAYMENT_AUTHORIZENET_TESTMODE == 'Test') {
@@ -510,3 +496,4 @@ class authorizenet extends payment {
 */
 
 }
+?>

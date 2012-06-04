@@ -19,7 +19,7 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_COD_VERSION','3.2');
+define('MODULE_PAYMENT_COD_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 
 class cod extends payment {
@@ -29,7 +29,7 @@ class cod extends payment {
   
   public function __construct(){
 	parent::__construct();
-  	$this->payment_fields = implode(':', array($_POST['bill_primary_name'], $_POST['cod_field_1']));
+  	$this->payment_fields = implode(':', array($_POST['bill_primary_name']));
   }
 }
 ?>

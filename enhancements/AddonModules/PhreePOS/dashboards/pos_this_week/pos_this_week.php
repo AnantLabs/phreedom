@@ -74,7 +74,7 @@ class pos_this_week extends ctl_panel {
 	  	$total += $result->fields['day_total'];
 		$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['day_total'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
 		$contents .= '<div>';
-		$contents .= $result->fields['post_date'] ;
+		$contents .= gen_locale_date($result->fields['post_date']) ;
 		$contents .= '</a></div>' . chr(10);
 		$result->MoveNext();
 	  }

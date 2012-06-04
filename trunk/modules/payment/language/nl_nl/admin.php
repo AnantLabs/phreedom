@@ -19,4 +19,5 @@ define('OPEN_POS_DRAWER_DESC','Toe staan dat de kassala open gaat bij het select
 define('OPEN_POS_DRAWER','0');
 define('SORT_ORDER_DESC', 'Sorteer volgorde. Laagste wordt als eerste getoond.');
 define('POS_GL_ACCT_DESC','Kassa betaalwijze rekening');
+define('SHOW_IN_POS_DESC','Deze Betaalwijze in PhreePOS laten zien');
 ?>

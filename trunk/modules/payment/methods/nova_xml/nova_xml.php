@@ -19,7 +19,7 @@
 //
 // Revision history
 // 2011-07-01 - Added version number for revision control
-define('MODULE_PAYMENT_NOVA_XML_VERSION','3.2');
+define('MODULE_PAYMENT_NOVA_XML_VERSION','3.3');
 require_once(DIR_FS_MODULES . 'payment/classes/payment.php');
 // Elevon Payment Module
 class nova_xml extends payment {
@@ -27,15 +27,12 @@ class nova_xml extends payment {
   public $description = MODULE_PAYMENT_NOVA_XML_TEXT_DESCRIPTION;
   public $sort_order  = 2;
     
-   public function __construct(){
+  public function __construct(){
   	parent::__construct();
     global $order;
 	$this->enable_encryption = 1; // set to field position of credit card to create hint, false to turn off encryption
 	// Card numbers are not saved, instead keep the first and last four digits and fill middle with *'s
-	$card_number = trim($_POST['nova_xml_field_1']);
-	$card_number = substr($card_number, 0, 4) . '********' . substr($card_number, -4);
-	$this->payment_fields = implode(':', array($_POST['nova_xml_field_0'], $card_number, $_POST['nova_xml_field_2'], $_POST['nova_xml_field_3'], $_POST['nova_xml_field_4']));
-	$this->def_deposit_id = (substr(trim($_POST['nova_xml_field_1']), 0, 2) == '37' ? 'AX' : 'CC') . date('Ymd');
+	$this->def_deposit_id = (substr(trim($this->field_1), 0, 2) == '37' ? 'AX' : 'CC') . date('Ymd');
 
 	$this->avs_codes = array(
 		'A' => 'Address matches - Postal Code does not match.',
@@ -66,12 +63,11 @@ class nova_xml extends payment {
 		'U' => 'Issuer has not certified for CVV2 or issuer has not provided Visa with the CVV2 encryption keys.'
 	);
 	
-	$this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_MERCHANT_ID',       'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_MERCHANT_ID_DESC);
-	$this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_USER_ID',           'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_USER_ID_DESC);
-	$this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_PIN',               'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_PIN_DESC);
-	$this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_TESTMODE',          'default' => 'Production',			'text' => MODULE_PAYMENT_NOVA_XML_TESTMODE_DESC);
-	$this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_AUTHORIZATION_TYPE','default' => 'Authorize/Capture',	'text' => MODULE_PAYMENT_NOVA_XML_AUTHORIZATION_TYPE_DESC);
-	   
+    $this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_MERCHANT_ID',       'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_MERCHANT_ID_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_USER_ID',           'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_USER_ID_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_PIN',               'default' => '', 					'text' => MODULE_PAYMENT_NOVA_XML_PIN_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_TESTMODE',          'default' => 'Production',			'text' => MODULE_PAYMENT_NOVA_XML_TESTMODE_DESC);
+    $this->key[] = array('key' => 'MODULE_PAYMENT_NOVA_XML_AUTHORIZATION_TYPE','default' => 'Authorize/Capture',	'text' => MODULE_PAYMENT_NOVA_XML_AUTHORIZATION_TYPE_DESC);
   }
 
   function configure($key) {
@@ -96,9 +92,9 @@ class nova_xml extends payment {
   function javascript_validation() {
     $js = 
 	'  if (payment_method == "' . $this->code . '") {' . "\n" .
-    '    var cc_owner = document.getElementById("nova_xml_field_0").value;' . "\n" .
-    '    var cc_number = document.getElementById("nova_xml_field_1").value;' . "\n" . 
-    '    var cc_cvv = document.getElementById("nova_xml_field_4").value;' . "\n" . 
+    '    var cc_owner  = document.getElementById("'.get_called_class().'_field_0").value;' . "\n" .
+    '    var cc_number = document.getElementById("'.get_called_class().'_field_1").value;' . "\n" .
+    '    var cc_cvv    = document.getElementById("'.get_called_class().'_field_4").value;' . "\n" . 
     '    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
     '      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER . '";' . "\n" .
     '      error = 1;' . "\n" .
@@ -114,70 +110,90 @@ class nova_xml extends payment {
     '  }' . "\n";
     return $js;
   }
-
+  /**
+   * Display Credit Card Information Submission Fields on the Checkout Payment Page
+   *
+   * @return array
+   */
   function selection() {
     global $order;
 
-  	for ($i = 1; $i < 13; $i++) {
-	  $j = ($i < 10) ? '0' . $i : $i;
-	  $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => $j . '-' . strftime('%B',mktime(0,0,0,$i,1,2000)));
-	}
+    for ($i = 1; $i < 13; $i++) {
+      $j = ($i < 10) ? '0' . $i : $i;
+      $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => $j . '-' . strftime('%B',mktime(0,0,0,$i,1,2000)));
+    }
+
     $today = getdate();
     for ($i = $today['year']; $i < $today['year'] + 10; $i++) {
       $expires_year[] = array('id' => strftime('%Y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
     }
-	$selection = array(
-	  'id' => $this->code,
-	  'page' => MODULE_PAYMENT_CC_TEXT_CATALOG_TITLE,
+    $selection = array(
+	  'id'     => $this->code,
+	  'page'   => $this->title,
 	  'fields' => array(
 	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_OWNER,
-		  		'field' => html_input_field('nova_xml_field_0', $order->nova_xml_field_0)),
-		array( 	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
-		  		'field' => html_input_field('nova_xml_field_1', $order->nova_xml_field_1)),
-		array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
-		  		'field' => html_pull_down_menu('nova_xml_field_2', $expires_month, $order->nova_xml_field_2) . '&nbsp;' . html_pull_down_menu('nova_xml_field_3', $expires_year, $order->nova_xml_field_3)),
+			    'field' => html_input_field(get_called_class().'_field_0', $this->field_0)),
+	    array(  'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
+		     	'field' => html_input_field(get_called_class().'_field_1', $this->field_1)),
+	    array(	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
+			    'field' => html_pull_down_menu(get_called_class().'_field_2', $expires_month, $this->field_2) . '&nbsp;' . html_pull_down_menu(get_called_class().'_field_3', $expires_year, $this->field_3)),
 		array ( 'title' => MODULE_PAYMENT_CC_TEXT_CVV,
-				'field' => html_input_field('nova_xml_field_4', $order->nova_xml_field_4, 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',)
-		),
-	);
+				'field' => html_input_field(get_called_class().'_field_4', $this->field_4, 'size="4" maxlength="4"' . ' id="' . $this->code . '-cc-cvv"' ) . ' ' . '<a href="javascript:popupWindow(\'' . html_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . TEXT_MORE_INFO . '</a>',)
+	  ));
     return $selection;
   }
-
+  /**
+   * Evaluates the Credit Card Type for acceptance and the validity of the Credit Card Number & Expiration Date
+   *
+   */
   function pre_confirmation_check() {
-    global $_POST, $messageStack;
+    global $messageStack;
+
 	// if the card number has the blanked out middle number fields, it has been processed, show message that 
 	// the charges were not processed through the merchant gateway and continue posting payment.
-	if (strpos($_POST['nova_xml_field_1'],'*') !== false) {
+	if (strpos($this->field_1, '*') !== false) {
     	$messageStack->add(MODULE_PAYMENT_CC_NO_DUPS, 'caution');
 		return false;
 	}
-    require_once(DIR_FS_MODULES . 'payment/classes/cc_validation.php');
-    $cc_validation = new cc_validation();
-    $result = $cc_validation->validate($_POST['nova_xml_field_1'], $_POST['nova_xml_field_2'], $_POST['nova_xml_field_3']);
+
+    $result = $this->validate();
     $error = '';
     switch ($result) {
-      case -1:    $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($cc_validation->cc_number, 0, 4)); break;
+      case -1:
+        $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($this->cc_card_number, 0, 4));
+        break;
       case -2:
       case -3:
-      case -4:    $error = TEXT_CCVAL_ERROR_INVALID_DATE;   break;
-      case false: $error = TEXT_CCVAL_ERROR_INVALID_NUMBER; break;
+      case -4:
+        $error = TEXT_CCVAL_ERROR_INVALID_DATE;
+        break;
+      case false:
+        $error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
+        break;
     }
-    if ($result == false || $result < 1) {
-      $messageStack->add($error . ' <!-- [' . $this->code . '] -->', 'error');
+
+    if (($result == false) || ($result < 1)) {
+      $messageStack->add($error . '<!-- ['.$this->code.'] -->', 'error');
       return true;
     }
+
+    $this->cc_cvv2         = $this->field_4;
 	return false;
   }
-
+  /**
+   * Store the CC info to the order and process any results that come back from the payment gateway
+   *
+   */
   function before_process() {
     global $order, $db, $messageStack;
 	// if the card number has the blanked out middle number fields, it has been processed, the message that 
 	// the charges were not processed were set in pre_confirmation_check, just return to continue without processing.
-	if (strpos($_POST['nova_xml_field_1'], '*') !== false) return false;
-    $order->info['cc_expires'] = $_POST['nova_xml_field_2'] . substr($_POST['nova_xml_field_3'], -2);
-    $order->info['cc_owner']   = $_POST['nova_xml_field_0'];
-	$this->cc_card_owner       = $_POST['nova_xml_field_0'];
-    $order->info['cc_cvv']     = $_POST['nova_xml_field_4'];
+	if (strpos($this->field_1, '*') !== false) return false;
+
+    $order->info['cc_expires'] = $this->field_2 . $this->field_3;
+    $order->info['cc_owner']   = $this->field_0;
+	$this->cc_card_owner       = $this->field_0;
+    $order->info['cc_cvv']     = $this->field_4;
     // Create a string that contains a listing of products ordered for the description field
     $description = $order->description;
     // Populate an array that contains all of the data to be sent to Nova (their xml string is one level)
@@ -188,10 +204,10 @@ class nova_xml extends payment {
 		'ssl_user_id'            => MODULE_PAYMENT_NOVA_XML_USER_ID, 
 		'ssl_amount'             => $order->total_amount,
 		'ssl_salestax'           => ($order->sales_tax) ? $order->sales_tax : 0,
-		'ssl_card_number'        => preg_replace('/ /', '', $_POST['nova_xml_field_1']),
+		'ssl_card_number'        => preg_replace('/ /', '', $this->field_1),
 		'ssl_exp_date'           => $order->info['cc_expires'],
-		'ssl_cvv2cvc2_indicator' => $_POST['nova_xml_field_4'] ? '1' : '9', // if cvv2 exists, present else not present
-		'ssl_cvv2cvc2'           => $_POST['nova_xml_field_4'] ? $_POST['nova_xml_field_4'] : '',
+		'ssl_cvv2cvc2_indicator' => $this->field_4 ? '1' : '9', // if cvv2 exists, present else not present
+		'ssl_cvv2cvc2'           => $this->field_4 ? $this->field_4 : '',
 		'ssl_description'        => $description,
 		'ssl_invoice_number'     => (MODULE_PAYMENT_NOVA_XML_TESTMODE == 'Test' ? 'TEST-' : '') . $order->purchase_invoice_id,
         'ssl_customer_code'      => str_replace('&', '-', $order->bill_short_name),

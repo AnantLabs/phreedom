@@ -37,9 +37,6 @@ class paypal_nvp extends payment {
     }
 	// save the information
 	// Card numbers are not saved, instead keep the first and last four digits and fill middle with *'s
-	$card_number = trim($_POST['paypal_nvp_field_1']);
-	$card_number = substr($card_number, 0, 4) . '********' . substr($card_number, -4);
-	$this->payment_fields = implode(':', array($_POST['paypal_nvp_field_0'], $card_number, $_POST['paypal_nvp_field_2'], $_POST['paypal_nvp_field_3'], $_POST['paypal_nvp_field_4']));
 	$this->avs_codes = array(
 		'A' => 'Address matches - Postal Code does not match.',
 		'B' => 'Street address match, Postal code in wrong format. (International issuer)',
@@ -96,9 +93,9 @@ class paypal_nvp extends payment {
   function javascript_validation() {
     $js = 
 	'  if (payment_method == "' . $this->code . '") {' . "\n" .
-    '    var cc_owner = document.getElementById("paypal_nvp_field_0").value +" "+document.getElementById("paypal_nvp_field_5").value;' . "\n" .
-    '    var cc_number = document.getElementById("paypal_nvp_field_1").value;' . "\n" . 
-    '    var cc_cvv = document.getElementById("paypal_nvp_field_4").value;' . "\n" . 
+    '    var cc_owner  = document.getElementById("'.get_called_class().'_field_0").value +" "+document.getElementById("paypal_nvp_field_5").value;' . "\n" .
+    '    var cc_number = document.getElementById("'.get_called_class().'_field_1").value;' . "\n" . 
+    '    var cc_cvv    = document.getElementById("'.get_called_class().'_field_4").value;' . "\n" . 
     '    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
     '      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER . '";' . "\n" .
     '      error = 1;' . "\n" .
@@ -128,16 +125,16 @@ class paypal_nvp extends payment {
     }
 	$selection = array(
 	   'id'     => $this->code,
-	   'page' => MODULE_PAYMENT_CC_TEXT_CATALOG_TITLE,
+	   'page'   => $this->title,
 	   'fields' => array(
 			array(	'title' => MODULE_PAYMENT_PAYPAL_NVP_TEXT_CREDIT_CARD_OWNER,
-					'field' => html_input_field('paypal_nvp_field_0', $order->paypal_nvp_field_0, 'size="12" maxlength="25"') . '&nbsp;' . html_input_field('paypal_nvp_field_5', $order->paypal_nvp_field_5, 'size="12" maxlength="25"')),
+					'field' => html_input_field(get_called_class().'_field_0', $order->paypal_nvp_field_0, 'size="12" maxlength="25"') . '&nbsp;' . html_input_field(get_called_class().'_field_5', $order->paypal_nvp_field_5, 'size="12" maxlength="25"')),
 			array( 	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_NUMBER,
-					'field' => html_input_field('paypal_nvp_field_1', $order->paypal_nvp_field_1)),
+					'field' => html_input_field(get_called_class().'_field_1', $order->paypal_nvp_field_1)),
 			array( 	'title' => MODULE_PAYMENT_CC_TEXT_CREDIT_CARD_EXPIRES,
-					'field' => html_pull_down_menu('paypal_nvp_field_2', $expires_month, $order->paypal_nvp_field_2) . '&nbsp;' . html_pull_down_menu('paypal_nvp_field_3', $expires_year, $order->paypal_nvp_field_3)),
+					'field' => html_pull_down_menu(get_called_class().'_field_2', $expires_month, $order->paypal_nvp_field_2) . '&nbsp;' . html_pull_down_menu(get_called_class().'_field_3', $expires_year, $order->paypal_nvp_field_3)),
 			array(	'title' => MODULE_PAYMENT_CC_TEXT_CVV,
-					'field' => html_input_field('paypal_nvp_field_4', $order->paypal_nvp_field_4, 'size="4" maxlength="4"')),
+					'field' => html_input_field(get_called_class().'_field_4', $order->paypal_nvp_field_4, 'size="4" maxlength="4"')),
 		));
     return $selection;
   }
@@ -147,18 +144,14 @@ class paypal_nvp extends payment {
 
 	// if the card number has the blanked out middle number fields, it has been processed, show message that 
 	// the charges were not processed through the merchant gateway and continue posting payment.
-	if (strpos($_POST['paypal_nvp_field_1'],'*') !== false) {
+	if (strpos($this->field_1,'*') !== false) {
     	$messageStack->add(MODULE_PAYMENT_CC_NO_DUPS, 'caution');
 		return false;
 	}
-
-    include_once(DIR_FS_MODULES . 'payment/classes/cc_validation.php');
-    $cc_validation = new cc_validation();
-    $result = $cc_validation->validate($_POST['paypal_nvp_field_1'], $_POST['paypal_nvp_field_2'], substr($_POST['paypal_nvp_field_3'], 2), $_POST['paypal_nvp_field_4']);
-    $error = '';
+    $result = $this->validate();    $error  = '';
     switch ($result) {
       case -1:
-      $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($cc_validation->cc_number, 0, 4));
+      $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($this->cc_card_number, 0, 4));
       break;
       case -2:
       case -3:
@@ -174,12 +167,6 @@ class paypal_nvp extends payment {
       $messageStack->add($error . '<!-- ['.$this->code.'] -->', 'error');
       return true;
     }
-
-    $this->cc_card_type    = $cc_validation->cc_type;
-    $this->cc_card_number  = $cc_validation->cc_number;
-    $this->cc_cvv2         = $_POST['paypal_nvp_field_4'];
-    $this->cc_expiry_month = $cc_validation->cc_expiry_month;
-    $this->cc_expiry_year  = $cc_validation->cc_expiry_year;
 	return false;
   }
 
@@ -188,10 +175,14 @@ class paypal_nvp extends payment {
 
 	// if the card number has the blanked out middle number fields, it has been processed, the message that 
 	// the charges were not processed were set in pre_confirmation_check, just return to continue without processing.
-	if (strpos($_POST['paypal_nvp_field_1'], '*') !== false) return false;
+	if (strpos($this->field_1, '*') !== false) return false;
 
-	$this->cc_card_owner = $_POST['paypal_nvp_field_0'] . ' ' . $_POST['paypal_nvp_field_5'];
-	switch (substr($_POST['paypal_nvp_field_1'], 0, 1)) {
+	$order->info['cc_expires'] = $this->field_2 . $this->field_3;
+    $order->info['cc_owner']   = $this->field_0 . ' ' . $this->field_5;
+	$this->cc_card_owner       = $this->field_0 . ' ' . $this->field_5;
+    $order->info['cc_cvv']     = $this->field_4;
+    
+	switch (substr($this->field_1, 0, 1)) {
 	  case '3': $card_type = 'Amex';       break;
 	  case '4': $card_type = 'Visa';       break;
 	  case '5': $card_type = 'MasterCard'; break;
@@ -206,12 +197,12 @@ class paypal_nvp extends payment {
 		'DESC'           => $order->description,
 		'INVNUM'         => $order->purchase_invoice_id,
 		'CREDITCARDTYPE' => $card_type,
-		'ACCT'           => preg_replace('/ /', '', $_POST['paypal_nvp_field_1']),
-		'EXPDATE'        => $_POST['paypal_nvp_field_2'] . $_POST['paypal_nvp_field_3'],
-		'CVV2'           => $_POST['paypal_nvp_field_4'] ? $_POST['paypal_nvp_field_4'] : '',
+		'ACCT'           => preg_replace('/ /', '', $this->field_1),
+		'EXPDATE'        => $this->field_2 . $this->field_3,
+		'CVV2'           => $this->field_4 ? $this->field_4 : '',
 		'PAYERID'        => $order->bill_short_name,
-		'FIRSTNAME'      => $_POST['paypal_nvp_field_0'],
-		'LASTNAME'       => $_POST['paypal_nvp_field_5'],
+		'FIRSTNAME'      => $this->field_0,
+		'LASTNAME'       => $this->field_5,
 		'STREET'         => str_replace('&', '-', substr($order->bill_address1, 0, 20)),
 		'STREET2'        => str_replace('&', '-', substr($order->bill_address2, 0, 20)),
 		'CITY'           => $order->bill_city_town,

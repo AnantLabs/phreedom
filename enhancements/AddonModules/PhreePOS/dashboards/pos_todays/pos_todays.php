@@ -69,8 +69,10 @@ class pos_todays extends ctl_panel {
 	 	$total += $result->fields['total_amount'];
 		$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['total_amount'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
 		$contents .= '<div>';
-		$contents .= $result->fields['purchase_invoice_id'] . ' - ';
-		$contents .= htmlspecialchars($result->fields['bill_primary_name']);
+		$contents .= $result->fields['purchase_invoice_id'];
+		if($result->fields['bill_primary_name']<>''){
+			$contents .= ' - ' . htmlspecialchars($result->fields['bill_primary_name']);
+		}
 		$contents .= '</a></div>' . chr(10);
 		$result->MoveNext();
 	  }

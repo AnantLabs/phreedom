@@ -24,7 +24,7 @@ class e extends contacts{
 	public $page_title_new = BOX_CONTACTS_NEW_EMPLOYEE;
 	public $help		       = '07.07.01.02';
 	public $address_types  = array('em', 'es', 'eb', 'im');
-  public $type            = 'e';
+    public $type            = 'e';
 	
 	public function __construct(){
 		$this->tab_list[] = array('file'=>'template_e_history',	'tag'=>'history',  'order'=>10, 'text'=>TEXT_HISTORY);

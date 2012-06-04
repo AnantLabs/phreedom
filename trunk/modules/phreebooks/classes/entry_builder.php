@@ -21,7 +21,7 @@
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 
 class entry_builder {
-  function entry_builder() {
+  function __construct() {
 	$this->discount = 0;
 	$taxes = ord_calculate_tax_drop_down('c');
 	$this->taxes = array();
@@ -89,7 +89,7 @@ class entry_builder {
 	  foreach ($Params['Seq'] as $field) $total += $this->$field;
 	}
 	return $total;
-   }
+  }
 
   function load_text_block_data($Params) {
 	$TextField = '';

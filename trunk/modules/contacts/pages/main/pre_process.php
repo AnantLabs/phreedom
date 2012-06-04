@@ -228,7 +228,6 @@ switch ($action) {
 		  from " . TABLE_EXTRA_TABS . " where module_id='contacts' order by sort_order");
 		$field_list = $db->Execute("select field_name, description, tab_id, params 
 		  from " . TABLE_EXTRA_FIELDS . " where module_id='contacts' order by description");
-		if ($field_list->RecordCount() < 1) xtra_field_sync_list('contacts', TABLE_CONTACTS);
 	    $include_template = 'template_detail.php';
 		define('PAGE_TITLE', ($action == 'new') ? $page_title_new : constant('ACT_'.strtoupper($type).'_PAGE_TITLE_EDIT').' - ('.$cInfo->short_name.') '.$cInfo->address[m][0]->primary_name);
 		break;

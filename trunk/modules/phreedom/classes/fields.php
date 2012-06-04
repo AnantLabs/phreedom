@@ -416,7 +416,7 @@ class fields {
   	global $db;
   	$sql_data_array = array();
     $xtra_db_fields = $db->Execute("select field_name, entry_type, params 
-        from " . TABLE_EXTRA_FIELDS . " where tab_id > 0 and module_id='$this->module'");
+        from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module'");
     while (!$xtra_db_fields->EOF) {
         $field_name = $xtra_db_fields->fields['field_name'];
         if ($xtra_db_fields->fields['entry_type'] == 'multi_check_box') {

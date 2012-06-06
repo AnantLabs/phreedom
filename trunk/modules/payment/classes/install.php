@@ -55,6 +55,24 @@ class payment_admin {
   function update($module) {
     global $db, $messageStack;
 	$error = false;
+  	// load all modules
+	$method_dir = DIR_FS_ADMIN . 'modules/' . $module . '/methods/';
+	$methods = array();
+	if ($dir = @dir($method_dir)) {
+	  while ($choice = $dir->read()) {
+		if (file_exists($method_dir . $choice . '/' . $choice . '.php') && $choice <> '.' && $choice <> '..') {
+		  $methods[] = $choice;
+		}
+	  }
+	  $dir->close();//update keys
+	  foreach ($methods as $method) {
+	    require_once(DIR_FS_ADMIN . 'modules/' . $module . '/methods/' . $method . '/' . $method . '.php');
+	    $properties = new $method();
+	    foreach ($properties->keys() as $key) {
+	    	if(!defined($key['key'])) write_configure($key['key'], $key['default']);
+	    }
+	  }
+	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');

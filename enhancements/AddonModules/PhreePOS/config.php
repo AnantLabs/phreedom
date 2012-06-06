@@ -45,7 +45,7 @@ if (defined('MODULE_PHREEPOS_STATUS')) {
   $menu[] = array(
     'text'        => BOX_PHREEPOS,
     'heading'     => MENU_HEADING_CUSTOMERS, // MENU_HEADING_PHREEPOS
-    'rank'        => 50,
+    'rank'        => 51,
     'security_id' => SECURITY_ID_PHREEPOS,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=main', 'SSL'),
   );

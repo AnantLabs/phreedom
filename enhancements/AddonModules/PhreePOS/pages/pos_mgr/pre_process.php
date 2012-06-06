@@ -25,8 +25,9 @@ require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 /**************   page specific initialization  *************************/
 define('POPUP_FORM_TYPE','pos:rcpt');
 $error          = false;
-$acct_period    = ($_POST['search_period']) ? $_POST['search_period'] : CURRENT_ACCOUNTING_PERIOD;
-$search_text    = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$date           = ($_GET['search_date'])    ? gen_db_date($_GET['search_date']) : false;
+$acct_period    = ($_POST['search_period']) ? $_POST['search_period']           : false;
+$search_text    = ($_POST['search_text'])   ? db_input($_POST['search_text'])   : db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action         = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -108,8 +109,15 @@ $result      = html_heading_bar($heading_array, $_POST['sort_field'], $_POST['so
 $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 // build the list for the page selected
-$period_filter = ($acct_period == 'all') ? '' : (' and period = ' . $acct_period);
-if (isset($search_text) && gen_not_null($search_text)) {
+if (!$date == false && $acct_period == false){
+	$period_filter = (" and post_date = '" . $date."'");
+	$acct_period   = '';
+}else{
+	if ($acct_period == false) $acct_period = CURRENT_ACCOUNTING_PERIOD;
+	$period_filter = ($acct_period == 'all') ? '' : (' and period = ' . $acct_period);
+	$date = '';
+}
+if (isset($search_text) && $search_text <> '') {
   $search_fields = array('bill_primary_name', 'purchase_invoice_id', 'purch_order_id', 'bill_postal_code', 'ship_primary_name', 'total_amount');
   // hook for inserting new search fields to the query criteria.
   if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);
@@ -124,6 +132,14 @@ $query_raw = "select " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_M
 		where journal_id in (19,21) " . $period_filter . $search . " order by $disp_order, purchase_invoice_id DESC";
 $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
 $query_result = $db->Execute($query_raw);
+$cal_date = array(
+  'name'      => 'searchdate',
+  'form'      => 'pos_mgr',
+  'fieldname' => 'search_date',
+  'imagename' => 'btn_date_1',
+  'default'   => isset($date) ? gen_locale_date($date): '',
+  'params'    => array('align' => 'left'),
+);
 
 $include_header   = true;
 $include_footer   = true;

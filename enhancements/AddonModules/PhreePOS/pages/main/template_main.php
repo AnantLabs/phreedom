@@ -227,8 +227,8 @@ if ($order->item_rows) {
 		</tr>
 <?php }?>
 		<tr>
-          <td align="right">
-<?php echo TEXT_TOTAL . ' ' . html_input_field('total', $currencies->format($order->total_amount, true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" style="text-align:right"'); ?>
+          <td style="font-size: 1.5em" align="right">
+<?php echo TEXT_TOTAL . ' ' . html_input_field('total', $currencies->format($order->total_amount, true, $order->currencies_code, $order->currencies_value), 'readonly="readonly" size="15" maxlength="20" style="text-align:right; font-size: 1.5em"'); ?>
 		  </td>
 		</tr>
 		<tr>
@@ -316,8 +316,8 @@ if (count($extra_SeccondToolbar_buttons) > 0) {
 echo $SeccondToolbar->build_toolbar(); 
  // Build the page
 ?>
-<h1><?php echo PAYMENT_TITLE; ?></h1>
-  <table width="300" align="center">
+<h2 align="center"><?php echo PAYMENT_TITLE; ?></h2>
+  <table width="400" align="center">
     <tr>
 	  <td colspan="2">
 <?php
@@ -343,12 +343,10 @@ echo $SeccondToolbar->build_toolbar();
 	  </td>
 	</tr>
 	<tr>
-	  <td><?php echo TEXT_AMOUNT . ' ' . html_input_field('amount', $currencies->format($amount), 'size="15" maxlength="20" style="text-align:right"'); ?></td>
+	  <td style="font-size: 1.5em;"><?php echo TEXT_AMOUNT . ' ' . html_input_field('amount', $currencies->format($amount), 'size="15" maxlength="20" style="text-align:right; font-size: 1.5em"'); ?></td>
 	  <td><?php echo html_icon('devices/media-floppy.png',		 TEXT_SAVE,  'large', 'onclick="SavePayment(\'save\')"' , 0, 0, 'btn_save'); ?></td>
 	  <td><?php echo html_icon('phreebooks/pdficon_large.gif', TEXT_PRINT, 'large', 'onclick="SavePayment(\'print\')"', 0, 0, 'btn_save'); ?></td>
 	</tr>
-
-    <tr><td colspan="2"><b><?php echo TEXT_NOTES; ?></b></td></tr>
     <tr><td colspan="2"><?php echo PHREEPOS_PAYMENT_NOTES; ?></td></tr>
   </table>
 

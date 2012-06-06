@@ -58,12 +58,15 @@ for ($i = 0; $i < count($tax_rates); $i++) {
 //payment modules
 // generate payment choice arrays for receipt of payments
 $js_pmt_types = 'var pmt_types = new Array();' . chr(10);
-foreach ($payment_modules as $pmts) {
-  $js_pmt_types .= 'pmt_types[\'' . $pmts['id'] . '\'] = "' . $pmts['text'] . '";' . chr(10);
+foreach ($payment_modules as $key => $pmts) {
   $pmt_method = $pmts['id'];
   $$pmt_method = new $pmt_method;
+  if($$pmt_method->show_in_pos == false) {
+  	unset($payment_modules[$key]);
+  }else{
+  	$js_pmt_types .= 'pmt_types[\'' . $pmts['id'] . '\'] = "' . $pmts['text'] . '";' . chr(10);
+  }
 }
-
 // see if current user points to a employee for sales rep default
 $result = $db->Execute("select account_id from " . TABLE_USERS . " where admin_id = " . $_SESSION['admin_id']);
 $default_sales_rep = $result->fields['account_id'] ? $result->fields['account_id'] : '0';

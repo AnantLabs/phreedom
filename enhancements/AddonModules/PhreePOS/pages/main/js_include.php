@@ -1153,7 +1153,7 @@ function popupPayment(){
 		popupStatus = 1;
 		document.getElementById('amount').value = document.getElementById('bal_due').value;
 		activateFields();
-		document.getElementById('payment_method').focus();
+		document.getElementById('amount').select();
 	}
 }  
 
@@ -1204,11 +1204,47 @@ $(document).ready(function(){
 	});
 	  
 });
+
 //Press Escape event!  
-$(document).keypress(function(e){  
-	if(e.keyCode==27 && popupStatus==1){  
-		disablePopup();  
+$(document).keydown(function(e){  
+	if(e.keyCode==27 && popupStatus==1){
+		e.preventDefault();
+		// if esc is pressed and the payment popup is shown it will close the payment popup  
+		disablePopup(); 
+		e.originalEvent.keyCode = 0; 
 	}  
+	if(e.keyCode==112 && popupStatus==0){
+		e.preventDefault();
+		// if F1 is pressed the inventory search popup will be shown
+		InventoryList(0);
+		e.originalEvent.keyCode = 0;
+	}
+	if(e.keyCode==113 && popupStatus==0){
+		e.preventDefault();
+		// if F2 is pressed the customer search popup will be shown
+		accountGuess(true);
+		e.originalEvent.keyCode = 0;
+	}
+	if(e.keyCode==114 && popupStatus==0){
+		e.preventDefault();
+		// if F3 is pressed the payment popup will be shown
+		centerPopup();
+		popupPayment();
+		e.originalEvent.keyCode = 0;
+	}
+	
+	if(e.keyCode==118 && popupStatus==1){
+		e.preventDefault();
+		// if F7 is pressed and the payment popup is shown the transaction will be saved not printed
+		SavePayment('save');
+		e.originalEvent.keyCode = 0;
+	}
+	if(e.keyCode==119 && popupStatus==1){
+		e.preventDefault();
+		// if F8 is pressed and the payment popup is shown the transaction will be saved and printed
+		SavePayment('print');
+		e.originalEvent.keyCode = 0;
+	}
 });  
 //-->
 

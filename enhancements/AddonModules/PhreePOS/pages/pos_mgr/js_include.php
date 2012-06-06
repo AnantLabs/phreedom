@@ -19,6 +19,9 @@
 //
 ?>
 <script type="text/javascript">
+<?php
+echo js_calendar_init($cal_date);
+?>
 <!--
 function init() {
   document.getElementById('search_text').focus();
@@ -34,5 +37,12 @@ function printOrder(id) {
   printWin.focus();
 }
 
+$(document).ready(function(){
+	$("#search_date").change(function(){
+		var date = $("#search_date").val();
+		window.open('index.php?module=phreepos&page=pos_mgr&search_date='+date,"invoices");
+	});  
+
+});
 // -->
 </script>

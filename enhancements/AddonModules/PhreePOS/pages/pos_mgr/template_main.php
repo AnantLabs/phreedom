@@ -33,7 +33,7 @@ if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key =
 $toolbar->add_help('');
 if ($search_text) $toolbar->search_text = $search_text;
 $toolbar->search_period = $acct_period;
-echo $toolbar->build_toolbar($add_search = true, $add_periods = true); 
+echo $toolbar->build_toolbar($add_search = true, $add_periods = true, $cal_date); 
 $date_today = date('Y-m-d');
 // Build the page
 ?>

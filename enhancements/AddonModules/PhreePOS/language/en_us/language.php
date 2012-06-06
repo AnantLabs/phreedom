@@ -35,8 +35,8 @@ define('TEXT_REFUND','Refund');
 define('TEXT_REFUND_METHOD','Refund Method');
 define('TEXT_ENTRIES','Entries');
 
-define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.');
-define('PHREEPOS_PAYMENT_NOTES','Cursor must be in the first box to record credit card information.');
+define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.<br><b>F1</b> = Show inventory pop-up.<br><b>F2</b> = Show customer pop-up.<br><b>F3</b> = Show payment pop-up.');
+define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Close pop-up.<br><b>F7</b>  = Save.<br><b>F8</b>  = Print');
 define('POS_MSG_DELETE_CONFIRM','Are you sure you want to void/delete this POS entry?');
 
 define('GENERAL_JOURNAL_19_ERROR_6','A possale cannot be deleted if it is closed!');

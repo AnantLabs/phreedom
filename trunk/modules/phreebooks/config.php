@@ -106,14 +106,14 @@ if (defined('MODULE_PHREEBOOKS_STATUS')) {
   $menu[] = array(
     'text'        => ORD_TEXT_20_V_WINDOW_TITLE,
     'heading'     => MENU_HEADING_BANKING,
-    'rank'        => 15,
+    'rank'        => 20,
     'security_id' => SECURITY_ID_PAY_BILLS,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;jID=20&amp;type=v', 'SSL'),
   );
   $menu[] = array(
     'text'        => BOX_BANKING_SELECT_FOR_PAYMENT,
     'heading'     => MENU_HEADING_BANKING,
-    'rank'        => 20,
+    'rank'        => 15,
     'security_id' => SECURITY_ID_SELECT_PAYMENT,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bulk_bills', 'SSL'),
   );

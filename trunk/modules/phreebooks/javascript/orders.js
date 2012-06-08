@@ -1184,7 +1184,10 @@ function fillInventory(sXml) {
   if (!sku) return;
   document.getElementById('sku_'     +rowCnt).value       = sku;
   document.getElementById('sku_'     +rowCnt).style.color = '';
-  if ($(xml).find("inventory_type").text() == 'sr') document.getElementById('imgSerial_'+rowCnt).style.display = '';
+  var imgSerial = document.getElementById('imgSerial_'+rowCnt);
+  if (imgSerial != null && $(xml).find("inventory_type").text() == 'sr'){
+    document.getElementById('imgSerial_'+rowCnt).style.display = '';
+  }
   document.getElementById('weight_'  +rowCnt).value       = $(xml).find("item_weight").text();
   document.getElementById('stock_'   +rowCnt).value       = $(xml).find("branch_qty_in_stock").text(); // stock at this branch
 //document.getElementById('stock_'   +rowCnt).value       = $(xml).find("quantity_on_hand").text(); // to insert total stock available

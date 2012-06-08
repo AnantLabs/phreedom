@@ -65,7 +65,7 @@ class tabs {
 		  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 		  return false;
 		}
-		$result = $db->Execute("select field_name from " . TABLE_EXTRA_FIELDS . " where id = '" . $this->id . "'");
+		$result = $db->Execute("select field_name from " . TABLE_EXTRA_FIELDS . " where tab_id = '" . $this->id . "'");
 		if ($result->RecordCount() > 0) {
 		  $messageStack->add(INV_CATEGORY_CANNOT_DELETE . $result->fields['field_name'], 'error');
 		  return false;

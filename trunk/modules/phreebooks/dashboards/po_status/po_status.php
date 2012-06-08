@@ -81,7 +81,7 @@ class po_status extends ctl_panel {
 	  while (!$result->EOF) {
 		$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['total_amount'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
 		$contents .= '<div>';
-		$contents .= '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $result->fields['id'] . '&amp;jID=10&amp;action=edit', 'SSL') . '">';
+		$contents .= '<a href="' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;oID=' . $result->fields['id'] . '&amp;jID=4&amp;action=edit', 'SSL') . '">';
 		$contents .= $result->fields['purchase_invoice_id'] . ' - ';
 		$contents .= gen_locale_date($result->fields['post_date']);
 		$name      = gen_trim_string($result->fields['bill_primary_name'], 20, true);

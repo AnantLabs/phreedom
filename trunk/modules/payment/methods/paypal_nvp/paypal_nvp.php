@@ -97,11 +97,11 @@ class paypal_nvp extends payment {
     '    var cc_number = document.getElementById("'.get_called_class().'_field_1").value;' . "\n" . 
     '    var cc_cvv    = document.getElementById("'.get_called_class().'_field_4").value;' . "\n" . 
     '    if (cc_owner == "" || cc_owner.length < ' . CC_OWNER_MIN_LENGTH . ') {' . "\n" .
-    '      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER . '";' . "\n" .
+    '      error_message = error_message + "' . sprintf(MODULE_PAYMENT_CC_TEXT_JS_CC_OWNER, CC_OWNER_MIN_LENGTH) . '";' . "\n" .
     '      error = 1;' . "\n" .
     '    }' . "\n" .
     '    if (cc_number == "" || cc_number.length < ' . CC_NUMBER_MIN_LENGTH . ') {' . "\n" .
-    '      error_message = error_message + "' . MODULE_PAYMENT_CC_TEXT_JS_CC_NUMBER . '";' . "\n" .
+    '      error_message = error_message + "' . sprintf(MODULE_PAYMENT_CC_TEXT_JS_CC_NUMBER, CC_NUMBER_MIN_LENGTH) . '";' . "\n" .
     '      error = 1;' . "\n" .
     '    }' . "\n" . 
     '    if (cc_cvv == "" || cc_cvv.length < "3" || cc_cvv.length > "4") {' . "\n".

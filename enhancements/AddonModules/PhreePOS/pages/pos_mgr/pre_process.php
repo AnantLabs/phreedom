@@ -125,7 +125,7 @@ if (isset($search_text) && $search_text <> '') {
 } else {
   $search = '';
 }
-$field_list = array('id', 'post_date', 'shipper_code', 'purchase_invoice_id', 'total_amount', 'bill_primary_name', 'journal_id');
+$field_list = array('id', 'post_date', 'shipper_code', 'purchase_invoice_id', 'total_amount', 'bill_primary_name', 'journal_id' ,'currencies_code', 'currencies_value');
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 $query_raw = "select " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 

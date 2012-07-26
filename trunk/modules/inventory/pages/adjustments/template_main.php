@@ -86,7 +86,7 @@ if (!$error) {
 	echo '    <td>' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) removeInvRow(' . $rowCnt . ');"') . '</td>' . chr(10);
 	echo '    <td nowrap="nowrap">' . chr(10);
 	echo html_input_field('sku_' . $rowCnt, $_POST['sku_'.$rowCnt], 'size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\')" onblur="setField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\'); loadSkuDetails(0, '.$rowCnt.')"') . '&nbsp;';
-	echo html_icon('actions/system-search.png', TEXT_SEARCH, 'small', $params = 'align="top" style="cursor:pointer" onclick="InventoryList()"');
+	echo html_icon('actions/system-search.png', TEXT_SEARCH, 'small', $params = 'align="top" style="cursor:pointer" onclick="InventoryList('.$rowCnt.')"');
 	echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'id="imgSerial_'.$rowCnt.'" align="top" style="cursor:pointer; display:none;" onclick="serialList(\'serial_' . $rowCnt . '\')"');
 // Hidden fields
 	echo html_hidden_field('serial_' . $rowCnt, $_POST['serial_'.$rowCnt]) . chr(10);

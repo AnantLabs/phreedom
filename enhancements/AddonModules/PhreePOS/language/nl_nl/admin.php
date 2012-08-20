@@ -13,11 +13,11 @@ define('TEXT_PHREEPOS_SETTINGS', 'PhreePOS Module Instellingen');
 define('MODULE_PHREEPOS_DESCRIPTION','De PhreePOS module biedt een kassa / Point of Sale-interface Deze module is een aanvulling op de phreebooks module en is geen vervanging voor.');
 define('BOX_PHREEPOS_ADMIN','Kassa / Point of Sale Administration');
 define('PHREEPOS_REQUIRE_ADDRESS_DESC','Is adres informatie bij iedere handeling vereist');
-define('PHREEPOS_RECEIPT_PRINTER_NAME_DESC','Stelt de naam van de printer in te gebruiken voor het afdrukken van kassa bonnen, zoals gedefinieerd in de printer voorkeuren voor het lokale werkstation');
-define('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE_DESC','Hier kunt u code invoeren om die aan het begin van de pagina hoort <br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b> Bekijk de printer documentatie voor de codes.');
-define('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE_DESC','Hier kunt u code invoeren om lade te openen en / of bon af te snijden <br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b>');
+define('PHREEPOS_RECEIPT_PRINTER_NAME_DESC','Stelt de naam van de printer in te gebruiken voor het afdrukken van kassa bonnen,<br> zoals gedefinieerd in de printer voorkeuren voor het lokale werkstation');
+define('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE_DESC','Hier kunt u code invoeren om die aan het begin van de pagina hoort <br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <br><b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b><br><br> Bekijk de printer documentatie voor de codes.');
+define('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE_DESC','Hier kunt u code invoeren om lade te openen en / of bon af te snijden <br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <br><b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b>');
 //3.3
-define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Hier kunt u code invoeren om lade te openen betaalvorm afhankelijk (stel de open lade optie in onder de betaal methodes).<br> als een van de geselecteerde betaal methodes de optie open lade op waar in heeft gesteld dan wordt de lade geopend.<br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b>');
+define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Hier kunt u code invoeren om lade te openen betaalvorm afhankelijk (stel de open lade optie in onder de betaal methodes).<br> als een van de geselecteerde betaal methodes de optie open lade op waar in heeft gesteld dan wordt de lade geopend.<br> Scheid de codes door een: en regels en door een , zoals: <i> 27:112:48:55:121,27:109 </ i> <br> De codes zijn een nummers van de chr dwz chr (13) is 13 <br><b> Plaats hier alleen de code geen tekst dit kan leiden tot fouten. </ b>');
 define('TEXT_ENTER_NEW_TILL','Nieuwe Kassa Lade');
 define('TEXT_EDIT_TILL','Bewerk Kassa Lade');
 define('TEXT_TILLS','Kassa Lade');
@@ -28,7 +28,9 @@ define('PHREEPOS_ROUNDING_DESC','Hoe wil u dat het eindtotaal wordt afgerond.<br
 define('TEXT_INTEGER','geheel getal');
 define('TEXT_10_CENTS','10 Centen');
 define('TEXT_NEUTRAL','Neutraal');
-define('TEXT_ROUNDING_OF','Afrounden');
+define('TEXT_ROUNDING_OF','Afronden');
 define('TEXT_GL_ACCOUNT_ROUNDING','Grootboek rekening voor afronden:');
-
+define('TEXT_RESTRICT_CURRENCY','Beperk kassa tot deze valuta');
+define('TEXT_DRAWER_CODES','open lade codes');
+define('TEXT_DIF_GL_ACCOUNT','Grootboek rekening voor kasverschillen:');
 ?>

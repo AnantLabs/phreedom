@@ -279,6 +279,11 @@ class journal_19 extends journal {
   function session_message($message, $level = 'error') {
 	$this->errormsg = $message;
   }
+  function printSelf(){
+  	global $messageStack;
+  	$messageStack->add(var_dump($this));
+  }
+  
   function __destruct(){
   	global $messageStack;
 	if ( DEBUG ) $messageStack->write_debug();

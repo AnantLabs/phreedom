@@ -31,12 +31,14 @@ require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
 require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 require_once(DIR_FS_WORKING . 'classes/tills.php');
 /**************   page specific initialization  *************************/
-define('ORD_ACCT_ID',GEN_CUSTOMER_ID);
-define('GL_TYPE','sos');
-define('DEF_INV_GL_ACCT',AR_DEF_GL_SALES_ACCT);
-define('DEF_GL_ACCT',AR_DEFAULT_GL_ACCT);
-define('DEF_GL_ACCT_TITLE',ORD_AR_ACCOUNT);
+define('ORD_ACCT_ID',		GEN_CUSTOMER_ID);
+define('GL_TYPE',			'sos');
+define('DEF_INV_GL_ACCT',	AR_DEF_GL_SALES_ACCT);
+define('DEF_GL_ACCT',		AR_DEFAULT_GL_ACCT);
+define('DEF_GL_ACCT_TITLE',	ORD_AR_ACCOUNT);
+define('POPUP_FORM_TYPE',	'pos:rcpt');
 $account_type = 'c';
+$action       = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 $order        = new phreepos();
 $tills        = new tills();
 $payment_modules = load_all_methods('payment');
@@ -67,6 +69,10 @@ foreach ($payment_modules as $key => $pmts) {
   	$js_pmt_types .= 'pmt_types[\'' . $pmts['id'] . '\'] = "' . $pmts['text'] . '";' . chr(10);
   }
 }
+$js_currency  = 'var currency  = new Array();' . chr(10);
+foreach ($currencies->currencies as $key => $currency) {
+	$js_currency .= 'currency["' . $key . '"] = new currencyType("' . $key . '", "'. $currency['title'] . '", "'. $currency['value'] . '", "'. $currency['decimal_point'] . '", "' . $currency['thousands_point'] . '", "' . $currency['decimal_places'] . '", "' . $currency['decimal_precise'] . '");' . chr(10);
+}
 // see if current user points to a employee for sales rep default
 $result = $db->Execute("select account_id from " . TABLE_USERS . " where admin_id = " . $_SESSION['admin_id']);
 $default_sales_rep = $result->fields['account_id'] ? $result->fields['account_id'] : '0';
@@ -78,6 +84,7 @@ $include_header   = false;
 $include_footer   = false;
 $include_tabs     = false;
 $include_calendar = false;
+
 switch ($action) {
   case 'pos_return': 
     $include_template = 'template_return.php';
@@ -91,5 +98,5 @@ switch ($action) {
 
 
 define('PAYMENT_TITLE', PHREEPOS_PAYMENT_TITLE);
-
+ 
 ?>

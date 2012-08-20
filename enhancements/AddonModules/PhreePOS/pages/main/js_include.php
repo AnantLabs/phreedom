@@ -17,15 +17,9 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreepos/pages/main/js_include.php
 //
-$js_tax_rates = 'var tax_rates = new Array(' . count($tax_rates) . ');' . chr(10);
-for ($i = 0; $i < count($tax_rates); $i++) {
-  $js_tax_rates .= 'tax_rates[' . $i . '] = new salesTaxes("' . $tax_rates[$i]['id'] . '", "' . $tax_rates[$i]['text'] . '", "' . $tax_rates[$i]['rate'] . '");' . chr(10);
-};
-
 ?>
 <script type="text/javascript">
 <!--
-<?php echo $js_tax_rates;?>
 // pass any php variables generated during pre-process that are used in the javascript functions.
 // Include translations here as well.
 var setId                = 1; // flag used for AJAX loading of sku for bar code reading of line item
@@ -37,10 +31,11 @@ var auto_load_sku        = <?php echo INVENTORY_AUTO_FILL; ?>;
 var image_ser_num        = '<?php echo TEXT_SERIAL_NUMBER; ?>';
 var add_array            = new Array("<?php echo implode('", "', $js_arrays['fields']); ?>");
 var default_array        = new Array("<?php echo implode('", "', $js_arrays['text']); ?>");
+var bill_add             = new Array();
 var journalID            = '<?php echo JOURNAL_ID; ?>';
 var securityLevel        = <?php echo $security_level; ?>;
 var account_type         = '<?php echo $account_type; ?>';
-var text_search          = '<?php ?>';
+var text_search          = '<?php echo TEXT_SEARCH;?>';
 var text_enter_new       = '<?php echo TEXT_ENTER_NEW; ?>';
 var text_properties      = '<?php echo TEXT_PROPERTIES; ?>';
 var post_error           = <?php echo $error ? "true" : "false"; ?>;
@@ -56,36 +51,32 @@ var warn_form_modified   = '<?php echo ORD_WARN_FORM_MODIFIED; ?>';
 var default_inv_acct     = '<?php echo DEF_INV_GL_ACCT; ?>';
 var defaultCurrency      = '<?php echo DEFAULT_CURRENCY; ?>';
 var tax_before_discount  = '<?php echo ($account_type == "c") ? AR_TAX_BEFORE_DISCOUNT : AP_TAX_BEFORE_DISCOUNT; ?>';
-var add_array			 = new Array("<?php echo implode('", "', $js_arrays['fields']); ?>");
-var default_array        = new Array("<?php echo implode('", "', $js_arrays['text']); ?>");
-var bill_add             = new Array();
 var save_allowed		 = true;
 var display_with_tax     = <?php echo PHREEPOS_DISPLAY_WITH_TAX; ?>;
 var discount_from_total  = <?php echo PHREEPOS_DISCOUNT_OF; ?>;
 var rounding_of          = <?php echo PHREEPOS_ROUNDING; ?>;
+var newdecimal_places    = '';
+var newdecimal_precise   = '';
+var newdecimal_point     = '';
+var newthousands_point   = '';
 // List the currency codes and exchange rates
 <?php if (ENABLE_MULTI_CURRENCY) echo $currencies->build_js_currency_arrays(); ?>
 // List the tax rates
 <?php echo $js_tax_rates; ?>
 <?php echo $js_pmt_types; ?>
+<?php echo $js_currency; ?>
+<?php echo $tills->javascript_array(); ?>
 
 function init() {
-  document.getElementById('bill_to_select').style.visibility = 'hidden';
-  setField('search', text_search);
   document.getElementById('disc_gl_acct_id').value    = default_disc_acct;
   // change color of the bill address fields if they are the default values
-  var add_id;
-  for (var i=0; i<add_array.length; i++) {
-	add_id = add_array[i];
-	if (document.getElementById('bill_'+add_id).value == '') {
-	  document.getElementById('bill_'+add_id).value = default_array[i];
-	}
-	if (document.getElementById('bill_'+add_id).value == default_array[i]) {
-	  if (add_id != 'country_code') document.getElementById('bill_'+add_id).style.color = inactive_text_color;
-	}
-  }
-  document.getElementById('sku').focus();
+  clearAddress('bill');
+  setImage('');
   refreshOrderClock(); 
+  addInvRow();
+  addPmtRow();
+  changeOfTill();
+  document.getElementById('sku').focus();
 }
 
 function check_form() {
@@ -133,58 +124,68 @@ function salesTaxes(id, text, rate) {
   this.rate = rate;
 }
 
+function currencyType(id, text, value, decimal_point, thousands_point, decimal_places, decimal_precise) {
+	  this.id  			   = id;
+	  this.text			   = text;
+	  this.value 	       = value;
+	  this.decimal_point   = decimal_point;
+	  this.thousands_point = thousands_point;
+	  this.decimal_places  = decimal_places;
+	  this.decimal_precise = decimal_precise;
+}
+
+function till (id, restrictCurrency, currenciesCode, printer, startingLine, closingLine, openDrawer) {
+	  this.id   		    = id;
+	  this.restrictCurrency = restrictCurrency;
+	  this.currenciesCode 	= currenciesCode;
+	  this.printer			= printer;
+	  this.startingLine		= startingLine;
+	  this.closingLine		= closingLine;	
+	  this.openDrawer		= openDrawer;
+}
+
 function ClearForm() {	
 }
 
 function resetForm() {
 	clearAddress('bill');
-    document.getElementById('sku').value                = text_search;
-    document.getElementById('sku').style.color          = inactive_text_color;
     document.getElementById('purchase_invoice_id').value= '';
 	document.getElementById('id').value                 = '';
     document.getElementById('printed').value            = '0';
-	document.getElementById('store_id').value           = '';
-	document.getElementById('rep_id').value             = '';
-	document.getElementById('subtotal').value           = formatted_zero;
 	document.getElementById('disc_percent').value       = formatted_zero;
 	document.getElementById('discount').value           = formatted_zero;
-	document.getElementById('sales_tax').value          = formatted_zero;
-	document.getElementById('rounded_of').value         = formatted_zero;
-	document.getElementById('total').value              = formatted_zero;
-	document.getElementById('pmt_recvd').value          = formatted_zero;
-	document.getElementById('bal_due').value            = formatted_zero;
-	document.getElementById('display_currency').value   = defaultCurrency;
-	document.getElementById('currencies_code').value    = defaultCurrency;
-	document.getElementById('currencies_value').value   = '1';
-	document.getElementById('disc_gl_acct_id').value    = default_disc_acct;
-	$('#inv_popup > img').attr('src', '');
-	$('#curr_image').attr('src', '');
+	setImage('');
 	// handle checkboxes
 	document.getElementById('bill_add_update').checked  = false;
+	changeOfTill();
 // remove all item rows and add a new blank one
-	while (document.getElementById('item_table').rows.length > 1) document.getElementById('item_table').deleteRow(-1);
+	while (document.getElementById('item_table_body').rows.length >= 1) document.getElementById('item_table_body').deleteRow(-1);
 	addInvRow();
-	while (document.getElementById('pmt_table').rows.length > 1) document.getElementById('pmt_table').deleteRow(-1);
+	while (document.getElementById('payment_table_body').rows.length >= 1) document.getElementById('payment_table_body').deleteRow(-1);
 	addPmtRow();
+	updateTotalPrices();
 	document.getElementById('sku').focus();
 }
 
 function clearAddress(type) {
-  for (var i=0; i<add_array.length; i++) {
-	var add_id = add_array[i];
-	document.getElementById(type+'_acct_id').value      = '';
-	document.getElementById(type+'_address_id').value   = '';
-	document.getElementById('search').value   			= '';
-	document.getElementById(type+'_country_code').value = store_country_code;
-	if (add_id != 'country_code') document.getElementById(type+'_'+add_id).style.color = inactive_text_color;
-	document.getElementById(type+'_'+add_id).value = default_array[i];
-  	document.getElementById(type+'_to_select').style.visibility = 'hidden';
+	document.getElementById(type+'_acct_id').value              = '';
+	document.getElementById(type+'_address_id').value           = '';
+	document.getElementById('search').value   		        	= '';
+	document.getElementById('copy_search').value   		        = '';
+	document.getElementById(type+'_country_code').value         = store_country_code;
+	document.getElementById(type+'_to_select').style.visibility = 'hidden';
   	if (document.getElementById(type+'_to_select')) {
       while (document.getElementById(type+'_to_select').options.length) {
 	    document.getElementById(type+'_to_select').remove(0);
       }
   	}
-  }
+    document.getElementById('copy_bill_primary_name').value       = default_array[0];
+  	document.getElementById('copy_bill_primary_name').style.color = inactive_text_color;
+  	for (var i=0; i<add_array.length; i++) {
+		var add_id = add_array[i];
+		if (add_id != 'country_code') document.getElementById(type+'_'+add_id).style.color = inactive_text_color;
+		document.getElementById(type+'_'+add_id).value = default_array[i];	
+  	}
 }
 
 function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
@@ -227,6 +228,7 @@ function orderFillAddress(xml, type, fill_address) {
 		default_inv_acct  = ($(this).find("gl_type_account").text()) ? $(this).find("gl_type_account").text() : '';
 		insertValue('bill_acct_id',    id);
 		insertValue('search',          $(this).find("short_name").text());
+		insertValue('copy_search',     $(this).find("short_name").text());
 		insertValue('acct_1',          default_inv_acct);
 	//	insertValue('rep_id',          $(this).find("dept_rep_id").text());
 		var rowCnt = 1;
@@ -252,8 +254,12 @@ function orderFillAddress(xml, type, fill_address) {
 	    $(this).children().each (function() {
 		  var tagName = this.tagName;
 		  if (document.getElementById(type+'_'+tagName)) {
-		    document.getElementById(type+'_'+tagName).value = $(this).text();
-		    document.getElementById(type+'_'+tagName).style.color = '';
+		      document.getElementById(type+'_'+tagName).value = $(this).text();
+		      document.getElementById(type+'_'+tagName).style.color = '';
+		  }
+		  if (document.getElementById('copy_'+type+'_'+tagName)) {
+			  document.getElementById('copy_'+type+'_'+tagName).value = $(this).text();
+			  document.getElementById('copy_'+type+'_'+tagName).style.color = '';
 		  }
 	    });
 	  }
@@ -267,12 +273,13 @@ function orderFillAddress(xml, type, fill_address) {
     document.getElementById(type+'_to_select').style.visibility      = 'visible';
     document.getElementById(type+'_to_select').disabled              = false;
   });
-  numRows = document.getElementById('item_table').rows.length;
-  for (i=1; i<numRows; i++) {
+  numRows = document.getElementById('item_table_body').rows.length;
+  for (i=1; i<=numRows; i++) {
 	if(document.getElementById('sku_'+i).value !=''){
   	  updateRowTotal(i, true);
 	}
   }
+  document.getElementById('sku').focus();
 }
 
 function fillOrder(xml) {
@@ -341,7 +348,16 @@ function accountGuess(force) {
   if (post_error) return; // leave the data there, since form was reloaded with failed post data
   if (document.getElementById('id').value) return; // if there's an id, it's an edit, return
   var warn = true;
-  var guess = document.getElementById('search').value;
+  var firstguess  = document.getElementById('copy_search').value; 
+  var secondguess = document.getElementById('search').value;
+  if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ){
+	AccountList();
+	return;
+  }
+  var guess = firstguess;
+  if( firstguess != secondguess && secondguess != text_search && secondguess != ''){
+	  guess = secondguess;
+  }
   // test for data already in the form
   if (guess != text_search && guess != '') {
     if (document.getElementById('bill_acct_id').value ||
@@ -352,7 +368,7 @@ function accountGuess(force) {
 	  $.ajax({
 		type: "GET",
 		contentType: "application/json; charset=utf-8",
-		url: 'index.php?module=phreepos&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess+'&jID='+journalID,
+		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -374,7 +390,17 @@ function processGuess(sXml) {
 }
 
 function AccountList(currObj) {
-  window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&form=orders&fill=bill&jID=19&search_text="+document.getElementById('search').value,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
+	var firstguess  = document.getElementById('copy_search').value; 
+	var secondguess = document.getElementById('search').value;
+	if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ){
+		AccountList();
+		return;
+	}
+	var guess = firstguess;
+	if( firstguess != secondguess && secondguess != text_search && secondguess != ''){
+		  guess = secondguess;
+	}
+  window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&form=orders&fill=bill&jID=19&search_text="+guess,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
 }
 
 function InventoryList(rowCnt) {
@@ -426,15 +452,15 @@ function fillAddress(type) {
 function addInvRow() {
   var newCell;
   var cell;
-  var newRow = document.getElementById('item_table').insertRow(-1);
+  var newRow = document.getElementById('item_table_body').insertRow(-1);
   var rowCnt = newRow.rowIndex;
   // NOTE: any change here also need to be made to template form for reload if action fails
   cell  = '<td align="center">';
   cell += buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"') + '</td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell  = '<td align="left"><input type="text" name="pstd_'+rowCnt+'" id="pstd_'+rowCnt+'" size="7" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
-  cell += '&nbsp;' + buildIcon(icon_path+'16x16/actions/tab-new.png', image_ser_num, 'onclick="serialList(\'serial_'+rowCnt+'\')"');
+  cell  = '<td align="left"><input type="text" name="pstd_'+rowCnt+'" id="pstd_'+rowCnt+'" size="5" maxlength="6" onchange="updateRowTotal('+rowCnt+', true)" style="text-align:right" />';
+  cell += '&nbsp;' + buildIcon(icon_path+'16x16/actions/tab-new.png', image_ser_num, 'onclick="serialList(\'serial_'+rowCnt+'\')" id="serial_'+rowCnt+'"');
   cell += '</td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
@@ -443,16 +469,17 @@ function addInvRow() {
   cell += '</td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
-  cell = '<td><input name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" readonly="readonly" size="50" maxlength="255" /></td>';
+  cell = '<td><input name="desc_'+rowCnt+'" id="desc_'+rowCnt+'" readonly="readonly" size="40" maxlength="255" style="text-overflow:ellipsis;"/></td>';
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
   if (display_with_tax) { 
-    cell  = '<td align="center"><input type="text" name="wtprice_'+rowCnt+'" id="wtprice_'+rowCnt+'" <?php if($security_level < 3) echo 'readonly="readonly"'; ?> size="10" maxlength="15" style="text-align:right" onchange="rowWithTax('+rowCnt+')" /></td>';
+    cell  = '<td align="center"><input type="text" name="wtprice_'+rowCnt+'" id="wtprice_'+rowCnt+'" <?php if($security_level < 3) echo 'readonly="readonly"'; ?> size="10" maxlength="15" style="text-align:right" onchange="rowWithTax('+rowCnt+')" value="'+formatted_zero+'"/></td>';
   }else{
-  	cell  = '<td align="center"><input type="text" name="price_'+rowCnt+'"   id="price_'+rowCnt+'"   <?php if($security_level < 3) echo 'readonly="readonly"'; ?> size="10" maxlength="15" style="text-align:right" onchange="updateRowTotal('+rowCnt+',false)" /></td>';
+  	cell  = '<td align="center"><input type="text" name="price_'+rowCnt+'"   id="price_'+rowCnt+'"   <?php if($security_level < 3) echo 'readonly="readonly"'; ?> size="10" maxlength="15" style="text-align:right" onchange="updateRowTotal('+rowCnt+',false)" value="'+formatted_zero+'"/></td>';
   }
   newCell = newRow.insertCell(-1);
   newCell.innerHTML = cell;
+  $('#serial_' +rowCnt).hide();
   cell  = '<td align="center">';
 // Hidden fields
   cell += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="" />';
@@ -462,15 +489,15 @@ function addInvRow() {
   cell += '<input type="hidden" name="full_'+rowCnt+'" id="full_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="'+default_inv_acct+'" />';
-  cell += '<input type="hidden" name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" value="" />';
+  cell += '<input type="hidden" name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" value="0" />';
   if (display_with_tax) { 
 	cell += '<input type="hidden" name="price_'+rowCnt+'" id="price_'+rowCnt+'" value="'+formatted_zero+'" />';
     cell += '<input type="hidden" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" />';
-    cell += '<input type="text" name="wttotal_'+rowCnt+'" id="wttotal_'+rowCnt+'" value="'+formatted_zero+'" readonly="readonly" size="11" maxlength="20" style="text-align:right" /></td>';
+    cell += '<input type="text" name="wttotal_'+rowCnt+'" id="wttotal_'+rowCnt+'" value="'+formatted_zero+'" readonly="readonly" size="10" maxlength="20" style="text-align:right" /></td>';
   }else{
 	cell += '<input type="hidden" name="wtprice_'+rowCnt+'" id="wtprice_'+rowCnt+'" value="'+formatted_zero+'" />';
     cell += '<input type="hidden" name="wttotal_'+rowCnt+'" id="wttotal_'+rowCnt+'" value="'+formatted_zero+'" />';
-    cell += '<input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'"   value="'+formatted_zero+'" readonly="readonly" size="11" maxlength="20" style="text-align:right" /></td>';
+    cell += '<input type="text" name="total_'+rowCnt+'" id="total_'+rowCnt+'"   value="'+formatted_zero+'" readonly="readonly" size="10" maxlength="20" style="text-align:right" /></td>';
   }
 // End hidden fields
   newCell = newRow.insertCell(-1);
@@ -481,14 +508,14 @@ function addInvRow() {
 function removeInvRow(index) {
   var i, acctIndex, offset, newOffset;
   var firstRow = false;
-  var numRows = document.getElementById('item_table').rows.length - 1;
+  var numRows = document.getElementById('item_table_body').rows.length;
   if (numRows == 1) firstRow = true;
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
 	// move the delete icon from the previous row
 	offset    = i+1;
 	newOffset = i;
-	document.getElementById('item_table').rows[newOffset].cells[0].innerHTML = delete_icon_HTML + i + ');">';
+	document.getElementById('item_table_body').rows[newOffset].cells[0].innerHTML = delete_icon_HTML + i + ');">';
 	document.getElementById('pstd_'+i).value     = document.getElementById('pstd_'+(i+1)).value;
 	document.getElementById('sku_'+i).value      = document.getElementById('sku_'+(i+1)).value;
 	document.getElementById('desc_'+i).value     = document.getElementById('desc_'+(i+1)).value;
@@ -507,7 +534,7 @@ function removeInvRow(index) {
 	document.getElementById('wttotal_'+i).value  = document.getElementById('wttotal_'+(i+1)).value;
 	document.getElementById('wtprice_'+i).value  = document.getElementById('wtprice_'+(i+1)).value;
   }
-  document.getElementById('item_table').deleteRow(-1);
+  document.getElementById('item_table_body').deleteRow(-1);
   updateTotalPrices();
   if (firstRow) addInvRow();
 } 
@@ -515,7 +542,7 @@ function removeInvRow(index) {
 function addPmtRow() {
   var newCell;
   var cell;
-  var newRow = document.getElementById('pmt_table').insertRow(-1);
+  var newRow = document.getElementById('payment_table_body').insertRow(-1);
   var rowCnt = newRow.rowIndex;
   // NOTE: any change here also need to be made to template form for reload if action fails
   cell  = '<td align="left">';
@@ -543,14 +570,14 @@ function addPmtRow() {
 function removePmtRow(index) {
   var i, acctIndex, offset, newOffset;
   var firstRow = false;
-  var numRows = document.getElementById('pmt_table').rows.length - 1;
+  var numRows = document.getElementById('payment_table_body').rows.length;
   if (numRows == 1) firstRow = true;
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
 	// move the delete icon from the previous row
 	offset    = i+1;
 	newOffset = i;
-	document.getElementById('pmt_table').rows[newOffset].cells[0].innerHTML = delete_icon_HTML_PMT + i + ');">';
+	document.getElementById('payment_table_body').rows[newOffset].cells[0].innerHTML = delete_icon_HTML_PMT + i + ');">';
 	document.getElementById('pdes_'+i).value = document.getElementById('pdes_'+(i+1)).value;
 // Hidden fields
 	document.getElementById('meth_'+i).value = document.getElementById('meth_'+(i+1)).value;
@@ -562,7 +589,7 @@ function removePmtRow(index) {
 // End hidden fields
 	document.getElementById('pmt_'+i).value  = document.getElementById('pmt_'+(i+1)).value;
   }
-  document.getElementById('pmt_table').deleteRow(-1);
+  document.getElementById('payment_table_body').deleteRow(-1);
   if (firstRow) addPmtRow();
   updateTotalPrices();
 } 
@@ -679,8 +706,9 @@ function updateTotalPrices() {
   var subtotal         = 0;
   var taxable_subtotal = 0;
   var lineTotal        = '';
-  var numRows = document.getElementById('item_table').rows.length;
-  for (var i=1; i<numRows; i++) {
+  var numRows          = document.getElementById('item_table_body').rows.length;
+  for (var i=1; i<=numRows; i++) {
+	var tax_index    = document.getElementById('tax_'+numRows).value;
     lineTotal  = parseFloat(cleanCurrency(document.getElementById('total_'+i).value));
   	if (document.getElementById('tax_'+i).value != '0') {
       tax_index = document.getElementById('tax_'+i).value;
@@ -698,9 +726,9 @@ function updateTotalPrices() {
   }
   // recalculate discount
   if (discount_from_total){
-	discount        = (discountPercent/100) * (subtotal + taxable_subtotal) ;
-  }else  {
-    discount        = subtotal * (discountPercent/100);
+	discount = (discountPercent/100) * (subtotal + taxable_subtotal) ;
+  } else  {
+    discount = subtotal * (discountPercent/100);
   }
   var strDiscount = new String(discount);
   document.getElementById('discount').value = formatCurrency(strDiscount);
@@ -711,9 +739,9 @@ function updateTotalPrices() {
   var new_total   = calculateRoundingOf(subtotal - discount + taxable_subtotal);
   var tot         = new String(new_total);
   document.getElementById('total').value = formatCurrency(tot);
-  var numRows     = document.getElementById('pmt_table').rows.length;
+  var numRows     = document.getElementById('payment_table_body').rows.length;
   var pmtTotal    = 0;
-  for (var i=1; i<numRows; i++) {
+  for (var i=1; i<=numRows; i++) {
     pmtTotal += parseFloat(cleanCurrency(document.getElementById('pmt_'+i).value));
   }
   document.getElementById('pmt_recvd').value = formatCurrency(pmtTotal);
@@ -722,6 +750,7 @@ function updateTotalPrices() {
 }
 
 function calculateDiscountPercent() {
+  document.getElementById('discount').value = formatted_zero ;
   var percent  = parseFloat(cleanCurrency(document.getElementById('disc_percent').value));
   if (discount_from_total){
     var Total = parseFloat(cleanCurrency(document.getElementById('total').value));
@@ -736,6 +765,7 @@ function calculateDiscountPercent() {
 
 function calculateDiscount() {
   // determine the discount percent
+  document.getElementById('disc_percent').value = formatted_zero ;
   var discount = parseFloat(cleanCurrency(document.getElementById('discount').value));
   if (isNaN(discount)) discount = 0;
   if (discount_from_total){
@@ -746,9 +776,7 @@ function calculateDiscount() {
   if (StartValue != 0) {
     var percent = 100000 * (1 - ((StartValue - discount) / StartValue));
     document.getElementById('disc_percent').value = formatCurrency(Math.round(percent) / 1000);
-  } else {
-  	document.getElementById('disc_percent').value = '0.00';
-  }
+  } 
   updateTotalPrices();
 }
 
@@ -757,12 +785,15 @@ function recalculateCurrencies() {
   var currentCurrency = document.getElementById('currencies_code').value;
   var currentValue = parseFloat(document.getElementById('currencies_value').value);
   var desiredCurrency = document.getElementById('display_currency').value;
-  for (var i=0; i<js_currency_codes.length; i++) {
-	if (js_currency_codes[i] == desiredCurrency) var newValue = js_currency_values[i];
-  }
+  var newValue = currency[desiredCurrency].value;
+  newdecimal_places  = currency[desiredCurrency].decimal_places;
+  newdecimal_precise = currency[desiredCurrency].decimal_precise;
+  newdecimal_point   = currency[desiredCurrency].decimal_point;
+  newthousands_point = currency[desiredCurrency].thousands_point;
   // update the line item table
-  var numRows = document.getElementById('item_table').rows.length;
-  for (var i=1; i<numRows; i++) {
+  var numRows = document.getElementById('item_table_body').rows.length;
+  for (var i=1; i<=numRows; i++) {
+	var tax_index    = document.getElementById('tax_'+numRows).value;
 	itemTotal = parseFloat(cleanCurrency(document.getElementById('total_'+i).value, currentCurrency));
 	var tax_index  = document.getElementById('tax_'+i).value;
 	if (isNaN(itemTotal)) continue;
@@ -770,33 +801,87 @@ function recalculateCurrencies() {
     newTotal = workingTotal * newValue;
 	workingUnitValue = newTotal / document.getElementById('pstd_'+i).value;
 	if (isNaN(workingUnitValue)) continue;
-	document.getElementById('total_'   +i).value    = formatCurrency(new String(newTotal), desiredCurrency);
-	document.getElementById('price_'   +i).value    = formatPrecise(new String(workingUnitValue), desiredCurrency);
-	updateRowTotal(i, false);
-	document.getElementById('wttotal_' +i).value    = formatCurrency(newTotal * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
-	document.getElementById('wtprice_' +i).value	= formatCurrency(workingUnitValue * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
+	document.getElementById('total_'   +i).value    = newformatCurrency(new String(newTotal), desiredCurrency);
+	document.getElementById('price_'   +i).value    = newformatPrecise(new String(workingUnitValue), desiredCurrency);
+	document.getElementById('wttotal_' +i).value    = newformatCurrency(newTotal * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
+	document.getElementById('wtprice_' +i).value	= newformatCurrency(workingUnitValue * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
+  }
+  var payNumRows     = document.getElementById('payment_table_body').rows.length;
+  for (var i=1; i<=payNumRows; i++) {
+    document.getElementById('pmt_'+i).value     = newformatCurrency(document.getElementById('pmt_'+i).value, desiredCurrency);
+  }
+  document.getElementById('disc_percent').value     = newformatPrecise(document.getElementById('disc_percent').value, desiredCurrency);
+  formatted_zero  = newformatPrecise(formatted_zero, desiredCurrency);
+  decimal_places  = currency[desiredCurrency].decimal_places;
+  decimal_precise = currency[desiredCurrency].decimal_precise;
+  decimal_point   = currency[desiredCurrency].decimal_point;
+  thousands_point = currency[desiredCurrency].thousands_point;
+  for (var i=1; i<=numRows; i++) {
+	  updateRowTotal(i, false);
   }
   updateTotalPrices();
   // prepare the page settings for post
   document.getElementById('currencies_code').value  = desiredCurrency;
   document.getElementById('currencies_value').value = new String(newValue);
+  
+}
+
+function newformatCurrency(amount) { // convert to expected currency format
+  // amount needs to be a string type with thousands separator ',' and decimal point dot '.' 
+  var factor  = Math.pow(10, newdecimal_places);
+  var adj     = Math.pow(10, (newdecimal_places+2)); // to fix rounding (i.e. .1499999999 rounding to 0.14 s/b 0.15)
+  var numExpr = parseFloat(amount);
+  if (isNaN(numExpr)) return amount;
+  numExpr     = Math.round((numExpr * factor) + (1/adj));
+  var minus   = (numExpr < 0) ? '-' : ''; 
+  numExpr     = Math.abs(numExpr);
+  var decimal = (numExpr % factor).toString();
+  while (decimal.length < newdecimal_places) decimal = '0' + decimal;
+  var whole   = Math.floor(numExpr / factor).toString();
+  for (var i = 0; i < Math.floor((whole.length-(1+i))/3); i++)
+    whole = whole.substring(0,whole.length-(4*i+3)) + newthousands_point + whole.substring(whole.length-(4*i+3));
+  if (newdecimal_places > 0) {
+    return minus + whole + newdecimal_point + decimal;
+  } else {
+	return minus + whole;
+  }
+}
+
+function newformatPrecise(amount) { // convert to expected currency format with the additional precision
+  // amount needs to be a string type with thousands separator ',' and decimal point dot '.' 
+  var factor = Math.pow(10, newdecimal_precise);
+  var numExpr = parseFloat(amount);
+  if (isNaN(numExpr)) return amount;
+  numExpr = Math.round(numExpr * factor);
+  var minus = (numExpr < 0) ? '-' : ''; 
+  numExpr = Math.abs(numExpr);
+  var decimal = (numExpr % factor).toString();
+  while (decimal.length < newdecimal_precise) decimal = '0' + decimal;
+  var whole = Math.floor(numExpr / factor).toString();
+  for (var i = 0; i < Math.floor((whole.length-(1+i))/3); i++)
+    whole = whole.substring(0,whole.length-(4*i+3)) + newthousands_point + whole.substring(whole.length-(4*i+3));
+  if (newdecimal_precise > 0) {
+    return minus + whole + newdecimal_point + decimal;
+  } else {
+	return minus + whole;
+  }
 }
 
 // AJAX auto load SKU pair
 function loadSkuDetails(iID, rowCnt) {
   var qty, sku;
-  if (document.getElementById('sku').value === text_search) return;
   // check to see if there is a sku present
   if (!iID) sku = document.getElementById('sku').value; // read the search field as the real value
-  if (sku == '') return;
+  if (!iID && (sku == '' || sku === text_search)) return;
   // search if item is aready present then increment it by one
-  var numRows = document.getElementById('item_table').rows.length;
+  var numRows = document.getElementById('item_table_body').rows.length;
   var qty = 1;
-  for (var i=1; i<numRows; i++) {
+  var rowCnt = 0;
+  for (var i=1; i<=numRows; i++) {
 	if (document.getElementById('sku_' +i).value == sku ){
 	  qty = document.getElementById('pstd_' +i).value;
 	  qty++;
-	  var rowCnt = i;
+	  rowCnt = i;
 	}
   }
   var cID = document.getElementById('bill_acct_id').value;
@@ -814,19 +899,22 @@ function loadSkuDetails(iID, rowCnt) {
 }
 
 function fillInventory(sXml) {
-  var text   = '';
+  var image   = '';
   var newRow = false;
   var exchange_rate = document.getElementById('currencies_value').value;
   var xml    = parseXml(sXml);
   if (!xml) return;
   var sku    = $(xml).find("sku").first().text(); // only the first find, avoids bom add-ons
-  if (!sku) return;
+  if (!sku) {
+	  InventoryList(0);
+	  return;
+  }
   var qty    = parseFloat($(xml).find("qty").first().text());
   var negate = <?php echo $action=='pos_return' ? 'true' : 'false'; ?>;
   if (negate) qty = -qty;
   var rowCnt = $(xml).find("rID").text();
   if (!rowCnt) {
-	  rowCnt = document.getElementById('item_table').rows.length - 1;
+	  rowCnt = document.getElementById('item_table_body').rows.length;
 	  newRow = true;
   }
   document.getElementById('sku_'     +rowCnt).value       = sku;
@@ -837,6 +925,9 @@ function fillInventory(sXml) {
   document.getElementById('acct_'    +rowCnt).value       = $(xml).find("account_sales_income").text();
   document.getElementById('price_'   +rowCnt).value       = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
   document.getElementById('wtprice_' +rowCnt).value       = formatCurrency(($(xml).find("sales_price").text() * exchange_rate)* (1+(tax_rates[$(xml).find("item_taxable").text()].rate / 100)));
+  if($(xml).find("inventory_type").text() == 'sr' || $(xml).find("inventory_type").text() == 'sa') {
+  		$('#serial_' +rowCnt).show();
+  }
   if(default_sales_tax == -1) document.getElementById('tax_'   +rowCnt).value     = $(xml).find("item_taxable").text();
   if ($(xml).find("description_sales").text()) {
     document.getElementById('desc_'  +rowCnt).value       = $(xml).find("description_sales").text();
@@ -847,11 +938,26 @@ function fillInventory(sXml) {
   if(newRow == true) setId = addInvRow();
   document.getElementById('sku').focus();
   document.getElementById('sku').value = '';
-//Image handler  
-  test = "<?php echo DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' ?>"+ $(xml).find('image_with_path').text();
-  $('#inv_popup > img').attr('src', test);
-  $('#curr_image').attr('src', test);
-  $('#inv_popup').dialog({ autoOpen:false, width:800 });
+//Image handler
+  if($(xml).find('image_with_path').text() != ''){
+	  image = "<?php echo DIR_WS_MY_FILES . $_SESSION['company'] . '/inventory/images/' ?>"+ $(xml).find('image_with_path').text();
+  }
+  setImage(image);
+}
+function changeOfTill(){
+	var tillId = document.getElementById('till_id').value;
+	if( tills[tillId].restrictCurrency == '1'){
+		$('#display_currency').attr("disabled", true);
+	}else{
+		$('#display_currency').attr("disabled", false);
+	}
+	document.getElementById('display_currency').value = tills[tillId].currenciesCode;
+	recalculateCurrencies();
+	if(tills[tillId].openDrawer == ''){
+		$('#tb_icon_open_drawer').hide();
+	}else{
+		$('#tb_icon_open_drawer').show();
+	}
 }
 
 function monitorPrinting() {
@@ -863,9 +969,6 @@ function monitorPrinting() {
       var e = applet.getException();
       if (e != null) {
 	    alert("Exception occured: " + e.getLocalizedMessage());
-//	  } else {
-//	    window.opener.location.reload();
-//	    self.close();
 	  }
     }
   } else {
@@ -960,7 +1063,7 @@ function parseCard() {
 }
 
 function SavePayment(PrintOrSave) { // request function
-  var amount = document.getElementById('amount').value;
+  var amount = cleanCurrency(document.getElementById('amount').value);
   var index  = document.getElementById('payment_method').selectedIndex;
   var method = document.getElementById('payment_method').options[index].value;
   var f0 = document.getElementById(method+'_field_0') ? document.getElementById(method+'_field_0').value : '';
@@ -968,10 +1071,10 @@ function SavePayment(PrintOrSave) { // request function
   var f2 = document.getElementById(method+'_field_2') ? document.getElementById(method+'_field_2').value : '';
   var f3 = document.getElementById(method+'_field_3') ? document.getElementById(method+'_field_3').value : '';
   var f4 = document.getElementById(method+'_field_4') ? document.getElementById(method+'_field_4').value : '';
-  var numRows = document.getElementById('pmt_table').rows.length - 1;
+  var numRows = document.getElementById('payment_table_body').rows.length;
   document.getElementById('pdes_'+numRows).value = pmt_types[method];
   document.getElementById('meth_'+numRows).value = method;
-  document.getElementById('pmt_'+numRows).value  = amount;
+  document.getElementById('pmt_'+numRows).value  = formatCurrency(amount);
   document.getElementById('f0_'+numRows).value   = f0;
   document.getElementById('f1_'+numRows).value   = f1;
   document.getElementById('f2_'+numRows).value   = f2;
@@ -1006,53 +1109,36 @@ function ajaxSave(PrintOrSave){
 
 //java label printing
 function ajaxPrintAndClean(sXml) { // call back function
-  save_allowed = true;
-  var xml = parseXml(sXml);
-  var applet = document.jZebra;
-  if (!xml) return;
-  var massage 		= $(xml).find("massage").text();
-  if ( massage ) alert( massage );
-  var action 		= $(xml).find("action").text();
-  var opendrawer   	= $(xml).find("open_cash_drawer").text(); 
-  var print 		= action.substring(0,5) == 'print';
-  if ( print && applet != null ) { 
-		<?php 
-		if (defined('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE') && PHREEPOS_RECEIPT_PRINTER_STARTING_LINE <> '') {
-	      foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_STARTING_LINE) as $key=>$line) {
-		    $temp = '';
-		    foreach(explode(":",$line) as $key=>$char) {
-		      $temp .=chr($char);
-		    }
-		    echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-		  }
+	save_allowed = true;
+  	var xml = parseXml(sXml);
+  	var applet = document.jZebra;
+  	if (!xml) return;
+  	var massage 	= $(xml).find("massage").text();
+  	if ( massage ) 	  alert( massage );
+  	var action 		= $(xml).find("action").text();
+  	var print 		= action.substring(0,5) == 'print';
+  	var tillId 		= document.getElementById('till_id').value;
+  	if ( print && applet != null && tills[tillId].printer != '') {	
+		applet.findPrinter(tills[tillId].printer);
+		for(var i in tills[tillId].startingLine){
+			applet.append(tills[tillId].startingLine[i]);
 		}
-		?>
-		$(xml).find("receipt_data").each(function() {
-			applet.append($(this).find("line").text() + "\n");
-		});
-		if (opendrawer == true){
-<?php       foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER) as $key=>$line) {
-				$temp = '';
-			   	foreach(explode(":",$line) as $key=>$char) $temp .=chr($char);
-			    	echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-				} ?>
-			
+	    $(xml).find("receipt_data").each(function() {
+	    	applet.append($(this).find("line").text() + "\n");
+	    });
+	    if ($(xml).find("open_cash_drawer").text() == 1){
+			for(var i in tills[tillId].openDrawer){
+				applet.append(tills[tillId].openDrawer[i]);
+			}
 		}
-		<?php 
-		if (defined('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE') && PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE <> '') {
-			foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE) as $key=>$line) {
-				$temp = '';
-		    	foreach(explode(":",$line) as $key=>$char) {
-			  		$temp .=chr($char);
-		     		}
-		    	echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-		  	}
-		}				?>
-		applet.print();
-		monitorPrinting();
-	}else if( print ){
+        for(var i in tills[tillId].closingLine){
+			applet.append(tills[tillId].closingLine[i]);
+		}
+        applet.print();
+        monitorPrinting();
+    }else if( print ){
 		var order_id = $(xml).find("order_id").text();
-		var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID= <?php echo POPUP_FORM_TYPE;?> &date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
+		var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"popup_gen","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
 		printWin.focus();	
 	}
 	resetForm();
@@ -1080,69 +1166,81 @@ function PrintPreviousReceipt(sXml) { // call back function
 	  if (!xml) return;
 	  var massage = $(xml).find("massage").text();
 	  if ( massage ) alert( massage );
-	  if (applet != null) { 
-	        <?php 
-	        if (defined('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE') && PHREEPOS_RECEIPT_PRINTER_STARTING_LINE <> '') {
-	          foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_STARTING_LINE) as $key=>$line) {
-	            $temp = '';
-	            foreach(explode(":",$line) as $key=>$char) {
-	              $temp .=chr($char);
-	            }
-	            echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-	          }
-	        }
-	        ?>
+	  var tillId = document.getElementById('till_id').value;
+	  var applet = document.jZebra;
+	  if (applet != null && tills[tillId].printer != '') {
+			applet.findPrinter(tills[tillId].printer);
+			for(var i in tills[tillId].startingLine){
+				applet.append(tills[tillId].startingLine[i]);
+			}
 	        $(xml).find("receipt_data").each(function() {
 	            applet.append($(this).find("line").text() + "\n");
 	        });
 			if ($(xml).find("open_cash_drawer").text() == 1){
-		        <?php 
-		        if (defined('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER') && PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER <> '') {
-		            foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER) as $key=>$line) {
-		                $temp = '';
-		                foreach(explode(":",$line) as $key=>$char) $temp .=chr($char);
-		                echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-		            }
-		        }
-		        ?>
-
+		        for(var i in tills[tillId].openDrawer){
+					applet.append(tills[tillId].openDrawer[i]);
+				}
 			}
-	        <?php 
-	        if (defined('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE') && PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE <> '') {
-	            foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE) as $key=>$line) {
-	                $temp = '';
-	                foreach(explode(":",$line) as $key=>$char) {
-	                    $temp .=chr($char);
-	                    }
-	                echo'applet.append("'.$temp .'"+"\n");'.chr(13);
-	            }
-	        }               ?>
+	        for(var i in tills[tillId].closingLine){
+				applet.append(tills[tillId].closingLine[i]);
+			}
 	        applet.print();
 	        monitorPrinting();
-	    }else{
+	    } else {
 	        var order_id = $(xml).find("order_id").text();
-	        var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID= <?php echo POPUP_FORM_TYPE;?> &date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
+	        var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
 	        printWin.focus();   
 	    }
 	}
 
 function OpenDrawer(){
+	var tillId = document.getElementById('till_id').value;
 	var applet = document.jZebra;
-	if (applet != null) {
-	<?php        
-		foreach(explode(",",PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER) as $key=>$line) {
-			$temp = '';
-	    	foreach(explode(":",$line) as $key=>$char) $temp .=chr($char);
-	    	echo'applet.append("'.$temp .'"+"\n");'.chr(13);
+	if ( applet != null && tills[tillId].printer != '') {
+		applet.findPrinter(tills[tillId].printer);
+		for(var i in tills[tillId].openDrawer){
+			applet.append(tills[tillId].openDrawer[i] + "\n");
 		}
-	?>
 		applet.print();
 	}
 }
 //<!-- javascript for ajax popup
 
-//0 means disabled; 1 means enabled;  
-var popupStatus = 0;  
+
+var popupStatus = 0;  //0 means disabled; 1 means enabled;  
+
+//loading popup with jQuery magic!  
+function popupContact(){ 
+	if (document.getElementById('bill_acct_id').value == ''){
+		accountGuess(false);
+		return;
+	}
+	//loads popup only if it is disabled
+	if(popupStatus==0){  
+		$("#backgroundPopup").fadeIn("slow");  
+		$("#customer_div").fadeIn("slow");  
+		popupStatus = 1;
+	}
+	var windowWidth = document.documentElement.clientWidth;  
+	var windowHeight = document.documentElement.clientHeight;  
+	var popupHeight = $("#customer_div").height();  
+	var popupWidth = $("#customer_div").width();  
+	//centering  
+	$("#customer_div").css({  
+		"position": "absolute",
+		"top": windowHeight/2-popupHeight/2,  
+		"left": windowWidth/2-popupWidth/2  
+	});  
+	$("#backgroundPopup").css({
+		"position": "absolute",
+		"opacity": "0.7",
+		"background":"#000000",  
+		"top": "0px",  
+		"left": "0px",
+		"height": windowHeight,  
+		"width":  windowWidth	  
+	});
+}  
 
 //loading popup with jQuery magic!  
 function popupPayment(){  
@@ -1155,20 +1253,6 @@ function popupPayment(){
 		activateFields();
 		document.getElementById('amount').select();
 	}
-}  
-
-//disabling popup with jQuery magic!  
-function disablePopup(){  
-	//disables popup only if it is enabled  
-	if(popupStatus==1){  
-		$("#backgroundPopup").fadeOut("slow");  
-		$("#popupPayment").fadeOut("slow");  
-		popupStatus = 0;  
-	}  
-}  
-
-//centering popup  
-function centerPopup(){  
 	//request data for centering  
 	var windowWidth = document.documentElement.clientWidth;  
 	var windowHeight = document.documentElement.clientHeight;  
@@ -1189,114 +1273,112 @@ function centerPopup(){
 		"height": windowHeight,  
 		"width":windowWidth	  
 	});
-
+	
 }  
+
+//disabling popup with jQuery magic!  
+function disablePopup(){  
+	//disables popup only if it is enabled  
+	if(popupStatus==1){  
+		$("#backgroundPopup").fadeOut("slow");  
+		$("#popupPayment").fadeOut("slow"); 
+		$("#customer_div").fadeOut("slow");
+		popupStatus = 0;  
+	}  
+}  
+
 // image functions
-function showImage() {
-    $('#inv_popup').dialog('open'); 
+
+function setImage(src){
+	if (src == ''){
+		$('#curr_image').hide();
+	}else{
+		$('#curr_image').show();
+		$('#curr_image').attr('src', src);
+	}
+	
 }
 
-$(document).ready(function(){
-//CLOSING POPUP  
-//Click out event!  
+$(document).ready(function(){ 
 	$("#backgroundPopup").click(function(){
 		disablePopup();  
+	});
+
+	$("#amount").keydown(function(event) {
+		if (event.keyCode == 13) SavePayment('save');
 	});
 	  
 });
 
 //Press Escape event!  
-$(document).keydown(function(e){  
-	if(e.keyCode==27 && popupStatus==1){
-		e.preventDefault();
-		// if esc is pressed and the payment popup is shown it will close the payment popup  
-		disablePopup(); 
-		e.originalEvent.keyCode = 0; 
+$(document).keydown(function(event){
+	
+	if (event.altKey && event.keyCode == 82) {
+		event.preventDefault();
+		// if alt + r then redirect to template return
+		if (location.search === '?module=phreepos&page=main'){
+			submitToDo('pos_return');
+		}else{
+			window.location.assign('?module=phreepos&page=main');
+		}
+		event.originalEvent.keyCode = 0;  
+	}
+		
+	if(event.keyCode==27){
+		event.preventDefault();
+		if(popupStatus==1){
+			// 	if esc is pressed and the payment popup is shown it will close the payment popup  
+			disablePopup();
+		}else{
+			// 	if esc is pressed and the payment popup is NOT shown the form will be emptyed.
+			resetForm();
+		} 
+		event.originalEvent.keyCode = 0; 
 	}  
-	if(e.keyCode==112 && popupStatus==0){
-		e.preventDefault();
-		// if F1 is pressed the inventory search popup will be shown
+	if(event.keyCode==118 && popupStatus==0){
+		event.preventDefault();
+		// if F7 is pressed the inventory search popup will be shown
 		InventoryList(0);
-		e.originalEvent.keyCode = 0;
+		event.originalEvent.keyCode = 0;
 	}
-	if(e.keyCode==113 && popupStatus==0){
-		e.preventDefault();
-		// if F2 is pressed the customer search popup will be shown
-		accountGuess(true);
-		e.originalEvent.keyCode = 0;
+	if(event.keyCode==119 && popupStatus==0){
+		event.preventDefault();
+		// if F8 is pressed the customer search popup will be shown
+		popupContact();
+		event.originalEvent.keyCode = 0;
 	}
-	if(e.keyCode==114 && popupStatus==0){
-		e.preventDefault();
-		// if F3 is pressed the payment popup will be shown
-		centerPopup();
+	if(event.keyCode==120 && popupStatus==0){
+		event.preventDefault();
+		// if F9 is pressed the payment popup will be shown
 		popupPayment();
-		e.originalEvent.keyCode = 0;
+		event.originalEvent.keyCode = 0;
 	}
 	
-	if(e.keyCode==118 && popupStatus==1){
-		e.preventDefault();
-		// if F7 is pressed and the payment popup is shown the transaction will be saved not printed
-		SavePayment('save');
-		e.originalEvent.keyCode = 0;
+	if(event.keyCode==122){
+		event.preventDefault();
+		if (popupStatus==1){
+			// if F11 is pressed and the payment popup is shown the transaction will be saved not printed
+			SavePayment('save');
+		}else{
+			// if F11 is pressed and the payment popup is not shown the payment popup will be shown
+			popupPayment();
+		}	
+		event.originalEvent.keyCode = 0;
 	}
-	if(e.keyCode==119 && popupStatus==1){
-		e.preventDefault();
-		// if F8 is pressed and the payment popup is shown the transaction will be saved and printed
-		SavePayment('print');
-		e.originalEvent.keyCode = 0;
+	if(event.keyCode==123){
+		event.preventDefault();
+		if (popupStatus==1){
+			// if F12 is pressed and the payment popup is shown the transaction will be saved and printed
+			SavePayment('print');
+		}else{
+			//if F11 is pressed and the payment popup is not shown the payment popup will be shown
+			popupPayment();
+		}	
+		event.originalEvent.keyCode = 0;
 	}
 });  
-//-->
+
 
 </script>
-<style>
-h1{
-	position:fixed;
-    _position:absolute; /* hack for internet explorer 6*/ 
-    left:350px;  
-    top:0px;
-    margin-top: -5px;
-    font-size:3em; 
-}
+<link rel="stylesheet" type="text/css" href="modules/phreepos/style_sheet/main.css" />
 
-#inv_image{
-    position:fixed;
-    _position:absolute; /* hack for internet explorer 6*/ 
-    left:400px;  
-    top:35px;  
-    border:1px solid #cecece;
-}
-<!-- styles for ajax popup
-
-#backgroundPopup{
-	display:none;
-	position:fixed;
-	_position:absolute; /* hack for internet explorer 6*/ 
-	border:1px solid #cecece;
-	z-index:10;
-}
-#popupPayment{    
-	display:none;  
-	position:fixed;  
-	_position:absolute; /* hack for internet explorer 6*/  
-	height:400px;  
-	width:408px;  
-	background:#FFFFFF;  
-	border:2px solid #cecece;  
-	z-index:20;  
-	padding:12px;  
-	font-size:13px;  
-}  
-
-#popupPaymentClose{  
-	font-size:14px;  
-	line-height:14px;  
-	right:6px;  
-	top:4px;  
-	position:absolute;  
-	color:#6fa5fd;  
-	font-weight:700;  
-	display:block;  
-}  
--->
-</style>

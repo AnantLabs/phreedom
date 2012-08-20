@@ -57,7 +57,7 @@ if (file_exists($custom_path)) { include($custom_path); }
 	if ($security_level < 2) {
 	  $error .= ERROR_NO_PERMISSION;
 	}
-	$tills->get_till_info(db_prepare_input($_POST['till_id']));
+	$tills->get_till_info($_POST['till_id']);
 	// load bill to and ship to information
 	$order->short_name          = db_prepare_input(($_POST['search'] <> TEXT_SEARCH) ? $_POST['search'] : '');
 	$order->bill_add_update     = isset($_POST['bill_add_update']) ? $_POST['bill_add_update'] : 0;
@@ -186,8 +186,9 @@ if (file_exists($custom_path)) { include($custom_path); }
 		$error .= GL_ERROR_NO_ITEMS;
 	}
 	// Payment errors 
-	if ($tot_paid < ($order->total_amount + db_prepare_input($_POST['rounded_of']))) { 
-	  $error .= 'The total payment was not greater than or equal to the order!';
+	if ($currencies->clean_value(db_prepare_input($_POST['bal_due']),  $order->currencies_code) / $order->currencies_value <> $currencies->clean_value(0)) {
+	  $error .= 'The total payment was not equal to the order total!'. chr(10);
+	  $error .=$tot_paid .' + '. $order->rounding_amt.' + '. $order->total_amount;
 	}
 	// End of error checking, process the order
 	if (!$error) { // Post the order
@@ -203,9 +204,11 @@ if (file_exists($custom_path)) { include($custom_path); }
 	}
 	
 	//print
-    if (!$error && defined('PHREEPOS_RECEIPT_PRINTER_NAME') && PHREEPOS_RECEIPT_PRINTER_NAME <> '') {
-	  $result = $db->Execute("select id from " . TABLE_PHREEFORM . " 
-		where doc_group = '" . POPUP_FORM_TYPE . "' and doc_ext = 'frm'");
+	$result = $db->Execute("select id from " . TABLE_PHREEFORM . " where doc_group = '" . POPUP_FORM_TYPE . "' and doc_ext = 'frm'");
+    if ($result->RecordCount() == 0) {
+	    $error .= 'No form was found for this type ('.POPUP_FORM_TYPE.'). ';
+	}
+    if (!$error ) { 
 	  if ($result->RecordCount() > 1) {
 	    $massage .= 'More than one form was found for this type ('.POPUP_FORM_TYPE.'). Using the first form found.';
 	  }

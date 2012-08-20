@@ -38,11 +38,13 @@ class pos_builder {
 	$this->load_account_details($this->bill_acct_id);
 	// convert particular values indexed by id to common name
 	if ($this->rep_id) {
-	  $sql = "select contact_first, contact_last from " . TABLE_CONTACTS . " where id = " . $this->rep_id;
+	  $sql = "select short_name, contact_first, contact_last from " . TABLE_CONTACTS . " where id = " . $this->rep_id;
 	  $result = $db->Execute($sql);
-	  $this->rep_id = $result->fields['contact_first'] . ' ' . $result->fields['contact_last'];
+	  $this->rep_id  = $result->fields['short_name'] ;
+	  $this->rep_name = $result->fields['contact_first'] . ' ' . $result->fields['contact_last'];
 	} else {
-	  $this->rep_id = '';
+	  $this->rep_id   = '';
+	  $this->rep_name = '';
 	}
 	$terms_date = calculate_terms_due_dates($this->post_date, $this->terms);
 	$this->payment_due_date = $terms_date['net_date'];
@@ -236,7 +238,8 @@ class pos_builder {
 	$output[] = array('id' => 'currencies_code',     'text' => RW_EB_CUR_CODE);
 	$output[] = array('id' => 'currencies_value',    'text' => RW_EB_CUR_EXC_RATE);
 	$output[] = array('id' => 'purchase_invoice_id', 'text' => RW_EB_INV_NUM);
-	$output[] = array('id' => 'rep_id',              'text' => RW_EB_SALES_REP);
+	$output[] = array('id' => 'rep_id',              'text' => RW_EB_SALES_REP_ID);
+	$output[] = array('id' => 'rep_name',            'text' => RW_EB_SALES_REP);
 	$output[] = array('id' => 'gl_acct_id',          'text' => RW_EB_AR_ACCT);
 	$output[] = array('id' => 'bill_acct_id',        'text' => RW_EB_BILL_ACCT_ID);
 	$output[] = array('id' => 'bill_address_id',     'text' => RW_EB_BILL_ADD_ID);

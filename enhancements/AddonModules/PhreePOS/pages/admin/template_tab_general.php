@@ -29,22 +29,6 @@
 		<td><?php echo html_pull_down_menu('phreepos_require_address', $sel_yes_no, $_POST['phreepos_require_address'] ? $_POST['phreepos_require_address'] : PHREEPOS_REQUIRE_ADDRESS, ''); ?></td>
 	  </tr>
 	  <tr>
-		<td><?php echo PHREEPOS_RECEIPT_PRINTER_NAME_DESC; ?></td>
-		<td><?php echo html_input_field('phreepos_receipt_printer_name', $_POST['phreepos_receipt_printer_name'] ? $_POST['phreepos_receipt_printer_name'] : PHREEPOS_RECEIPT_PRINTER_NAME, ''); ?></td>
-	  </tr>
-	  <tr>
-		<td><?php echo PHREEPOS_RECEIPT_PRINTER_STARTING_LINE_DESC ?></td>
-		<td><?php echo html_input_field('phreepos_receipt_printer_starting_line', $_POST['phreepos_receipt_printer_starting_line'] ? $_POST['phreepos_receipt_printer_starting_line'] : PHREEPOS_RECEIPT_PRINTER_STARTING_LINE, ''); ?></td>
-	  </tr>	  
-	  <tr>
-		<td><?php echo PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE_DESC ?><br><a href="<?php echo DIR_WS_ADMIN.'modules/phreepos/printer_codes.htm'?>">opening drawer codes</a></td>
-		<td><?php echo html_input_field('phreepos_receipt_printer_closing_line', $_POST['phreepos_receipt_printer_closing_line'] ? $_POST['phreepos_receipt_printer_closing_line'] : PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE, ''); ?></td>
-	  </tr>  
-	  <tr>
-		<td><?php echo PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC ?></td>
-		<td><?php echo html_input_field('phreepos_receipt_printer_open_drawer', $_POST['phreepos_receipt_printer_open_drawer'] ? $_POST['phreepos_receipt_printer_open_drawer'] : PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER, ''); ?></td>
-	  </tr>  
-	  <tr>
 		<td><?php echo PHREEPOS_DISPLAY_WITH_TAX_DESC ?></td>
 		<td><?php echo html_pull_down_menu('phreepos_display_with_tax', $sel_yes_no, $_POST['phreepos_display_with_tax'] ? $_POST['phreepos_display_with_tax'] : PHREEPOS_DISPLAY_WITH_TAX, '1'); ?></td>
 	  </tr>

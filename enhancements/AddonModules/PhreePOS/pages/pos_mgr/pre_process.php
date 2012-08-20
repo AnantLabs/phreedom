@@ -25,7 +25,7 @@ require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 /**************   page specific initialization  *************************/
 define('POPUP_FORM_TYPE','pos:rcpt');
 $error          = false;
-$date           = ($_GET['search_date'])    ? gen_db_date($_GET['search_date']) : false;
+$date           = ($_POST['search_date'])    ? gen_db_date($_POST['search_date']) : false;
 $acct_period    = ($_POST['search_period']) ? $_POST['search_period']           : false;
 $search_text    = ($_POST['search_text'])   ? db_input($_POST['search_text'])   : db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
@@ -99,17 +99,27 @@ if (!isset($_POST['sort_field'])) {
 	$_POST['sort_field'] = 'post_date'; 
 	$_POST['sort_order'] = 'desc';// default to descending by postdate
 }
-$heading_array = array(
-  'post_date'           => TEXT_DATE,
-  'purchase_invoice_id' => TEXT_INVOICE,
-  'total_amount'        => TEXT_AMOUNT,
-  'bill_primary_name'   => GEN_PRIMARY_NAME,
-);
+if (ENABLE_MULTI_CURRENCY){
+	$heading_array = array(
+	  'post_date'           => TEXT_DATE,
+	  'purchase_invoice_id' => TEXT_INVOICE,
+	  'total_amount'        => TEXT_AMOUNT,
+	  'new_total_amount'    => TEXT_AMOUNT_ORIGINAL_CURRENCY,
+	  'bill_primary_name'   => GEN_PRIMARY_NAME,
+	);
+}else{
+	$heading_array = array(
+	  'post_date'           => TEXT_DATE,
+	  'purchase_invoice_id' => TEXT_INVOICE,
+	  'total_amount'        => TEXT_AMOUNT,
+	  'bill_primary_name'   => GEN_PRIMARY_NAME,
+	);
+}
 $result      = html_heading_bar($heading_array, $_POST['sort_field'], $_POST['sort_order'], array(TEXT_ACTION));
 $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 // build the list for the page selected
-if (!$date == false && $acct_period == false){
+if (!$date == false){
 	$period_filter = (" and post_date = '" . $date."'");
 	$acct_period   = '';
 }else{
@@ -125,7 +135,7 @@ if (isset($search_text) && $search_text <> '') {
 } else {
   $search = '';
 }
-$field_list = array('id', 'post_date', 'shipper_code', 'purchase_invoice_id', 'total_amount', 'bill_primary_name', 'journal_id' ,'currencies_code', 'currencies_value');
+$field_list = array('id', 'post_date', 'shipper_code', 'purchase_invoice_id', 'total_amount', 'bill_primary_name', 'journal_id', 'currencies_code', 'currencies_value','total_amount as new_total_amount');
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 $query_raw = "select " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 

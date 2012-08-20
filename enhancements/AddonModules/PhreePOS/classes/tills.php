@@ -24,7 +24,12 @@ class tills {
     public $error       = false;
     
     public function __construct(){
-         $this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
+         $this->security_id           = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
+         $this->printer_name          = PHREEPOS_RECEIPT_PRINTER_NAME;
+         $this->currencies_code       = DEFAULT_CURRENCY;
+         $this->printer_starting_line = PHREEPOS_RECEIPT_PRINTER_STARTING_LINE;
+         $this->printer_closing_line  = PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE;
+         $this->printer_open_drawer   = PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER;
          foreach ($_POST as $key => $value) $this->$key = $value;
          $this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
          $this->store_ids = gen_get_store_ids();
@@ -36,16 +41,28 @@ class tills {
 		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
 		return false;
 	}
-	if ($this->gl_acct_id ==''){
+	if ($this->gl_acct_id == ''){
 		$messageStack->add(GL_SELECT_STD_CHART,'error');
 		return false;
 	}
 	$sql_data_array = array(
-		'description' 		   => $this->description,
-		'store_id'    		   => $this->store_id,
-		'gl_acct_id'  		   => $this->gl_acct_id,
-		'rounding_gl_acct_id'  => $this->rounding_gl_acct_id,
+		'description' 		    => $this->description,
+		'store_id'    		    => $this->store_id,
+		'gl_acct_id'  		    => $this->gl_acct_id,
+		'dif_gl_acct_id'		=> $this->dif_gl_acct_id,
+		'rounding_gl_acct_id'   => $this->rounding_gl_acct_id,
+		'printer_name'			=> $this->printer_name,
+		'printer_starting_line' => $this->printer_starting_line,
+		'printer_closing_line' 	=> $this->printer_closing_line,
+		'printer_open_drawer' 	=> $this->printer_open_drawer,
 	);
+	if (ENABLE_MULTI_CURRENCY) {
+		$sql_data_array['currencies_code']   = $this->currencies_code;
+		$sql_data_array['restrict_currency'] = $this->restrict_currency;
+	}else{
+		$sql_data_array['currencies_code']   = DEFAULT_CURRENCY;
+		$sql_data_array['restrict_currency'] = 1;
+	}
     if ($id) {
 	  db_perform($this->db_table, $sql_data_array, 'update', "till_id = '" . $id . "'");
 	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_UPDATE, $this->description);
@@ -132,11 +149,48 @@ class tills {
 	$output .= '    <td>' . TEXT_GL_ACCOUNT . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(0)), $this->gl_acct_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
+	//end of the day differences
 	$output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . TEXT_DIF_GL_ACCOUNT . '</td>' . chr(10);
+	$output .= '    <td>' . html_pull_down_menu('dif_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->dif_gl_acct_id) . '</td>' . chr(10);
+    $output .= '  </tr>' . chr(10);
+	//end end of the day differences
+    $output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . TEXT_GL_ACCOUNT_ROUNDING . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('rounding_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->rounding_gl_acct_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-    $output .= '  </tbody>' . "\n";
+    //default currency
+    if (ENABLE_MULTI_CURRENCY) {	// show currency slection pulldown
+    	$output .= '  <tr>' . chr(10);
+		$output .= '    <td>' . TEXT_CURRENCY . '</td>' . chr(10);
+		$output .= '    <td>' . html_pull_down_menu('currencies_code', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $this->currencies_code) . '</td>' . chr(10);
+    	$output .= '  </tr>' . chr(10);
+    	//restrict to this currency
+    	$output .= '  <tr>' . chr(10);
+		$output .= '    <td>' . TEXT_RESTRICT_CURRENCY . '</td>'  . chr(10);
+		$output .= '    <td>' . html_checkbox_field('restrict_currency', '1', $this->restrict_currency) . '</td>'  . chr(10);
+    	$output .= '  </tr>' . chr(10);
+    }
+    //end default currency
+    //printer information
+	$output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . PHREEPOS_RECEIPT_PRINTER_NAME_DESC  . '<br><br></td>' . chr(10);
+	$output .= '    <td>' . html_input_field('printer_name', $this->printer_name) . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+	$output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . PHREEPOS_RECEIPT_PRINTER_STARTING_LINE_DESC  . '<br><br></td>' . chr(10);
+	$output .= '    <td>' . html_input_field('printer_starting_line', $this->printer_starting_line) . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+	$output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE_DESC . '<a href="' . DIR_WS_ADMIN.'modules/phreepos/printer_codes.htm">'. TEXT_DRAWER_CODES . '</a> <br><br></td>' . chr(10);
+	$output .= '    <td>' . html_input_field('printer_closing_line', $this->printer_closing_line) . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+	$output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC  . '<br><br></td>' . chr(10);
+	$output .= '    <td>' . html_input_field('printer_open_drawer', $this->printer_open_drawer) . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+    //end printer information
+    $output .= '  </tbody>' . chr(10);
     $output .= '</table>' . chr(10);
     return $output;
   }
@@ -162,13 +216,14 @@ class tills {
     return $result->fields['till_id'];
   }
   
-  function till_array(){
+  function till_array($inc_select = false){
   	global $db;
   	foreach ($this->store_ids as $store){
   		$temp[]= $store['id'];
   	}
   	$sql = "select till_id, description from " . $this->db_table . " where store_id in (" . implode(',', $temp) . ")";
     $result = $db->Execute($sql);
+    if ($inc_select) $result_array[] = array('id' => '0', 'text' => GEN_HEADING_PLEASE_SELECT);
     while(!$result->EOF){
     	$result_array[] = array('id' => $result->fields['till_id'], 'text' => $result->fields['description']);
     	$result->MoveNext();
@@ -183,8 +238,52 @@ class tills {
     foreach ($result->fields as $key => $value) $this->$key = $value;
   }
   
+  function get_default_till_info(){
+  	global $db;
+  	$sql = "select till_id from " . $this->db_table . " where store_id = '" . $_SESSION['admin_prefs']['def_store_id']."'";
+    $result = $db->Execute($sql);
+    foreach ($result->fields as $key => $value) $this->$key = $value;
+  }
+  /* 
+   * returns a string that will be a array in javascript.
+   */
+  
+  function javascript_array(){
+  	global $db;
+  	foreach ($this->store_ids as $store){
+  		$temp[]= $store['id'];
+  	}
+  	$sql = "select * from " . $this->db_table . " where store_id in (" . implode(',', $temp) . ")";
+    $result = $db->Execute($sql);    
+  	$js_tills  = 'var tills  = new Array();' . chr(10);
+	while (!$result->EOF){
+		$startingline = '';
+		$closingline  = '';
+		$opendrawer   = '';
+		foreach(explode(",",$result->fields['printer_starting_line']) as $key=>$line) {
+			foreach( explode( ":" , $line) as $key => $char) $startingline .= chr($char) ;
+			$startingline .= '","';
+		}
+		foreach(explode(",",$result->fields['printer_closing_line']) as $key=>$line) {
+			foreach( explode( ":" , $line) as $key => $char) $closingline  .= chr($char) ;
+			$closingline .= '","';
+		}
+		foreach(explode(",",$result->fields['printer_open_drawer']) as $key=>$line) {
+			foreach( explode( ":" , $line) as $key => $char) $opendrawer   .= chr($char) ;
+			$opendrawer  .=  '","';
+		}
+		$startingline = rtrim($startingline, '","');
+		$closingline  = rtrim($closingline , '","');
+		$opendrawer   = rtrim($opendrawer  , '","');
+		$js_tills .= 'tills["' . $result->fields['till_id'] . '"] = new till("' . $result->fields['till_id'] . '", "' . $result->fields['restrict_currency'] . '", "' . $result->fields['currencies_code'] . '", "' . $result->fields['printer_name'] . '", Array("' . $startingline . '"), Array("' . $closingline . '"), Array("' . $opendrawer . '"));' . chr(10);
+		$result->MoveNext();
+	}
+	return $js_tills;
+  }
+  
   function __destruct(){
   	//print_r($this);
   }
+  
 }
 ?>

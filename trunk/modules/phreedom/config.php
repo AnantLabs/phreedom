@@ -24,7 +24,7 @@
 // 3.3 => 2011-11-15 - Bug fixes, theme re-design, jqueryUI integration
 // 3.4 => 2012-02-15 - bug fixes, Google Chart support
 // Module software version information
-define('MODULE_PHREEDOM_VERSION',  '3.4');
+define('MODULE_PHREEDOM_VERSION',  '3.5');
 // Menu Sort Positions
 define('MENU_HEADING_COMPANY_ORDER',  90);
 // Menu Security id's (refer to master doc to avoid security setting overlap)

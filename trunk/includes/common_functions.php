@@ -1420,7 +1420,7 @@ function charConv($string, $in, $out) {
 			while ($choice = array_shift($choices)) {
 				$values = explode(':',$choice);
 				$output .= html_radio_field($param_array['field_name'], $values[0], ($cInfo->$param_array['field_name']==$values[0]) ? true : false);
-				$output .= '&nbsp;' . $values[1] . '&nbsp;';
+				$output .= '<label for="' . $param_array['field_name']. '_' . $values[0] . '"> ' . $values[1] . '</label>';
 			}
 			$output .= '</td></tr>';
 			break;
@@ -1434,7 +1434,8 @@ function charConv($string, $in, $out) {
 				$values = explode(':', $choice);
 				$output .= '<td>';
 				$output .= html_checkbox_field($param_array['field_name'] . $values[0] , $values[0], in_array($values[0], $selected) ? true : false);
-				$output .= $values[1] . '</td>';
+				$output .= '<label for="' . $param_array['field_name'] . $values[0] . '"> ' . $values[1] . '</label>';
+				$output .= '</td>';
 				if ($i == 4){
 					$output .= '</tr><tr>';
 					$i=0;

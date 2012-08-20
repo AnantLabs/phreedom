@@ -30,16 +30,28 @@ class i extends contacts{
 	$this->tab_list[] = array('file'=>'template_notes',		'tag'=>'notes',    'order'=>40, 'text'=>TEXT_NOTES);
 	$this->tab_list[] = array('file'=>'template_i_general',	'tag'=>'general',  'order'=> 1, 'text'=>TEXT_GENERAL);
 	parent::__construct();	
-	if ($_POST['i_id'])             $this->id             = db_prepare_input($_POST['i_id']);
-	if ($_POST['i_short_name'])     $this->short_name     = db_prepare_input($_POST['i_short_name']);
-	if ($_POST['i_contact_first'])  $this->contact_first  = db_prepare_input($_POST['i_contact_first']);
-    if ($_POST['i_contact_middle']) $this->contact_middle = db_prepare_input($_POST['i_contact_middle']);
-    if ($_POST['i_contact_last'])   $this->contact_last   = db_prepare_input($_POST['i_contact_last']);
-    if ($_POST['i_gov_id_number'])  $this->gov_id_number  = db_prepare_input($_POST['i_gov_id_number']);
-    if ($_POST['i_account_number']) $this->account_number = db_prepare_input($_POST['i_account_number']);
-    if ($_POST['i_id'])             $this->dept_rep_id    = db_prepare_input($_POST['id']); // this id is from the parent.
+	if (isset($_POST['i_id'])){
+		if ($_POST['i_id']) {
+			$this->id             = db_prepare_input($_POST['i_id']);
+		}else{
+			$this->id             = '';
+		}
+		if ($_POST['i_short_name'])     $this->short_name     = db_prepare_input($_POST['i_short_name']);
+		if ($_POST['i_contact_first'])  $this->contact_first  = db_prepare_input($_POST['i_contact_first']);
+	    if ($_POST['i_contact_middle']) $this->contact_middle = db_prepare_input($_POST['i_contact_middle']);
+	    if ($_POST['i_contact_last'])   $this->contact_last   = db_prepare_input($_POST['i_contact_last']);
+	    if ($_POST['i_gov_id_number'])  $this->gov_id_number  = db_prepare_input($_POST['i_gov_id_number']);
+	    if ($_POST['i_account_number']) $this->account_number = db_prepare_input($_POST['i_account_number']);
+	    $this->dept_rep_id    = db_prepare_input($_POST['id']); // this id is from the parent.
+	}
   }
 	
+  function delete($id) {
+  	if ( $this->id == '' ) $this->id = $id;
+	return parent::do_delete();
+  	
+  }
+  
   public function data_complete($error){
     global $messageStack;
     foreach ($this->address_types as $value) {

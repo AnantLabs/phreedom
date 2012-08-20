@@ -170,6 +170,7 @@ define('ACT_WARN_DELETE_ADDRESS','Are you sure you want to delete this address?'
 define('ACT_WARN_DELETE_ACCOUNT', 'Are you sure you want to delete this account?');
 define('ACT_WARN_DELETE_PAYMENT', 'Are you sure you want to delete this payment record?');
 define('ACT_ERROR_CANNOT_DELETE','Cannot delete this contact because a journal record contains this account');
+define('ACT_ERROR_CANNOT_DELETE_EMPLOYEE','Cannot delete this employee because it is used by a user.');
 define('ACT_ERROR_DUPLICATE_ACCOUNT','The account ID already exists in the system, please enter a new id.');
 define('ACT_ERROR_ACCOUNT_NOT_FOUND','The account you are looking for could not be found!');
 define('ACT_BILLING_MESSAGE','These fields are not required unless a billing address is being added.');

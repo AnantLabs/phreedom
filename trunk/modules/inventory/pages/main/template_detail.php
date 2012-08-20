@@ -45,6 +45,7 @@ if ($action == 'properties') {
   $toolbar->add_help('07.04.01.02');
 }
 echo $toolbar->build_toolbar(); 
+$fields->set_fields_to_display();
 ?>
 <h1><?php echo MENU_HEADING_INVENTORY . ' - ' . TEXT_SKU . '# ' . $cInfo->sku . ' (' . $cInfo->description_short . ')'; ?></h1>
 <div id="detailtabs">
@@ -54,10 +55,7 @@ echo $toolbar->build_toolbar();
   echo add_tab_list('tab_history', TEXT_HISTORY);
   if ($cInfo->inventory_type == 'as' || $cInfo->inventory_type == 'sa') echo add_tab_list('tab_bom', INV_BOM);
   if ($cInfo->inventory_type == 'ms') echo add_tab_list('tab_master', INV_MS_ATTRIBUTES);
-  while (!$tab_list->EOF) {
-    echo add_tab_list('tab_'.$tab_list->fields['id'], $tab_list->fields['tab_name']);
-	$tab_list->MoveNext();
-  } 
+  echo $fields->extra_tab_li;
   // pull in additional custom tabs
   if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
     foreach ($extra_inventory_tabs as $tabs) echo add_tab_list($tabs['tab_id'], $tabs['tab_title']);
@@ -74,23 +72,7 @@ if ($cInfo->inventory_type == 'ms') {
   require (DIR_FS_WORKING . 'pages/main/template_tab_ms.php'); // master stock tab
 }
 //********************************* List Custom Fields Here ***********************************
-$tab_list->Move(0);
-$tab_list->MoveNext();
-while (!$tab_list->EOF) {
-  echo '<div id="tab_' . $tab_list->fields['id'] . '">' . chr(10);
-  echo '  <table cellspacing="2" cellpadding="2">' . chr(10);
-  $field_list->Move(0);
-  $field_list->MoveNext();
-  while (!$field_list->EOF) {
-	if ($tab_list->fields['id'] == $field_list->fields['tab_id']) {
-	  echo xtra_field_build_entry($field_list->fields, $cInfo) . chr(10);
-	}
-	$field_list->MoveNext();
-  }
-  echo '  </table>' . chr(10);
-  echo '</div>' . chr(10) . chr(10);
-  $tab_list->MoveNext();
-}
+echo $fields->extra_tab_html;
 // pull in additional custom tabs
 if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
   foreach ($extra_inventory_tabs as $tabs) {

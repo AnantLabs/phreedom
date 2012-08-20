@@ -28,6 +28,7 @@ $error       = false;
 $processed   = false;
 $criteria    = array();
 $cInfo       = new objectInfo();
+$fields		 = new inventory_fields();
 $search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
@@ -135,7 +136,6 @@ switch ($action) {
 	if (substr($inventory_path, 0, 1) == '/')  $inventory_path = substr($inventory_path, 1); // remove leading '/' if there
 	if (substr($inventory_path, -1, 1) == '/') $inventory_path = substr($inventory_path, 0, strlen($inventory_path)-1); // remove trailing '/' if there
 	$inventory_type  = db_prepare_input($_POST['inventory_type']);
-	$fields = new inventory_fields(false);
     $sql_data_array = $fields->what_to_save();
 	$sql_data_array['last_update'] = date('Y-m-d H-i-s');
 	// special cases for checkboxes of system fields (don't return a POST value if unchecked)
@@ -372,18 +372,7 @@ switch ($action) {
   case 'edit':
   case 'properties':
     $id = isset($_POST['rowSeq']) ? (int)db_prepare_input($_POST['rowSeq']) : (int)db_prepare_input($_GET['cID']);
-	$tab_list = $db->Execute("select id, tab_name, description 
-		from " . TABLE_EXTRA_TABS . " where module_id='inventory' order by sort_order");
-	$field_list = $db->Execute("select field_name, description, tab_id, params 
-		from " . TABLE_EXTRA_FIELDS . " where module_id='inventory' order by description");
-	if ($field_list->RecordCount() < 1) xtra_field_sync_list('inventory', TABLE_INVENTORY);
-	$query = '';
-	while (!$field_list->EOF) {
-	  $query .= $field_list->fields['field_name'] . ', ';
-	  $field_list->MoveNext();
-	}
-	$full_inv_query = ($query == '') ? '*' : substr($query, 0, -2);
-	$sql = "select " . $full_inv_query . " from " . TABLE_INVENTORY . " where id = " . $id . " order by sku";
+	$sql = "select * from " . TABLE_INVENTORY . " where id = " . $id . " order by sku";
 	$inventory = $db->Execute($sql);
 	$cInfo = new objectInfo($inventory->fields);
 	// gather the history

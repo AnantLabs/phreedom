@@ -53,7 +53,6 @@ define('HR_INFO_INSERT_INTRO', 'Please enter the new department with its propert
 define('HR_INFO_NEW_ACCOUNT', 'New Department');
 define('HR_INFO_EDIT_ACCOUNT', 'Edit Department');
 define('HR_INFO_DELETE_INTRO', 'Are you sure you want to delete this department?');
-define('HR_DISPLAY_NUMBER_OF_DEPTS', TEXT_DISPLAY_NUMBER . 'departments');
 define('HR_DEPARTMENT_REF_ERROR','The primary department cannot be the same as this subdepartment being saved!');
 define('HR_LOG_DEPARTMENTS','Departments - ');
 /************************** (Department Types) ***********************************************/
@@ -64,7 +63,6 @@ define('SETUP_DEPT_TYPES_DELETE_INTRO', 'Are you sure you want to delete this de
 define('SETUP_DEPT_TYPES_DELETE_ERROR','Cannot delete this department type, it is being use by a department.');
 define('SETUP_INFO_HEADING_NEW_DEPT_TYPES', 'New Department Type');
 define('SETUP_INFO_HEADING_EDIT_DEPT_TYPES', 'Edit Department Type');
-define('TEXT_DISPLAY_NUMBER_OF_DEPT_TYPES', TEXT_DISPLAY_NUMBER . 'department types');
 define('SETUP_DEPT_TYPES_LOG','Dept Types - ');
 /************************** (Project Costs) ***********************************************/
 define('SETUP_TITLE_PROJECTS_COSTS', 'Project Costs');
@@ -79,7 +77,6 @@ define('SETUP_INFO_HEADING_EDIT_PROJECT_COSTS', 'Edit Project Cost');
 define('SETUP_INFO_COST_TYPE','Cost Type');
 define('SETUP_PROJECT_COSTS_LOG','Project Costs - ');
 define('SETUP_PROJECT_COSTS_DELETE_ERROR','Cannot delete this project cost, it is being use in a journal entry.');
-define('SETUP_DISPLAY_NUMBER_OF_PROJECT_COSTS', TEXT_DISPLAY_NUMBER . 'project costs');
 /************************** (Project Phases) ***********************************************/
 define('SETUP_TITLE_PROJECTS_PHASES', 'Project Phases');
 define('TEXT_COST_BREAKDOWN', 'Cost Breakdown');
@@ -90,6 +87,5 @@ define('SETUP_INFO_HEADING_NEW_PROJECT_PHASES', 'New Project Phase');
 define('SETUP_INFO_HEADING_EDIT_PROJECT_PHASES', 'Edit Project Phase');
 define('SETUP_PROJECT_PHASESS_LOG','Project Phases - ');
 define('SETUP_PROJECT_PHASESS_DELETE_ERROR','Cannot delete this project phase, it is being use in a journal entry.');
-define('SETUP_DISPLAY_NUMBER_OF_PROJECT_PHASES', TEXT_DISPLAY_NUMBER . 'project phases');
 
 ?>

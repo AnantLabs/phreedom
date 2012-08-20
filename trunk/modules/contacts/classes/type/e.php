@@ -22,9 +22,9 @@ require_once(DIR_FS_MODULES . 'contacts/classes/contacts.php');
 class e extends contacts{	
 	public $security_token = SECURITY_ID_MAINTAIN_EMPLOYEES;
 	public $page_title_new = BOX_CONTACTS_NEW_EMPLOYEE;
-	public $help		       = '07.07.01.02';
+	public $help		   = '07.07.01.02';
 	public $address_types  = array('em', 'es', 'eb', 'im');
-    public $type            = 'e';
+    public $type           = 'e';
 	
 	public function __construct(){
 		$this->tab_list[] = array('file'=>'template_e_history',	'tag'=>'history',  'order'=>10, 'text'=>TEXT_HISTORY);
@@ -32,5 +32,15 @@ class e extends contacts{
 		$this->tab_list[] = array('file'=>'template_e_general',	'tag'=>'general',  'order'=> 1, 'text'=>TEXT_GENERAL);
 		parent::__construct();
 	}
+	
+  	function delete($id) {
+	  	global $db; 
+	  	if ( $this->id == '' ) $this->id = $id;
+  		$result = $db->Execute("select admin_id from ".TABLE_USERS." where account_id =". $this->id);
+		if ($result->RecordCount() == 0) {
+	  		return $this->do_delete();
+		}
+		return ACT_ERROR_CANNOT_DELETE_EMPLOYEE;
+  	}
 }
 ?>

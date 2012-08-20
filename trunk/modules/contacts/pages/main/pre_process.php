@@ -45,7 +45,7 @@ if ($type <>'i' && file_exists(DIR_FS_WORKING . 'custom/classes/type/i.php')) {
 }elseif ($type <>'i'){
 	require_once(DIR_FS_WORKING . 'classes/type/i.php');
 }
-$cInfo = new $type($_POST);
+$cInfo = new $type();
 /**************   Check user security   *****************************/
 
 /***************   hook for custom security  ***************************/
@@ -58,7 +58,8 @@ require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 require_once(DIR_FS_WORKING . 'functions/contacts.php');
 require_once(DIR_FS_WORKING . 'classes/contacts.php');
-
+require_once(DIR_FS_WORKING . 'classes/contact_fields.php');
+$fields = new contact_fields();
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/main/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -76,15 +77,16 @@ switch ($action) {
 		// start saving data
 		if (!$error) {
 		  $cInfo->save_contact(); 
+		  $cInfo->save_addres();
 		  if ($type <> 'i' && $_POST['i_short_name']) { // is null
 		  	 $crmInfo      = new i;
              // error check contact
 			 $error = $crmInfo->data_complete($error);
 	         if (!$error) {
 	      	   $crmInfo->save_contact();
+	      	   $crmInfo->save_addres();
 			 }
 		  }
-		  $cInfo->save_addres();
 		  // payment fields
 		  if (ENABLE_ENCRYPTION && $_POST['payment_cc_name'] && $_POST['payment_cc_number']) { // save payment info
 			  $encrypt = new encryption();
@@ -156,10 +158,11 @@ switch ($action) {
     case 'crm_delete':
 	    validate_security($security_level, 4);
 	    $short_name = gen_get_contact_name($cInfo->id);
-	    if ($cInfo->delete()) {
+	    $temp = $cInfo->delete();
+	    if ($temp == true) {
 	       gen_add_audit_log(TEXT_CONTACTS.'-'.TEXT_DELETE.'-'.constant('ACT_'.strtoupper($type).'_TYPE_NAME'), $short_name);
         } else {
-    	   $error = $messageStack->add(ACT_ERROR_CANNOT_DELETE,'error');
+    	   $error = $messageStack->add($temp,'error');
 	    }
 	    break;
 
@@ -224,10 +227,6 @@ switch ($action) {
 		$sales_rep_array = gen_get_rep_ids($type);
 		$sale_reps       = array();
 		foreach ($sales_rep_array as $value) $sale_reps[$value['id']] = $value['text'];
-		$xtra_tab_list = $db->Execute("select id, tab_name, description 
-		  from " . TABLE_EXTRA_TABS . " where module_id='contacts' order by sort_order");
-		$field_list = $db->Execute("select field_name, description, tab_id, params 
-		  from " . TABLE_EXTRA_FIELDS . " where module_id='contacts' order by description");
 	    $include_template = 'template_detail.php';
 		define('PAGE_TITLE', ($action == 'new') ? $page_title_new : constant('ACT_'.strtoupper($type).'_PAGE_TITLE_EDIT').' - ('.$cInfo->short_name.') '.$cInfo->address[m][0]->primary_name);
 		break;

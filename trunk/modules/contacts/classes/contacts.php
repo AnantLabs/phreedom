@@ -48,8 +48,8 @@ class contacts {
         $this->crm_rep_id      = $_SESSION['account_id'] <> 0 ? $_SESSION['account_id'] : $_SESSION['admin_id'];
         foreach ($_POST as $key => $value) $this->$key = $value;
         $this->special_terms  =  db_prepare_input($_POST['terms']); // TBD will fix when popup terms is redesigned
-        if ($this->id == '')  $this->id  = isset($_POST['rowSeq']) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['cID']);
-        if ($this->aid == '') $this->aid = isset($_GET['aID'])     ? db_prepare_input($_GET['aID'])     : db_prepare_input($_POST['aID']); 
+        if ($this->id  == '') $this->id  = db_prepare_input($_POST['rowSeq'], true) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['cID']);
+        if ($this->aid == '') $this->aid = db_prepare_input($_GET['aID'],     true) ? db_prepare_input($_GET['aID'])     : db_prepare_input($_POST['aID']); 
         if ($this->auto_type && $this->short_name == '') {
             $result = $db->Execute("select ".$this->auto_field." from ".TABLE_CURRENT_STATUS);
             $this->short_name = $result->fields[$this->auto_field];
@@ -117,21 +117,25 @@ class contacts {
   }
 
   function delete($id) {
-  	global $db; // ajax nog controleren
-  	if($this->id=='') $this->id = $id;
+  	global $db; 
+  	if ( $this->id == '' ) $this->id = $id;
 	// error check, no delete if a journal entry exists
-	$result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where bill_acct_id = $this->id or ship_acct_id = $this->id or store_id = $this->id limit 1");
+	$result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where bill_acct_id =". $this->id." or ship_acct_id =". $this->id ."or store_id =". $this->id ."limit 1");
 	if ($result->RecordCount() == 0) {
-	  $db->Execute("delete from ".TABLE_ADDRESS_BOOK ." where ref_id = $this->id");
-	  $db->Execute("delete from ".TABLE_DATA_SECURITY." where ref_1 = $this->id");
-	  $db->Execute("delete from ".TABLE_CONTACTS     ." where id = $this->id");
-	  $db->Execute("delete from ".TABLE_CONTACTS_LOG ." where contact_id = $this->id");
+	  return $this->do_delete();
+	}
+  	return ACT_ERROR_CANNOT_DELETE;
+  }
+  
+  public function do_delete(){
+	  global $db; // ajax nog controleren
+	  $db->Execute("delete from ".TABLE_ADDRESS_BOOK ." where ref_id =". $this->id);
+	  $db->Execute("delete from ".TABLE_DATA_SECURITY." where ref_1 =". $this->id);
+	  $db->Execute("delete from ".TABLE_CONTACTS     ." where id =". $this->id);
+	  $db->Execute("delete from ".TABLE_CONTACTS_LOG ." where contact_id =". $this->id);
 	  foreach (glob(CONTACTS_DIR_ATTACHMENTS.'contacts_'.$this->id.'_*.zip') as $filename) unlink($filename); // remove attachments
 	  return true;
-	}
-  	return false;
   }
-
    /*
    * this function loads alle open order 
    */

@@ -46,10 +46,17 @@ class phreepos_admin {
 	$this->tables = array(
 		TABLE_PHREEPOS_TILLS => "CREATE TABLE " . TABLE_PHREEPOS_TILLS . " (
   			till_id int(11) NOT NULL auto_increment,
-  			store_id int(11) default '0',
-  			description char(64) NOT NULL default '',
-  			gl_acct_id varchar(15) NOT NULL default '',
-  			rounding_gl_acct_id varchar(15) NOT NULL default '',
+  			store_id            	int(11)                default '0',
+  			description         	varchar(64)   NOT NULL default '',
+  			gl_acct_id          	varchar(15)   NOT NULL default '',
+  			rounding_gl_acct_id 	varchar(15)   NOT NULL default '',
+  			dif_gl_acct_id      	varchar(15)   NOT NULL default '',
+  			currencies_code    		varchar(3)    NOT NULL default '',
+  			restrict_currency   	enum('0','1') NOT NULL default '0',
+  			printer_name        	varchar(64)   NOT NULL default '',
+  			printer_starting_line	varchar(255)  NOT NULL default '',
+  			printer_closing_line    varchar(255)  NOT NULL default '',
+  			printer_open_drawer     varchar(255)  NOT NULL default '',
   			PRIMARY KEY (till_id)
   		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
     );
@@ -83,13 +90,21 @@ class phreepos_admin {
 		  if ($table == TABLE_PHREEPOS_TILLS) admin_install_tables(array($table => $sql));
 		  foreach (gen_get_store_ids() as $store){
 		  	$sql_data_array = array(
-		  		'store_id'    		  => $store['id'],
-		  		'gl_acct_id'  		  => AR_SALES_RECEIPTS_ACCOUNT,
-		  		'description' 		  => $store['text'],
-		  	    'rounding_gl_acct_id' => AR_SALES_RECEIPTS_ACCOUNT,
+		  		'store_id'    		  	=> $store['id'],
+		  		'gl_acct_id'  		  	=> AR_SALES_RECEIPTS_ACCOUNT,
+		  		'description' 		  	=> $store['text'],
+		  	    'rounding_gl_acct_id' 	=> AR_SALES_RECEIPTS_ACCOUNT,
+			  	'dif_gl_acct_id'	  	=> AR_SALES_RECEIPTS_ACCOUNT,
+				'printer_name'		  	=> PHREEPOS_RECEIPT_PRINTER_NAME,
+				'printer_starting_line' => PHREEPOS_RECEIPT_PRINTER_STARTING_LINE,
+				'printer_closing_line' 	=> PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE,
+				'printer_open_drawer' 	=> '',
 		  	);
 		  	db_perform(TABLE_PHREEPOS_TILLS, $sql_data_array);
 		  }
+		  if(defined('PHREEPOS_RECEIPT_PRINTER_NAME')) 			remove_configure('PHREEPOS_RECEIPT_PRINTER_NAME');
+		  if(defined('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE')) remove_configure('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE');
+		  if(defined('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE'))  remove_configure('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE');
 		}
 	}
 	

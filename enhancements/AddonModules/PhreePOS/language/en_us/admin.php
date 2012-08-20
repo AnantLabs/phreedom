@@ -30,7 +30,7 @@ define('PHREEPOS_RECEIPT_PRINTER_NAME_DESC','Sets then name of the printer to us
 define('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE_DESC','Here you can add code to that should be in the header paper of the receipt.<br>Seperate the codes by a : and lines by a , like: <i>27:112:48:55:121,27:109</i><br>The codes are a numbers of the chr ie chr(13) is 13<br><b>Only put in code no text this could result in errors.</b> view your printer documentation for the right codes.');
 define('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE_DESC','Here you can add code to open you drawer and /or cut the receipt.<br>Seperate the codes by a : and lines by a , like: <i>27:112:48:55:121,27:109</i><br>The codes are a numbers of the chr ie chr(13) is 13<br><b>Only put in code no text this could result in errors.</b> ');
 //3.3
-define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Here you can add code to open you drawer payment dependent (set the open drawer option in the payment module).<br> If one of the selected payment has the option \'open cash drawer \' set too true the cashdrawer will be openend.<br>Seperate the codes by a : and lines by a , like: <i>27:112:48:55:121,27:109</i><br>The codes are a numbers of the chr ie chr(13) is 13<br><b>Only put in code no text this could result in errors.</b> ');
+define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Here you can add code to open you drawer payment dependent (set the open drawer option in the payment module).<br> If one of the selected payment has the option \'open cash drawer \' set too true the cashdrawer will be openend.<br>Seperate the codes by a : and lines by a , like: <i>27:112:48:55:121,27:109</i><br>The codes are a numbers of the chr ie chr(13) is 13<br><b>Only put in code no text this could result in errors.</b>');
 define('TEXT_ENTER_NEW_TILL','New Till');
 define('TEXT_EDIT_TILL','Edit Till');
 define('TEXT_TILLS','Tills');
@@ -43,5 +43,9 @@ define('TEXT_10_CENTS','10 Cents');
 define('TEXT_NEUTRAL','Neutral');
 define('TEXT_ROUNDING_OF','Rounded of');
 define('TEXT_GL_ACCOUNT_ROUNDING','GL account for rounding of:');
+define('TEXT_DIF_GL_ACCOUNT','GL account for end of the day differences:');
+
+define('TEXT_RESTRICT_CURRENCY','Restrict till to this currency');
+define('TEXT_DRAWER_CODES','open drawer codes');
 
 ?>

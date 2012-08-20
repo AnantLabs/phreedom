@@ -30,15 +30,20 @@ define('TEXT_AMOUNT_PAID','Amount Paid');
 define('TEXT_BALANCE_DUE','Balance Due');
 define('TEXT_PAYMENT','Payment');
 define('TEXT_RETURN','Process Return');
-define('TEXT_DISCOUNT_PERCENT','Discount Percent');
+define('TEXT_DISCOUNT_PERCENT','Discount Perc.');
+define('TEXT_DISCOUNT_AMOUNT','Discount Amt.');
 define('TEXT_REFUND','Refund');
 define('TEXT_REFUND_METHOD','Refund Method');
 define('TEXT_ENTRIES','Entries');
+define('TEXT_SELECT_CUSTOMER','Select Customer');
 
-define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.<br><b>F1</b> = Show inventory pop-up.<br><b>F2</b> = Show customer pop-up.<br><b>F3</b> = Show payment pop-up.');
-define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Close pop-up.<br><b>F7</b>  = Save.<br><b>F8</b>  = Print');
+define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.<br><b>ESC</b> = Clear Screan.<br><b>Alt+R</b> = Switch between returns and normal sales.<br><b>F7</b> = Show inventory pop-up.<br><b>F8</b> = Show customer pop-up.<br><b>F9</b> = Show payment pop-up.');
+define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Close pop-up.<br><b>F11</b>  = Save.<br><b>F12</b>  = Print');
 define('POS_MSG_DELETE_CONFIRM','Are you sure you want to void/delete this POS entry?');
 
 define('GENERAL_JOURNAL_19_ERROR_6','A possale cannot be deleted if it is closed!');
 define('TEXT_TILL','Till');
+define('TEXT_OPEN_DRAWER','Open Drawer');
+define('TEXT_PRINT_PREVIOUS','Print Previous Receipt');
+define('TEXT_AMOUNT_ORIGINAL_CURRENCY','Orig Amount');
 ?>

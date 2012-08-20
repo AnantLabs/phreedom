@@ -19,8 +19,8 @@
 //
 
 class pos_this_week extends ctl_panel {
-  function pos_this_week() {
-    $this->max_length = 20;
+	public $max_length = 20;
+  function __construct() {
     
   }
 

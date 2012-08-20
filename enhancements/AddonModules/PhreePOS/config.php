@@ -29,6 +29,7 @@ define('MODULE_PHREEPOS_VERSION', '3.3');
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_PHREEPOS',           38);
 define('SECURITY_ID_POS_MGR',            39);
+define('SECURITY_ID_POS_CLOSING',       113);
 define('SECURITY_ID_CUSTOMER_DEPOSITS', 109);
 define('SECURITY_ID_VENDOR_DEPOSITS',   110);
 // New Database Tables
@@ -55,6 +56,13 @@ if (defined('MODULE_PHREEPOS_STATUS')) {
     'rank'        => 53, 
     'security_id' => SECURITY_ID_POS_MGR, 
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=pos_mgr&amp;list=1', 'SSL'),
+  );
+  $menu[] = array(
+    'text'        => BOX_POS_CLOSING, 
+    'heading'     => MENU_HEADING_BANKING, 
+    'rank'        => 54, 
+    'security_id' => SECURITY_ID_POS_CLOSING, 
+    'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=closing', 'SSL'),
   );
   $menu[] = array(
     'text'        => BOX_CUSTOMER_DEPOSITS,

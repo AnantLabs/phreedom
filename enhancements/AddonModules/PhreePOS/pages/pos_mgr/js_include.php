@@ -39,8 +39,7 @@ function printOrder(id) {
 
 $(document).ready(function(){
 	$("#search_date").change(function(){
-		var date = $("#search_date").val();
-		window.open('index.php?module=phreepos&page=pos_mgr&search_date='+date,"invoices");
+		submitToDo('search',false);
 	});  
 
 });

@@ -127,6 +127,8 @@ class phreedom_admin {
 		  entry_type varchar(20) NOT NULL default '',
 		  field_name varchar(32) NOT NULL default '',
 		  description varchar(64) NOT NULL default '',
+		  sort_order varchar(64) NOT NULL default '',
+		  group_by varchar(64) NOT NULL default '',
 		  params text,
 		  PRIMARY KEY (id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
@@ -249,6 +251,10 @@ class phreedom_admin {
     if (MODULE_PHREEDOM_STATUS < '3.4') {
 	  if (!db_field_exists(TABLE_DATA_SECURITY, 'exp_date')) $db->Execute("ALTER TABLE ".TABLE_DATA_SECURITY." ADD exp_date DATE NOT NULL DEFAULT '2049-12-31' AFTER enc_value");
 	  if (!db_field_exists(TABLE_AUDIT_LOG, 'ip_address'))   $db->Execute("ALTER TABLE ".TABLE_AUDIT_LOG    ." ADD ip_address VARCHAR(15) NOT NULL AFTER user_id");
+    }
+  	if (MODULE_PHREEDOM_STATUS < '3.5') {
+	  if (!db_field_exists(TABLE_EXTRA_FIELDS, 'group_by'))   $db->Execute("ALTER TABLE ".TABLE_EXTRA_FIELDS." ADD group_by varchar(64) NOT NULL default ''");
+	  if (!db_field_exists(TABLE_EXTRA_FIELDS, 'sort_order')) $db->Execute("ALTER TABLE ".TABLE_EXTRA_FIELDS    ." ADD sort_order varchar(64) NOT NULL default ''");
     }
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));

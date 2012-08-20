@@ -308,7 +308,7 @@ define('CP_ADD_REMOVE_BOXES','Voeg toe/verwijder Profiel Boxen');
 define('HEADING_TITLE_SEARCH_DETAIL','Zoek: ');
 define('CHARSET','UTF-8');
 define('TEXT_INFO_SEARCH_PERIOD_FILTER','Boekhoud Periode: ');
-define('HTML_PARAMS','lang=\"nl-nl\" xml:lang=\"nl-nl\"');
+define('HTML_PARAMS','lang="nl-NL" xml:lang="nl-NL"');
 define('TEXT_PHREEDOM_INFO','Phreedom Klein Bedrijf Oplossingen');
 define('TITLE','PhreeBooks');
 define('LANGUAGE','Nederlands (NL)');

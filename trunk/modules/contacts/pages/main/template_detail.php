@@ -50,37 +50,8 @@ if (count($extra_toolbar_buttons) > 0) {
 if( !$cInfo->help == '' ) $toolbar->add_help($cInfo->help);
 if ($search_text) $toolbar->search_text = $search_text;
 echo $toolbar->build_toolbar(); 
-
+$fields->set_fields_to_display($type);
 // Build the page
-$extra_tab_li   = '';
-$extra_tab_html = '';
-while (!$xtra_tab_list->EOF) {
-  $found_one = false;
-  $field_list->Move(0);
-  $field_list->MoveNext();
-  $xtra_header  = '<div id="tab_' . $xtra_tab_list->fields['id'] . '">' . chr(10);
-  $xtra_header .= '  <table>' . chr(10);
-  while (!$field_list->EOF) {
-	if ($xtra_tab_list->fields['id'] == $field_list->fields['tab_id']) {
-	  $xtra_params = unserialize($field_list->fields['params']);
-	  $temp = explode(':',$xtra_params['contact_type']);
-	  while ($value = array_shift($temp)){
-	  	if (substr($value, 0, 1) == $type) {
-		    $xtra_header .= xtra_field_build_entry($field_list->fields, $cInfo) . chr(10);
-			$found_one = true;
-	  	}
-	  }
-	}
-	$field_list->MoveNext();
-  }
-  $xtra_header .= '  </table>';
-  $xtra_header .= '</div>' . chr(10);
-  if ($found_one) {
-    $extra_tab_li   .= '  <li><a href="#tab_' . $xtra_tab_list->fields['id'] . '">' . $xtra_tab_list->fields['tab_name'] . '</a></li>' . chr(10);
-    $extra_tab_html .= $xtra_header;
-  }
-  $xtra_tab_list->MoveNext();
-} 
 
 $custom_path = DIR_FS_MODULES . 'contacts/custom/pages/main/extra_tabs.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -101,7 +72,7 @@ usort($cInfo->tab_list, 'tab_sort');
   	echo add_tab_list('tab_'.$value['tag'],  $value['text']);
 	$set_default = true;
   }
-  echo $extra_tab_li . chr(10); // user added extra tabs
+  echo $fields->extra_tab_li . chr(10); // user added extra tabs
 ?>
 </ul>
 <?php
@@ -119,7 +90,7 @@ if (isset($extra_contact_tabs) && is_array($extra_contact_tabs)) {
     if (file_exists($file_path)) { require($file_path);	}
   }
 }
-echo $extra_tab_html;
+echo $fields->extra_tab_html;// user added extra tabs
 ?>
 </div>
 </form>

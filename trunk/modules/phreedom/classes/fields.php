@@ -19,16 +19,18 @@
 //
 
 class fields {
-	public  $help_path   = '';
-	public  $title       = '';
-	public  $module      = '';
-	public  $db_table    = '';
-	public  $type_desc   = '';
-	public  $type_array  = array(); 
-    public  $type_params = '';
-    public  $error       = false;
-    public  $extra_buttons = '';
-
+	public  $help_path      = '';
+	public  $title          = '';
+	public  $module         = '';
+	public  $db_table       = '';
+	public  $type_desc      = '';
+	public  $type_array     = array(); 
+    public  $type_params    = '';
+    public  $error          = false;
+    public  $extra_buttons  = '';
+    public  $extra_tab_li   = '';
+	public  $extra_tab_html = ''; 
+    
   public function __construct($sync = true){ 
   	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
   	foreach ($_POST as $key => $value) $this->$key = $value;
@@ -59,7 +61,7 @@ class fields {
 	}
 	// if the id is empty then check for duplicate field names
 	if($this->id == ''){
-	   $result = $db->Execute("select id from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module' and field_name='" . $this->field_name . "'");
+	   $result = $db->Execute("select id from " . TABLE_EXTRA_FIELDS . " where module_id='" . $this->module . "' and field_name='" . $this->field_name . "'");
 	   if ($result->RecordCount() > 0 && $this->id ==''){ 
 	       $messageStack->add(ASSETS_ERROR_FIELD_DUPLICATE,'error');
 	       $this->error = true;
@@ -171,6 +173,8 @@ class fields {
 	  'description' => $this->description,
 	);
 	if ($this->tab_id <> '') {
+	  $sql_data_array['group_by']  	 = $this->group_by;
+	  $sql_data_array['sort_order']  = $this->sort_order;
 	  $sql_data_array['entry_type']  = $this->entry_type;
 	  $sql_data_array['field_name']  = $this->field_name;
 	  $sql_data_array['tab_id']      = $this->tab_id;
@@ -223,11 +227,11 @@ class fields {
 	$tab_array = xtra_field_get_tabs($this->module);
     $content = array();
 	$content['thead'] = array(
-	  'value' => array(TEXT_DESCRIPTION, TEXT_FLDNAME, TEXT_TAB_NAME, TEXT_TYPE, $this->type_desc, TEXT_ACTION),
+	  'value' => array(TEXT_DESCRIPTION, TEXT_FLDNAME, TEXT_TAB_NAME, TEXT_TYPE, $this->type_desc, TEXT_SORT_ORDER, TEXT_GROUP, TEXT_ACTION),
 	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
 	);
-	$field_list = array('id', 'field_name', 'entry_type', 'description', 'tab_id', 'params');
-    $result = $db->Execute("select ".implode(', ', $field_list)." from ".TABLE_EXTRA_FIELDS." where module_id='$this->module'");
+	$field_list = array('id', 'field_name', 'entry_type', 'description', 'tab_id', 'params', 'sort_order', 'group_by');
+    $result = $db->Execute("select ".implode(', ', $field_list)." from ".TABLE_EXTRA_FIELDS." where module_id='" . $this->module ."' order by group_by, sort_order");
     $rowCnt = 0;
 	while (!$result->EOF) {
 	  $params  = unserialize($result->fields['params']);
@@ -245,6 +249,11 @@ class fields {
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
 		array('value' => isset($params[$this->type_params])?$params[$this->type_params]:'',
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['sort_order'],
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+		array('value' => $result->fields['group_by'],
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
+	
 		array('value' => $actions,
 			  'params'=> 'align="right"'),
 	  );
@@ -319,6 +328,15 @@ class fields {
 	$output .= '	<td>' . TEXT_DESCRIPTION . '</td>' . chr(10);
 	$output .= '	<td>' . html_input_field('description', $this->description, 'size="65" maxlength="64"') . '</td>' . chr(10);
 	$output .= '  </tr>' . chr(10);
+	$output .= '  <tr>' . chr(10);
+	$output .= '	<td>' . TEXT_SORT_ORDER . '</td>' . chr(10);
+	$output .= '	<td>' . html_input_field('sort_order', $this->sort_order, 'size="65" maxlength="64"') . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+	$output .= '  <tr>' . chr(10);
+	$output .= '	<td>' . TEXT_GROUP . '</td>' . chr(10);
+	$output .= '	<td>' . html_input_field('group_by', $this->group_by, 'size="65" maxlength="64"') . '</td>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+	
 	if (is_array($this->type_array)){
 		$output .= '  <tr>' . chr(10);
 		$output .= '	<td>' . $this->type_desc . '</td>' . chr(10);
@@ -418,6 +436,7 @@ class fields {
     $xtra_db_fields = $db->Execute("select field_name, entry_type, params 
         from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module'");
     while (!$xtra_db_fields->EOF) {
+    	if ($xtra_db_fields->fields['field_name'] == 'id' )  $xtra_db_fields->MoveNext();
         $field_name = $xtra_db_fields->fields['field_name'];
         if ($xtra_db_fields->fields['entry_type'] == 'multi_check_box') {
             $temp ='';
@@ -440,6 +459,42 @@ class fields {
         $xtra_db_fields->MoveNext();
     }
     return $sql_data_array;
+  }
+  
+  public function set_fields_to_display($type = null){
+  	global $db;
+  	$tab_array = array();
+  	$result = $db->Execute("select fields.tab_id, tabs.tab_name as tab_name, fields.description as description, fields.params as params, fields.group_by, fields.field_name, fields.entry_type from " . TABLE_EXTRA_FIELDS . " as fields join  " . TABLE_EXTRA_TABS . " as tabs on (fields.tab_id = tabs.id) where fields.module_id='" . $this->module . "' order by tabs.sort_order asc, fields.group_by asc, fields.sort_order asc");
+  	while (!$result->EOF) {
+  		$tab_id = $result->fields['tab_id'];
+  		if (!in_array($tab_id, $tab_array)){
+  			if (!empty($tab_array)){
+  				$this->extra_tab_html .= '  </table>';
+	  			$this->extra_tab_html .= '</div>' . chr(10);
+  			}
+  			$tab_array[] = $tab_id;
+  			$this->extra_tab_li    .= '  <li><a href="#tab_' . $tab_id . '">' . $result->fields['tab_name'] . '</a></li>' . chr(10);
+  			$this->extra_tab_html .= '<div id="tab_' . $tab_id . '">' . chr(10);
+	  		$this->extra_tab_html .= '  <table>' . chr(10);
+  		}else if($previous_group <> $result->fields['group_by']){
+  			$this->extra_tab_html .= '<tr class="ui-widget-header" height="5px"><td colspan="2"></td></tr>' . chr(10);
+  		}
+	    $xtra_params = unserialize($result->fields['params']);
+	    if($this->type_params && !$type == null ){
+	    	$temp = explode(':',$xtra_params[$this->type_params]);
+			while ($value = array_shift($temp)){
+				if (substr($value, 0, 1) == $type) {
+					$this->extra_tab_html .= xtra_field_build_entry($result->fields, $cInfo) . chr(10);
+				}
+			}
+	    }else{
+	    	$this->extra_tab_html .= xtra_field_build_entry($result->fields, $cInfo) . chr(10);
+	    }
+	    $previous_group = $result->fields['group_by'];
+		$result->MoveNext();
+	}
+	$this->extra_tab_html .= '  </table>';
+	$this->extra_tab_html .= '</div>' . chr(10); 
   }
 }
 ?>

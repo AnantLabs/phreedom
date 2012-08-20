@@ -144,6 +144,7 @@ define('ACT_WARN_DELETE_ADDRESS','Weet u zeker dat u dit adres wilt verwijderen?
 define('ACT_WARN_DELETE_ACCOUNT','Weet u zeker dat u dit account wilt verwijderen?');
 define('ACT_WARN_DELETE_PAYMENT','Weet u zeker dat u dit betalingsboeking wilt verwijderen?');
 define('ACT_ERROR_CANNOT_DELETE','Kan dit account helaas niet verwijderen omdat hij gebruikt wordt in een journaal boeking.');
+define('ACT_ERROR_CANNOT_DELETE_EMPLOYEE','Kan deze medewerker niet verwijderen omdat hij gebruikt wordt door een gebruiker.');
 define('ACT_ERROR_DUPLICATE_ACCOUNT','Dit account ID bestaat al in het systeem, voer alstublieft een nieuw ID in.');
 define('ACT_ERROR_ACCOUNT_NOT_FOUND','Het account dat u zocht kan niet worden gevonden!');
 define('ACT_BILLING_MESSAGE','Deze velden zijn niet nodig tenzij er een factuur adres toegevoegd moet worden.');

@@ -33,7 +33,8 @@
 	  <th><?php echo '&nbsp;'; ?></th>
     </tr>
     </thead>
-    <tbody class="ui-widget-content">
+    <tbody id="sku_list_body" class="ui-widget-content">
+    
     </tbody>
   </table>
  </div>

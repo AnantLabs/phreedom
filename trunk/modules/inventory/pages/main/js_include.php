@@ -225,8 +225,8 @@ function masterStockBuildSkus() {
   var newRow, newCell, newValue0, newValue1, newValue2, attrib0, attrib1;
   var ms_attr_0 = '';
   var ms_attr_1 = '';
-  while (document.getElementById('sku_list').rows.length > 2) {
-	document.getElementById('sku_list').deleteRow(2);
+  while (document.getElementById('sku_list_body').rows.length > 0) {
+	document.getElementById('sku_list_body').deleteRow(0);
   }
   var sku = document.getElementById('sku').value;
   newValue0 = '';
@@ -265,7 +265,7 @@ function masterStockBuildSkus() {
 }
 
 function insertTableRow(newValue0, newValue1, newValue2) {
-  newRow = document.getElementById('sku_list').insertRow(-1);
+  newRow = document.getElementById('sku_list_body').insertRow(-1);
   if(document.all) { // IE browsers
     newCell = newRow.insertCell(-1);
     newCell.innerText = newValue0;

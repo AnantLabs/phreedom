@@ -31,5 +31,12 @@ class b extends contacts{
 		$this->tab_list[] = array('file'=>'template_b_general',	'tag'=>'general',  'order'=> 1, 'text'=>TEXT_GENERAL);
 		parent::__construct();
 	}
+	
+  	function delete($id) {
+	  	global $db; 
+	  	if ( $this->id == '' ) $this->id = $id;
+		// error check
+		return parent::do_delete();
+  	}
 }
 ?>

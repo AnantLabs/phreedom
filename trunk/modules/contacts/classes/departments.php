@@ -19,7 +19,7 @@
 //
 
 class departments {
-public $extra_buttons = '';
+	public $extra_buttons = '';
     public $db_table      = TABLE_DEPARTMENTS;
     public $help_path     = '07.07.04';
     public $title         = '';

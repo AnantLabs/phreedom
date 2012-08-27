@@ -226,8 +226,8 @@ switch ($action) {
 	} else {
 	  $default_company = defined('DEFAULT_COMPANY') ? DEFAULT_COMPANY : '';
 	  if ($_COOKIE['pb_company']) $default_company = $_COOKIE['pb_company'];
-	  foreach ($companies as $key => $value) {
-		if ($_SESSION['companies'][$key] == $default_company) $company_index = $key;
+	  foreach ($_SESSION['companies'] as $key => $value) {
+		if ($value == $default_company) $company_index = $key;
 	  }
 	}
 	if ($_POST['language']) { // find default language

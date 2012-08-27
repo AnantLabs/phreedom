@@ -61,7 +61,7 @@ class fields {
 	}
 	// if the id is empty then check for duplicate field names
 	if($this->id == ''){
-	   $result = $db->Execute("select id from " . TABLE_EXTRA_FIELDS . " where module_id='" . $this->module . "' and field_name='" . $this->field_name . "'");
+	   $result = $db->Execute("select id from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module' and field_name='" . $this->field_name . "'");
 	   if ($result->RecordCount() > 0 && $this->id ==''){ 
 	       $messageStack->add(ASSETS_ERROR_FIELD_DUPLICATE,'error');
 	       $this->error = true;
@@ -462,7 +462,7 @@ class fields {
   }
   
   public function set_fields_to_display($type = null){
-  	global $db;
+  	global $db, $cInfo;
   	$tab_array = array();
   	$result = $db->Execute("select fields.tab_id, tabs.tab_name as tab_name, fields.description as description, fields.params as params, fields.group_by, fields.field_name, fields.entry_type from " . TABLE_EXTRA_FIELDS . " as fields join  " . TABLE_EXTRA_TABS . " as tabs on (fields.tab_id = tabs.id) where fields.module_id='" . $this->module . "' order by tabs.sort_order asc, fields.group_by asc, fields.sort_order asc");
   	while (!$result->EOF) {

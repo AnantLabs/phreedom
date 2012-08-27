@@ -23,6 +23,7 @@ require_once(DIR_FS_MODULES . 'contacts/classes/contact_fields.php');
 class contacts {
 	public  $terms_type         = 'AP'; 
 	public  $auto_type          = false;
+	public  $inc_auto_id 		= false;
 	public  $auto_field         = '';
 	public  $help		        = '';
 	public  $tab_list           = array(); 
@@ -50,11 +51,6 @@ class contacts {
         $this->special_terms  =  db_prepare_input($_POST['terms']); // TBD will fix when popup terms is redesigned
         if ($this->id  == '') $this->id  = db_prepare_input($_POST['rowSeq'], true) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['cID']);
         if ($this->aid == '') $this->aid = db_prepare_input($_GET['aID'],     true) ? db_prepare_input($_GET['aID'])     : db_prepare_input($_POST['aID']); 
-        if ($this->auto_type && $this->short_name == '') {
-            $result = $db->Execute("select ".$this->auto_field." from ".TABLE_CURRENT_STATUS);
-            $this->short_name = $result->fields[$this->auto_field];
-            $this->inc_auto_id = true;
-        }
     }
 		
 	public function getContact() {
@@ -168,7 +164,12 @@ class contacts {
   }
   
   public function data_complete($error){
-  	global $messageStack;
+  	global $db, $messageStack;
+  	if ($this->auto_type && $this->short_name == '') {
+    	$result = $db->Execute("select ".$this->auto_field." from ".TABLE_CURRENT_STATUS);
+        $this->short_name  = $result->fields[$this->auto_field];
+        $this->inc_auto_id = true;
+    }
   	foreach ($this->address_types as $value) {
       if (($value <> 'im' && substr($value, 1, 1) == 'm') || // all main addresses except contacts which is optional
           ($this->address[$value]['primary_name'] <> '')) { // optional billing, shipping, and contact
@@ -232,7 +233,7 @@ class contacts {
         $sql_data_array['first_date'] = 'now()';
         db_perform(TABLE_CONTACTS, $sql_data_array, 'insert');
         $this->id = db_insert_id();
-        //if auto-increment see if the next id is there and increment if so.
+		//if auto-increment see if the next id is there and increment if so.
         if ($this->inc_auto_id) { // increment the ID value
             $next_id = string_increment($this->short_name);
             $db->Execute("update ".TABLE_CURRENT_STATUS." set $this->auto_field = '$next_id'");

@@ -23,8 +23,8 @@
     <legend><?php echo ACT_CATEGORY_CONTACT; ?></legend>
     <table>
       <tr>
-        <td align="right"><?php echo constant('ACT_' . strtoupper($type) . '_SHORT_NAME') . ($cInfo->auto_type ? ' ' . ACT_ID_AUTO_FILL : ''); ?></td>
-        <td><?php echo html_input_field('short_name', $cInfo->short_name, 'size="21" maxlength="20"', $cInfo->auto_type ? false : true); ?></td>
+        <td align="right"><?php echo constant('ACT_' . strtoupper($type) . '_SHORT_NAME') . ($cInfo->auto_type == false ? '' : ' ' . ACT_ID_AUTO_FILL ); ?></td>
+        <td><?php echo html_input_field('short_name', $cInfo->short_name, 'size="21" maxlength="20"', $cInfo->auto_type == false ? true : false); ?></td>
         <td align="right"><?php echo TEXT_INACTIVE; ?></td>
         <td><?php echo html_checkbox_field('inactive', '1', $cInfo->inactive); ?></td>
         <td align="right"><?php echo constant('ACT_' . strtoupper($type) . '_REP_ID'); ?></td>

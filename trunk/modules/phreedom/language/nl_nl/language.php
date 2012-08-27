@@ -394,4 +394,6 @@ define('GEN_DB_DATA_BACKUP','Bedrijf Database Backup');
 define('GEN_LOG_PERIOD_CHANGE','Boekhoud Periode - Veranderen');
 define('GEN_LOG_INSTALL_SUCCESS','Module %s: ');
 define('TEXT_PRODUCT_DEFAULT','Van Product');
+define('TEXT_ITEM', 'Item');
+
 ?>

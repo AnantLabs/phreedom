@@ -328,7 +328,7 @@ class xml_orders extends parser {
 		'enc_value' => $this->order['payment']['encval'],
 		'exp_date'  => $this->order['payment']['exp_date'], // db format (YYYY-MM-DD)
 	  );
-	  $result = $db->Execute("select id from ".TABLE_DATA_SECURITY." 
+	  $result = $db->Execute("select id from " . TABLE_DATA_SECURITY . " 
 		where module = 'contacts' 
 		and ref_1 = '" . $psOrd->bill_acct_id . "' 
 		and ref_2 = '" . $psOrd->bill_address_id . "' 
@@ -356,7 +356,7 @@ class xml_orders extends parser {
 	  $output['ship_acct_id'] = $output['bill_acct_id']; // no drop ships allowed
 	  $output['terms']        = $result->fields['special_terms'];
 	  // find main address to update as billing address
-	  $result = $db->Execute("select address_id from ".TABLE_ADDRESS_BOOK." 
+	  $result = $db->Execute("select address_id from " . TABLE_ADDRESS_BOOK . " 
 		where type = 'cm' and ref_id = " . $output['bill_acct_id']);
 	  if ($result->RecordCount() == 0) {
 	    $this->failed[] = $this->order['reference'];

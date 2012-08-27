@@ -37,7 +37,7 @@ if ($search_text) {
   if ($result->RecordCount() == 1) { // check to make sure there are no open SO/POs
     $cID = $result->fields['id'];
   	if (in_array($jID, array(6,12))) {
-  	  $result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where closed = '0' and bill_acct_id = $cID limit 1");
+  	  $result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where closed = '0' and journal_id in (4,10) and bill_acct_id = $cID limit 1");
   	  if ($result->RecordCount() > 0) $error = true;
   	}
   } else { $error = true; }

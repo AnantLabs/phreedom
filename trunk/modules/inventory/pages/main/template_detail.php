@@ -45,7 +45,7 @@ if ($action == 'properties') {
   $toolbar->add_help('07.04.01.02');
 }
 echo $toolbar->build_toolbar(); 
-$fields->set_fields_to_display();
+$fields->set_fields_to_display($cInfo->inventory_type );
 ?>
 <h1><?php echo MENU_HEADING_INVENTORY . ' - ' . TEXT_SKU . '# ' . $cInfo->sku . ' (' . $cInfo->description_short . ')'; ?></h1>
 <div id="detailtabs">

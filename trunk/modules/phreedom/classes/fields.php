@@ -266,8 +266,7 @@ class fields {
   function build_form_html($action, $id = '') {
     global $db, $messageStack, $currencies, $integer_lengths, $decimal_lengths, $check_box_choices;
 	if ($action <> 'new' && $this->error == false) {
-	   $result = $db->Execute("select id, entry_type, field_name, description, params, tab_id
-	       from " . TABLE_EXTRA_FIELDS . " where id = '" . $this->id  . "'");
+	   $result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS . " where id = '" . $this->id  . "'");
 	   $params = unserialize($result->fields['params']);
 	   foreach ($result->fields as $key => $value) $this->$key = $value;
 	   if (is_array($params)) foreach ($params as $key => $value) $this->$key = $value;

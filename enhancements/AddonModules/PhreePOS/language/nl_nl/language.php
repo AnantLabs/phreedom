@@ -23,7 +23,7 @@ define('TEXT_REFUND','Restitutie');
 define('TEXT_REFUND_METHOD','Restitutie Methode');
 define('TEXT_ENTRIES','Vermeldingen');
 define('PHREEPOS_ITEM_NOTES','Cursor moet in het artikelnummer vak staan, wil de barcode scanner werken.<br><b>ESC</b> = Schoon Scherm.<br><b>Alt+R</b> = Schakelen tussen ruilen en gewone verkopen.<br><b>F7</b> = Toon voorraad pop-up.<br><b>F8</b> = Toon klant pop-up.<br><b>F9</b> = Toon betaalwijze pop-up.');
-define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Pop-up sluiten.<br><b>F11</b>  = Bewaren.<br><b>F12</b>  = Printen');
+define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Pop-up sluiten.<br><b>F11</b>  = Bewaren.<br><b>F12</b>  = Printen<br><b>pijl omhoog & omlaag<b> = ander betaaltype');
 define('POS_MSG_DELETE_CONFIRM','Weet u zeker dat u deze boeking wil verwijderen?');
 define('GENERAL_JOURNAL_19_ERROR_6','Een kassa verkoop kan niet verwijderd worden als deze gesloten is!');
 define('TEXT_TILL','Kassa');
@@ -31,4 +31,17 @@ define('TEXT_OPEN_DRAWER','open kassala');
 define('TEXT_PRINT_PREVIOUS','Print Vorige Bon');
 define('TEXT_SELECT_CUSTOMER','Selecteer Klant');
 define('TEXT_AMOUNT_ORIGINAL_CURRENCY','Oorspr Bedrag');
+define('TEXT_SALES','Verkopen');
+define('PHREEPOS_HANDELING_CASH_DIFFERENCE','Geboekt Kasverschil');
+define('POS_HEADING_CLOSING','Dag Afsluiting');
+
+define('NEW_BALANCE','Nieuw Kassa Saldo');
+define('PAYMENTS_SHOULD_BE','te Ontvangen Betalingen:');
+define('PAYMENTS_RECEIVED','Ontvangen Betalingen:');
+define('TILL_BALANCE','Start Saldo Kassa:');
+define('TILL_END_BALANCE','Kasverschil');
+define('TEXT_SHOW_COUNT_HELP','Toon tel hulp');
+define('EXCEED_MAX_DISCOUNT','U heeft het maximum kortingspercentage van %s overschreden');
+define('EXCEED_MAX_DISCOUNT_SKU','U heeft het maximum kortingspercentage van %s overschreden voor artiekel %s');
+
 ?>

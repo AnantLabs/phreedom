@@ -45,7 +45,7 @@ class phreepos_admin {
 	// Load tables
 	$this->tables = array(
 		TABLE_PHREEPOS_TILLS => "CREATE TABLE " . TABLE_PHREEPOS_TILLS . " (
-  			till_id int(11) NOT NULL auto_increment,
+  			till_id 				int(11) NOT NULL auto_increment,
   			store_id            	int(11)                default '0',
   			description         	varchar(64)   NOT NULL default '',
   			gl_acct_id          	varchar(15)   NOT NULL default '',
@@ -57,6 +57,8 @@ class phreepos_admin {
   			printer_starting_line	varchar(255)  NOT NULL default '',
   			printer_closing_line    varchar(255)  NOT NULL default '',
   			printer_open_drawer     varchar(255)  NOT NULL default '',
+  			balance					double 				   default '0',
+  			max_discount        	varchar(64)   NOT NULL default '',
   			PRIMARY KEY (till_id)
   		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
     );

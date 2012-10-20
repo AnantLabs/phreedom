@@ -43,6 +43,8 @@ define('DEF_GL_ACCT_TITLE',ORD_AR_ACCOUNT);
 define('POPUP_FORM_TYPE','pos:rcpt');
 $error           = false;
 $auto_print      = false;
+$total_discount  = 0;
+$total_fixed     = 0;
 $account_type    = 'c';
 $post_success    = false;
 $order           = new journal_19();
@@ -94,7 +96,7 @@ if (file_exists($custom_path)) { include($custom_path); }
 	$order->subtotal            = $currencies->clean_value(db_prepare_input($_POST['subtotal']),  $order->currencies_code) / $order->currencies_value; // don't need unless for verification
 	$order->disc_gl_acct_id     = db_prepare_input($_POST['disc_gl_acct_id']);
 	$order->discount            = $currencies->clean_value(db_prepare_input($_POST['discount']),  $order->currencies_code) / $order->currencies_value;
-	$order->disc_percent        = ($order->subtotal) ? (1-(($order->subtotal-$order->discount)/$order->subtotal)) : 0;
+	//$order->disc_percent        = ($order->subtotal) ? (1-(($order->subtotal-$order->discount)/$order->subtotal)) : 0;
 	$order->sales_tax           = $currencies->clean_value(db_prepare_input($_POST['sales_tax']), $order->currencies_code) / $order->currencies_value;
 	$order->total_amount        = $currencies->clean_value(db_prepare_input($_POST['total']),     $order->currencies_code) / $order->currencies_value;
 	$order->pmt_recvd           = $currencies->clean_value(db_prepare_input($_POST['pmt_recvd']), $order->currencies_code) / $order->currencies_value;
@@ -106,32 +108,61 @@ if (file_exists($custom_path)) { include($custom_path); }
 	    $x++;
 	    continue;
 	  }
-	  $full_price = $currencies->clean_value(db_prepare_input($_POST['full_' . $x]), $order->currencies_code) / $order->currencies_value;
+	  $full_price  = $currencies->clean_value(db_prepare_input($_POST['full_' . $x]), $order->currencies_code) / $order->currencies_value;
+	  $fixed_price = $currencies->clean_value(db_prepare_input($_POST['fixed_price_' . $x]), $order->currencies_code) / $order->currencies_value;
+	  $price       = $currencies->clean_value(db_prepare_input($_POST['price_' . $x]), $order->currencies_code) / $order->currencies_value;
+	  $wtprice     = $currencies->clean_value(db_prepare_input($_POST['wtprice_' . $x]), $order->currencies_code) / $order->currencies_value;
+	  $qty		   = $currencies->clean_value(db_prepare_input($_POST['pstd_' . $x]), $order->currencies_code);
+	  $disc        = db_prepare_input($_POST['disc_' . $x]);
+	  $sku         = db_prepare_input($_POST['sku_' . $x]);
+	  if ($fixed_price == 0 ) $fixed_price = $price;
 	  // Error check some input fields
 	  if ($_POST['acct_' . $x] == "") {
 	  		$error .= GEN_ERRMSG_NO_DATA . TEXT_GL_ACCOUNT;
 	  }
+	  //check if discount per row doens't exceed the max
+	  if($tills->max_discount <> ''){
+	  	$wt_total_fixed += $fixed_price * ($wtprice / $price)* $qty;
+	  	$total_fixed += $fixed_price * $qty;
+	  	if( $price < $fixed_price ){ //the price in lower than the price set in the pricesheet
+	  		$total_discount += ($fixed_price * $qty) - ($price * $qty );
+	  		if($disc >= $tills->max_discount)  $error .= sprintf(EXCEED_MAX_DISCOUNT_SKU, $tills->max_discount, $sku );
+	  	}
+	  }
 	  if (!$error) {
 	    $order->item_rows[] = array(
 		  'id'        => db_prepare_input($_POST['id_' . $x]),
-		  'gl_type'   => GL_TYPE,
-		  'pstd'      => $currencies->clean_value(db_prepare_input($_POST['pstd_' . $x]), $order->currencies_code),
-		  'sku'       => ($_POST['sku_' . $x] == TEXT_SEARCH) ? '' : db_prepare_input($_POST['sku_' . $x]),
+	      'sku'       => ($_POST['sku_' . $x] == TEXT_SEARCH) ? '' : $sku,
+		  'pstd'      => $qty,
 		  'desc'      => db_prepare_input($_POST['desc_' . $x]),
-		  'price'     => $currencies->clean_value(db_prepare_input($_POST['price_' . $x]), $order->currencies_code) / $order->currencies_value,
+	      'total'     => $currencies->clean_value(db_prepare_input($_POST['total_' . $x]), $order->currencies_code) / $order->currencies_value,
 		  'full'      => $full_price,
 		  'acct'      => db_prepare_input($_POST['acct_' . $x]),
 		  'tax'       => db_prepare_input($_POST['tax_' . $x]),
-		  'total'     => $currencies->clean_value(db_prepare_input($_POST['total_' . $x]), $order->currencies_code) / $order->currencies_value,
+	      'serial'    => db_prepare_input($_POST['serial_' . $x]),
+/*rest is not used	    
+		  'price'     => $price,
 		  'weight'    => db_prepare_input($_POST['weight_' . $x]),
-		  'serial'    => db_prepare_input($_POST['serial_' . $x]),
-		  'disc'      => db_prepare_input($_POST['diac_' . $x]),
 		  'stock'     => db_prepare_input($_POST['stock_' . $x]),
 		  'inactive'  => db_prepare_input($_POST['inactive_' . $x]),
-		  'lead_time' => db_prepare_input($_POST['lead_' . $x]),
+		  'lead_time' => db_prepare_input($_POST['lead_' . $x]),*/
 	    );
 	  }
 	  $x++;
+	}//print($total_discount.'+'.$order->discount);
+	//check if the total discount doesn;t exceed the max
+	if(!$error && $tills->max_discount <> ''){
+		//calculate the discount percent used by all rows, use basis set in the phreepos admin ( subtotal or total.) 
+		if(PHREEPOS_DISCOUNT_OF){//total
+		//print( round((1-(($wt_total_fixed - ($total_discount + $order->discount) )/$wt_total_fixed))* 100,1) .'>='.  round($tills->max_discount,1));
+			if( round((1-(($wt_total_fixed - ($total_discount + $order->discount) )/$wt_total_fixed))* 100,1) >=  round($tills->max_discount,1)){
+	  			$error .= sprintf(EXCEED_MAX_DISCOUNT, $tills->max_discount);
+	  		}
+		}else{//subtotal				
+			if( round((1-(($total_fixed - ($total_discount + $order->discount) )/$total_fixed))* 100,1) >=  round($tills->max_discount,1)){
+	  			$error .= sprintf(EXCEED_MAX_DISCOUNT, $tills->max_discount);
+	  		}
+		}
 	}
 	// load the payments
 	$x   = 1;
@@ -141,7 +172,6 @@ if (file_exists($custom_path)) { include($custom_path); }
 	    $x++;
 		continue;
 	  }
-	  if (!$openCashDrawer) $openCashDrawer = $_POST['OpenCashDrawer_' . $x];
 	  $pmt_meth = $_POST['meth_' . $x];
 	  $pmt_amt  = $currencies->clean_value(db_prepare_input($_POST['pmt_' . $x]), $order->currencies_code) / $order->currencies_value;
 	  $tot_paid += $pmt_amt;
@@ -172,35 +202,31 @@ if (file_exists($custom_path)) { include($custom_path); }
 	  if (!$order->bill_acct_id && !$order->bill_add_update) {
 			$error 	.= POS_ERROR_CONTACT_REQUIRED;
 	  } else {
-	    if ($order->bill_primary_name   === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_PRIMARY_NAME,   'error');
-	    if ($order->bill_contact        === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_CONTACT,        'error');
-	    if ($order->bill_address1       === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_ADDRESS1,       'error');
-	    if ($order->bill_address2       === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_ADDRESS2,       'error');
-	    if ($order->bill_city_town      === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_CITY_TOWN,      'error');
-	    if ($order->bill_state_province === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_STATE_PROVINCE, 'error');
-	    if ($order->bill_postal_code    === false) $error = $messageStack->add(GEN_ERRMSG_NO_DATA . GEN_POSTAL_CODE,    'error');
+	    if ($order->bill_primary_name   === false) $error .= GEN_ERRMSG_NO_DATA . GEN_PRIMARY_NAME;
+	    if ($order->bill_contact        === false) $error .= GEN_ERRMSG_NO_DATA . GEN_CONTACT;
+	    if ($order->bill_address1       === false) $error .= GEN_ERRMSG_NO_DATA . GEN_ADDRESS1;
+	    if ($order->bill_address2       === false) $error .= GEN_ERRMSG_NO_DATA . GEN_ADDRESS2;
+	    if ($order->bill_city_town      === false) $error .= GEN_ERRMSG_NO_DATA . GEN_CITY_TOWN;
+	    if ($order->bill_state_province === false) $error .= GEN_ERRMSG_NO_DATA . GEN_STATE_PROVINCE;
+	    if ($order->bill_postal_code    === false) $error .= GEN_ERRMSG_NO_DATA . GEN_POSTAL_CODE;
 	  }
-	}
-	// Item row errors
-	if (!$order->item_rows) {
-		$error .= GL_ERROR_NO_ITEMS;
 	}
 	// Payment errors 
 	if ($currencies->clean_value(db_prepare_input($_POST['bal_due']),  $order->currencies_code) / $order->currencies_value <> $currencies->clean_value(0)) {
 	  $error .= 'The total payment was not equal to the order total!'. chr(10);
-	  $error .=$tot_paid .' + '. $order->rounding_amt.' + '. $order->total_amount;
+	  $error .= $tot_paid .' + '. $order->rounding_amt.' + '. $order->total_amount;
 	}
 	// End of error checking, process the order
 	if (!$error) { // Post the order
-	  if ($post_success = $order->post_ordr($action)) {	// Post the order class to the db
-		gen_add_audit_log(MENU_HEADING_PHREEPOS . ' - ' . ($_POST['id'] ? TEXT_EDIT : TEXT_ADD), $order->purchase_invoice_id, $order->total_amount);
-	  } else { // reset the id because the post failed (ID could have been set inside of Post)
-		$error .= 'Posting failt!';
-		$order->purchase_invoice_id = '';	// reset order num to submitted value (may have been set if payment failed)
-		$order->id = ''; // will be null unless opening an existing purchase/receive
-	  }
-	} else { // there was a post error, reset id and re-display form
-	  $error .= GL_ERROR_NO_POST;
+		if (!$order->item_rows) {
+			$error .= GL_ERROR_NO_ITEMS;
+		}else if ($post_success = $order->post_ordr($action)) {	// Post the order class to the db
+			gen_add_audit_log(MENU_HEADING_PHREEPOS . ' - ' . ($_POST['id'] ? TEXT_EDIT : TEXT_ADD), $order->purchase_invoice_id, $order->total_amount);
+	  	} else { // reset the id because the post failed (ID could have been set inside of Post)
+			$error .= 'Posting failt!';
+			$order->purchase_invoice_id = '';	// reset order num to submitted value (may have been set if payment failed)
+			$order->id = ''; // will be null unless opening an existing purchase/receive
+	  	}
 	}
 	
 	//print
@@ -222,7 +248,8 @@ if (file_exists($custom_path)) { include($custom_path); }
 	  $output = BuildForm($report, $delivery_method = 'S'); // force return with report
 	  if ($output === true) {
 	  	$error .='printing report failt';
-	  } else { // fetch the receipt and prepare to print
+	  } else if (is_array($output) ){
+	    // fetch the receipt and prepare to print
 	  	$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
 	  	foreach (explode("\n",$receipt_data) as $value){
 	  		$xml .= "<receipt_data>\n";
@@ -237,7 +264,6 @@ if (!$error)			$xml .= "\t" . xmlEntry("order_id",		 	$order->id);
 if ($error)  			$xml .= "\t" . xmlEntry("error", 			$error);
 if ($massage)  	 		$xml .= "\t" . xmlEntry("massage", 			$massage);
 if ($order->errormsg)	$xml .= "\t" . xmlEntry("error", 			$order->errormsg);
-
 echo createXmlHeader() . $xml . createXmlFooter();
 die;	
 ?>

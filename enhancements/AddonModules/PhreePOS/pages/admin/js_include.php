@@ -42,7 +42,7 @@ function loadPopUp(action, id) {
     case 'tills_edit':    action = 'edit';   subject = 'tills'; break;
     case 'tills_delete':  action = 'delete'; subject = 'tills'; break;
   }
-  window.open("index.php?module=phreedom&page=popup_setup&topic="+module+"&subject="+subject+"&action="+action+"&sID="+id,"popup_setup","width=500,height=550,resizable=1,scrollbars=1,top=150,left=200");
+  window.open("index.php?module=phreedom&page=popup_setup&topic="+module+"&subject="+subject+"&action="+action+"&sID="+id,"popup_setup","width=1000,height=700,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 

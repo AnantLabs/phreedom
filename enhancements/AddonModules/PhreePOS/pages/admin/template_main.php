@@ -44,7 +44,7 @@ echo $toolbar->build_toolbar();
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
     echo add_tab_list('custom',   TEXT_CUSTOM_TAB, false); 
   }
-  echo add_tab_list('statistics', TEXT_STATISTICS, false);
+  echo add_tab_list('tab_stats', TEXT_STATISTICS, false);
 ?>
 </ul>
 <?php

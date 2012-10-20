@@ -254,10 +254,10 @@ echo $SeccondToolbar->build_toolbar();
 	echo '    </div>';
 	echo '</fieldset>';
 ?>
-	<div id="payment_extra_buttons">
-	<?php echo html_icon('devices/media-floppy.png',		 TEXT_SAVE,  'large', 'onclick="SavePayment(\'save\')"' , 0, 0, 'btn_save'); ?>
-	<?php echo html_icon('phreebooks/pdficon_large.gif', TEXT_PRINT, 'large', 'onclick="SavePayment(\'print\')"', 0, 0, 'btn_save'); ?>
-	</div>
+	<table id="payment_extra_buttons">
+	<tr><td> <?php echo html_icon('devices/media-floppy.png',		 TEXT_SAVE,  'large', 'onclick="SavePayment(\'save\')"' , 0, 0, 'btn_save').'</td><td>' . TEXT_SAVE  ; ?></td></tr>
+	<tr><td> <?php echo html_icon('phreebooks/pdficon_large.gif', TEXT_PRINT, 'large', 'onclick="SavePayment(\'print\')"', 0, 0, 'btn_save')   .'</td><td>' . TEXT_PRINT ; ?></td></tr>
+	</table>
 	<?php echo TEXT_AMOUNT . ' ' . html_input_field('amount', $currencies->format($amount), 'size="15" maxlength="20" style="text-align:right; font-size: 1.5em"'); ?>
 	<footer><?php echo PHREEPOS_PAYMENT_NOTES; ?> </footer>
 </div>

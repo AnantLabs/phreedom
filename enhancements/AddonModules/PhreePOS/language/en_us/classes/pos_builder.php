@@ -27,6 +27,7 @@ define('RW_EB_SALES_TAX','Sales Tax');
 define('RW_EB_TAX_AUTH','Tax Authorities');
 define('RW_EB_TAX_DETAILS','Tax Details');
 define('RW_EB_INV_SUBTOTAL','Invoice Subtotal');
+define('RW_EB_INV_SUB_W_TAX','Invoice Subtotal w/tax');
 define('RW_EB_INV_TOTAL','Invoice Amount');
 define('RW_EB_CUR_CODE','Currency Code');
 define('RW_EB_CUR_EXC_RATE','Currency Exc. Rate');
@@ -67,7 +68,9 @@ define('RW_EB_INV_TOTAL_PRICE','invoice_full_price');
 define('RW_EB_INV_UNIT_PRICE','invoice_unit_price');
 define('RW_EB_INV_DISCOUNT','invoice_discount');
 define('RW_EB_INV_PRICE','invoice_price');
+define('RW_EB_INV_PRICE_W_TAX','invoice_price_w_tax');
 define('RW_EB_INV_SKU','invoice_sku');
 define('RW_EB_INV_SERIAL_NUM','invoice_serial_num');
+define('RW_EB_INV_LINE_TAX','invoice_line_tax');
 
 ?>

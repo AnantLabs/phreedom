@@ -204,10 +204,7 @@ class journal_21 extends journal {
 
   // this function adjusts the posted total to the calculated one to take into account fractions of a cent
   function adjust_total($amount) {
-	global $currencies;
-	$posted_total     = $currencies->format($this->total_amount);
-	$calculated_total = $currencies->format($amount);
-	if ($posted_total == $calculated_total) $this->total_amount = $amount;
+	if ($this->total_amount == $amount) $this->total_amount = $amount;
   }
   
   function add_rounding_journal_rows() { // put rounding into journal row array

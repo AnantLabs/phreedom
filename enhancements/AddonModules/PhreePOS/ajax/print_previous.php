@@ -50,8 +50,9 @@ if (!$error ) {
 	$report->xfilterlist[0]->min_val   = $order->fields['id'];
 	$output = BuildForm($report, $delivery_method = 'S'); // force return with report
 	if ($output === true) {
-		$error .='printing report failt';
-	} else { // fetch the receipt and prepare to print
+	  	$error .='printing report failt';
+	} else if (!is_array($output) ){
+	  	// fetch the receipt and prepare to print
 	  	$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
 	  	foreach (explode("\n",$receipt_data) as $value){
 	  		$xml .= "<receipt_data>\n";

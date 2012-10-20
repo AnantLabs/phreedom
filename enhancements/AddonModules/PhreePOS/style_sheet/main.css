@@ -13,6 +13,16 @@ input, select, textarea, file, checkbox, radio {
     font-size: 1em;
 }
 
+input#sku {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+select#payment_method {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
 /* start search part */
 
 html>body fieldset#search_part{

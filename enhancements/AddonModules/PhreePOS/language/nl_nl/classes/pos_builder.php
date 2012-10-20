@@ -55,8 +55,11 @@ define('RW_EB_INV_QTY','Regel Aantal');
 define('RW_EB_INV_TOTAL_PRICE','Regel Volledige Prijs');
 define('RW_EB_INV_UNIT_PRICE','Regel Stuk Prijs');
 define('RW_EB_INV_DISCOUNT','Regel Korting');
-define('RW_EB_INV_PRICE','Regel Prijs Inclusief btw');
+define('RW_EB_INV_PRICE','Regel Prijs');
+define('RW_EB_INV_PRICE_W_TAX','Regel Prijs Inclusief btw');
 define('RW_EB_INV_SKU','Regel Art.nr');
 define('RW_EB_INV_SERIAL_NUM','Regel Serie nr');
 define('RW_EB_ROUNDED_OF','Afgerond');
+define('RW_EB_INV_LINE_TAX','Regel Belasting');
+define('RW_EB_INV_SUB_W_TAX','factuur Sub totaal met btw');
 ?>

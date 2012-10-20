@@ -19,24 +19,24 @@
 //
 
 class tills {
-    public $db_table    = TABLE_PHREEPOS_TILLS;
-    public $help_path   = '';
-    public $error       = false;
+    public $db_table     			= TABLE_PHREEPOS_TILLS;
+    public $help_path   			= '';
+    public $error       			= false;
+    public $currencies_code 		= DEFAULT_CURRENCY;
+    public $printer_name    		= '';
+    public $printer_starting_line 	= '';
+	public $printer_closing_line  	= '';
+    public $printer_open_drawer   	= '';
     
     public function __construct(){
          $this->security_id           = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
-         $this->printer_name          = PHREEPOS_RECEIPT_PRINTER_NAME;
-         $this->currencies_code       = DEFAULT_CURRENCY;
-         $this->printer_starting_line = PHREEPOS_RECEIPT_PRINTER_STARTING_LINE;
-         $this->printer_closing_line  = PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE;
-         $this->printer_open_drawer   = PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER;
          foreach ($_POST as $key => $value) $this->$key = $value;
          $this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
          $this->store_ids = gen_get_store_ids();
     }
 
   function btn_save($id = '') {
-  	global $db, $messageStack;
+  	global $db, $messageStack, $currencies;
 	if ($this->security_id < 2) {
 		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
 		return false;
@@ -51,18 +51,16 @@ class tills {
 		'gl_acct_id'  		    => $this->gl_acct_id,
 		'dif_gl_acct_id'		=> $this->dif_gl_acct_id,
 		'rounding_gl_acct_id'   => $this->rounding_gl_acct_id,
+		'currencies_code'   	=> $this->currencies_code,
+		'restrict_currency'	 	=> ENABLE_MULTI_CURRENCY ? $this->restrict_currency : 1,
 		'printer_name'			=> $this->printer_name,
 		'printer_starting_line' => $this->printer_starting_line,
 		'printer_closing_line' 	=> $this->printer_closing_line,
 		'printer_open_drawer' 	=> $this->printer_open_drawer,
+		'balance' 				=> $currencies->clean_value($this->balance, $this->currencies_code),
+		'max_discount'		    => $this->max_discount,
 	);
-	if (ENABLE_MULTI_CURRENCY) {
-		$sql_data_array['currencies_code']   = $this->currencies_code;
-		$sql_data_array['restrict_currency'] = $this->restrict_currency;
-	}else{
-		$sql_data_array['currencies_code']   = DEFAULT_CURRENCY;
-		$sql_data_array['restrict_currency'] = 1;
-	}
+	
     if ($id) {
 	  db_perform($this->db_table, $sql_data_array, 'update', "till_id = '" . $id . "'");
 	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_UPDATE, $this->description);
@@ -95,10 +93,10 @@ class tills {
   }
 
   function build_main_html() {
-  	global $db, $messageStack;
+  	global $db, $messageStack ,$currencies;
     $content = array();
 	$content['thead'] = array(
-	  'value' => array(TEXT_DESCRIPTION, GEN_STORE_ID, TEXT_GL_ACCOUNT, TEXT_ACTION),
+	  'value' => array(TEXT_DESCRIPTION, GEN_STORE_ID, TEXT_GL_ACCOUNT, TEXT_ACTION, TEXT_BALANCE),
 	  'params'=> 'width="100%" cellspacing="0" cellpadding="1"',
 	);
     $result = $db->Execute("select * from " . $this->db_table );
@@ -114,6 +112,8 @@ class tills {
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => gen_get_type_description(TABLE_CHART_OF_ACCOUNTS, $result->fields['gl_acct_id']),
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
+		array('value' => $currencies->format($result->fields['balance'], true, $result->fields['currencies_code'] ),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => $actions,
 			  'params'=> 'align="right"'),
 	  );
@@ -124,12 +124,20 @@ class tills {
   }
 
   function build_form_html($action, $id = '') {
-    global $db;
+    global $db, $currencies;
     if ($action <> 'new' && $this->error == false) {
         $sql = "select * from " . $this->db_table . " where till_id = " . $id;
         $result = $db->Execute($sql);
         foreach ($result->fields as $key => $value) $this->$key = $value;
 	}
+	$payment_modules = load_all_methods('payment');
+	foreach ($payment_modules as $key => $pmts) {
+  		$pmt_method = $pmts['id'];
+  		$$pmt_method = new $pmt_method;
+  		if($$pmt_method->show_in_pos == false) {
+  			unset($payment_modules[$key]);
+  		}
+	}	
 	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
 	$output .= '  <thead class="ui-widget-header">' . "\n";
 	$output .= '  <tr>' . chr(10);
@@ -149,15 +157,21 @@ class tills {
 	$output .= '    <td>' . TEXT_GL_ACCOUNT . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(0)), $this->gl_acct_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	//end of the day differences
+    $output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . TEXT_GL_ACCOUNT_ROUNDING . '</td>' . chr(10);
+	$output .= '    <td>' . html_pull_down_menu('rounding_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->rounding_gl_acct_id) . '</td>' . chr(10);
+    $output .= '  </tr>' . chr(10);
 	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . TEXT_DIF_GL_ACCOUNT . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('dif_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->dif_gl_acct_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
-	//end end of the day differences
     $output .= '  <tr>' . chr(10);
-	$output .= '    <td>' . TEXT_GL_ACCOUNT_ROUNDING . '</td>' . chr(10);
-	$output .= '    <td>' . html_pull_down_menu('rounding_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->rounding_gl_acct_id) . '</td>' . chr(10);
+	$output .= '    <td>' . TEXT_BALANCE . '</td>' . chr(10);
+	$output .= '    <td>' . html_input_field('balance', $currencies->format($this->balance, true, $this->currencies_code )) . '</td>' . chr(10);
+    $output .= '  </tr>' . chr(10);
+    $output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . TEXT_MAX_DISCOUNT . '</td>' . chr(10);
+	$output .= '    <td>' . html_input_field('max_discount', $this->max_discount, 'size="16" maxlength="15"') . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
     //default currency
     if (ENABLE_MULTI_CURRENCY) {	// show currency slection pulldown
@@ -194,6 +208,7 @@ class tills {
     $output .= '</table>' . chr(10);
     return $output;
   }
+  
 // functions for template main  
   function showDropDown(){
   	global $db;
@@ -240,7 +255,7 @@ class tills {
   
   function get_default_till_info(){
   	global $db;
-  	$sql = "select till_id from " . $this->db_table . " where store_id = '" . $_SESSION['admin_prefs']['def_store_id']."'";
+  	$sql = "select * from " . $this->db_table . " where store_id = '" . $_SESSION['admin_prefs']['def_store_id']."'";
     $result = $db->Execute($sql);
     foreach ($result->fields as $key => $value) $this->$key = $value;
   }
@@ -279,6 +294,20 @@ class tills {
 		$result->MoveNext();
 	}
 	return $js_tills;
+  }
+  
+  function adjust_balance($amount){
+  	global $db, $messageStack;
+  	$sql_data_array = array('balance' => $this->balance + $amount);
+  	$messageStack->debug("\n\n\n updating till balance  balance was = ".$this->balance . " adding = ". $amount." new balance = ". $this->balance + $amount."\n\n\n");
+  	db_perform($this->db_table, $sql_data_array, 'update', "till_id = '" . $this->till_id . "'");
+  }
+  
+  function new_balance($amount){
+  	global $db, $messageStack;
+  	$sql_data_array = array('balance' => $amount);
+  	$messageStack->debug("\n\n\n updating till balance  balance was = ".$this->balance . " new balance = ". $amount ."\n\n\n");
+  	db_perform($this->db_table, $sql_data_array, 'update', "till_id = '" . $this->till_id . "'");
   }
   
   function __destruct(){

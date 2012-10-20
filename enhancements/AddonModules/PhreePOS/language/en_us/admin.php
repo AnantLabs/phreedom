@@ -47,5 +47,6 @@ define('TEXT_DIF_GL_ACCOUNT','GL account for end of the day differences:');
 
 define('TEXT_RESTRICT_CURRENCY','Restrict till to this currency');
 define('TEXT_DRAWER_CODES','open drawer codes');
+define('TEXT_MAX_DISCOUNT', 'set the maximum amount of discount is allowed to be given at this till, this excludes discounts set in the price lists.<br> leave empty is you do not whis to set this');
 
 ?>

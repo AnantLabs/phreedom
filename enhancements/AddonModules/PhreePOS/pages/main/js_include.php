@@ -73,8 +73,6 @@ function init() {
   clearAddress('bill');
   setImage('');
   refreshOrderClock(); 
-  addInvRow();
-  addPmtRow();
   changeOfTill();
   document.getElementById('sku').focus();
 }
@@ -160,9 +158,7 @@ function resetForm() {
 	changeOfTill();
 // remove all item rows and add a new blank one
 	while (document.getElementById('item_table_body').rows.length >= 1) document.getElementById('item_table_body').deleteRow(-1);
-	addInvRow();
 	while (document.getElementById('payment_table_body').rows.length >= 1) document.getElementById('payment_table_body').deleteRow(-1);
-	addPmtRow();
 	updateTotalPrices();
 	document.getElementById('sku').focus();
 }
@@ -301,6 +297,7 @@ function fillOrder(xml) {
 //	  removeElement('tb_main_0', 'tb_icon_print');
 //	  removeElement('tb_main_0', 'tb_icon_save');
     }
+    addInvRow();
     // fill inventory rows and add a new blank one
     var order_discount = formatted_zero;
     var jIndex = 1;
@@ -330,7 +327,6 @@ function fillOrder(xml) {
 		  insertValue('price_' + jIndex,     $(this).find("unit_price").text());
 		  insertValue('total_' + jIndex,     $(this).find("total").text());
 		  updateRowTotal(jIndex, false);
-		  addInvRow();
 		  jIndex++;
 	    default: // do nothing
 	  }
@@ -392,10 +388,7 @@ function processGuess(sXml) {
 function AccountList(currObj) {
 	var firstguess  = document.getElementById('copy_search').value; 
 	var secondguess = document.getElementById('search').value;
-	if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ){
-		AccountList();
-		return;
-	}
+	if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ) return;
 	var guess = firstguess;
 	if( firstguess != secondguess && secondguess != text_search && secondguess != ''){
 		  guess = secondguess;
@@ -487,7 +480,8 @@ function addInvRow() {
   cell += '<input type="hidden" name="inactive_'+rowCnt+'" id="inactive_'+rowCnt+'" value="0" />';
   cell += '<input type="hidden" name="serial_'+rowCnt+'" id="serial_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="full_'+rowCnt+'" id="full_'+rowCnt+'" value="" />';
-  cell += '<input type="hidden" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" value="" />';
+  cell += '<input type="hidden" name="fixed_price_'+rowCnt+'" id="fixed_price_'+rowCnt+'" value="" />';
+  cell += '<input type="hidden" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" value="0" />';
   cell += '<input type="hidden" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="'+default_inv_acct+'" />';
   cell += '<input type="hidden" name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" value="0" />';
   if (display_with_tax) { 
@@ -507,36 +501,34 @@ function addInvRow() {
 
 function removeInvRow(index) {
   var i, acctIndex, offset, newOffset;
-  var firstRow = false;
   var numRows = document.getElementById('item_table_body').rows.length;
-  if (numRows == 1) firstRow = true;
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
 	// move the delete icon from the previous row
 	offset    = i+1;
 	newOffset = i;
 	document.getElementById('item_table_body').rows[newOffset].cells[0].innerHTML = delete_icon_HTML + i + ');">';
-	document.getElementById('pstd_'+i).value     = document.getElementById('pstd_'+(i+1)).value;
-	document.getElementById('sku_'+i).value      = document.getElementById('sku_'+(i+1)).value;
-	document.getElementById('desc_'+i).value     = document.getElementById('desc_'+(i+1)).value;
-	document.getElementById('price_'+i).value    = document.getElementById('price_'+(i+1)).value;
-	document.getElementById('acct_'+i).value     = document.getElementById('acct_'+(i+1)).value;
-	document.getElementById('tax_'+i).value      = document.getElementById('tax_'+(i+1)).value;
+	document.getElementById('pstd_'+i).value     	= document.getElementById('pstd_'+(i+1)).value;
+	document.getElementById('sku_'+i).value      	= document.getElementById('sku_'+(i+1)).value;
+	document.getElementById('desc_'+i).value     	= document.getElementById('desc_'+(i+1)).value;
+	document.getElementById('price_'+i).value    	= document.getElementById('price_'+(i+1)).value;
+	document.getElementById('acct_'+i).value     	= document.getElementById('acct_'+(i+1)).value;
+	document.getElementById('tax_'+i).value      	= document.getElementById('tax_'+(i+1)).value;
 // Hidden fields
-	document.getElementById('id_'+i).value       = document.getElementById('id_'+(i+1)).value;
-	document.getElementById('stock_'+i).value    = document.getElementById('stock_'+(i+1)).value;
-	document.getElementById('inactive_'+i).value = document.getElementById('inactive_'+(i+1)).value;
-	document.getElementById('serial_'+i).value   = document.getElementById('serial_'+(i+1)).value;
-	document.getElementById('full_'+i).value     = document.getElementById('full_'+(i+1)).value;
-	document.getElementById('disc_'+i).value     = document.getElementById('disc_'+(i+1)).value;
+	document.getElementById('id_'+i).value       	= document.getElementById('id_'+(i+1)).value;
+	document.getElementById('stock_'+i).value    	= document.getElementById('stock_'+(i+1)).value;
+	document.getElementById('inactive_'+i).value 	= document.getElementById('inactive_'+(i+1)).value;
+	document.getElementById('serial_'+i).value   	= document.getElementById('serial_'+(i+1)).value;
+	document.getElementById('full_'+i).value     	= document.getElementById('full_'+(i+1)).value;
+	document.getElementById('fixed_price_'+i).value	= document.getElementById('fixed_price_'+(i+1)).value;
+	document.getElementById('disc_'+i).value     	= document.getElementById('disc_'+(i+1)).value;
 // End hidden fields
-	document.getElementById('total_'+i).value    = document.getElementById('total_'+(i+1)).value;
-	document.getElementById('wttotal_'+i).value  = document.getElementById('wttotal_'+(i+1)).value;
-	document.getElementById('wtprice_'+i).value  = document.getElementById('wtprice_'+(i+1)).value;
+	document.getElementById('total_'+i).value    	= document.getElementById('total_'+(i+1)).value;
+	document.getElementById('wttotal_'+i).value  	= document.getElementById('wttotal_'+(i+1)).value;
+	document.getElementById('wtprice_'+i).value  	= document.getElementById('wtprice_'+(i+1)).value;
   }
   document.getElementById('item_table_body').deleteRow(-1);
   updateTotalPrices();
-  if (firstRow) addInvRow();
 } 
 
 function addPmtRow() {
@@ -569,9 +561,7 @@ function addPmtRow() {
 
 function removePmtRow(index) {
   var i, acctIndex, offset, newOffset;
-  var firstRow = false;
   var numRows = document.getElementById('payment_table_body').rows.length;
-  if (numRows == 1) firstRow = true;
   // remove row from display by reindexing and then deleting last row
   for (i=index; i<numRows; i++) {
 	// move the delete icon from the previous row
@@ -590,7 +580,6 @@ function removePmtRow(index) {
 	document.getElementById('pmt_'+i).value  = document.getElementById('pmt_'+(i+1)).value;
   }
   document.getElementById('payment_table_body').deleteRow(-1);
-  if (firstRow) addPmtRow();
   updateTotalPrices();
 } 
 
@@ -621,7 +610,7 @@ function updateRowTotal(rowCnt, useAjax) {
 	// calculate discount
 	if (full_price > 0) {
 	  var discount = (full_price - unit_price) / full_price;
-	  document.getElementById('disc_'+rowCnt).value = new String(Math.round(1000*discount)/10) + ' %';
+	  document.getElementById('disc_'+rowCnt).value = new String(Math.round(1000*discount)/10);
 	}
 	updateTotalPrices();
 	// call the ajax price sheet update based on customer
@@ -645,15 +634,16 @@ function updateRowTotal(rowCnt, useAjax) {
 
 //ajax response to price sheet request
 function processSkuPrice(sXml) { // call back function
-  var xml = parseXml(sXml);
-  if (!xml) return;
-  var exchange_rate = document.getElementById('currencies_value').value;
-  var rowCnt = $(xml).find("rID").text();
-  if(formatPrecise($(xml).find("sales_price").text()) != formatted_zero ){
-    document.getElementById('price_'   +rowCnt).value    = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
-    document.getElementById('full_'    +rowCnt).value    = formatCurrency($(xml).find("full_price").text() * exchange_rate);
-    updateRowTotal(rowCnt, false);
-  }
+	var xml = parseXml(sXml);
+  	if (!xml) return;
+  	var exchange_rate = document.getElementById('currencies_value').value;
+  	var rowCnt = $(xml).find("rID").text();
+  	if(formatPrecise($(xml).find("sales_price").text()) != formatted_zero ){ 
+		document.getElementById('fixed_price_'  +rowCnt).value = formatPrecise($(xml).find("sales_price").text()  * exchange_rate);
+  		document.getElementById('price_'   		+rowCnt).value = formatPrecise($(xml).find("sales_price").text()  * exchange_rate);
+    	document.getElementById('full_'    		+rowCnt).value = formatCurrency($(xml).find("full_price").text()  * exchange_rate);
+    	updateRowTotal(rowCnt, false);
+  	}
 }
 
 function updateUnitPrice(rowCnt) {
@@ -781,7 +771,7 @@ function calculateDiscount() {
 }
 
 function recalculateCurrencies() {
-  var workingTotal, workingUnitValue, itemTotal, newTotal;
+  var workingTotal, workingUnitValue, itemTotal, newTotal, newFull, newFixedPrice;
   var currentCurrency = document.getElementById('currencies_code').value;
   var currentValue = parseFloat(document.getElementById('currencies_value').value);
   var desiredCurrency = document.getElementById('display_currency').value;
@@ -797,14 +787,17 @@ function recalculateCurrencies() {
 	itemTotal = parseFloat(cleanCurrency(document.getElementById('total_'+i).value, currentCurrency));
 	var tax_index  = document.getElementById('tax_'+i).value;
 	if (isNaN(itemTotal)) continue;
-	workingTotal = itemTotal / currentValue;
-    newTotal = workingTotal * newValue;
+	newTotal = itemTotal / currentValue * newValue;
 	workingUnitValue = newTotal / document.getElementById('pstd_'+i).value;
 	if (isNaN(workingUnitValue)) continue;
-	document.getElementById('total_'   +i).value    = newformatCurrency(new String(newTotal), desiredCurrency);
-	document.getElementById('price_'   +i).value    = newformatPrecise(new String(workingUnitValue), desiredCurrency);
-	document.getElementById('wttotal_' +i).value    = newformatCurrency(newTotal * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
-	document.getElementById('wtprice_' +i).value	= newformatCurrency(workingUnitValue * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
+	newFull 		= parseFloat(cleanCurrency(document.getElementById('full_'   		+i).value)) / currentValue * newValue;
+	newFixedPrice 	= parseFloat(cleanCurrency(document.getElementById('fixed_price_'   		+i).value)) / currentValue * newValue;
+	document.getElementById('full_'   		+i).value    = newformatCurrency(new String(newFull), desiredCurrency);
+	document.getElementById('fixed_price_' 	+i).value    = newformatCurrency(new String(newFixedPrice), desiredCurrency);
+	document.getElementById('total_'   		+i).value    = newformatCurrency(new String(newTotal), desiredCurrency);
+	document.getElementById('price_'   		+i).value    = newformatPrecise(new String(workingUnitValue), desiredCurrency);
+	document.getElementById('wttotal_' 		+i).value    = newformatCurrency(newTotal * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
+	document.getElementById('wtprice_' 		+i).value	 = newformatCurrency(workingUnitValue * (1 +(tax_rates[tax_index].rate / 100)), desiredCurrency);
   }
   var payNumRows     = document.getElementById('payment_table_body').rows.length;
   for (var i=1; i<=payNumRows; i++) {
@@ -900,12 +893,11 @@ function loadSkuDetails(iID, rowCnt) {
 
 function fillInventory(sXml) {
   var image   = '';
-  var newRow = false;
   var exchange_rate = document.getElementById('currencies_value').value;
   var xml    = parseXml(sXml);
   if (!xml) return;
   var sku    = $(xml).find("sku").first().text(); // only the first find, avoids bom add-ons
-  if (!sku) {
+  if (!sku || $(xml).find("inventory_type").text() == 'ms') {
 	  InventoryList(0);
 	  return;
   }
@@ -914,8 +906,8 @@ function fillInventory(sXml) {
   if (negate) qty = -qty;
   var rowCnt = $(xml).find("rID").text();
   if (!rowCnt) {
+	  addInvRow();
 	  rowCnt = document.getElementById('item_table_body').rows.length;
-	  newRow = true;
   }
   document.getElementById('sku_'     +rowCnt).value       = sku;
   document.getElementById('sku_'     +rowCnt).style.color = '';
@@ -924,6 +916,7 @@ function fillInventory(sXml) {
   document.getElementById('pstd_'    +rowCnt).value       = qty;
   document.getElementById('acct_'    +rowCnt).value       = $(xml).find("account_sales_income").text();
   document.getElementById('price_'   +rowCnt).value       = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+  document.getElementById('fixed_price_'   +rowCnt).value = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
   document.getElementById('wtprice_' +rowCnt).value       = formatCurrency(($(xml).find("sales_price").text() * exchange_rate)* (1+(tax_rates[$(xml).find("item_taxable").text()].rate / 100)));
   if($(xml).find("inventory_type").text() == 'sr' || $(xml).find("inventory_type").text() == 'sa') {
   		$('#serial_' +rowCnt).show();
@@ -935,7 +928,6 @@ function fillInventory(sXml) {
     document.getElementById('desc_'  +rowCnt).value       = $(xml).find("description_short").text();
   }
   updateRowTotal(rowCnt, false);
-  if(newRow == true) setId = addInvRow();
   document.getElementById('sku').focus();
   document.getElementById('sku').value = '';
 //Image handler
@@ -951,8 +943,10 @@ function changeOfTill(){
 	}else{
 		$('#display_currency').attr("disabled", false);
 	}
-	document.getElementById('display_currency').value = tills[tillId].currenciesCode;
-	recalculateCurrencies();
+	<?php if (ENABLE_MULTI_CURRENCY) {
+	echo "document.getElementById('display_currency').value = tills[tillId].currenciesCode;";
+	echo "recalculateCurrencies();";
+	} ?>
 	if(tills[tillId].openDrawer == ''){
 		$('#tb_icon_open_drawer').hide();
 	}else{
@@ -1071,6 +1065,7 @@ function SavePayment(PrintOrSave) { // request function
   var f2 = document.getElementById(method+'_field_2') ? document.getElementById(method+'_field_2').value : '';
   var f3 = document.getElementById(method+'_field_3') ? document.getElementById(method+'_field_3').value : '';
   var f4 = document.getElementById(method+'_field_4') ? document.getElementById(method+'_field_4').value : '';
+  addPmtRow();
   var numRows = document.getElementById('payment_table_body').rows.length;
   document.getElementById('pdes_'+numRows).value = pmt_types[method];
   document.getElementById('meth_'+numRows).value = method;
@@ -1080,7 +1075,6 @@ function SavePayment(PrintOrSave) { // request function
   document.getElementById('f2_'+numRows).value   = f2;
   document.getElementById('f3_'+numRows).value   = f3;
   document.getElementById('f4_'+numRows).value   = f4;
-  addPmtRow();
   updateTotalPrices();
   disablePopup();
   if(document.getElementById('bal_due').value == formatCurrency(0)){
@@ -1110,15 +1104,16 @@ function ajaxSave(PrintOrSave){
 //java label printing
 function ajaxPrintAndClean(sXml) { // call back function
 	save_allowed = true;
-  	var xml = parseXml(sXml);
-  	var applet = document.jZebra;
-  	if (!xml) return;
+    var xml = parseXml(sXml);
+    var applet = document.jZebra;
+    if (!xml) return;
   	var massage 	= $(xml).find("massage").text();
   	if ( massage ) 	  alert( massage );
   	var action 		= $(xml).find("action").text();
   	var print 		= action.substring(0,5) == 'print';
   	var tillId 		= document.getElementById('till_id').value;
   	if ( print && applet != null && tills[tillId].printer != '') {	
+  	  	//print receipt and open drawer.
 		applet.findPrinter(tills[tillId].printer);
 		for(var i in tills[tillId].startingLine){
 			applet.append(tills[tillId].startingLine[i]);
@@ -1135,6 +1130,14 @@ function ajaxPrintAndClean(sXml) { // call back function
 			applet.append(tills[tillId].closingLine[i]);
 		}
         applet.print();
+        monitorPrinting();
+  	}else if( applet != null && tills[tillId].printer != '' && $(xml).find("open_cash_drawer").text() == 1 ){
+  	  	//just opendrawer
+  		applet.findPrinter(tills[tillId].printer);
+  		for(var i in tills[tillId].openDrawer){
+			applet.append(tills[tillId].openDrawer[i]);
+		}
+  		applet.print();
         monitorPrinting();
     }else if( print ){
 		var order_id = $(xml).find("order_id").text();
@@ -1284,6 +1287,7 @@ function disablePopup(){
 		$("#popupPayment").fadeOut("slow"); 
 		$("#customer_div").fadeOut("slow");
 		popupStatus = 0;  
+		document.getElementById('sku').focus();
 	}  
 }  
 
@@ -1334,7 +1338,28 @@ $(document).keydown(function(event){
 			resetForm();
 		} 
 		event.originalEvent.keyCode = 0; 
-	}  
+	} 
+	 
+	if(event.keyCode==38){ //arrow up
+		if(popupStatus==1){
+			event.preventDefault();
+			// 	if arrow up is pressed and the payment popup is shown it select the previous payment methode  
+			$('#payment_method').children('option:selected').prev().prop("selected", true);
+			event.originalEvent.keyCode = 0;
+			activateFields();
+		} 
+	}
+	  
+	if(event.keyCode==40){ //arrow down
+		if(popupStatus==1){
+			event.preventDefault();
+			// 	if arrow down is pressed and the payment popup is shown it select the next payment methode  
+			$('#payment_method').children('option:selected').next().prop("selected", true);
+			event.originalEvent.keyCode = 0;
+			activateFields();
+		} 
+	}
+	
 	if(event.keyCode==118 && popupStatus==0){
 		event.preventDefault();
 		// if F7 is pressed the inventory search popup will be shown

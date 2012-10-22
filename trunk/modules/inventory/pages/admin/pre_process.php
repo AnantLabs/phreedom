@@ -85,14 +85,14 @@ switch ($action) {
 	  $sql = "select sum(remaining) as remaining from " . TABLE_INVENTORY_HISTORY . " 
 		where sku = '" . $result->fields['sku'] . "' and remaining > 0";
 	  $inv_hist = $db->Execute($sql);
-		$cog_qty  = round($inv_hist->fields['remaining'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_precise']);
-		$cog_owed = $owed[$result->fields['sku']] ? $owed[$result->fields['sku']] : 0;
-		if ($on_hand <> ($cog_qty - $cog_owed)) {
-		  $repair[$result->fields['sku']] = $cog_qty - $cog_owed;
-		  if ($action <> 'inv_hist_fix') {
-		    $messageStack->add(sprintf(INV_TOOLS_OUT_OF_BALANCE, $result->fields['sku'], $on_hand, ($cog_qty - $cog_owed)), 'error');
-		    $cnt++;
-		  }
+	  $cog_qty  = round($inv_hist->fields['remaining'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_precise']);
+	  $cog_owed = $owed[$result->fields['sku']] ? $owed[$result->fields['sku']] : 0;
+	  if ($on_hand <> ($cog_qty - $cog_owed)) {
+		$repair[$result->fields['sku']] = $cog_qty - $cog_owed;
+		if ($action <> 'inv_hist_fix') {
+		  $messageStack->add(sprintf(INV_TOOLS_OUT_OF_BALANCE, $result->fields['sku'], $on_hand, ($cog_qty - $cog_owed)), 'error');
+		  $cnt++;
+		}
 	  }
 	  $result->MoveNext();
 	}

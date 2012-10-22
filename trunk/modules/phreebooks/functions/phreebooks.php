@@ -467,6 +467,7 @@ function load_cash_acct_balance($post_date, $gl_acct_id, $period) {
 	    $gl_entry->remove_cogs_rows(); // they will be regenerated during the re-post
 	    if (!$gl_entry->Post('edit', true)) {
 		  $db->transRollback();
+		  if (DEBUG) $messageStack->write_debug();
 		  $messageStack->add('<br /><br />Failed Re-posting the journals, try a smaller range. The record that failed was # ' . $gl_entry->id,'error');
 		  return false;
 	    }

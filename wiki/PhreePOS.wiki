@@ -107,14 +107,17 @@ on this page there are the following functions.
 
 ----
 =dashboards=
-you can use the following dashboards with this module.
-The [pos_this_week] dashboard or the [pos_todays] dashboard.
-You can download both from the main site.
+You can use the following dashboards with this module.<br>
+The [pos_this_week] dashboard or the [pos_todays] dashboard. <br>
+You can download both from the main site.<br>
 
 ----
 =customization=
-This module follows the same structure as the main core.
-Please have a look here how it works [Customization]
+This module follows the same structure as the main core.<br>
+Please have a look at [Customization] to find out how you can customize.<br>
+But you can also alter the file module\phreepos\style_sheet\main<br>
+If you want to alter the layout of the pos. (you need to look after this file when updating.)
+
 ----
 = requests or issues =
 If you have any request or issues please post them in the issues part or on the forum.

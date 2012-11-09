@@ -1,13 +1,5 @@
 #summary Multi Language, Multi Currency Point of Sale module.
 
-= Introduction =
-*Project Manager:* for this module.
- Rene Kervezee
-
-*List of sponsors:* who have pledged monetary support for this module.
- Alvin Martin<br>
- lankeeyankee 
-
 = Details of current module 3.5 =
 this module contains the following pages.
 ==main==
@@ -22,12 +14,14 @@ on this page there are the following functions.
     * you can connect different gl account to a till. (see till)
     * per till you can set a maximum discount percentage. Before the post is accepted the amounts will be checked per row and also over the total.
   * entering a sku.
-    * after you leave the field (press tab) a search will be done. If there is a match a new line will be added to the screen and the sku field will be selected again. if there isn't a match you get a pop-up in witch you can select the right item then you also return to the main screen and a new line will be added and the sku field will be selected again.
+    * after you leave the field (press tab) 
+    * first it will look in the list of items that is already on screen. If a sku matches your entery in the sku search field and the unit_price of that sku is not null than the quantity will be increased with one. (this is done so that it is easier to add multiple lines with the same sku that has a sales price set as null 'what i call fill in at sale'.    )
+    * otherwise a database search will be done. If there is a match a new line will be added to the screen and the sku search field will be selected again. If there isn't a match you get a pop-up in witch you can select the right item then you also return to the main screen and a new line will be added and the sku field will be selected again.
     * if the sku is a master stock then it will show a pop-up in witch you can select one of the children (in most cases the children contain the qty of stock.)
     * if the sku has a image this will be shown on the screen and when you hover your mouse over it it will enlarge.
     * if the sku is a serialized item the serialized icon will be shown. Hidden by default. ( this is different from the normal order-screen.)
     * if the user rights are 'edit' or higher the user is allowed to edit the unit price.
-    * by pressing F7 the inventory pop-up will be shown.
+  * by pressing F7 the inventory pop-up will be shown.
   * selecting a customer.
     * in the top right hand corner you have two boxes one is the search box here you can enter a name or id. When you leave the field it will try to find a match. If so the contact fields will be populated if not a pop-up will be presented in witch you can select the right customer.
     * if there are price-sheets connected to this contact the right prices will be presented. ( items already in the table will be recalculated. )
@@ -79,45 +73,48 @@ on this page there are the following functions.
     * third part is the totals ( only present if user rights are 'edit' or higher) 
   * when you hit save 
     * the new amount for that cash drawer is saved. ( in default currency)
-    * the payments are corrected. only totals ( ie if a sales person selected that the payment was etf and it should have been cash ) 
+    * the payments are corrected. only totals ( i.e. if a sales person selected that the payment was etf and it should have been cash ) 
     * if less or more is received than was expected the difference will be booked to the gl-account specified in that till. 
     * payments will be reconciled 
     * if user rights are 'edit' higher than the correction journal it self will also be reconciled
     * you can find this transaction back in the general journal manager.
    
 ==deposit==
+you can find this under banking>vendor deposits and customer deposits<br>
+on this page there are the following functions.
+After you store the transaction it will create a payment with the entered amount and a credit invoice with a value of null.
+This last part is done so that you can find your payment back.
+  * selecting a vendor or customer.
+  * entering the amount.
+  * only for customer selecting a payment. (payment functions will be executed after saving/printing by the payment module.)
+  * entering a deposit number or use the predefined.
+  * selecting the date.
+  * selecting a general ledger cash account.
+  * entering a description 
+  * selecting a gl account
+  * printing 
+  * saving.
+
+
 ==mgr==
+you can find this under banking>pos/pop manager<br>
+on this page there are the following functions.
+  * this page consists of all pos and pop transactions for a given period.
+  * just below the menu you can search: (from left to right.)
+    * per date ( one day.)
+    * per accounting period.
+    * with a expression. ( keep in mind that the expressions will not be 'translate' meaning use a point as decimal separator and it could be that total value doesn't match due to difference in precision.)
 
-=requests=
+----
+=dashboards=
+you can use the following dashboards with this module.
+The [pos_this_week] dashboard or the [pos_todays] dashboard.
+You can download both from the main site.
 
-
-  * Auto fill Customer,set in user defaults. Auto fill Currency, and Location set in customer defaults.
-  * Post to GL accounts set in user defaults.
-  * Line item discount.
-  * Except more then one currency during a sale.
-  * Show change due to the customer in the currency that the sale is made in.
-  * Till reconciliation, (multiple tills per location).
-    * Open till (starting cash count) before a sale can be made.
-    * Pay out, a popup window to enter cash paid out for expenses and bank deposits.
-    * Close till (ending cash count) to show any short or over amount. Must take into account more then one currency accepted.
-12-05-15 Rene " I am done with the normal class I will turn to this part of the module. This will be done by a separate class and a new journal-id."
- * Module Configuration, (module admin, properties)
-  * Allow sales of inventory items resulting in negative stock levels? Y/N
-  * Allow enter an order level discount value or percent? Y/N
-  * Allow enter an item level discount value or percent? Y/N
-
-
- * POS Hardware
-   * Support a pole display
-   * Open an electronic cash drawer.
-   * Support debit cards and PIN pads.
-12-05-15 Rene "Some of this would require a java application but I haven't seen one yet. Any suggestions on this part?" 
-
-== Notes ==
-12-05-15 Rene
- * After selecting a inventory item the picture will be shown.
- * You can select a sales rep.
- * There are till's / cash-drawers. ( this would allow for multiple pos for one store.)
- * You can round the end total in different ways.
- * You can choose if you want to show lines with tax or without.
- * I am still working on the class that is to save the transaction.
+----
+=customization=
+This module follows the same structure as the main core.
+Please have a look here how it works [Customization]
+----
+= requests or issues =
+If you have any request or issues please post them in the issues part or on the forum.

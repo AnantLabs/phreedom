@@ -13,7 +13,8 @@ Welcome to the Phreedom development wiki.
 
 = Details =
 
-We have more details to list...
+[PhreePOS Details on the phreepos module]<br>
+[Customization How to customize your program]<br>
 
 = Links =
 The main site: [http://www.phreesoft.com/ phreesoft]

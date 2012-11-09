@@ -1,4 +1,4 @@
-#how to customize this program.
+#summary how to customize this program.
 =how to customize this program=
 How can you alter the page layout or alter the behavior.
 Without altering to core files and reducing the time when you want to update. <br>
@@ -19,4 +19,3 @@ The name of your custom template must be the same as the original.<br>
 ==different handling during page execution==
 
 ==extra fields before the pre_process is loaded==
-

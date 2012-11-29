@@ -25,9 +25,9 @@ class tax_auths {
     public $error       = false;
     
     public function __construct(){
-         $this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
-         foreach ($_POST as $key => $value) $this->$key = $value;
-         $this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
+    	$this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
+        foreach ($_POST as $key => $value) $this->$key = $value;
+        $this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
     }
 
   function btn_save($id = '') {
@@ -36,21 +36,20 @@ class tax_auths {
 		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
 		return false;
 	}
-    $description_short = db_prepare_input($_POST['description_short']);
 	$sql_data_array = array(
 		'type'              => $this->type,
-		'description_short' => $description_short,
-		'description_long'  => db_prepare_input($_POST['description_long']),
-		'account_id'        => db_prepare_input($_POST['account_id']),
-		'vendor_id'         => db_prepare_input($_POST['vendor_id']),
-		'tax_rate'          => db_prepare_input($_POST['tax_rate']),
+		'description_short' => $this->description_short,
+		'description_long'  => $this->description_long,
+		'account_id'        => $this->account_id,
+		'vendor_id'         => $this->vendor_id,
+		'tax_rate'          => $this->tax_rate,
 	);
     if ($id) {
-	  db_perform($this->db_table, $sql_data_array, 'update', "tax_auth_id = '" . (int)$id . "'");
-	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_UPDATE, $description_short);
+	  db_perform($this->db_table, $sql_data_array, 'update', "tax_auth_id = '" . $id . "'");
+	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_UPDATE, $this->description_short);
 	} else  {
       db_perform($this->db_table, $sql_data_array);
-	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_ADD, $description_short);
+	  gen_add_audit_log(SETUP_TAX_AUTHS_LOG . TEXT_ADD, $this->description_short);
 	}
 	return true;
   }
@@ -106,7 +105,7 @@ class tax_auths {
 		array('value' => $result->fields['tax_rate'],
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
 		array('value' => $actions,
-			  'params'=> 'align="right"'),
+			  'params'=> 'style="cursor:pointer" align="right"'),
 	  );
       $result->MoveNext();
 	  $rowCnt++;

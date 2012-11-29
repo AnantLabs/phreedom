@@ -82,7 +82,7 @@ class tax_rates {
 	while (!$result->EOF) {
 	  $actions = '';
 	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\''.get_called_class().'_edit\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
-	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_DELETE_INTRO . '\')) subjectDelete(\''.get_called_class().', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_DELETE_INTRO . '\')) subjectDelete(\''.get_called_class().'\', ' . $result->fields['tax_rate_id'] . ')"') . chr(10);
 	  $content['tbody'][$rowCnt] = array(
 	    array('value' => htmlspecialchars($result->fields['description_short']),
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['tax_rate_id'].'\')"'),

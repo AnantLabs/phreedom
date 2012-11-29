@@ -443,6 +443,7 @@ class orders extends journal {
 	  }
 	  // calculate each tax total by authority and put into journal row array
 	  foreach ($auth_array as $auth => $auth_tax_collected) {
+		if ($auth_tax_collected == '' && $tax_auths[$auth]['account_id'] == '') continue;
 		$this->journal_rows[] = array( // record for specific tax authority
 		  'qty'                     => '1',
 		  'gl_type'                 => 'tax',		// code for tax entry

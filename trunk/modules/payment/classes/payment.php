@@ -53,7 +53,69 @@ class payment {
 	$card_number = substr($card_number, 0, 4) . '********' . substr($card_number, -4);
 	$this->payment_fields = implode(':', array($this->field_0, $card_number, $this->field_2, $this->field_3, $this->field_4, $this->field_5, $this->field_6));
   }
+	 
+  function update() {
+    foreach ($this->keys() as $key) {
+	  $field = strtolower($key['key']);
+	  if (isset($_POST[$field])) write_configure($key['key'], $_POST[$field]);
+	}
+  }
+  
+  function configure($key) {
+    switch ($key) {
+    	case 'MODULE_PAYMENT_'.strtoupper(get_called_class()).'_OPEN_POS_DRAWER':
+    		$temp = array(
+		  		array('id' => '0', 'text' => TEXT_NO),
+		  		array('id' => '1', 'text' => TEXT_YES),
+	    	);
+	    	return html_pull_down_menu(strtolower($key), $temp, constant($key));
+	    case 'MODULE_PAYMENT_'.strtoupper(get_called_class()).'_SHOW_IN_POS':
+    		$temp = array(
+		  		array('id' => '0', 'text' => TEXT_NO),
+		  		array('id' => '1', 'text' => TEXT_YES),
+	    	);
+	    	return html_pull_down_menu(strtolower($key), $temp, constant($key));
+    	case 'MODULE_PAYMENT_'.strtoupper(get_called_class()).'_POS_GL_ACCT':
+    		return html_pull_down_menu(strtolower($key), gen_coa_pull_down(), constant($key));
+    	default:
+    		return html_input_field(strtolower($key), constant($key));
+    }
+  }
+  
+  function selection() {
+    return array(
+	  'id'   => get_called_class(),
+      'page' => $this->title,
+	);
+  }
+  
+  function keys() {
+  	return $this->key;
+  }
+  
+  function javascript_validation() {
+    return false;
+  }
 
+  function pre_confirmation_check() {
+    return false;
+  }
+
+  function before_process() {
+    return false;
+  }
+  
+  function confirmation() {
+    return array('title' => $this->description);
+  }
+  
+  function getsortorder(){
+  	if(!defined('MODULE_PAYMENT_'.strtoupper(get_called_class()).'_SORT_ORDER')){
+  		return $this->sort_order;
+  	} else { 
+  		return constant('MODULE_PAYMENT_'.strtoupper(get_called_class()).'_SORT_ORDER'); 
+  	}
+  }
   function expirationMonths() {
   	$months = array();
   	for ($i = 1; $i < 13; $i++) {

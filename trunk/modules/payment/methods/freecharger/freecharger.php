@@ -29,15 +29,6 @@ class freecharger extends payment {
   public function __construct(){
   	parent::__construct();
 	$this->payment_fields = '';
-	$this->key[] = array();
-  }
-
-  function javascript_validation() {
-    return false;
-  }
-
-  function selection() {
-	return false;
   }
 }
 ?>

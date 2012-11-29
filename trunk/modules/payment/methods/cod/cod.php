@@ -30,15 +30,6 @@ class cod extends payment {
   public function __construct(){
 	parent::__construct();
   	$this->payment_fields = implode(':', array($_POST['bill_primary_name']));
-    $this->key[] = array();
-  }
-
-  function javascript_validation() {
-    return false;
-  }
-
-  function selection() {
-    return false;
   }
 
 }

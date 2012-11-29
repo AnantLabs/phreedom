@@ -30,11 +30,6 @@ class directdebit extends payment {
   public function __construct(){
   	parent::__construct();
     $this->payment_fields = implode(':', array($this->field_0));
-	$this->key[] = array();
-  }
-
-  function javascript_validation() {
-    return false;
   }
 
   function selection() {

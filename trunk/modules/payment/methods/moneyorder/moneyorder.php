@@ -32,10 +32,6 @@ class moneyorder extends payment {
     $this->key[] = array('key' => 'MODULE_PAYMENT_MONEYORDER_PAYTO',      'default' => COMPANY_NAME, 'text' => MODULE_PAYMENT_MONEYORDER_PAYTO_DESC);
   }
 
-  function javascript_validation() {
-    return false;
-  }
-
   function selection() {
     global $order;
     return array(

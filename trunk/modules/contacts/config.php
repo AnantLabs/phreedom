@@ -25,7 +25,7 @@
 // 3.4 => 2011-08-01 - bug fixes
 // 3.5 => 2011-11-15 - bug fixes, attachments, themeroller changes
 // 3.6 => 2012-02-15 - bug fixes, improved CRM, clean up forms
-// 3.5 => 2012-10-01 - bug fixes, redesign of the classes/methods
+// 3.7 => 2012-10-01 - bug fixes, redesign of the classes/methods
 // Module software version information
 define('MODULE_CONTACTS_VERSION',     '3.7');
 // Menu Sort Positions

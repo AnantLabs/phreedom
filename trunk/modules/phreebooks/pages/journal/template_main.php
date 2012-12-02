@@ -50,6 +50,8 @@ echo $toolbar->build_toolbar();
 	  <tr>
 		<td><?php echo TEXT_REFERENCE . ' ' . html_input_field('purchase_invoice_id', $cInfo->purchase_invoice_id, 'size="21" maxlength="20"'); ?></td>
 		<td><?php echo TEXT_POST_DATE . ' ' . html_calendar_field($cal_gl); ?></td>
+		<td><?php echo TEXT_AUTO_COMPLETE . ' ' . html_checkbox_field('auto_complete', '1', '1'); ?></td>
+
 	  <?php if (ENABLE_MULTI_BRANCH) { ?>
 		<td><?php echo GEN_STORE_ID . ' ' . html_pull_down_menu('store_id', gen_get_store_ids(), $cInfo->store_id ? $cInfo->store_id : $_SESSION['admin_prefs']['def_store_id']); ?></td>
 	  <?php } ?>

@@ -53,7 +53,7 @@ class tabs {
 		  	$this->error = true;
 			return false;
 		  }
-		  db_perform(TABLE_EXTRA_TABS, $sql_data_array);
+		  db_perform(TABLE_EXTRA_TABS, $sql_data_array, 'update', "id = " . $this->id );
 		  gen_add_audit_log(sprintf(EXTRA_TABS_LOG, TEXT_ADD), $this->tab_name);
 		}
 		return true;

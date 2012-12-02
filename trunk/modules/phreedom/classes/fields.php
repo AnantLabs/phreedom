@@ -31,19 +31,19 @@ class fields {
     public  $extra_tab_li   = '';
 	public  $extra_tab_html = ''; 
     
-  public function __construct($sync = true){ 
-  	$this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
-	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
-  	foreach ($_POST as $key => $value) $this->$key = $value;
-  	$this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
-	if ($sync) xtra_field_sync_list($this->module, $this->db_table);
-  }
+	public function __construct($sync = true){ 
+		$this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
+  		require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
+  		foreach ($_POST as $key => $value) $this->$key = $value;
+  		$this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
+		if ($sync) xtra_field_sync_list($this->module, $this->db_table);
+	}
 
   function btn_save($id = '') {
   	global $db, $messageStack, $currencies;
 	if ($this->security_id < 2) {
-	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
-	  return false;
+		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
+		return false;
 	}
     // clean out all non-allowed values and then check if we have a empty string 
 	$this->field_name   = preg_replace("[^A-Za-z0-9_]", "", $this->field_name); 
@@ -206,13 +206,13 @@ class fields {
 
   function btn_delete($id = 0) {
   	global $db, $messageStack;
-	if ($_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] < 4) {
+	if ($this->security_id < 4) {
 	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 	  return false;
 	}
-	$temp = $db->Execute("select field_name, tab_id from " . TABLE_EXTRA_FIELDS . " where id = " . $id);
+	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS . " where id = " . $id);
 	foreach ($result->fields as $key => $value) $this->$key = $value;
-	if ($this->tab_id <> '0' && $this->field_name == '') { // don't allow deletion of system fields
+	if ($this->tab_id <> '0') { // don't allow deletion of system fields
 	  $db->Execute("delete from " . TABLE_EXTRA_FIELDS . " where id = " . $this->id);
 	  $db->Execute("alter table " . $this->db_table . " drop column " . $this->field_name);
 	  gen_add_audit_log ($this->module .' '. sprintf(EXTRA_FIELDS_LOG , TEXT_DELETE), $id . ' - ' . $this->field_name);
@@ -237,8 +237,8 @@ class fields {
 	while (!$result->EOF) {
 	  $params  = unserialize($result->fields['params']);
 	  $actions = '';
-	  if ($_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')"') . chr(10);
-	  if ($result->fields['tab_id'] <> '0' && $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . ASSETS_FIELD_DELETE_INTRO . '\')) subjectDelete(\'fields\', ' . $result->fields['id'] . ')"') . chr(10);
+	  if ($this->security_id > 1)										$actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT,   'small', 'onclick="loadPopUp(\'fields_edit\', ' . $result->fields['id'] . ')"') . chr(10);
+	  if ($result->fields['tab_id'] <> '0' && $this->security_id > 3) 	$actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . ASSETS_FIELD_DELETE_INTRO . '\')) subjectDelete(\'fields\', ' . $result->fields['id'] . ')"') . chr(10);
 	  $content['tbody'][$rowCnt] = array(
 	    array('value' => htmlspecialchars($result->fields['description']),
 			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'fields_edit\',\''.$result->fields['id'].'\')"'),
@@ -464,9 +464,7 @@ class fields {
   public function set_fields_to_display($type = null){
   	global $db, $cInfo;
   	$tab_array = array();
-  	$sql = "select fields.tab_id, tabs.tab_name as tab_name, fields.description as description, fields.params as params, fields.group_by, fields.field_name, fields.entry_type 
-  		from ".TABLE_EXTRA_FIELDS." as fields join ".TABLE_EXTRA_TABS." as tabs on (fields.tab_id = tabs.id) where fields.module_id='".$this->module."' order by tabs.sort_order asc, fields.group_by asc, fields.sort_order asc";
-  	$result = $db->Execute($sql);
+	$result = $db->Execute("select fields.tab_id, tabs.tab_name as tab_name, fields.description as description, fields.params as params, fields.group_by, fields.field_name, fields.entry_type from ".TABLE_EXTRA_FIELDS." as fields join ".TABLE_EXTRA_TABS." as tabs on (fields.tab_id = tabs.id) where fields.module_id='".$this->module."' order by tabs.sort_order asc, fields.group_by asc, fields.sort_order asc");
   	while (!$result->EOF) {
   		$tab_id = $result->fields['tab_id'];
   		if (!in_array($tab_id, $tab_array)){
@@ -482,10 +480,10 @@ class fields {
   			$this->extra_tab_html .= '<tr class="ui-widget-header" height="5px"><td colspan="2"></td></tr>' . chr(10);
   		}
 	    $xtra_params = unserialize($result->fields['params']);
-	    if($this->type_params && !$type == null && isset($xtra_params[$this->type_params])){
+	    if($this->type_params && !$type == null ){
 	    	$temp = explode(':',$xtra_params[$this->type_params]);
-	    	while ($value = array_shift($temp)){
-	    		if ($value == $type) {
+			while ($value = array_shift($temp)){
+				if (substr($value, 0, 1) == $type) {
 					$this->extra_tab_html .= xtra_field_build_entry($result->fields, $cInfo) . chr(10);
 				}
 			}

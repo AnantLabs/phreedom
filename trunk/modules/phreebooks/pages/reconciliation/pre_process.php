@@ -80,7 +80,6 @@ switch ($action) {
 	} else {
 	  db_perform(TABLE_RECONCILIATION, $sql_data_array, 'update', "period = " . $period . " and gl_account = '" . $gl_account . "'");
 	}
-	$result = $db->Execute($sql);
 	// set reconciled flag to period for all records that were checked
 	if (count($cleared_items)) {
 	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = $period where id in (" . implode(',', $cleared_items) . ")";

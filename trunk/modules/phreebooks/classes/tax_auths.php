@@ -19,6 +19,7 @@
 //
 
 class tax_auths {
+	public $code        = 'tax_auths'; // needs to match class name
     public $db_table    = TABLE_TAX_AUTH;
     public $help_path   = '07.08.03.01';
     public $type        = 'c'; // choices are c for customers and v for vendors
@@ -93,24 +94,24 @@ class tax_auths {
     $rowCnt = 0;
 	while (!$result->EOF) {
 	  $actions = '';
-	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\'tax_auths_edit\', ' . $result->fields['tax_auth_id'] . ')"') . chr(10);
-	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_AUTH_DELETE_INTRO . '\')) subjectDelete(\'tax_auths\', ' . $result->fields['tax_auth_id'] . ')"') . chr(10);
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\''.$this->code.'_edit\', ' . $result->fields['tax_auth_id'] . ')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TAX_AUTH_DELETE_INTRO . '\')) subjectDelete(\''.$this->code.'\', ' . $result->fields['tax_auth_id'] . ')"') . chr(10);
 	  $content['tbody'][$rowCnt] = array(
 	    array('value' => htmlspecialchars($result->fields['description_short']),
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_auths_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
 		array('value' => htmlspecialchars($result->fields['description_long']), 
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_auths_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
 		array('value' => gen_get_type_description(TABLE_CHART_OF_ACCOUNTS, $result->fields['account_id']),
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_auths_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
 		array('value' => $result->fields['tax_rate'],
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\'tax_auths_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['tax_auth_id'].'\')"'),
 		array('value' => $actions,
 			  'params'=> 'style="cursor:pointer" align="right"'),
 	  );
       $result->MoveNext();
 	  $rowCnt++;
     }
-    return html_datatable('tax_auths_'.$this->type.'_table', $content);
+    return html_datatable(''.$this->code.'_'.$this->type.'_table', $content);
   }
 
   function build_form_html($action, $id = '') {

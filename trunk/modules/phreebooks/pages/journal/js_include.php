@@ -124,6 +124,7 @@ function processEditJournal(sXml) {
   var DebitOrCredit;
   var xml = parseXml(sXml);
   if (!xml) return;
+  document.getElementById('auto_complete').checked = false;
   var id = $(xml).find("id").first().text();
   document.getElementById('id').value        = id;
   if ($(xml).find("purchase_invoice_id").text()) document.getElementById('purchase_invoice_id').value = $(xml).find("purchase_invoice_id").text();
@@ -284,7 +285,7 @@ function updateBalance() {
   }
   var debit  = 0;
   var credit = 0;
-  if (debit_total != credit_total && document.getElementById('id').value == '') { // auto fill only for new entries
+  if (debit_total != credit_total && document.getElementById('auto_complete').checked == true) { // auto fill only for new entries
 	if (debit_total > credit_total){
 		credit = debit_total  - credit_total;
 		credit_total += credit;

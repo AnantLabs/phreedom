@@ -21,7 +21,6 @@
 // 2012-05-11 - Created
 gen_pull_language('payment');
 class payment {
-  public $code;
   public $payment_fields;
   public $title;
   public $description;

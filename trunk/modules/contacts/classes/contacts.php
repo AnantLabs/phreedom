@@ -116,7 +116,7 @@ class contacts {
   	global $db; 
   	if ( $this->id == '' ) $this->id = $id;
 	// error check, no delete if a journal entry exists
-	$result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where bill_acct_id =". $this->id." or ship_acct_id =". $this->id ."or store_id =". $this->id ."limit 1");
+	$result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where bill_acct_id =". $this->id." or ship_acct_id =". $this->id ." or store_id =". $this->id ."limit 1");
 	if ($result->RecordCount() == 0) {
 	  return $this->do_delete();
 	}

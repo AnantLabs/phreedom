@@ -1,0 +1,10 @@
+For Upgrade..
+
+If modified. Copy the import_bank.xml to a save location.
+
+Delete the import_bank dir from the dir modules.
+	Do not delete the non standard language files. 
+
+Copy the new files into the dir modules.
+	Replace the .xml file (now located in modules/import_bank/file/import_bank/file.xml)
+	 with the version you have saved. 

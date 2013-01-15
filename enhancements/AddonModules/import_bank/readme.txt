@@ -32,7 +32,7 @@ Installation Procedure:
 2. Go to Admin -> Modules and install the module.
 3. Edit the Admin -> Modules defaults.
 4. You may have to set permission and re-log in.
-5. Make sure the contacts have a extra field with het field bank_account (should be created when you install this module) 
+5. Make sure the contacts have a extra field 'bank_account' (should be created when you install this module) 
 
 You may need to costumise the import_bank.xml to match the column naming of you csv file
 In the xml you find the following example. 
@@ -46,7 +46,17 @@ In the xml you find the following example.
 	  <Required>1</Required>
 	</Field>
 
-	
+
+
+// new in version 1.	
+Till now it was only posible to have one bank_account field per contact. 
+Now you can have a multiple of both iban and bank_account fields. 
+all you have to do is to create the extra fields in (module administration >contact module> custom fields.) 
+all that is required is that part of the field name can be identified as 'bank_account' or 'iban'
+so you could create a field 'bank_account_1' and 'iban_1'.
+
+Note: If a iban is supplied and there are iban fields present in the contacts table. 
+then a search will be done on the iban field and not the bank account number. 
 
 
  

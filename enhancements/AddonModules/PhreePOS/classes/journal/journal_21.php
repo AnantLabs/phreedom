@@ -18,9 +18,9 @@
 //  Path: /modules/phreepos/classes/journal/journal_21.php
 //
 // Inventory Direct Purchase Journal (POP)
-require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
-class journal_21 extends journal {
-    public $closed = '0';
+require_once(DIR_FS_MODULES . 'phreebooks/classes/banking.php');
+class journal_21 extends banking {
+    public $closed 				= '0';
     public $journal_id          = 21;
     public $gl_type             = GL_TYPE;
     public $currencies_code     = DEFAULT_CURRENCY;
@@ -49,9 +49,9 @@ class journal_21 extends journal {
 		$credit_total = 0;
 	    $debit_total  += $this->add_item_journal_rows(); // read in line items and add to journal row array
 	    $debit_total  += $this->add_tax_journal_rows();  // fetch tax rates for tax calculation
-		$debit_total  += $this->add_rounding_journal_rows();	// fetch rounding of 
-	    $credit_total += $this->add_discount_journal_row(); // put discount into journal row array
-	    $this->adjust_total($debit_total - $credit_total);
+		$credit_total += $this->add_discount_journal_row(); // put discount into journal row array		
+		$debit_total  += $this->add_rounding_journal_rows($credit_total - $debit_total);	// fetch rounding of  
+	    //$this->adjust_total($debit_total - $credit_total);
 	    $credit_total += $this->add_total_journal_row();    // put total value into ledger row array
 		$this->journal_main_array = $this->build_journal_main_array(); // build ledger main record
 	
@@ -134,7 +134,7 @@ class journal_21 extends journal {
   }
 
   function add_item_journal_rows() {	// read in line items and add to journal row array
-	  $total = 0; 
+	  $total = 0;
 	  for ($i = 0; $i < count($this->item_rows); $i++) {
 		if ($this->item_rows[$i]['pstd']) { // make sure the quantity line is set and not zero
 		  $this->journal_rows[] = array(
@@ -189,6 +189,7 @@ class journal_21 extends journal {
 	  }
 	  // calculate each tax total by authority and put into journal row array
 	  foreach ($auth_array as $auth => $auth_tax_collected) {
+		if ($auth_tax_collected == '' && $tax_auths[$auth]['account_id'] == '') continue;
 	    $this->journal_rows[] = array( // record for specific tax authority
 		  'qty'                     => '1',
 		  'gl_type'                 => 'tax',		// code for tax entry
@@ -207,19 +208,24 @@ class journal_21 extends journal {
 	if ($this->total_amount == $amount) $this->total_amount = $amount;
   }
   
-  function add_rounding_journal_rows() { // put rounding into journal row array
-	  if ($this->rounding_amt <> 0) {
+  function add_rounding_journal_rows($amount) { // put rounding into journal row array
+	global $messageStack, $currencies;
+	if((float)(string)$this->total_amount == (float)(string) $amount) return ;
+	$this->rounding_amt = round(($this->total_amount - $amount), $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+	$messageStack->debug("\n calculated total = ".$amount." Posted total = ". $this->total_amount." rounding = ".$this->rounding_amt);
+	if ($this->rounding_amt <> 0 ) {
 		$this->journal_rows[] = array(
-		  'qty'                     => '1',
-		  'gl_type'                 => 'rnd',		// code for discount charges
-		  'debit_amount' 			=> $this->rounding_amt,
-		  'description'             => MENU_HEADING_PHREEPOS . '-' . TEXT_ROUNDING_OF,
-		  'gl_account'              => $this->rounding_gl_acct_id,
-		  'taxable'                 => '0',
-		  'post_date'               => $this->post_date,
+			'qty'            => '1',
+			'gl_type'        => 'rnd',		// code for discount charges
+			'debit_amount'   => ($this->rounding_amt > 0) ? -$this->rounding_amt : '',
+			'credit_amount'  => ($this->rounding_amt < 0) ? $this->rounding_amt  : '',
+			'description'    => MENU_HEADING_PHREEPOS . '-' . TEXT_ROUNDING_OF,
+			'gl_account'     => $this->rounding_gl_acct_id,
+			'taxable'        => '0',
+			'post_date'      => $this->post_date,
 		);
-	  }
-	  return $this->rounding_amt;
+	}
+	return $this->rounding_amt;
   }
   
 }

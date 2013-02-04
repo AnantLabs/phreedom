@@ -18,8 +18,8 @@
 //  Path: /modules/phreepos/classes/journal/journal_19.php
 //
 // POS Journal
-require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
-class journal_19 extends journal {
+require_once(DIR_FS_MODULES . 'phreebooks/classes/banking.php');
+class journal_19 extends banking {
     public $closed 				= '0';
     public $journal_id          = 19;
     public $gl_type             = GL_TYPE;
@@ -51,7 +51,7 @@ class journal_19 extends journal {
 	    $credit_total += $this->add_tax_journal_rows(); // fetch tax rates for tax calculation 
 	    $debit_total  += $this->add_discount_journal_row(); // put discount into journal row array
 	    $credit_total += $this->add_rounding_journal_rows($credit_total - $debit_total);	// fetch rounding of
-	    $this->adjust_total($credit_total - $debit_total);
+	    //$this->adjust_total($credit_total - $debit_total);
 	    $this->add_payment_row();
 	    $debit_total  += $this->add_total_journal_row(); // put total value into ledger row array
 		$this->journal_main_array = $this->build_journal_main_array(); // build ledger main record
@@ -73,7 +73,7 @@ class journal_19 extends journal {
 			$this->fail_message('invoice number is being used in a other post');
 			return false;
 		}
-		if (!$this->Post($this->id ? 'edit' : 'insert')){
+		if (!$this->Post($this->id ? 'edit' : 'insert',true)){
 			$this->fail_message('it was not posible to post the sale');
 			return false;
 		}
@@ -193,7 +193,6 @@ class journal_19 extends journal {
 		}
 	  }
 	  return $total;
-	
   }
 
   function add_tax_journal_rows() {
@@ -226,6 +225,7 @@ class journal_19 extends journal {
 	  }
 	  // calculate each tax total by authority and put into journal row array
 	  foreach ($auth_array as $auth => $auth_tax_collected) {
+		if ($auth_tax_collected == '' && $tax_auths[$auth]['account_id'] == '') continue;
 	    $this->journal_rows[] = array( // record for specific tax authority
 		  'qty'                     => '1',
 		  'gl_type'                 => 'tax',		// code for tax entry
@@ -245,16 +245,16 @@ class journal_19 extends journal {
   }
   
   function add_rounding_journal_rows($amount) { // put rounding into journal row array
-	global $messageStack;
-	$posted_total     = $this->total_amount;
-	$calculated_total = $amount;
-	$this->rounding_amt = number_format($posted_total - $calculated_total,3);
-	$messageStack->debug("\n calculated total = ".$calculated_total." Posted total = ". $posted_total." rounding = ".$this->rounding_amt);
+	global $messageStack, $currencies;
+	if((float)(string)$this->total_amount == (float)(string) $amount) return ;
+	$this->rounding_amt = round(($this->total_amount - $amount), $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+	$messageStack->debug("\n calculated total = ".$amount." Posted total = ". $this->total_amount." rounding = ".$this->rounding_amt);
 	if ($this->rounding_amt <> 0 ) {
 		$this->journal_rows[] = array(
-	  		'qty'            => '1',
-	  		'gl_type'        => 'rnd',		// code for discount charges
-			'credit_amount'  => $this->rounding_amt,
+			'qty'            => '1',
+			'gl_type'        => 'rnd',		// code for discount charges
+			'debit_amount'   => ($this->rounding_amt < 0) ? -$this->rounding_amt : '',
+			'credit_amount'  => ($this->rounding_amt > 0) ? $this->rounding_amt  : '',
 			'description'    => MENU_HEADING_PHREEPOS . '-' . TEXT_ROUNDING_OF,
 			'gl_account'     => $this->rounding_gl_acct_id,
 			'taxable'        => '0',

@@ -284,6 +284,7 @@ class objectInfo {
         $this->errors[] = array('params' => 'class="ui-state-error"', 'text' => $message);
       }
       $this->size++;
+      $this->debug("\n On screen displaying '".$type."' message = ".$message);
 	  return true;
     }
 

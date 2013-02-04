@@ -46,6 +46,7 @@ echo $toolbar->build_toolbar();
 <ul>
 <?php
   echo add_tab_list('tab_general', TEXT_GENERAL, true);
+  echo add_tab_list('tab_kt',      TEXT_KNOWN_TRANSACTION,      true);
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
     echo add_tab_list('tab_custom',   TEXT_CUSTOM_TAB, false); 
   }
@@ -54,6 +55,7 @@ echo $toolbar->build_toolbar();
 
 <?php
   require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_general.php');
+  require (DIR_FS_MODULES . $module . '/pages/admin/template_tab_kt.php');
   if (file_exists(DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php')) {
     require (DIR_FS_MODULES . $module . '/custom/pages/admin/template_tab_custom.php');
   }

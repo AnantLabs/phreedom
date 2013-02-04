@@ -20,6 +20,7 @@
 function bank_import_csv($structure, $filename, $bank_gl_acct) {
   global $db, $messageStack;
   include(DIR_FS_WORKING. 'classes/import_banking.php');
+  $bankimport = new impbanking();
   $data = file($_FILES[$filename]['tmp_name']);
   // read the header and build array
   if (sizeof($data) < 2) {
@@ -81,7 +82,7 @@ function bank_import_csv($structure, $filename, $bank_gl_acct) {
 	  	}
 	  	if(isset($table_array['debit_amount']) && isset($table_array['credit_amount'])){
 			//echo 'inserting data: '; print_r($table_array); echo '<br>';
-			$bankimport = new impbanking($table_array['our_account_number'],$table_array['date'],$table_array['account_number_to'],$table_array['credit_amount'],$table_array['debit_amount'],$table_array['description'].' '. $table_array['anouncement'], $bank_gl_acct, $table_array['iban_to']);
+			$bankimport->start_import($table_array['our_account_number'],$table_array['date'],$table_array['account_number_to'],$table_array['credit_amount'],$table_array['debit_amount'],$table_array['description'].' '. $table_array['anouncement'], $bank_gl_acct, $table_array['iban_to']);
 			if ($bankimport->_succes == true) $countline++;
 	  	}
 	  }

@@ -29,4 +29,7 @@ define('TEXT_BIMP_ERMSG2','there are two or more gl accounts with the descriptio
 define('TEXT_BIMP_ERMSG3','the other bank account is empty');
 define('TEXT_BIMP_ERMSG4','there are two or more accounts with the same bank account : ');
 define('TEXT_BIMP_ERMSG5','there is no gl accounts with the description :  ');
+define('GENERAL_JOURNAL_7_DESC','Credit Memo');
+define('TEXT_NEW_BANK','Found a new bank number. You could add Banknumber = %s to Contact = %s ');
+define('TEXT_NEW_IBAN','Found a new iban number. You could add Iban = %s to Contact = %s ');
 ?>

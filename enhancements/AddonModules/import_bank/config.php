@@ -24,14 +24,17 @@
 // 0.3 22-03-2011 Added install functions for contacts 3.1
 // 0.4 31-01-2011 removed bugg from install class 
 // 1   15-01-2013 added the function so that multiple bank could be attached to one contact and added iban support.
+// 1.1 27-1-2013  added the transaction templates (aka known transactions). plus support for payment of multiple invoices.
+// 2   28-1-2013  	complete rewrite reduced the number of sql calles.
+//					added function to find invoicenumber in description for transactions that are not connected to a bank or iban account
 // Module software version information
-define('MODULE_IMPORT_BANK_VERSION',  '1');
+define('MODULE_IMPORT_BANK_VERSION',  '2');
 // Menu Sort Positions
 
 // Menu Security id's
 define('SECURITY_ID_IMPORT_BANK',      980);
 // New Database Tables
-
+define('TABLE_IMPORT_BANK',    			DB_PREFIX . 'import_bank');
 // Set the menus
 if (defined('MODULE_IMPORT_BANK_STATUS')) {
   $menu[] = array(

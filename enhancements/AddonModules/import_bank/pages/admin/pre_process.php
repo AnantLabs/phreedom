@@ -29,12 +29,12 @@ $security_level = validate_user(SECURITY_ID_CONFIGURATION);
 gen_pull_language($module);
 gen_pull_language($module, 'admin');
 require_once(DIR_FS_WORKING . 'classes/install.php');
-
+require_once(DIR_FS_WORKING . 'classes/known_transactions.php');
 /**************   page specific initialization  *************************/
 $error   = false; 
 $action  = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 $install = new import_bank_admin();
-
+$kt      = new known_transactions();
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save':
@@ -73,13 +73,13 @@ switch ($action) {
 	gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
 	$messageStack->add(IMPORT_BANK_CONFIG_SAVED, 'success');
     break;
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
-  case 'search':
-  case 'search_reset':
-  case 'go_page':
+  case 'delete':
+	validate_security($security_level, 4); // security check
+    $subject = $_POST['subject'];
+    $id      = $_POST['rowSeq'];
+	if (!$subject || !$id) break;
+    $$subject->btn_delete($id);
+	break;
   default:
 }
 

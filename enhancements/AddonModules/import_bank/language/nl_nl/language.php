@@ -21,5 +21,8 @@ define('TEXT_BIMP_ERMSG2','Er zijn twee of meer grootboekrekeningen gevonden met
 define('TEXT_BIMP_ERMSG3','Het Bankrekeningnummer naar is leeg');
 define('TEXT_BIMP_ERMSG4','Er zijn twee of meer contacten met hetzelfde bankrekeningnummer : ');
 define('TEXT_BIMP_ERMSG5','Er zijn geen grootboekrekeningen met de omschrijving :  ');
+define('GENERAL_JOURNAL_7_DESC','Credit Boeking');
+define('TEXT_NEW_BANK','Er is een nieuw bankrekening nummer gevonden. U zou Bankrekeningnummer = %s kunnen toevoegen aan contact = %s ');
+define('TEXT_NEW_IBAN','Er is een nieuw iban nummer gevonden. U zou iban nummer = %s kunnen toevoegen aan contact = %s ');
 
 ?>

@@ -35,13 +35,19 @@ class import_bank_admin {
     $this->keys = array(
 	  'QUESTION_POSTS'               => '2200',
       'DEBIT_CREDIT_DESCRIPTION'	 => 'crediting',
-      'NUMBER_OF_BANK_ACCOUNTS'		 => '1',
 	);
 	// add new directories to store images and data
 	$this->dirlist = array(
 	);
 	// Load tables
 	$this->tables = array(
+		TABLE_IMPORT_BANK => "CREATE TABLE " . TABLE_IMPORT_BANK . " (
+  			kt_id 					int(11) NOT NULL auto_increment,
+  			description         	varchar(64)   NOT NULL default '',
+  			gl_acct_id          	varchar(15)   NOT NULL default '',
+  			bank_account        	varchar(64)   NOT NULL default '',
+  			PRIMARY KEY (kt_id)
+  		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
     );
   }
 
@@ -94,6 +100,10 @@ class import_bank_admin {
 		}
 		$db->Execute("INSERT INTO " . TABLE_EXTRA_FIELDS . " VALUES ('', 'contacts', ". $tab_id .",'text', 'bank_account', 'Bank Account','c:v:', 'a:4:{s:4:'type';s:4:'text';s:12:'contact_type';s:16:'customer:vendor:';s:6:'length';i:32;s:7:'default';s:0:'';}' );");
 	}
+  	foreach ($this->tables as $table => $sql) {
+		if ($table == TABLE_IMPORT_BANK) admin_install_tables(array($table => $sql));
+	}
+	
 	write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
   }
 

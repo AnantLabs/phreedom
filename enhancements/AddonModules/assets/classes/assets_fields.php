@@ -24,9 +24,20 @@ class assets_fields extends fields{
 	public  $title       = '';
 	public  $module      = 'assets';
 	public  $db_table    = TABLE_ASSETS;
-	public  $type_params = '';
+	public  $type_params = 'asset_type';
 	public  $extra_buttons = '';
   
-
+	public function __construct(){
+  		gen_pull_language('assets');
+  		$this->type_array[] = array('id' =>'vh', 'text' => TEXT_VEHICLE);
+  		$this->type_array[] = array('id' =>'bd', 'text' => TEXT_BUILDING);
+  		$this->type_array[] = array('id' =>'fn', 'text' => TEXT_FURNITURE);
+  		$this->type_array[] = array('id' =>'pc', 'text' => TEXT_COMPUTER);
+  		$this->type_array[] = array('id' =>'te', 'text' => TEXT_EQUIP);
+  		$this->type_array[] = array('id' =>'ld', 'text' => TEXT_LAND);
+  		$this->type_array[] = array('id' =>'sw', 'text' => TEXT_SOFTWARE);
+	 	$this->type_desc    = ASSETS_ENTRY_ASSETS_TYPE;
+    	parent::__construct();    
+	}
 }
 ?>

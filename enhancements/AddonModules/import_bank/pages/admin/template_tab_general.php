@@ -36,10 +36,6 @@
 	    <td colspan="4"><?php echo BANK_IMPORT_DEBIT_CREDIT; ?></td>
 	    <td><?php echo html_input_field('debit_credit_description', $_POST['debit_credit_description'] ? $_POST['debit_credit_description'] : DEBIT_CREDIT_DESCRIPTION, 'size="64"'); ?></td>
 	  </tr>
-	  <tr>
-	    <td colspan="4"><?php echo BANK_IMPORT_NUMBER_OF_BANK_ACCOUNTS; ?></td>
-	    <td><?php echo html_input_field('number_of_bank_accounts', $_POST['number_of_bank_accounts'] ? $_POST['number_of_bank_accounts'] : NUMBER_OF_BANK_ACCOUNTS, 'size="10"'); ?></td>
-	  </tr>
 	</table>
   </fieldset>
 </div>

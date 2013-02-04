@@ -39,7 +39,17 @@ function check_form() {
 }
 
 // Insert other page specific functions here.
-
-
+function loadPopUp(action, id) {
+  switch(action) {
+    case 'known_transactions_new':     action = 'new';    subject = 'known_transactions'; break;
+    case 'known_transactions_edit':    action = 'edit';   subject = 'known_transactions'; break;
+    case 'known_transactions_delete':  action = 'delete'; subject = 'known_transactions'; break;
+  }
+  window.open("index.php?module=phreedom&page=popup_setup&topic="+module+"&subject="+subject+"&action="+action+"&sID="+id,"popup_setup","width=1000,height=700,resizable=1,scrollbars=1,top=150,left=200");
+}
+function subjectDelete(subject, id) {
+	  document.getElementById('subject').value = subject;
+	  submitSeq(id, 'delete');
+	}
 // -->
 </script>

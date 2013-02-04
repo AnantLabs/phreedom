@@ -17,8 +17,8 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreepos/classes/phreepos.php
 //
-
-class phreepos extends journal {
+require_once(DIR_FS_MODULES . 'phreebooks/classes/banking.php');
+class phreepos extends banking {
     public $closed = '0';
     public $journal_id          = JOURNAL_ID;
     public $gl_type             = GL_TYPE;

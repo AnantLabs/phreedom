@@ -60,7 +60,17 @@ class phreepos_admin {
   			balance					double 				   default '0',
   			max_discount        	varchar(64)   NOT NULL default '',
   			PRIMARY KEY (till_id)
-  		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+  		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+  		TABLE_PHREEPOS_OTHER_TRANSACTIONS => "CREATE TABLE " .TABLE_PHREEPOS_OTHER_TRANSACTIONS . " (
+  			ot_id	 				int(11) NOT NULL auto_increment,
+  			till_id          	  	int(11)                default '0',
+  			description         	varchar(64)   NOT NULL default '',
+  			gl_acct_id          	varchar(15)   NOT NULL default '',
+  			type				   	varchar(15)   NOT NULL default '0',
+  			use_tax  			 	enum('0','1') NOT NULL default '0',
+  			taxable 				int(11) 	  NOT NULL default '0',
+  			PRIMARY KEY (ot_id)
+  		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
     );
   }
 
@@ -109,7 +119,10 @@ class phreepos_admin {
 		  if(defined('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE'))  remove_configure('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE');
 		}
 	}
-	
+	foreach ($this->tables as $table => $sql) {
+	  if ($table == TABLE_PHREEPOS_OTHER_TRANSACTIONS) admin_install_tables(array($table => $sql));
+		
+	}
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');

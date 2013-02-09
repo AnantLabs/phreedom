@@ -38,9 +38,13 @@ function check_form() {
 // Insert other page specific functions here.
 function loadPopUp(action, id) {
   switch(action) {
-    case 'tills_new':     action = 'new';    subject = 'tills'; break;
-    case 'tills_edit':    action = 'edit';   subject = 'tills'; break;
-    case 'tills_delete':  action = 'delete'; subject = 'tills'; break;
+    case 'tills_new':     				action = 'new';    subject = 'tills'; break;
+    case 'tills_edit':    				action = 'edit';   subject = 'tills'; break;
+    case 'tills_delete':  				action = 'delete'; subject = 'tills'; break;
+	
+    case 'other_transactions_new': 		action = 'new';    subject = 'other_transactions'; break;
+    case 'other_transactions_edit':    	action = 'edit';   subject = 'other_transactions'; break;
+    case 'other_transactions_delete':  	action = 'delete'; subject = 'other_transactions'; break;
   }
   window.open("index.php?module=phreedom&page=popup_setup&topic="+module+"&subject="+subject+"&action="+action+"&sID="+id,"popup_setup","width=1000,height=700,resizable=1,scrollbars=1,top=150,left=200");
 }

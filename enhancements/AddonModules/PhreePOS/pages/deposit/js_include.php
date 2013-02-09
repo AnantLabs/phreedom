@@ -139,7 +139,6 @@ function loadNewBalance() { // request funtion
   var post_date = document.getElementById('post_date').value;
   $.ajax({
     type: "GET",
-    contentType: "application/json; charset=utf-8",
     url: 'index.php?module=phreebooks&page=ajax&op=acct_balance&gl_acct_id='+gl_acct+'&post_date='+post_date,
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -165,7 +164,6 @@ function showNewBalance(sXml) { // call back function
 function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
   $.ajax({
     type: "GET",
-    contentType: "application/json; charset=utf-8",
     url: 'index.php?module=contacts&page=ajax&op=load_contact&cID='+cID,
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -221,7 +219,6 @@ function loadNewPayment() { // request funtion
   if (!contact_id) return;
   $.ajax({
     type: "GET",
-    contentType: "application/json; charset=utf-8",
     url: 'index.php?module=phreebooks&page=ajax&op=stored_payments&contact_id='+contact_id,
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {

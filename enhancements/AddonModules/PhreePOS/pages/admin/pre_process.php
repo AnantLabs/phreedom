@@ -23,11 +23,13 @@ gen_pull_language($module, 'admin');
 gen_pull_language('phreedom', 'admin');
 require_once(DIR_FS_WORKING . 'classes/install.php');
 require_once(DIR_FS_WORKING . 'classes/tills.php');
+require_once(DIR_FS_WORKING . 'classes/other_transactions.php');
 /**************   page specific initialization  *************************/
 $error  = false; 
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 $install = new phreepos_admin();
 $tills   = new tills();
+$trans	 = new other_transactions();
 /***************   Act on the action request   *************************/
 switch ($action) {
   case 'save': 

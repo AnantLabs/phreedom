@@ -30,6 +30,7 @@ require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
 require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 require_once(DIR_FS_WORKING . 'classes/tills.php');
+require_once(DIR_FS_WORKING . 'classes/other_transactions.php');
 /**************   page specific initialization  *************************/
 define('ORD_ACCT_ID',		GEN_CUSTOMER_ID);
 define('GL_TYPE',			'sos');
@@ -41,6 +42,7 @@ $account_type = 'c';
 $action       = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 $order        = new phreepos();
 $tills        = new tills();
+$trans	 	  = new other_transactions();
 $payment_modules = load_all_methods('payment');
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/main/extra_actions.php';
@@ -56,6 +58,12 @@ $tax_rates = ord_calculate_tax_drop_down($account_type);
 $js_tax_rates = 'var tax_rates = new Array();' . chr(10);
 for ($i = 0; $i < count($tax_rates); $i++) {
   $js_tax_rates .= 'tax_rates[' . $i . '] = new salesTaxes("' . $tax_rates[$i]['id'] . '", "' . $tax_rates[$i]['text'] . '", "' . $tax_rates[$i]['rate'] . '");' . chr(10);
+}
+
+$ot_tax_rates = ord_calculate_tax_drop_down('v');
+$js_ot_tax_rates = 'var ot_tax_rates = new Array();' . chr(10);
+for ($i = 0; $i < count($ot_tax_rates); $i++) {
+  $js_ot_tax_rates .= 'ot_tax_rates[' . $ot_tax_rates[$i]['id'] . '] = new purTaxes("' . $ot_tax_rates[$i]['id'] . '", "' . $ot_tax_rates[$i]['text'] . '", "' . $ot_tax_rates[$i]['rate'] . '");' . chr(10);
 }
 //payment modules
 // generate payment choice arrays for receipt of payments

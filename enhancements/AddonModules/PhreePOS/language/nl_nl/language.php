@@ -43,5 +43,12 @@ define('TILL_END_BALANCE','Kasverschil');
 define('TEXT_SHOW_COUNT_HELP','Toon tel hulp');
 define('EXCEED_MAX_DISCOUNT','U heeft het maximum kortingspercentage van %s overschreden');
 define('EXCEED_MAX_DISCOUNT_SKU','U heeft het maximum kortingspercentage van %s overschreden voor artiekel %s');
+define('OTHER_OPTIONS','Overige Opties');
+define('POS_PRINT_OTHER','Print Andere Bon');
+
+define('TEXT_CASH_IN','Geld In'); 
+define('TEXT_CASH_OUT','Geld Uit');
+define('TEXT_EXPENSES','Uitgave');
+define('TEXT_TYPE_OF_TRANSACTION','Type transactie');
 
 ?>

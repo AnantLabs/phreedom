@@ -51,32 +51,11 @@ class pos_builder {
 	$this->payment_due_date = $terms_date['net_date'];
 //	$this->tax_authorities  = 'tax_auths';
 	$this->balance_due      = $this->total_amount - $this->total_paid;
-	$this->rounded_of       = $this->total_amount - $this->inv_subtotal_w_tax;
+	$this->rounded_of       = $this->total_amount - ($this->inv_subtotal_w_tax - $this->discount) ;
 	// sequence the results per Prefs[Seq]
 	$output = array();
 	foreach ($report->fieldlist as $OneField) { // check for a data field and build sql field list
-	  if ($OneField->type == 'CDta' && ENABLE_MULTI_BRANCH) {
-	  	$branch = $db->Execute("select * from " . TABLE_ADDRESS_BOOK . " where ref_id = '" . $id."' and type ='bm'");
-	  	switch($OneField->boxfield[0]->fieldname){
-	  		case 'COMPANY_ADDRESS1':
-	  			$OneField->text = $branch->fields['address1'];
-	  			break;
-	  		case 'COMPANY_ADDRESS2':
-	  			$OneField->text = $branch->fields['address2'];
-	  			break;
-	  		case 'COMPANY_POSTAL_CODE':
-	  			$OneField->text = $branch->fields['postal_code1'];
-	  			break;
-	  		case 'COMPANY_CITY_TOWN':
-	  			$OneField->text = $branch->fields['city_town'];
-	  			break;
-	  		case 'COMPANY_ZONE':
-	  			$OneField->text = $branch->fields['zone'];
-	  			break;
-	  		case 'COMPANY_TELEPHONE1':	  		
-	  			$OneField->text = $branch->fields['telephone1'];
-	  	}
-	  }else if ($OneField->type == 'Data') { // then it's data field, include it
+	  if ($OneField->type == 'Data') { // then it's data field, include it
 		$field = $OneField->boxfield[0]->fieldname;
 		$output[] = $this->$field;
 	  }
@@ -136,7 +115,12 @@ class pos_builder {
 	  	case 'por':
 			$this->line_items[$index]['invoice_full_price']  = $result->fields['full_price'];
 			$this->line_items[$index]['invoice_unit_price']  = $result->fields['qty'] ? ($price / $result->fields['qty']) : 0;
-			$this->line_items[$index]['invoice_discount']    = $result->fields['full_price'] == 0 ? 0 : ($result->fields['full_price'] - ($price / $result->fields['qty'])) / $result->fields['full_price'];
+			if ($result->fields['full_price'] != 0 && $this->line_items[$index]['invoice_unit_price'] < $result->fields['full_price']){ 
+				$discount    = round(-(1-($price / $result->fields['qty']) / $result->fields['full_price']) * 100,1) .'%';
+			}else{
+				$discount    = '' ;
+			}
+			$this->line_items[$index]['invoice_discount']    = $discount;
 			$this->line_items[$index]['invoice_qty']         = $result->fields['qty'];
 			$this->line_items[$index]['invoice_sku']         = $result->fields['sku'];
 			$this->line_items[$index]['invoice_description'] = $result->fields['description'];

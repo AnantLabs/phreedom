@@ -9,6 +9,33 @@ html>body h1{
     font-size:3em; 
 }
 
+html>body h3{
+    position:fixed;
+    _position:absolute; /* hack for internet explorer 6*/ 
+    right:50px;  
+    top:0px;
+    margin-top: -5px;
+    font-size:2em; 
+}
+
+#other_options{
+	 position:fixed;
+    _position:absolute; /* hack for internet explorer 6*/ 
+    right:10px;  
+    top:50px;
+    width: 200px;
+    height: 90%;
+    margin-top: -5px;
+    background:#77d5f7;
+    z-index:100; 
+    display:none;
+}
+
+#other_options a{
+	font-size:1.5em;
+	align:left;
+}
+
 input, select, textarea, file, checkbox, radio {
     font-size: 1em;
 }
@@ -320,6 +347,7 @@ html>body img#curr_image{
     -webkit-transition: width 2s; /* Safari and Chrome */
     -o-transition: width 2s; /* Opera */
 }
+
 html>body img#curr_image:hover{
 	height:300px;
 }
@@ -350,14 +378,15 @@ a:link, a:visited, a:active {
     padding:12px;  
 }  
 
-#popupPaymentClose{  
-    font-size:14px;  
-    line-height:14px;  
-    right:6px;  
-    top:4px;  
-    position:absolute;  
-    color:#6fa5fd;  
-    font-weight:700;  
-    display:block;  
-}  
+#popupOtherTrans{
+    display:none;  
+    position:fixed;  
+    _position:absolute; /* hack for internet explorer 6*/  
+    height:400px;  
+    width:1050px;  
+    background:#FFFFFF;  
+    border:2px solid #cecece;  
+    z-index:25;  
+    padding:12px;  
+}
 -->

@@ -34,24 +34,26 @@ $current_cleard_items = unserialize($_POST['current_cleard_items']);
 $all_items       = array();
 $gl_types 		 = array('pmt','ttl','tpm');
 $action          = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
-$post_date 		 = ($_POST['post_date']) ? gen_db_date($_POST['post_date']) : date('Y-m-d', time());
-$period    		 = gen_calculate_period($post_date);
+$post_date 		 = ($_POST['post_date']) ? gen_db_date($_POST['post_date']) : '';
 $payment_modules = load_all_methods('payment');
 $tills           = new tills();
 $glEntry		 = new journal();
-if($tills->showDropDown() == false){
+if(isset($_GET['till_id'])){
+	$tills->get_till_info(db_prepare_input($_GET['till_id']));
+	$post_date 		 = gen_db_date(gen_locale_date(date('Y-m-d')));
+}else if($tills->showDropDown() == false){
   	$tills->get_default_till_info();
-  	$till_known = true;
-}else{
-	if(isset($_POST['till_id'])) $tills->get_till_info(db_prepare_input($_POST['till_id']));
-	$till_known = true;
+}else if(isset($_POST['till_id'])){
+	$tills->get_till_info(db_prepare_input($_POST['till_id']));
+}else {
+	$post_date = '';
+	$action    = '';
 }
-
+if($post_date) $period = gen_calculate_period($post_date);
 foreach ($payment_modules as $pmt_class) {
 	$class  = $pmt_class['id'];
 	$$class = new $class;
 }
-
 $glEntry->currencies_code  = DEFAULT_CURRENCY;
 $glEntry->currencies_value = 1;
 /***************   hook for custom actions  ***************************/
@@ -80,8 +82,9 @@ switch ($action) {
 	  $glrows[db_prepare_input($_POST['gl_account_' . $i])] += $currencies->clean_value($_POST['amt_'.$i]) - $currencies->clean_value($_POST['pmt_'.$i]);
 	}
 	foreach($glrows as $key => $value){
-		$value = $currencies->clean_value($value);
+		$value = $value;
 		if($value == $currencies->clean_value(0)) continue;
+		$value = round($value,  $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
 		$balance_payments += $value;
 		$glEntry->journal_rows[] = array(
 			'id'            => '',
@@ -93,17 +96,17 @@ switch ($action) {
 			'reconciled'	=> ($security_level > 2) ? $period : 0,
 			'post_date'     => $glEntry->post_date);
 	}
+	$value = $currencies->clean_value($_POST['balance']) - $balance_payments;
+	$glEntry->journal_rows[] = array(
+		'id'            => '',
+		'qty'           => '1',
+		'gl_account'    => $tills->gl_acct_id,
+		'description'   => PHREEPOS_HANDELING_CASH_DIFFERENCE,
+		'debit_amount'  => ($value > 0 ) ? $value : '',
+		'credit_amount' => ($value > 0 ) ? ''     : -$value,
+		'reconciled'	=> ($security_level > 2) ? $period : 0,
+		'post_date'     => $glEntry->post_date);
 	if ($currencies->clean_value($_POST['balance'])<> 0){
-		$value = $currencies->clean_value($_POST['balance']) - $balance_payments;
-		$glEntry->journal_rows[] = array(
-			'id'            => '',
-			'qty'           => '1',
-			'gl_account'    => $tills->gl_acct_id,
-			'description'   => PHREEPOS_HANDELING_CASH_DIFFERENCE,
-			'debit_amount'  => ($value > 0 ) ? $value : '',
-			'credit_amount' => ($value > 0 ) ? ''     : -$value,
-			'reconciled'	=> ($security_level > 2) ? $period : 0,
-			'post_date'     => $glEntry->post_date);
 		$glEntry->journal_rows[] = array(
 			'id'            => '',
 			'qty'           => '1',
@@ -175,15 +178,14 @@ switch ($action) {
 		$messageStack->add(BNK_RECON_POST_SUCCESS,'success');
 		gen_add_audit_log(BNK_LOG_ACCT_RECON . $period, $tills->gl_acct_id);
 	}
-	$post_date = date('Y-m-d', time()); // reset for new form
-	$till_known = false;
+	$post_date = ''; // reset for new form
 	if (DEBUG) $messageStack->write_debug();
 	break;
   default:
 }
 
 /*****************   prepare to display templates  *************************/
-if ($till_known == true){
+if ($post_date){
 	$bank_list = array();
 	
 	// load the payments and deposits that are open
@@ -318,7 +320,7 @@ $cal_gl = array(
   'form'      => 'closingpos',
   'fieldname' => 'post_date',
   'imagename' => 'btn_date_1',
-  'default'   => gen_locale_date($post_date),
+  'default'   => ($post_date == '')? gen_locale_date(date('Y-m-d')) :gen_locale_date($post_date),
 );
 
 $include_header   = true;

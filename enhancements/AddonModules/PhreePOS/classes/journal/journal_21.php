@@ -18,8 +18,8 @@
 //  Path: /modules/phreepos/classes/journal/journal_21.php
 //
 // Inventory Direct Purchase Journal (POP)
-require_once(DIR_FS_MODULES . 'phreebooks/classes/banking.php');
-class journal_21 extends banking {
+require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
+class journal_21 extends journal {
     public $closed 				= '0';
     public $journal_id          = 21;
     public $gl_type             = GL_TYPE;

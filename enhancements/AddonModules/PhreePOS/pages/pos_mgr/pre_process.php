@@ -25,9 +25,12 @@ require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 /**************   page specific initialization  *************************/
 define('POPUP_FORM_TYPE','pos:rcpt');
 $error          = false;
-$date           = ($_POST['search_date'])    ? gen_db_date($_POST['search_date']) : false;
-$acct_period    = ($_POST['search_period']) ? $_POST['search_period']           : false;
-$search_text    = ($_POST['search_text'])   ? db_input($_POST['search_text'])   : db_input($_GET['search_text']);
+$_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
+$_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
+/***************   hook for custom actions  ***************************/
+$date           = ($_POST['search_date'])    ? gen_db_date($_POST['search_date']) 	: false;
+$acct_period 	= $_GET['search_period']     ? $_GET['search_period']         		: false;
+$search_text    = ($_POST['search_text'])    ? db_input($_POST['search_text'])   	: db_input($_GET['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action         = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -115,7 +118,7 @@ if (ENABLE_MULTI_CURRENCY){
 	  'bill_primary_name'   => GEN_PRIMARY_NAME,
 	);
 }
-$result      = html_heading_bar($heading_array, $_POST['sort_field'], $_POST['sort_order'], array(TEXT_ACTION));
+$result      = html_heading_bar($heading_array, $_GET['sf'], $_GET['so'], array(TEXT_ACTION));
 $list_header = $result['html_code'];
 $disp_order  = $result['disp_order'];
 // build the list for the page selected

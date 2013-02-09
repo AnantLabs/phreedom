@@ -52,7 +52,7 @@ $action          = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 $payment_modules = load_all_methods('payment');
 $tills           = new tills();
 /***************   hook for custom actions  ***************************/
-$custom_path = DIR_FS_MODULES . 'phreepos/custom/pages/main/extra_actions.php';
+$custom_path = DIR_FS_MODULES . 'phreepos/custom/ajax/save_main.php';
 if (file_exists($custom_path)) { include($custom_path); }
 /***************   Act on the action request   *************************/
 
@@ -235,28 +235,28 @@ if (file_exists($custom_path)) { include($custom_path); }
 	    $error .= 'No form was found for this type ('.POPUP_FORM_TYPE.'). ';
 	}
     if (!$error ) { 
-	  if ($result->RecordCount() > 1) {
-	    $massage .= 'More than one form was found for this type ('.POPUP_FORM_TYPE.'). Using the first form found.';
-	  }
-	  $rID    = $result->fields['id']; // only one form available, use it
-	  $report = get_report_details($rID);
-	  $title  = $report->title;
-	  $report->datedefault = 'a';
-	  $report->xfilterlist[0]->fieldname = 'journal_main.id';
-	  $report->xfilterlist[0]->default   = 'EQUAL';
-	  $report->xfilterlist[0]->min_val   = $order->id;
-	  $output = BuildForm($report, $delivery_method = 'S'); // force return with report
-	  if ($output === true) {
-	  	$error .='printing report failt';
-	  } else if (is_array($output) ){
-	    // fetch the receipt and prepare to print
-	  	$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
-	  	foreach (explode("\n",$receipt_data) as $value){
-	  		$xml .= "<receipt_data>\n";
-        	$xml .= "\t" . xmlEntry("line", $value);
-	    	$xml .= "</receipt_data>\n";
+		if ($result->RecordCount() > 1) {
+	    	if(DEBUG) $massage .= 'More than one form was found for this type ('.POPUP_FORM_TYPE.'). Using the first form found.';
 	  	}
-	  }
+	  	$rID    = $result->fields['id']; // only one form available, use it
+	  	$report = get_report_details($rID);
+	  	$title  = $report->title;
+	  	$report->datedefault = 'a';
+	  	$report->xfilterlist[0]->fieldname = 'journal_main.id';
+	  	$report->xfilterlist[0]->default   = 'EQUAL';
+	  	$report->xfilterlist[0]->min_val   = $order->id;
+	  	$output = BuildForm($report, $delivery_method = 'S'); // force return with report
+	  	if ($output === true) {
+	  		if(DEBUG) $massage .='direct printing failt.';
+	  	} else if (!is_array($output) ){// if it is a array then it is not a sequential report
+	    	// fetch the receipt and prepare to print
+	  		$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
+	  		foreach (explode("\n",$receipt_data) as $value){
+	  			$xml .= "<receipt_data>\n";
+        		$xml .= "\t" . xmlEntry("line", $value);
+	    		$xml .= "</receipt_data>\n";
+	  		}
+	  	}
 	}
 						$xml .= "\t" . xmlEntry("action",			$action);
 						$xml .= "\t" . xmlEntry("open_cash_drawer", $order->opendrawer);
@@ -265,5 +265,5 @@ if ($error)  			$xml .= "\t" . xmlEntry("error", 			$error);
 if ($massage)  	 		$xml .= "\t" . xmlEntry("massage", 			$massage);
 if ($order->errormsg)	$xml .= "\t" . xmlEntry("error", 			$order->errormsg);
 echo createXmlHeader() . $xml . createXmlFooter();
-die;	
+die;
 ?>

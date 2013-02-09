@@ -68,6 +68,13 @@ echo $toolbar->build_toolbar();
 <img id='curr_image'>
                      
 <h1><?php echo PAGE_TITLE; ?></h1>
+<h3 id='open_other_options'><?php echo OTHER_OPTIONS; ?></h3>
+<div id='other_options'>
+<?php echo html_button_field('home', TEXT_HOME, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, '', 'SSL') . '\'"'); ?><br/><br/>
+<?php echo html_button_field('open_sales', POS_PRINT_OTHER,'onclick="OpenOrdrList(this)"');?><br/><br/>
+<?php echo html_button_field('other_trans', TEXT_OTHER_TRANS,'onclick="ShowOtherTrans()"');?><br/><br/>
+<?php if(in_array($_SESSION['admin_security'][SECURITY_ID_POS_CLOSING], array(1,2,3,4))) echo html_button_field('close_till', POS_HEADING_CLOSING, 'onclick="CloseTill()"' ).'<br/><br/>'; ?>
+</div>
 <fieldset id="search_part">
 	<ol>
 <?php if ($tills->showDropDown()) {	// show currency slection pulldown 
@@ -121,7 +128,7 @@ echo $toolbar->build_toolbar();
 		</label></li>
 	<?php if (ENABLE_ORDER_DISCOUNT) { 
 			$hidden_fields .= html_hidden_field('disc_gl_acct_id', '') . chr(10); 
-        	echo '<li><label>' . TEXT_DISCOUNT_PERCENT . ' ' . html_input_field('disc_percent', ($order->disc_percent ? number_format(100*$order->disc_percent,3) : '0'), 'size="10" maxlength="6" onchange="calculateDiscountPercent()" ') . '</label></li> '; 
+        	echo '<li><label>' . TEXT_DISCOUNT_PERCENT . ' ' . html_input_field('disc_percent', ($order->disc_percent ? number_format(100*$order->disc_percent,3) : $currencies->format(0)), 'size="10" maxlength="6" onchange="calculateDiscountPercent()" ') . '</label></li> '; 
 			echo '<li><label>' . TEXT_DISCOUNT_AMOUNT . ' ' . html_input_field('discount', $currencies->format(($order->discount ? $order->discount : '0'), true, $order->currencies_code, $order->currencies_value), 'size="10" maxlength="20" onchange="calculateDiscount()"'). '</label></li> ';
 		  } else {
   			$hidden_fields .= html_hidden_field('disc_gl_acct_id', '') . chr(10);
@@ -261,7 +268,49 @@ echo $SeccondToolbar->build_toolbar();
 	<?php echo TEXT_AMOUNT . ' ' . html_input_field('amount', $currencies->format($amount), 'size="15" maxlength="20" style="text-align:right; font-size: 1.5em"'); ?>
 	<footer><?php echo PHREEPOS_PAYMENT_NOTES; ?> </footer>
 </div>
+
 <div id="backgroundPopup"></div>
 </form>
 
+<?php 
+echo html_form('popupOtherTrans', FILENAME_DEFAULT) . chr(10);
+$thirdToolbar      = new toolbar;
+$thirdToolbar->icon_list['cancel']['params'] = 'onclick="disablePopup()"';
+$thirdToolbar->icon_list['open']['show']     = false;
+$thirdToolbar->icon_list['save']['params']   = 'onclick="SaveOt()"';
+$thirdToolbar->icon_list['save']['show']     = true; 
+$thirdToolbar->icon_list['delete']['show']   = false;
+$thirdToolbar->icon_list['print']['show']    = false; 
+// pull in extra toolbar overrides and additions
+if (count($extra_ThirdToolbar_buttons) > 0) {
+	foreach ($extra_ThirdToolbar_buttons as $key => $value) $thirdToolbar->icon_list[$key] = $value;
+}
+// add the help file index and build the toolbar
+echo $thirdToolbar->build_toolbar(); 
+ // Build the page
+?>
+	<h2 align="center"><?php echo TEXT_OTHER_TRANS; ?></h2>  
+	<table id="ot_table" class="ui-widget" style="border-collapse:collapse; position:relative;">
+	<caption><?php echo TEXT_TYPE_OF_TRANSACTION . '   ' . html_pull_down_menu('Other_trans_type', '', '', 'onchange="changeOfType();"'); ?></caption>
+ 	<thead class="ui-widget-header">
+		<tr>
+			<th class="dataTableHeadingContent ot_desc"><?php echo TEXT_DESCRIPTION; ?></th>
+			<th class="dataTableHeadingContent ot_amount"><?php echo TEXT_AMOUNT; ?></th>
+			<th class="dataTableHeadingContent ot_rate"><?php echo ORD_TAX_RATE; ?></th>
+			<th class="dataTableHeadingContent ot_tax"><?php echo TEXT_TAX; ?></th>
+		</tr>
+	</thead>
+ 	<tbody id="ot_table_body">
+ 		<tr>
+ 			<td class="ot_desc">  <?php echo html_input_field('ot_desc', '', 'size="64" maxlength="64"  style="font-size: 1.5em"')?></td>
+ 			<td class="ot_amount"><?php echo html_input_field('ot_amount', $currencies->format(0), 'size="15" maxlength="20" style="text-align:right; font-size: 1.5em" onchange="updateOt()"'); ?></td>
+ 			<td class="ot_rate">  <?php echo html_pull_down_menu('ot_rate', $ot_tax_rates, '', 'onchange="updateOt()" style="font-size: 1.5em"')?></td>
+ 			<td class="ot_tax">   <?php echo html_input_field('ot_tax', $currencies->format(0), 'size="15" maxlength="20" style="text-align:right; font-size: 1.5em"'); ?></td>
+ 		</tr>
+	</tbody>
+</table>	 
+<?php echo html_hidden_field('ot_till_id', 			$tills->default_till())   . chr(10);
+      echo html_hidden_field('ot_currencies_value', '1') . chr(10);
+      echo html_hidden_field('ot_currencies_code',    $order->currencies_code) . chr(10);?>
+</form>
 

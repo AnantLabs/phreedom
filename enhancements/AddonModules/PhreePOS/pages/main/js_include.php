@@ -63,9 +63,11 @@ var newthousands_point   = '';
 <?php if (ENABLE_MULTI_CURRENCY) echo $currencies->build_js_currency_arrays(); ?>
 // List the tax rates
 <?php echo $js_tax_rates; ?>
+<?php echo $js_ot_tax_rates ?>
 <?php echo $js_pmt_types; ?>
 <?php echo $js_currency; ?>
 <?php echo $tills->javascript_array(); ?>
+<?php echo $trans->javascript_array(); ?>
 
 function init() {
   document.getElementById('disc_gl_acct_id').value    = default_disc_acct;
@@ -74,6 +76,7 @@ function init() {
   setImage('');
   refreshOrderClock(); 
   changeOfTill();
+  disablePopup();
   document.getElementById('sku').focus();
 }
 
@@ -102,7 +105,6 @@ function refreshOrderClock() {
 	  var qty  = 1;
 	  $.ajax({
 		type: "GET",
-		contentType: "application/json; charset=utf-8",
 		url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&cID='+acct+'&qty='+qty+'&upc='+upc+'&rID='+setId+'&jID='+journalID,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -120,6 +122,12 @@ function salesTaxes(id, text, rate) {
   this.id   = id;
   this.text = text;
   this.rate = rate;
+}
+
+function purTaxes(id, text, rate) {
+	  this.id   = id;
+	  this.text = text;
+	  this.rate = rate;
 }
 
 function currencyType(id, text, value, decimal_point, thousands_point, decimal_places, decimal_precise) {
@@ -142,7 +150,22 @@ function till (id, restrictCurrency, currenciesCode, printer, startingLine, clos
 	  this.openDrawer		= openDrawer;
 }
 
+function ot_option (till_id, id, type, use_tax, taxable, description) {
+	this.id   			= id;
+	this.till_id		= till_id;
+	this.type   		= type;
+	this.use_tax   		= use_tax;
+	this.taxable   		= taxable;
+	this.description	= description;
+}
+
 function ClearForm() {	
+}
+
+function CloseTill(){
+	OpenDrawer();
+	var tillId = document.getElementById('till_id').value;
+	location.href = 'index.php?module=phreepos&page=closing&till_id='+tillId;
 }
 
 function resetForm() {
@@ -187,7 +210,6 @@ function clearAddress(type) {
 function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
   $.ajax({
     type: "GET",
-    contentType: "application/json; charset=utf-8",
     url: 'index.php?module=phreebooks&page=ajax&op=load_order&cID='+cID+'&oID='+oID+'&jID='+jID+'&so_po=0&ship_only=0',
     dataType: ($.browser.msie) ? "text" : "xml",
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -363,7 +385,6 @@ function accountGuess(force) {
 	if (warn) {
 	  $.ajax({
 		type: "GET",
-		contentType: "application/json; charset=utf-8",
 		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -620,7 +641,6 @@ function updateRowTotal(rowCnt, useAjax) {
 	  if (auto_load_sku) {
 	    $.ajax({
 	      type: "GET",
-	      contentType: "application/json; charset=utf-8",
 	      url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuPrice&cID='+cID+'&sku='+sku+'&qty='+qty+'&rID='+rowCnt+'&strict=1',
 	      dataType: ($.browser.msie) ? "text" : "xml",
 	      error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -737,6 +757,7 @@ function updateTotalPrices() {
   document.getElementById('pmt_recvd').value = formatCurrency(pmtTotal);
   var balDue = tot - pmtTotal;
   document.getElementById('bal_due').value = formatCurrency(balDue);
+  if(popupStatus==1) document.getElementById('amount').value = formatCurrency(balDue);
 }
 
 function calculateDiscountPercent() {
@@ -757,7 +778,9 @@ function calculateDiscount() {
   // determine the discount percent
   document.getElementById('disc_percent').value = formatted_zero ;
   var discount = parseFloat(cleanCurrency(document.getElementById('discount').value));
-  if (isNaN(discount)) discount = 0;
+  document.getElementById('discount').value = formatted_zero ;
+  updateTotalPrices();
+  if (isNaN(discount)) discount = formatted_zero ;
   if (discount_from_total){
     var StartValue = parseFloat(cleanCurrency(document.getElementById('total').value));
   }else{
@@ -766,6 +789,7 @@ function calculateDiscount() {
   if (StartValue != 0) {
     var percent = 100000 * (1 - ((StartValue - discount) / StartValue));
     document.getElementById('disc_percent').value = formatCurrency(Math.round(percent) / 1000);
+    document.getElementById('discount').value = formatCurrency(discount);
   } 
   updateTotalPrices();
 }
@@ -816,6 +840,8 @@ function recalculateCurrencies() {
   // prepare the page settings for post
   document.getElementById('currencies_code').value  = desiredCurrency;
   document.getElementById('currencies_value').value = new String(newValue);
+  document.getElementById('ot_currencies_code').value  = desiredCurrency;
+  document.getElementById('ot_currencies_value').value = new String(newValue);
   
 }
 
@@ -871,7 +897,7 @@ function loadSkuDetails(iID, rowCnt) {
   var qty = 1;
   var rowCnt = 0;
   for (var i=1; i<=numRows; i++) {
-	if (document.getElementById('sku_' +i).value == sku ){
+	if (document.getElementById('sku_' +i).value == sku && document.getElementById('fixed_price_' +i).value > formatted_zero){
 	  qty = document.getElementById('pstd_' +i).value;
 	  qty++;
 	  rowCnt = i;
@@ -952,6 +978,8 @@ function changeOfTill(){
 	}else{
 		$('#tb_icon_open_drawer').show();
 	}
+	set_ot_options();
+	document.getElementById('ot_till_id').value = tillId ;
 }
 
 function monitorPrinting() {
@@ -966,7 +994,7 @@ function monitorPrinting() {
 	  }
     }
   } else {
-	alert("Error: Java label printing applet not loaded!");
+	alert("Error: Java printing applet not loaded!");
   }
 }
 function InventoryProp(elementID) {
@@ -974,7 +1002,6 @@ function InventoryProp(elementID) {
 	  if (sku != text_search && sku != '') {
 	    $.ajax({
 	      type: "GET",
-	      contentType: "application/json; charset=utf-8",
 		  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuValid&strict=1&sku='+sku,
 	      dataType: ($.browser.msie) ? "text" : "xml",
 	      error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1121,7 +1148,7 @@ function ajaxPrintAndClean(sXml) { // call back function
 	    $(xml).find("receipt_data").each(function() {
 	    	applet.append($(this).find("line").text() + "\n");
 	    });
-	    if ($(xml).find("open_cash_drawer").text() == 1){
+		if ($(xml).find("open_cash_drawer").text() == 1){
 			for(var i in tills[tillId].openDrawer){
 				applet.append(tills[tillId].openDrawer[i]);
 			}
@@ -1131,14 +1158,8 @@ function ajaxPrintAndClean(sXml) { // call back function
 		}
         applet.print();
         monitorPrinting();
-  	}else if( applet != null && tills[tillId].printer != '' && $(xml).find("open_cash_drawer").text() == 1 ){
-  	  	//just opendrawer
-  		applet.findPrinter(tills[tillId].printer);
-  		for(var i in tills[tillId].openDrawer){
-			applet.append(tills[tillId].openDrawer[i]);
-		}
-  		applet.print();
-        monitorPrinting();
+	}else if($(xml).find("open_cash_drawer").text() == 1 ){
+  		  	OpenDrawer();
     }else if( print ){
 		var order_id = $(xml).find("order_id").text();
 		var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"popup_gen","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
@@ -1153,7 +1174,6 @@ function ajaxPrintAndClean(sXml) { // call back function
 function GetPrintPreviousReceipt() {
 	$.ajax({
 	    type: "GET",
-        contentType: "application/json; charset=utf-8",
         url: 'index.php?module=phreepos&page=ajax&op=print_previous',
         dataType: ($.browser.msie) ? "text" : "xml",
         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1179,22 +1199,17 @@ function PrintPreviousReceipt(sXml) { // call back function
 	        $(xml).find("receipt_data").each(function() {
 	            applet.append($(this).find("line").text() + "\n");
 	        });
-			if ($(xml).find("open_cash_drawer").text() == 1){
-		        for(var i in tills[tillId].openDrawer){
-					applet.append(tills[tillId].openDrawer[i]);
-				}
-			}
 	        for(var i in tills[tillId].closingLine){
 				applet.append(tills[tillId].closingLine[i]);
 			}
 	        applet.print();
 	        monitorPrinting();
-	    } else {
+	  } else {
 	        var order_id = $(xml).find("order_id").text();
 	        var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
 	        printWin.focus();   
-	    }
-	}
+	  }
+}
 
 function OpenDrawer(){
 	var tillId = document.getElementById('till_id').value;
@@ -1207,10 +1222,98 @@ function OpenDrawer(){
 		applet.print();
 	}
 }
+
+function OpenOrdrList(currObj) {
+	  window.open("index.php?module=phreebooks&page=popup_orders&jID="+journalID,"search_po","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
+}
+
+function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
+	  $.ajax({
+	    type: "GET",
+	    url: 'index.php?module=phreepos&page=ajax&op=print_previous&oID='+oID,
+	    dataType: ($.browser.msie) ? "text" : "xml",
+	    error: function(XMLHttpRequest, textStatus, errorThrown) {
+	      alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	    },
+		success: PrintPreviousReceipt
+	  });
+	}
+
+// start other transactions
+
+function changeOfType(){
+	var elt = document.getElementById('Other_trans_type');
+	for (i = 0; i < ot_options.length; i++) {
+		if(elt.options[elt.selectedIndex].value == ot_options[i].id){
+			if(ot_options[i].type == 'expenses'){
+				//show description amount and tax if aplicable.
+				$('.ot_desc').show();
+				$('.ot_amount').show();
+				if(ot_options[i].use_tax == '1'){
+					$('.ot_rate').show();
+					$('.ot_tax').show();
+					document.getElementById('ot_rate').value = ot_options[i].taxable;
+				}else{
+					$('.ot_rate').hide();
+					$('.ot_tax').hide();
+				}
+			}else{
+				//only show amount
+			 	$('.ot_desc').hide();
+				$('.ot_amount').show();
+				$('.ot_rate').hide();
+				$('.ot_tax').hide();
+			}
+		}
+	}
+}
+
+function set_ot_options() {
+	document.getElementById('Other_trans_type').options.length = 0;
+	var tillId = document.getElementById('till_id').value;
+	for (i = 0; i < ot_options.length; i++) {
+		if(ot_options[i].till_id == tillId){
+			newOpt = document.createElement("option");
+			newOpt.text = ot_options[i].description;
+			newOpt.value = ot_options[i].id;
+			document.getElementById('Other_trans_type').options.add(newOpt);
+		}
+	}
+	changeOfType();
+}
+
+function updateOt(){
+	var amount		= cleanCurrency(document.getElementById('ot_amount').value);
+	var tax_index   = document.getElementById('ot_rate').value;
+	var tax_amount  = amount - ( amount / (1 +(ot_tax_rates[tax_index].rate / 100)));
+	document.getElementById('ot_tax').value       = formatPrecise(tax_amount);
+}
+
+function SaveOt(){
+	$.ajax({
+		type: "POST",
+		url: 'index.php?module=phreepos&page=ajax&op=other_transactions&action=save',
+		dataType: ($.browser.msie) ? "text" : "xml",
+		data: $("form [name=popupOtherTrans]").serialize(),
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+		      alert ("Ajax ErrorThrown: " + errorThrown + "\nTextStatus: " + textStatus + "\nError: " + XMLHttpRequest.responseText);
+			},
+		success: cleanOt
+	  });
+}
+
+function cleanOt(){
+	document.getElementById('ot_desc').value 	= '';
+	document.getElementById('ot_amount').value 	= formatted_zero;
+	document.getElementById('ot_tax').value 	= formatted_zero;
+	disablePopup();
+}
+
+// end ohter transactions
 //<!-- javascript for ajax popup
 
-
-var popupStatus = 0;  //0 means disabled; 1 means enabled;  
+var popupStatus = 0;  //0 means disabled; 1 means enabled; 
+var optionsStatus = 0;//0 means disabled; 1 means enabled;
 
 //loading popup with jQuery magic!  
 function popupContact(){ 
@@ -1279,10 +1382,50 @@ function popupPayment(){
 	
 }  
 
+function open_other_options(){
+	//loads popup only if it is disabled
+	if(optionsStatus==0){  
+		$("#other_options").fadeIn("slow");    
+		optionsStatus = 1;
+	}else{
+		$("#other_options").fadeOut("slow"); 
+		optionsStatus = 0;
+	}
+}
+
+function ShowOtherTrans(){
+	// start by fadinng out the other options menu bar then show background and 
+	$("#other_options").fadeOut("slow"); 
+	$("#backgroundPopup").fadeIn("slow");  
+	$("#popupOtherTrans").fadeIn("slow");  
+	popupStatus = 1;
+	//request data for centering  
+	var windowWidth = document.documentElement.clientWidth;  
+	var windowHeight = document.documentElement.clientHeight;  
+	var popupHeight = $("#popupOtherTrans").height();  
+	var popupWidth = $("#popupOtherTrans").width();  
+	//centering  
+	$("#popupOtherTrans").css({  
+		"position": "absolute",
+		"top": windowHeight/2-popupHeight/2,  
+		"left": windowWidth/2-popupWidth/2  
+	});  
+	$("#backgroundPopup").css({
+		"position": "absolute",
+		"opacity": "0.7",
+		"background":"#000000",  
+		"top": "0px",  
+		"left": "0px",
+		"height": windowHeight,  
+		"width":windowWidth	  
+	});
+}
+
 //disabling popup with jQuery magic!  
 function disablePopup(){  
 	//disables popup only if it is enabled  
 	if(popupStatus==1){  
+		$("#popupOtherTrans").fadeOut("slow");
 		$("#backgroundPopup").fadeOut("slow");  
 		$("#popupPayment").fadeOut("slow"); 
 		$("#customer_div").fadeOut("slow");
@@ -1308,8 +1451,20 @@ $(document).ready(function(){
 		disablePopup();  
 	});
 
+	$("#disc_percent").keydown(function(event) {
+		$("#discount").val('');
+	});
+
+	$("#discount").keydown(function(event) {
+		$("#disc_percent").val('');
+	});
+	
 	$("#amount").keydown(function(event) {
 		if (event.keyCode == 13) SavePayment('save');
+	});
+
+	$("#open_other_options").click(function(){
+		open_other_options();  
 	});
 	  
 });
@@ -1330,6 +1485,7 @@ $(document).keydown(function(event){
 		
 	if(event.keyCode==27){
 		event.preventDefault();
+		if(optionsStatus==1) open_other_options();  //close other options menu
 		if(popupStatus==1){
 			// 	if esc is pressed and the payment popup is shown it will close the payment popup  
 			disablePopup();
@@ -1343,8 +1499,12 @@ $(document).keydown(function(event){
 	if(event.keyCode==38){ //arrow up
 		if(popupStatus==1){
 			event.preventDefault();
-			// 	if arrow up is pressed and the payment popup is shown it select the previous payment methode  
-			$('#payment_method').children('option:selected').prev().prop("selected", true);
+			// 	if arrow up is pressed and the payment popup is shown it select the previous payment methode
+			if($('#payment_method option:first').is(":selected")){
+				$('#payment_method option:last-child').attr("selected", "selected");
+			}else{  
+				$('#payment_method option:selected').prev().prop("selected", true);
+			}  
 			event.originalEvent.keyCode = 0;
 			activateFields();
 		} 
@@ -1353,8 +1513,12 @@ $(document).keydown(function(event){
 	if(event.keyCode==40){ //arrow down
 		if(popupStatus==1){
 			event.preventDefault();
-			// 	if arrow down is pressed and the payment popup is shown it select the next payment methode  
-			$('#payment_method').children('option:selected').next().prop("selected", true);
+			// 	if arrow down is pressed and the payment popup is shown it select the next payment methode
+			if($('#payment_method option:last').is(":selected")){
+				$('#payment_method option:first-child').attr("selected", "selected");
+			}else{  
+				$('#payment_method option:selected').next().prop("selected", true);
+			}
 			event.originalEvent.keyCode = 0;
 			activateFields();
 		} 

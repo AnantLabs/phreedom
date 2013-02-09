@@ -34,7 +34,10 @@ define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Here you can add code to ope
 define('TEXT_ENTER_NEW_TILL','New Till');
 define('TEXT_EDIT_TILL','Edit Till');
 define('TEXT_TILLS','Tills');
+define('TEXT_ENTER_NEW_OTHER_TRANSACTION','New Other Transaction');
+define('TEXT_EDIT_OTHER_TRANSACTION','Edit Other Transaction');
 define('SETUP_TILL_DELETE_INTRO','Do you whis to delete this till?');
+define('SETUP_OT_DELETE_INTRO','Do you whis to delete this other transaction?');
 define('PHREEPOS_DISPLAY_WITH_TAX_DESC','Do you wish to show the prices onscrean with tax<br> (if you select no prices will be shown without tax)');
 define('PHREEPOS_DISCOUNT_OF_DESC','Do you wish that the discount will be calculated from the total<br> ( if you select no then it will be calculated from the subtotal) ');
 define('PHREEPOS_ROUNDING_DESC','How do you wish that the end total is rounded.<br> <b>NO</b> means that the end total will not be rounded.<br><b>INTEGER</b> means:  to the benefit of the customer everything smaller than a dollar will be ignored.<br><b>10 CENTS</b> means:  to the benefit of the customer everything smaller than 10 cents will be ignored.<br><b>NEUTRAL</b> there will be rounded to the nearest 0, 5 or 10 cents (1,2,6,7 go down 3,4,8,9 go up)');
@@ -48,5 +51,10 @@ define('TEXT_DIF_GL_ACCOUNT','GL account for end of the day differences:');
 define('TEXT_RESTRICT_CURRENCY','Restrict till to this currency');
 define('TEXT_DRAWER_CODES','open drawer codes');
 define('TEXT_MAX_DISCOUNT', 'set the maximum amount of discount is allowed to be given at this till, this excludes discounts set in the price lists.<br> leave empty is you do not whis to set this');
+define('TEXT_PHREEPOS_TRANSACTION_TYPE','Select the transaction type');
+define('TEXT_USE_TAX','Can tax be used');
+define('TEXT_TAX','default tax');
+//3.4
+define('TEXT_OTHER_TRANS','Other Transactions');
 
 ?>

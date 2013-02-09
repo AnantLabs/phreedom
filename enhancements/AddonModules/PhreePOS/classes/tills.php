@@ -19,6 +19,7 @@
 //
 
 class tills {
+	public $code                    = 'tills';
     public $db_table     			= TABLE_PHREEPOS_TILLS;
     public $help_path   			= '';
     public $error       			= false;
@@ -37,10 +38,7 @@ class tills {
 
   function btn_save($id = '') {
   	global $db, $messageStack, $currencies;
-	if ($this->security_id < 2) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		return false;
-	}
+	validate_security($this->security_id, 2);
 	if ($this->gl_acct_id == ''){
 		$messageStack->add(GL_SELECT_STD_CHART,'error');
 		return false;
@@ -73,10 +71,7 @@ class tills {
 
   function btn_delete($id = 0) {
   	global $db, $messageStack;
-	if ($this->security_id < 4) {
-		$messageStack->add_session(ERROR_NO_PERMISSION,'error');
-		return false;
-	}
+	validate_security($this->security_id, 4);
 	// Don't allow delete if there is account activity for this account
 	$sql = "select max(debit_amount) as debit, max(credit_amount) as credit, max(beginning_balance) as beg_bal 
 		from " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " where account_id = '" . $this->gl_acct_id . "'";
@@ -103,24 +98,24 @@ class tills {
     $rowCnt = 0;
 	while (!$result->EOF) {
 	  $actions = '';
-	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\''.get_called_class().'_edit\', ' . $result->fields['till_id'] . ')"') . chr(10);
-	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TILL_DELETE_INTRO . '\')) subjectDelete(\''.get_called_class().'\', ' . $result->fields['till_id'] . ')"') . chr(10);
+	  if ($this->security_id > 1) $actions .= html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="loadPopUp(\''.$this->code.'_edit\', ' . $result->fields['till_id'] . ')"') . chr(10);
+	  if ($this->security_id > 3) $actions .= html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . SETUP_TILL_DELETE_INTRO . '\')) subjectDelete(\''.$this->code.'\', ' . $result->fields['till_id'] . ')"') . chr(10);
 	  $content['tbody'][$rowCnt] = array(
 	    array('value' => htmlspecialchars($result->fields['description']),
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => htmlspecialchars($result->fields['store_id']), 
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => gen_get_type_description(TABLE_CHART_OF_ACCOUNTS, $result->fields['gl_acct_id']),
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => $currencies->format($result->fields['balance'], true, $result->fields['currencies_code'] ),
-			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.get_called_class().'_edit\',\''.$result->fields['till_id'].'\')"'),
+			  'params'=> 'style="cursor:pointer" onclick="loadPopUp(\''.$this->code.'_edit\',\''.$result->fields['till_id'].'\')"'),
 		array('value' => $actions,
 			  'params'=> 'align="right"'),
 	  );
       $result->MoveNext();
 	  $rowCnt++;
     }
-    return html_datatable(''.get_called_class().'_table', $content);
+    return html_datatable(''.$this->code.'_table', $content);
   }
 
   function build_form_html($action, $id = '') {
@@ -130,14 +125,6 @@ class tills {
         $result = $db->Execute($sql);
         foreach ($result->fields as $key => $value) $this->$key = $value;
 	}
-	$payment_modules = load_all_methods('payment');
-	foreach ($payment_modules as $key => $pmts) {
-  		$pmt_method = $pmts['id'];
-  		$$pmt_method = new $pmt_method;
-  		if($$pmt_method->show_in_pos == false) {
-  			unset($payment_modules[$key]);
-  		}
-	}	
 	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
 	$output .= '  <thead class="ui-widget-header">' . "\n";
 	$output .= '  <tr>' . chr(10);

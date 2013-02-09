@@ -15,18 +15,18 @@
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
 // | GNU General Public License for more details.                    |
 // +-----------------------------------------------------------------+
-//  Path: /modules/phreepos/pages/admin/template_tab_tills.php
+//  Path: /modules/phreepos/pages/admin/template_other_trans.php
 //
-$tills_toolbar = new toolbar();
-$tills_toolbar->icon_list['cancel']['show'] = false;
-$tills_toolbar->icon_list['open']['show']   = false;
-$tills_toolbar->icon_list['delete']['show'] = false;
-$tills_toolbar->icon_list['save']['show']   = false;
-$tills_toolbar->icon_list['print']['show']  = false;
-if ($security_level > 1) $tills_toolbar->add_icon('new', 'onclick="loadPopUp(\'tills_new\', 0)"', $order = 10);
+$trans_toolbar = new toolbar();
+$trans_toolbar->icon_list['cancel']['show'] = false;
+$trans_toolbar->icon_list['open']['show']   = false;
+$trans_toolbar->icon_list['delete']['show'] = false;
+$trans_toolbar->icon_list['save']['show']   = false;
+$trans_toolbar->icon_list['print']['show']  = false;
+if ($security_level > 1) $trans_toolbar->add_icon('new', 'onclick="loadPopUp(\'other_transactions_new\', 0)"', $order = 10);
 ?>
-<div id="tab_tills">
-  <?php echo $tills_toolbar->build_toolbar(); ?>
-  <h1><?php echo $tills->title; ?></h1>
-  <div id="tills_content"><?php echo $tills->build_main_html(); ?></div>
+<div id="tab_other_trans">
+  <?php echo $trans_toolbar->build_toolbar(); ?>
+  <h1><?php echo $trans->title; ?></h1>
+  <div id="other_trans_content"><?php echo $trans->build_main_html(); ?></div>
 </div>

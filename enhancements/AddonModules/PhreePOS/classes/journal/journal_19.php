@@ -18,8 +18,9 @@
 //  Path: /modules/phreepos/classes/journal/journal_19.php
 //
 // POS Journal
-require_once(DIR_FS_MODULES . 'phreebooks/classes/banking.php');
-class journal_19 extends banking {
+require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
+class journal_19 extends journal {
+	public $save_payment        = false;
     public $closed 				= '0';
     public $journal_id          = 19;
     public $gl_type             = GL_TYPE;
@@ -285,6 +286,29 @@ class journal_19 extends banking {
   	global $messageStack;
 	if ( DEBUG ) $messageStack->write_debug();
   }
+  
+  function encrypt_payment($method, $card_key_pos = false) {
+	  $encrypt = new encryption();
+	  $cc_info = array();
+	  $cc_info['name']    = isset($_POST[$method.'_field_0']) ? db_prepare_input($_POST[$method.'_field_0']) : '';
+	  $cc_info['number']  = isset($_POST[$method.'_field_1']) ? db_prepare_input($_POST[$method.'_field_1']) : '';
+	  $cc_info['exp_mon'] = isset($_POST[$method.'_field_2']) ? db_prepare_input($_POST[$method.'_field_2']) : '';
+	  $cc_info['exp_year']= isset($_POST[$method.'_field_3']) ? db_prepare_input($_POST[$method.'_field_3']) : '';
+	  $cc_info['cvv2']    = isset($_POST[$method.'_field_4']) ? db_prepare_input($_POST[$method.'_field_4']) : '';
+	  $cc_info['alt1']    = isset($_POST[$method.'_field_5']) ? db_prepare_input($_POST[$method.'_field_5']) : '';
+	  $cc_info['alt2']    = isset($_POST[$method.'_field_6']) ? db_prepare_input($_POST[$method.'_field_6']) : '';
+	  if (!$enc_value = $encrypt->encrypt_cc($cc_info)) return false;
+	  $payment_array = array(
+		'hint'      => $enc_value['hint'],
+		'module'    => 'contacts',
+		'enc_value' => $enc_value['encoded'],
+		'ref_1'     => $this->bill_acct_id,
+		'ref_2'     => $this->bill_address_id,
+		'exp_date'  => $enc_value['exp_date'],
+	  );
+	  db_perform(TABLE_DATA_SECURITY, $payment_array, $this->payment_id ? 'update' : 'insert', 'id = '.$this->payment_id);
+	  return true;
+	}
 
 }
 ?>

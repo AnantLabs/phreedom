@@ -21,6 +21,9 @@ define('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER_DESC','Hier kunt u code invoeren om
 define('TEXT_ENTER_NEW_TILL','Nieuwe Kassa Lade');
 define('TEXT_EDIT_TILL','Bewerk Kassa Lade');
 define('TEXT_TILLS','Kassa Lade');
+define('TEXT_ENTER_NEW_OTHER_TRANSACTION','Nieuwe Overige Transacties');
+define('TEXT_EDIT_OTHER_TRANSACTION','Bewerk Overige Transacties');
+
 define('SETUP_TILL_DELETE_INTRO','Wil u deze kassa lade verwijderen?');
 define('PHREEPOS_DISPLAY_WITH_TAX_DESC','Wil u de prijzen op het scherm laten zien met btw<br> (als u nee selecteerd worden de prijzen exclusief btw)');
 define('PHREEPOS_DISCOUNT_OF_DESC','wilt u dat de korting wordt berekend over het totaal<br> ( als u nee selecteerd wordt de korting berekend over het sub totaal) ');
@@ -34,4 +37,8 @@ define('TEXT_RESTRICT_CURRENCY','Beperk kassa tot deze valuta');
 define('TEXT_DRAWER_CODES','open lade codes');
 define('TEXT_DIF_GL_ACCOUNT','Grootboek rekening voor kasverschillen:');
 define('TEXT_MAX_DISCOUNT', 'stel het maximum aan korting in dat gegeven kan worden in deze kassa, uitgesloten zijn de bestaande prijslijsten.<br> laat dit leeg als u dit niet wilt instellen.');
+define('TEXT_PHREEPOS_TRANSACTION_TYPE','Selecteer het transactie type');
+define('TEXT_USE_TAX','Kan btw gebruikt worden.');
+define('TEXT_TAX','standaard btw');
+define('TEXT_OTHER_TRANS','Overige Transacties');
 ?>

@@ -42,6 +42,7 @@ $request_type = (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '
 // define the inventory types that are tracked in cost of goods sold
 define('COG_ITEM_TYPES','si,sr,ms,mi,as,sa');
 @ini_set('session.gc_maxlifetime', (SESSION_TIMEOUT_ADMIN < 900 ? (SESSION_TIMEOUT_ADMIN + 900) : SESSION_TIMEOUT_ADMIN));
+$_REQUEST = array_merge($_GET, $_POST);
 session_start();
 $session_started = true;
 // set the language

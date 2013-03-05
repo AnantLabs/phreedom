@@ -17,6 +17,7 @@
 // +-----------------------------------------------------------------+
 // Path: /index.php
 //
+ini_set('display_errors', '1');
 error_reporting(E_ALL & ~E_NOTICE);
 if ($_POST['module'])    $module = $_POST['module'];
 elseif ($_GET['module']) $module = $_GET['module'];

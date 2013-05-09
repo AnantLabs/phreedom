@@ -8,10 +8,10 @@ Current specifactions for development of multiple vendor data to be used in PO's
 
 data to be stored in a table, new table, vendor_data? (needs defined)
 
-* Vendor_UOM<br>
-* Vendor_Description <br>
-* Vendor_code<br>
-* Vendor_cost<br>
+ * Vendor_UOM<br>
+ * Vendor_Description <br>
+ * Vendor_code<br>
+ * Vendor_cost<br>
 
 
 === Users Pledges ===

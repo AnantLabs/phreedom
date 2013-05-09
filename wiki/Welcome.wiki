@@ -1,20 +1,21 @@
 #summary Welcome page, Links and Information.
 
-* [Development Development Information]<br>
-* [svn How we use svn trunk, tags, and branches]<br>
-* [Patches How to submit a patch]<br>
-* [WishList A list of features that have been approved for development]<br>
-* [DiscussionGroups The discussion groups used in the development discussions]<br>
-
 = Introduction =
 
 Welcome to the Phreedom development wiki.
 
 
 = Details =
-
-[PhreePOS Phreepos Module]<br>
 [Customization How to customize your program]<br>
+<br>
+* [DiscussionGroups The discussion groups used in the development discussions]<br>
+== Development ==
+* [Development Development Information]<br>
+* [svn How we use svn trunk, tags, and branches]<br>
+* [Patches How to submit a patch]<br>
+* [PhreePOS Phreepos Module]<br>
+* [WishList A list of features that have been approved for development]<br>
+** [PO Module Multi-Vendor data]<br>
 
 = Links =
 The main site: [http://www.phreesoft.com/ phreesoft]

@@ -102,6 +102,8 @@ define('TEXT_DOWNLOAD_ATTACHMENT','Download Attachment');
 define('TEXT_EDIT','Edit');
 define('GEN_EMAIL','Email');
 define('TEXT_EMAIL','Email: ');
+define('TEXT_EMAIL_RECEIVED','Email Received');
+define('TEXT_EMAIL_SEND','Email Send');
 define('TEXT_ADMIN_EMAIL', 'Email Address: ');
 define('TEXT_END_DATE','End Date');
 define('TEXT_ENTER_NEW', 'Enter New ...');

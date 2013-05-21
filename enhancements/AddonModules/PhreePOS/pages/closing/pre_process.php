@@ -41,10 +41,10 @@ $glEntry		 = new journal();
 if(isset($_GET['till_id'])){
 	$tills->get_till_info(db_prepare_input($_GET['till_id']));
 	$post_date 		 = gen_db_date(gen_locale_date(date('Y-m-d')));
-}else if($tills->showDropDown() == false){
-  	$tills->get_default_till_info();
 }else if(isset($_POST['till_id'])){
 	$tills->get_till_info(db_prepare_input($_POST['till_id']));
+}else if($tills->showDropDown() == false){
+  	$tills->get_default_till_info();
 }else {
 	$post_date = '';
 	$action    = '';

@@ -50,5 +50,5 @@ define('TEXT_CASH_IN','Geld In');
 define('TEXT_CASH_OUT','Geld Uit');
 define('TEXT_EXPENSES','Uitgave');
 define('TEXT_TYPE_OF_TRANSACTION','Type transactie');
-
+define('ERROR_NO_PAYMENT_METHODES','Kan kassa niet openen omdat er geen betaal methodes zijn. ga naar Bedrijf > module administratie > betaal module en stel methodes in om zichtbaar te worden in de kassa en voeg groot boekrekeningen toe.');
 ?>

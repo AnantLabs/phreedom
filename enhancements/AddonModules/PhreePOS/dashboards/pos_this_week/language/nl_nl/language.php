@@ -8,7 +8,6 @@
 // +-----------------------------------------------------------------+
 // Path: /modules/phreepos/dashboards/pos_this_week/language/nl_nl/language.php
 
-define('CP_POS_THIS_WEEK_NO_RESULTS','Geen resultaten!');
 define('CP_POS_THIS_WEEK_DESCRIPTION','Lijst met totale kassa verkopen per dag van deze week.');
 define('CP_POS_THIS_WEEK_TITLE','Kassa verkopen deze week');
 

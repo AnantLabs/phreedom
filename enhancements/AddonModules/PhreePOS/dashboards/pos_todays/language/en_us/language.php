@@ -20,6 +20,5 @@
 
 define('CP_POS_TODAYS_TITLE','Today\'s Pos Sales');
 define('CP_POS_TODAYS_DESCRIPTION','Lists today\'s pos sales.');
-define('CP_POS_TODAYS_NO_RESULTS','No results found!');
 
 ?>

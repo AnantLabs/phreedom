@@ -102,10 +102,19 @@ function refreshOrderClock() {
     var upc = document.getElementById('sku').value;
     if (upc != text_search && upc.length == skuLength) {
       var acct = document.getElementById('bill_acct_id').value;
-	  var qty  = 1;
+	  var numRows = document.getElementById('item_table_body').rows.length;
+	  var qty = 1;
+	  var rowCnt = 0;
+	  for (var i=1; i<=numRows; i++) {
+		if (document.getElementById('sku_' +i).value == sku && document.getElementById('fixed_price_' +i).value > formatted_zero){
+		  qty = document.getElementById('pstd_' +i).value;
+		  qty++;
+		  rowCnt = i;
+		}
+	  }
 	  $.ajax({
 		type: "GET",
-		url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&cID='+acct+'&qty='+qty+'&upc='+upc+'&rID='+setId+'&jID='+journalID,
+		url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&cID='+acct+'&qty='+qty+'&upc='+upc+'&rID='+rowCnt+'&jID='+journalID,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -208,15 +217,27 @@ function clearAddress(type) {
 }
 
 function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
-  $.ajax({
-    type: "GET",
-    url: 'index.php?module=phreebooks&page=ajax&op=load_order&cID='+cID+'&oID='+oID+'&jID='+jID+'&so_po=0&ship_only=0',
-    dataType: ($.browser.msie) ? "text" : "xml",
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-    },
-	success: fillOrderData
-  });
+	if(cID){
+		$.ajax({
+	    	type: "GET",
+	    	url: 'index.php?module=phreebooks&page=ajax&op=load_order&cID='+cID+'&oID='+oID+'&jID='+jID+'&so_po=0&ship_only=0',
+	    	dataType: ($.browser.msie) ? "text" : "xml",
+	    	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	      		alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	    	},
+			success: fillOrderData
+	  	});
+	}else if(oID){
+		$.ajax({
+			type: "GET",
+			url: 'index.php?module=phreepos&page=ajax&op=print_previous&oID='+oID,
+			dataType: ($.browser.msie) ? "text" : "xml",
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+			},
+			success: PrintPreviousReceipt
+		});
+	}
 }
 
 function fillOrderData(sXml) { // edit response form fill
@@ -359,22 +380,15 @@ function fillOrder(xml) {
 }
 
 function accountGuess(force) {
-  if (force) {
-	AccountList();
-	return;
+  if (!force) {
+	  AccountList();
+	  return;
   } 
-  if (post_error) return; // leave the data there, since form was reloaded with failed post data
-  if (document.getElementById('id').value) return; // if there's an id, it's an edit, return
   var warn = true;
   var firstguess  = document.getElementById('copy_search').value; 
-  var secondguess = document.getElementById('search').value;
-  if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ){
-	AccountList();
-	return;
-  }
-  var guess = firstguess;
-  if( firstguess != secondguess && secondguess != text_search && secondguess != ''){
-	  guess = secondguess;
+  var guess = document.getElementById('search').value;
+  if( firstguess != guess && firstguess != text_search && firstguess != ''){
+	  guess = firstguess;
   }
   // test for data already in the form
   if (guess != text_search && guess != '') {
@@ -385,21 +399,22 @@ function accountGuess(force) {
 	if (warn) {
 	  $.ajax({
 		type: "GET",
-		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type='+account_type+'&guess='+guess,
+		url: 'index.php?module=phreebooks&page=ajax&op=load_searches&jID='+journalID+'&type=c&guess='+guess,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
 		},
-		success: processGuess
+		success: processAccountGuess
 	  });
     }
   }
 }
 
-function processGuess(sXml) {
+function processAccountGuess(sXml) {
   var xml = parseXml(sXml);
   if (!xml) return;
-  if ($(xml).find("result").text() == 'success') {
+  var result = $(xml).find("result").text();
+  if (result == 'success') {
     fillOrderData(xml);
   } else {
 	AccountList();
@@ -410,9 +425,9 @@ function AccountList(currObj) {
 	var firstguess  = document.getElementById('copy_search').value; 
 	var secondguess = document.getElementById('search').value;
 	if ((firstguess == text_search || firstguess == '') && (secondguess == text_search || secondguess == '') ) return;
-	var guess = firstguess;
-	if( firstguess != secondguess && secondguess != text_search && secondguess != ''){
-		  guess = secondguess;
+	var guess = secondguess;
+	if( firstguess != secondguess && firstguess != text_search && firstguess != ''){
+		  guess = firstguess;
 	}
   window.open("index.php?module=contacts&page=popup_accts&type="+account_type+"&form=orders&fill=bill&jID=19&search_text="+guess,"accounts","width=850px,height=550px,resizable=1,scrollbars=1,top=150,left=100");
 }
@@ -434,6 +449,7 @@ function fillAddress(type) {
   var index = document.getElementById(type+'_to_select').value;
   var address;
   if (type == "bill") address = bill_add;
+  if (type == "ship") return;
   if (index == '0') { // set to defaults
     document.getElementById(type+'_acct_id').value    = 0;
     document.getElementById(type+'_address_id').value = 0;
@@ -923,7 +939,7 @@ function fillInventory(sXml) {
   var xml    = parseXml(sXml);
   if (!xml) return;
   var sku    = $(xml).find("sku").first().text(); // only the first find, avoids bom add-ons
-  if (!sku || $(xml).find("inventory_type").text() == 'ms') {
+  if (!sku || $(xml).find("inventory_type").text() == 'ms' || $(xml).find("inventory_type").text() == 'mb') {
 	  InventoryList(0);
 	  return;
   }
@@ -1209,6 +1225,7 @@ function PrintPreviousReceipt(sXml) { // call back function
 	        var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
 	        printWin.focus();   
 	  }
+	  document.getElementById('sku').focus();
 }
 
 function OpenDrawer(){
@@ -1221,23 +1238,12 @@ function OpenDrawer(){
 		}
 		applet.print();
 	}
+	document.getElementById('sku').focus();
 }
 
 function OpenOrdrList(currObj) {
 	  window.open("index.php?module=phreebooks&page=popup_orders&jID="+journalID,"search_po","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
 }
-
-function ajaxOrderData(cID, oID, jID, open_order, ship_only) {
-	  $.ajax({
-	    type: "GET",
-	    url: 'index.php?module=phreepos&page=ajax&op=print_previous&oID='+oID,
-	    dataType: ($.browser.msie) ? "text" : "xml",
-	    error: function(XMLHttpRequest, textStatus, errorThrown) {
-	      alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-	    },
-		success: PrintPreviousReceipt
-	  });
-	}
 
 // start other transactions
 
@@ -1390,6 +1396,7 @@ function open_other_options(){
 	}else{
 		$("#other_options").fadeOut("slow"); 
 		optionsStatus = 0;
+		document.getElementById('sku').focus();
 	}
 }
 

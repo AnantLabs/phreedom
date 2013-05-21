@@ -71,11 +71,15 @@ $js_pmt_types = 'var pmt_types = new Array();' . chr(10);
 foreach ($payment_modules as $key => $pmts) {
   $pmt_method = $pmts['id'];
   $$pmt_method = new $pmt_method;
-  if($$pmt_method->show_in_pos == false) {
+  if($$pmt_method->show_in_pos == false || $$pmt_method->pos_gl_acct == '') {
   	unset($payment_modules[$key]);
   }else{
   	$js_pmt_types .= 'pmt_types[\'' . $pmts['id'] . '\'] = "' . $pmts['text'] . '";' . chr(10);
   }
+}
+if(count($payment_modules) < 1 ){
+	$messageStack->add_session(ERROR_NO_PAYMENT_METHODES, 'error');
+	gen_redirect(html_href_link(FILENAME_DEFAULT, '', 'SSL'));
 }
 $js_currency  = 'var currency  = new Array();' . chr(10);
 foreach ($currencies->currencies as $key => $currency) {

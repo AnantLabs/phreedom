@@ -37,7 +37,7 @@ define('TEXT_REFUND_METHOD','Refund Method');
 define('TEXT_ENTRIES','Entries');
 define('TEXT_SELECT_CUSTOMER','Select Customer');
 
-define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.<br><b>ESC</b> = Clear Screan.<br><b>Alt+R</b> = Switch between returns and normal sales.<br><b>F7</b> = Show inventory pop-up.<br><b>F8</b> = Show customer pop-up.<br><b>F9</b> = Show payment pop-up.');
+define('PHREEPOS_ITEM_NOTES','Cursor must be in the SKU box for bar code scanners to record an item.<br><b>ESC</b> = Clear Screen.<br><b>Alt+R</b> = Switch between returns and normal sales.<br><b>F7</b> = Show inventory pop-up.<br><b>F8</b> = Show customer pop-up.<br><b>F9</b> = Show payment pop-up.');
 define('PHREEPOS_PAYMENT_NOTES','<b>ESC</b> = Close pop-up.<br><b>F11</b>  = Save.<br><b>F12</b>  = Print<br><b>arrow up & down<b> = different paymenttype');
 define('POS_MSG_DELETE_CONFIRM','Are you sure you want to void/delete this POS entry?');
 
@@ -64,4 +64,5 @@ define('TEXT_CASH_IN','Cash In');
 define('TEXT_CASH_OUT','Cash Out');
 define('TEXT_EXPENSES','Expenses');
 define('TEXT_TYPE_OF_TRANSACTION','Type transaction');
+define('ERROR_NO_PAYMENT_METHODES','Can not open POS because there are no payment methodes. Goto company > module administration > payment module and set payments to show in pos and add gl accounts to payments');
 ?>

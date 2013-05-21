@@ -20,6 +20,6 @@
 
 define('CP_POS_THIS_WEEK_TITLE','Pos Sales This Week');
 define('CP_POS_THIS_WEEK_DESCRIPTION','Lists the total of pos sales day by day from the beginning of the week. ');
-define('CP_POS_THIS_WEEK_NO_RESULTS','No results found!');
+
 
 ?>

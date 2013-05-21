@@ -22,9 +22,12 @@
 // 1.1 => rene added starting and closing line (admin main/js_include and language)
 //        bugg fix added InventoryProp and processSkuProp to js_include, replaced ORD_TEXT_19_WINDOW_TITLE with MENU_HEADING_PHREEPOS
 // 3.3 => 2012-11 compleet rewrite
-// 3.4 => 2012-12 added other transactions    
+// 3.4 => 2012-12 added other transactions
+// 3.5 => 2013-04 bug fix    
+// 3.6 => 2013-05 bug fix and added function to check if payments are set properly before page is loaded
+// 3.7 => 2013-05 bug fix changed the js function refreshOrderClock because it was using the wrong row.
 // Module software version information
-define('MODULE_PHREEPOS_VERSION', '3.4');
+define('MODULE_PHREEPOS_VERSION', '3.7');
 // Menu Sort Positions
 //define('MENU_HEADING_PHREEPOS_ORDER', 40);
 // Menu Security id's (refer to master doc to avoid security setting overlap)

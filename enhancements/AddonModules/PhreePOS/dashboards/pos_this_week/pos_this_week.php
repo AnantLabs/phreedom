@@ -19,42 +19,15 @@
 //
 
 class pos_this_week extends ctl_panel {
-	public $max_length = 20;
-  function __construct() {
-    
-  }
-
-  function Install($column_id = 1, $row_id = 0) {
-	global $db;
-	if (!$row_id) $row_id = $this->get_next_row();
-	$params['num_rows'] = '';	// defaults to unlimited rows
-	$result = $db->Execute("insert into " . TABLE_USERS_PROFILES . " set 
-	  user_id = "       . $_SESSION['admin_id'] . ", 
-	  menu_id = '"      . $this->menu_id . "', 
-	  module_id = '"    . $this->module_id . "', 
-	  dashboard_id = '" . $this->dashboard_id . "', 
-	  column_id = "     . $column_id . ", 
-	  row_id = "        . $row_id . ", 
-	  params = '"       . serialize($params) . "'");
-  }
-
- function Remove() {
-	global $db;
-	$result = $db->Execute("delete from " . TABLE_USERS_PROFILES . " 
-	  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' 
-	    and dashboard_id = '" . $this->dashboard_id . "'");
-  }
+	public $security_id  = SECURITY_ID_POS_MGR;
+	public $dashboard_id = 'pos_this_week';
+	public $version      = '3.2';
+	public $title		 = CP_POS_THIS_WEEK_TITLE;
+	public $description	 = CP_POS_THIS_WEEK_DESCRIPTION;
 
   function Output($params) {
 	global $db, $currencies;
 	$list_length = array();
-	for ($i = 0; $i <= $this->max_length; $i++) $list_length[] = array('id' => $i, 'text' => $i);
-	// Build control box form data
-	$control  = '<div class="row">';
-	//$control .= '<div style="white-space:nowrap">' . TEXT_SHOW . TEXT_SHOW_NO_LIMIT;
-	//$control .= html_pull_down_menu('pos_this_week_field_0', $list_length, $params['num_rows']);
-	$control .= html_submit_field('sub_pos_this_week', TEXT_SAVE);
-	$control .= '</div></div>';
 	for($i=0;$i<=7;$i++){
 		if ('Mon'== strftime("%a", time()-($i * 24 * 60 * 60)) ){
 			$a =$i;
@@ -67,7 +40,7 @@ class pos_this_week extends ctl_panel {
 	  where journal_id = 19 and post_date >= '" . date('Y-m-d', time()-($a * 24 * 60 * 60)) . "' GROUP BY post_date ORDER BY post_date";
 	$result = $db->Execute($sql);
 	if ($result->RecordCount() < 1) {
-	  $contents = CP_POS_THIS_WEEK_NO_RESULTS;
+	  $contents = ACT_NO_RESULTS;
 	} else {
 		$week = array();
 	  while (!$result->EOF) {
@@ -83,7 +56,7 @@ class pos_this_week extends ctl_panel {
 	  $contents .= '<div style="float:right"><b>' . $currencies->format_full($total, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</b></div>';
 	  $contents .= '<div><b>' . TEXT_TOTAL . '</b></div>' . chr(10);
 	}
-	return $this->build_div(CP_POS_THIS_WEEK_TITLE, $contents, $control);
+	return $this->build_div($contents, $control);
   }
 
   function Update() {

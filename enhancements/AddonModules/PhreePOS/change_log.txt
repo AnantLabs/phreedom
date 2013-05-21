@@ -1,9 +1,7 @@
+2013 read the http://code.google.com/p/phreedom/wiki/PhreePOS
 
-te doen items van pagina verwijderen die door class of ajax worden gebruikt.
-voor tills $cash_chart = gen_coa_pull_down(2, false, true, false, $restrict_types = array(0));    // cash types only   
 
-ajax regel toevoegen voor bewaren van afronden.
-niet afronden als verschil 10cent is
+//
 
 may 3
    * added the input field to the main/template_main

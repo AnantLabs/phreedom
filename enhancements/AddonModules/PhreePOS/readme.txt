@@ -1,5 +1,8 @@
 PhreePOS Module 
 
+
+read the http://code.google.com/p/phreedom/wiki/PhreePOS
+
 Installation Procedure:
 1. unzip and install in the module directory.
 2. Go to Admin -> Modules and install the module.

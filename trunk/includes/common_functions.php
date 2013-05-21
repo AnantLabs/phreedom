@@ -752,6 +752,20 @@ function gen_db_date($raw_date = '', $separator = '/') {
 	$result['ThisMonth'] = (int)substr($result['Today'], 5, 2);
 	$result['ThisYear']  = (int)substr($result['Today'], 0, 4);
 	$result['TotalDays'] = date('t', mktime( 0, 0, 0, $result['ThisMonth'], $result['ThisDay'], $result['ThisYear']));
+	switch($result['ThisMonth']){
+		case 1:		$result['MonthName'] = TEXT_JAN;	break;
+		case 2:		$result['MonthName'] = TEXT_FEB;	break;
+		case 3:		$result['MonthName'] = TEXT_MAR;	break;
+		case 4:		$result['MonthName'] = TEXT_APR;	break;
+		case 5:		$result['MonthName'] = TEXT_MAY;	break;
+		case 6:		$result['MonthName'] = TEXT_JUN;	break;
+		case 7:		$result['MonthName'] = TEXT_JUL;	break;
+		case 8:		$result['MonthName'] = TEXT_AUG;	break;
+		case 9:		$result['MonthName'] = TEXT_SEP;	break;
+		case 10:	$result['MonthName'] = TEXT_OCT;	break;
+		case 11:	$result['MonthName'] = TEXT_NOV;	break;
+		case 12:	$result['MonthName'] = TEXT_DEC;	break;
+	}
 	return $result;
   }
 
@@ -1562,7 +1576,7 @@ function validate_ajax_user($token = 0) {
   }
 
   function validate_send_mail($to_name, $to_address, $email_subject, $email_text, $from_email_name, $from_email_address, $block = array(), $attachments_list = '' ) {
-    global $messageStack;
+    global $db, $messageStack;
     // check for injection attempts. If new-line characters found in header fields, simply fail to send the message
     foreach(array($from_email_address, $to_address, $from_email_name, $to_name, $email_subject) as $key => $value) {
       if (!$value) continue;
@@ -1654,6 +1668,32 @@ function validate_ajax_user($token = 0) {
       if (!$mail->Send()) {
         $messageStack->add(sprintf(EMAIL_SEND_FAILED . '&nbsp;'. $mail->ErrorInfo, $to_name, $to_email_address, $email_subject),'error');
         return false;
+	  }else{
+	  	$temp = $db->Execute("select address_id, ref_id from " . TABLE_ADDRESS_BOOK . " where email ='".$to_email_address."' and ref_id <> 0");
+		$sql_data_array['address_id_from'] 	= $temp->fields['address_id'];
+		$ref_id = $temp->fields['ref_id'];
+		$temp = $db->Execute("select address_id, ref_id from " . TABLE_ADDRESS_BOOK . " where email ='".$from_email_address."'");
+		$sql_data_array['address_id_to'] 	= $temp->fields['address_id'];
+		$sql_data_array['Message'] 		= $text;
+		$sql_data_array['Message_html']	= $email_html;
+		//$sql_data_array['IDEmail'] 		= $email['message_id'];?? Rene Unknown
+		$sql_data_array['EmailFrom']	= $from_email_address;
+		$sql_data_array['EmailFromP']	= $from_email_name;
+		$sql_data_array['EmailTo']		= $to_name;
+		$sql_data_array['Account']		= $from_email_address;
+		$sql_data_array['DateE']		= date("Y-m-d H:i:s");
+		$sql_data_array['DateDb'] 		= date("Y-m-d H:i:s");
+		$sql_data_array['Subject']		= $email_subject;
+		//$sql_data_array['MsgSize'] 		= $email["SIZE"];?? Rene Unknown
+  		if(db_table_exists(TABLE_INVENTORY_PURCHASE)) db_perform(TABLE_PHREEMAIL, $sql_data_array, 'insert');  		
+  		// save in crm_notes
+		$temp = $db->Execute("select account_id from " . TABLE_USERS . " where admin_email = '" . $from_email_address . "'");
+		$sql_array['contact_id'] = $ref_id;
+		$sql_array['log_date']   = $sql_data_array['DateE'];
+		$sql_array['entered_by'] = $temp->fields['account_id'];
+		$sql_array['action']     = 'mail_out';
+		$sql_array['notes']      = $email_subject;
+		db_perform(TABLE_CONTACTS_LOG, $sql_array, 'insert');
 	  }
     } // end foreach loop thru possible multiple email addresses
     return true;

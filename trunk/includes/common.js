@@ -453,7 +453,10 @@ function checkEnter(e) {
   } else if (e.which) { // Netscape/Firefox/Opera
     keycode = e.which;
   }
-  if (keycode == 13) document.getElementById('search_text').form.submit();
+  if (keycode == 13) {
+	  document.getElementById('todo').value = 'search';
+	  document.getElementById('search_text').form.submit();
+  }
 }
 
 // ajax wrappers

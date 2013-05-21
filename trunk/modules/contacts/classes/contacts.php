@@ -102,6 +102,13 @@ class contacts {
 		  $addRec = $db->Execute("select * from " . TABLE_ADDRESS_BOOK . " where type = 'im' and ref_id = ".$result->fields['id']);
 		  $cObj->address['m'][] = new objectInfo($addRec->fields);
 		  $this->contacts[] = $cObj; //unserialize(serialize($cObj));
+    	  // load crm notes
+		  $result = $db->Execute("select * from ".TABLE_CONTACTS_LOG." where contact_id = ". $result->fields['id']. " order by log_date desc");
+		  while (!$result->EOF) {
+		    $this->crm_log[] = new objectInfo($result->fields);
+		    $result->MoveNext();
+		  }
+		  
 		  $result->MoveNext();
 		}
 		// load crm notes

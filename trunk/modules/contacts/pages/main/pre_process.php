@@ -228,8 +228,12 @@ switch ($action) {
 		// load the tax rates
 		$tax_rates       = inv_calculate_tax_drop_down($type);
 		$sales_rep_array = gen_get_rep_ids($type);
-		$sale_reps       = array();
-		foreach ($sales_rep_array as $value) $sale_reps[$value['id']] = $value['text'];
+		$result = $db->Execute("select id, contact_first, contact_last, gl_type_account from " . TABLE_CONTACTS . " where type = 'e'");
+		$reps       = array();
+		while(!$result->EOF) {
+			$reps[$result->fields['id']] = $result->fields['contact_first'] . ' ' . $result->fields['contact_last'];
+	  		$result->MoveNext();
+		}
 	    $include_template = 'template_detail.php';
 		define('PAGE_TITLE', ($action == 'new') ? $page_title_new : constant('ACT_'.strtoupper($type).'_PAGE_TITLE_EDIT').' - ('.$cInfo->short_name.') '.$cInfo->address[m][0]->primary_name);
 		break;

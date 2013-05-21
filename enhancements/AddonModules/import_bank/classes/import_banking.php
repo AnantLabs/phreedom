@@ -162,7 +162,7 @@ class impbanking extends journal {
 		$invoice_number = array();
 		$invoice_id 	= array();
 		$epsilon 		= 0.00001;
-		foreach ($this->open_inv[$this->bill_acct_id] as $key => $invoice) {
+		if(isset($this->open_inv[$this->bill_acct_id])) foreach ($this->open_inv[$this->bill_acct_id] as $key => $invoice) {
 			//when we find a invoice we book a payment to it
 			if( strripos($this->_description, $invoice['purchase_invoice_id']) !== false){ // if invoice is part of the description use it
 				$messageStack->debug("\n Found matching invoice number in description purchase_invoice_id ".$invoice['purchase_invoice_id'].' id '.$invoice['id']."\n variables ".arr2string($invoice));
@@ -174,6 +174,7 @@ class impbanking extends journal {
 				$found_invoices[] = $invoice;
 			}
 		}
+		
 		if ($this->_accounttype =='c'){
 			$this->_firstjid 			= 18; 
 			$gl_acct_id         		= AR_DEFAULT_GL_ACCT ;
@@ -192,19 +193,20 @@ class impbanking extends journal {
 		$this->journal_id = $this->_firstjid;
 		$good = false;
 		$step = 1;
-		while (!$good && $step < 9 && sizeof($found_invoices) > 0){
+		$difference_perc = 100;
+		while (!$good && $step <= 9 && sizeof($found_invoices) > 0){
 			$amount_used = 0;
 			if (!$good) $this->journal_rows = null;
 			for($i=0; $i < sizeof($found_invoices); $i++){
 				$found_invoices[$i]['amount']   = $found_invoices[$i]['total_amount'] - $found_invoices[$i]['amount_paid'];
 				$found_invoices[$i]['payed_if_full'] = true;
 				switch ($step){
-					case 5:
+					case 6:
 					case 1: // full amount is payed
 						$found_invoices[$i]['discount'] = false; 
 						$messageStack->debug("\n step ".$step." trying if we get totals balanced when the full amount is payed. ");
 						break;
-					case 6:
+					case 7:
 					case 2: // make use of discount full
 						$messageStack->debug("\n step ".$step." trying if we get totals balanced when the full discount is used. ");
 						if($found_invoices[$i]['early_date'] >= $this->post_date){// if post_date is smaller than early_date allow discount 
@@ -212,7 +214,7 @@ class impbanking extends journal {
 							$messageStack->debug("\n discount could be used for invoice ".$found_invoices[$i]['purchase_invoice_id']." Payed = ". $found_invoices[$i]['amount']." Discount = ". $found_invoices[$i]['discount']);
 						}
 						break;
-					case 7:
+					case 8:
 					case 3: // make use of less discount than is allowed.
 						$messageStack->debug("\n step ".$step." trying if we get totals balanced when less than the full discount is used. ");
 						if( $found_invoices[$i]['discount'] && $difference > 0 ){
@@ -229,7 +231,7 @@ class impbanking extends journal {
 							$found_invoices[$i]['discount'] = round($found_invoices[$i]['discount'],  $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']); 
 						}
 						break;
-					case 4:// unset items that where not found by invoice_number
+					case 5:// unset items that where not found by invoice_number
 						$messageStack->debug("\n step ".$step." removing items that were not found by invoice number. ");
 						if(!$found_invoices[$i]['found_by_number']) {
 							$messageStack->debug("\n removing invoice number. ".$found_invoices[$i]['purchase_invoice_id']);
@@ -242,11 +244,26 @@ class impbanking extends journal {
 						}
 						$messageStack->debug("\n now only use invoices " .arr2string($invoice));
 						break;
-					case 8;//do a partial payment
-					    $found_invoices[$i]['amount'] = round($found_invoices[$i]['amount'] / $difference_perc,  $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
-					    $messageStack->debug("\n step ".$step." doing a partial payment. ");
-						$found_invoices[$i]['payed_if_full']  = false;
-					    $found_invoices[$i]['discount']       = false;						
+					case 9;//do a partial payment
+						if($difference_perc > 0){
+					    	$found_invoices[$i]['amount'] = round($found_invoices[$i]['amount'] / $difference_perc,  $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+					    	$messageStack->debug("\n step ".$step." doing a partial payment. ");
+							$found_invoices[$i]['payed_if_full']  = false;
+					    	$found_invoices[$i]['discount']       = false;
+						}else{
+							$found_invoices[$i]['amount'] 		  = 0;
+							$found_invoices[$i]['payed_if_full']  = false;
+					    	$found_invoices[$i]['discount']       = false;
+						}
+					    break;
+					case 4;//try the first invoice		
+						$messageStack->debug("\n step ".$step." trying the first invoice. ");
+						if($i > 0){
+							$found_invoices[$i]['discount'] 	 = false; 
+							$found_invoices[$i]['amount']   	 = 0;
+							$found_invoices[$i]['payed_if_full'] = false;
+						}
+					    break;
 				}
 				if($found_invoices[$i]['amount'] <> 0){
 					$this->journal_rows[] = array(
@@ -277,7 +294,7 @@ class impbanking extends journal {
 			if( $step == 5 ) $difference_perc = $amount_used / $this->total_amount;
 			$difference = $this->total_amount - $amount_used;
 			$good = abs($this->total_amount - $amount_used) < $epsilon;
-			$messageStack->debug("\n contiune = ".$good." total_amount = ".$this->total_amount .' amount_used = '.$amount_used);
+			$messageStack->debug("\n contiune = ".$good." total_amount = ".$this->total_amount .' amount_used = '.$amount_used .' difference percent = '.$difference_perc);
 			$step++;
 		}
 		if ($good == false){
@@ -301,7 +318,10 @@ class impbanking extends journal {
 		}else{ 
 			for($i=0; $i < sizeof($found_invoices); $i++){
 				$this->open_inv[$this->bill_acct_id][$found_invoices[$i]['purchase_invoice_id']]['amount_paid'] += $found_invoices[$i]['amount'];
-				if($found_invoices[$i]['payed_if_full']) unset($this->open_inv[$this->bill_acct_id][$found_invoices[$i]['purchase_invoice_id']]);
+				if($found_invoices[$i]['payed_if_full']){ 
+					$messageStack->debug("\n unsetting invoice ".arr2string($this->open_inv[$this->bill_acct_id][$found_invoices[$i]['purchase_invoice_id']]));
+					unset($this->open_inv[$this->bill_acct_id][$found_invoices[$i]['purchase_invoice_id']]);
+				}
 			}
 			$messageStack->debug("\n posting payment to invoices ".arr2string($found_invoices));
 		}

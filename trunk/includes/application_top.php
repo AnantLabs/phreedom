@@ -18,6 +18,9 @@
 //  Path: /includes/application_top.php
 //
 define('PAGE_EXECUTION_START_TIME', microtime(true));
+if (!get_cfg_var('safe_mode')) {
+	if (ini_get('max_execution_time') < 60) set_time_limit(60);
+}
 $force_reset_cache = false;
 // set php_self in the local scope
 if (!isset($PHP_SELF)) $PHP_SELF = $_SERVER['PHP_SELF'];

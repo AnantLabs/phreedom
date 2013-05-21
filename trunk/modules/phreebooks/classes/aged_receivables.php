@@ -196,28 +196,26 @@ class aged_receivables {
 	global $db;
 	$today = date('Y-m-d');
 	$new_data = array();
-	$result = $db->Execute("select m.journal_id, m.post_date, sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
-	  from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-	  where m.id = '" . $id . "' and i.gl_type <> 'ttl' and m.post_date < curdate()+1 group by m.id");
-	if (in_array($result->fields['journal_id'], array(6,7))) {
-	  $total_billed = $result->fields['debits'] - $result->fields['credits'];
+	$result = $db->Execute("select debit_amount, credit_amount from " . TABLE_JOURNAL_ITEM . " where gl_type = 'ttl' and ref_id = " . $id);
+	$result2 = $db->Execute("select journal_id, post_date from " . TABLE_JOURNAL_MAIN . " where id = " . $id);
+	$total_billed = $result->fields['debit_amount'] - $result->fields['credit_amount'];
+	$post_date = $result2->fields['post_date'];
+	if (in_array($result2->fields['journal_id'], array(6,7))) {
 	  $late_30 = gen_specific_date($today, -AP_AGING_DATE_1);
 	  $late_60 = gen_specific_date($today, -AP_AGING_DATE_2);
 	  $late_90 = gen_specific_date($today, -AP_AGING_DATE_3);
 	  $negate = true;
 	} else {
-	  $total_billed = $result->fields['credits'] - $result->fields['debits'];
 	  $late_30 = gen_specific_date($today, -AR_AGING_PERIOD_1);
 	  $late_60 = gen_specific_date($today, -AR_AGING_PERIOD_2);
 	  $late_90 = gen_specific_date($today, -AR_AGING_PERIOD_3);
 	  $negate = false;
 	}
-	$post_date = $result->fields['post_date'];
-	$result = $db->Execute("select sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
-	  from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-	  where i.so_po_item_ref_id = '" . $id . "' and m.journal_id in (18, 20) and i.gl_type in ('pmt', 'chk') and m.post_date < curdate()+1");
+	$result = $db->Execute("select sum(debit_amount) as debits, sum(credit_amount) as credits 
+	  from " . TABLE_JOURNAL_ITEM . " where so_po_item_ref_id = '" . $id . "' and gl_type in ('pmt', 'chk')");
 	$total_paid = $result->fields['credits'] - $result->fields['debits'];
-	$balance = $total_billed - $total_paid;	
+	$balance = $total_billed - $total_paid;
+	if($negate) $balance = -$balance;	
 	$new_data['balance_0']  = 0;
 	$new_data['balance_30'] = 0;
 	$new_data['balance_60'] = 0;

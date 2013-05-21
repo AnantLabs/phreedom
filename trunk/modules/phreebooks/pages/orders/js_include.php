@@ -234,6 +234,12 @@ function check_form() {
   return true;
 }
 
+function checkEnterEvent(event, row){
+	if(event.keyCode == 13){//enter event
+		loadSkuDetails(0, row);
+	}
+}
+
 // Insert other page specific functions here.
 function salesTaxes(id, text, rate) {
   this.id   = id;

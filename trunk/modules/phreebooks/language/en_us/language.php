@@ -294,6 +294,7 @@ define('ORD_HEADING_NUMBER_10','SO Number');
 define('ORD_HEADING_NUMBER_12','Invoice #');
 define('ORD_HEADING_NUMBER_13','Credit Memo #');
 define('ORD_HEADING_NUMBER_18','Receipt Number');
+define('ORD_HEADING_NUMBER_19','Receipt #');
 define('ORD_HEADING_NUMBER_20','Payment Number');
 // Delete Messages
 define('GENERAL_JOURNAL_4_ERROR_6','PO - A purchase order cannot be deleted if there are items that have been received!');

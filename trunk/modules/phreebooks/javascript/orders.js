@@ -399,7 +399,12 @@ function InventoryList(rowCnt) {
   var storeID = document.getElementById('store_id').value;
   var sku     = document.getElementById('sku_'+rowCnt).value;
   var cID     = document.getElementById('bill_acct_id').value;
-  window.open("index.php?module=inventory&page=popup_inv&type="+account_type+"&rowID="+rowCnt+"&storeID="+storeID+"&cID="+cID+"&search_text="+sku,"inventory","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
+  if(account_type == 'v' && cID != ''){
+	  var strict = 1;
+  }else{
+	  var strict = 0;
+  }
+  window.open("index.php?module=inventory&page=popup_inv&f2="+strict+"&type="+account_type+"&rowID="+rowCnt+"&storeID="+storeID+"&cID="+cID+"&search_text="+sku,"inventory","width=700px,height=550px,resizable=1,scrollbars=1,top=150,left=200");
 }
 
 function PriceManagerList(elementID) {
@@ -560,11 +565,17 @@ function addInvRow() {
   var newRow  = document.getElementById('item_table').insertRow(-1);
   var newRow2 = '';
   if (single_line_list == '1') {
+	var odd = (newRow.rowIndex%2 == 0) ? 'even' : 'odd';
     rowCnt  = newRow.rowIndex;
   } else {
     newRow2 = document.getElementById('item_table').insertRow(-1);
     rowCnt  = (newRow2.rowIndex - 1)/2;
+    var odd = ((newRow.rowIndex/2)%2 == 0) ? 'even' : 'odd';
+    newRow2.setAttribute("className", odd);
+    newRow2.setAttribute("class", odd);
   }
+  newRow.setAttribute("className", odd);
+  newRow.setAttribute("class", odd);
 // NOTE: any change here also need to be made to template form for reload if action fails
     cell    = buildIcon(icon_path+'16x16/emblems/emblem-unreadable.png', image_delete_text, 'onclick="if (confirm(\''+image_delete_msg+'\')) removeInvRow('+rowCnt+');"');
     newCell = newRow.insertCell(-1);
@@ -596,7 +607,7 @@ function addInvRow() {
   newCell.innerHTML = cell;
   newCell.align  = 'center';
   newCell.style.whiteSpace = 'nowrap'; 
-  cell    = '<input type="text" name="sku_'+rowCnt+'" id="sku_'+rowCnt+'" size="'+(max_sku_len+1)+'" maxlength="'+max_sku_len+'" onfocus="clearField(\'sku_'+rowCnt+'\', \''+text_search+'\')" onblur="setField(\'sku_'+rowCnt+'\', \''+text_search+'\'); loadSkuDetails(0, '+rowCnt+')" />&nbsp;';
+  cell    = '<input type="text" name="sku_'+rowCnt+'" id="sku_'+rowCnt+'" size="'+(max_sku_len+1)+'" maxlength="'+max_sku_len+'" onfocus="clearField(\'sku_'+rowCnt+'\', \''+text_search+'\')" onkeydown="checkEnterEvent(event, '+rowCnt+');" onblur="setField(\'sku_'+rowCnt+'\', \''+text_search+'\'); loadSkuDetails(0, '+rowCnt+')" />&nbsp;';
   cell   += buildIcon(icon_path+'16x16/actions/system-search.png', text_search, 'id="sku_open_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"');
   cell   += buildIcon(icon_path+'16x16/actions/document-properties.png', text_properties, 'id="sku_prop_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryProp('+rowCnt+')"');
   newCell = newRow.insertCell(-1);
@@ -1122,18 +1133,30 @@ function recalculateCurrencies() {
 
 // AJAX auto load SKU pair
 function loadSkuDetails(iID, rowCnt) {
-  var qty = 0;
-  var sku = '';
-  if (!rowCnt) return;
-  // if a sales order or purchase order exists, keep existing information.
-  so_exists = document.getElementById('so_po_item_ref_id_'+rowCnt).value;
-  if (so_exists != '') return;
-  // check to see if there is a sku present
-  if (!iID) {
-	sku = document.getElementById('sku_'+rowCnt).value; // read the search field as the real value	  
-  }
-  if (sku == text_search) return;
-
+	if (!rowCnt) return;
+	var qty = 0;
+	var sku = '';
+	// if a sales order or purchase order exists, keep existing information.
+	so_exists = document.getElementById('so_po_item_ref_id_'+rowCnt).value;
+	if (so_exists != '') return;
+	// check to see if there is a sku present
+	if (!iID) {
+		sku = document.getElementById('sku_'+rowCnt).value; // read the search field as the real value	  
+	}
+	if (sku == text_search) return;
+	// add new row
+	var element =  document.getElementById('sku_'+rowCnt+1);
+	if (typeof(element) == 'undefined' || element == null) {
+		if (single_line_list == '1') {
+			tempRowCnt = document.getElementById('item_table').rows.length;
+		} else {
+			tempRowCnt = parseInt((document.getElementById('item_table').rows.length/2));
+		}
+		if(document.getElementById('sku_'+tempRowCnt).value != text_search ){
+			var value = addInvRow();
+			document.getElementById('sku_'+value).focus();
+		}
+	}
   var cID = document.getElementById('bill_acct_id').value;
   var bID = document.getElementById('store_id').value;
   switch (journalID) {
@@ -1254,16 +1277,6 @@ function fillInventory(sXml) {
 	text += $(this).find("text_line").text() + "\n";
   });
   if (text) alert(text);
-
-  if (single_line_list == '1') {
-	rowCnt = document.getElementById('item_table').rows.length;
-  } else {
-	rowCnt = parseInt((document.getElementById('item_table').rows.length/2));
-  }
-  qty = document.getElementById(qty_pstd+rowCnt).value;
-  var sku = document.getElementById('sku_'+rowCnt).value;
-  if (qty != '' && sku != '' && sku != text_search) rowCnt = addInvRow();
-  document.getElementById('sku_'+rowCnt).focus();
 }
 
 function InventoryProp(elementID) {

@@ -31,13 +31,13 @@ class fields {
     public  $extra_tab_li   = '';
 	public  $extra_tab_html = ''; 
     
-	public function __construct($sync = true){ 
-		$this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
-  		require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
-  		foreach ($_POST as $key => $value) $this->$key = $value;
-  		$this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
-		if ($sync) xtra_field_sync_list($this->module, $this->db_table);
-	}
+  public function __construct($sync = true){ 
+  	$this->security_id = $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION];
+	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
+  	foreach ($_POST as $key => $value) $this->$key = $value;
+  	$this->id = isset($_POST['sID'])? $_POST['sID'] : $_GET['sID'];
+	if ($sync) xtra_field_sync_list($this->module, $this->db_table);
+  }
 
   function btn_save($id = '') {
   	global $db, $messageStack, $currencies;
@@ -343,13 +343,13 @@ class fields {
 		$output .= '	<td>' ;
 		while ($type = array_shift($this->type_array)){
 			if (!is_array($choices)){
-				$output .= html_checkbox_field('type_'. $type['id'] , true , false,'', $disabled). $type['text'] ;
+				$output .= html_checkbox_field('type_'. $type['id'] , true , false,'', ''). $type['text'] ;
 				$output .= '<br />';
 			}elseif(in_array($type['id'],$choices)){
-				$output .= html_checkbox_field('type_'. $type['id'],  true , true ,'', $disabled). $type['text'] ;
+				$output .= html_checkbox_field('type_'. $type['id'],  true , true ,'', ''). $type['text'] ;
 				$output .= '<br />';
 			}else{
-				$output .= html_checkbox_field('type_'. $type['id'],  true , false,'', $disabled). $type['text'] ;
+				$output .= html_checkbox_field('type_'. $type['id'],  true , false,'', ''). $type['text'] ;
 				$output .= '<br />';
 			}
 		}
@@ -431,7 +431,7 @@ class fields {
    */
   
   public function what_to_save(){
-  	global $db;
+  	global $db, $currencies;
   	$sql_data_array = array();
     $xtra_db_fields = $db->Execute("select field_name, entry_type, params 
         from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module'");
@@ -455,6 +455,9 @@ class fields {
         }
         if ($xtra_db_fields->fields['entry_type'] == 'date_time') {
             $sql_data_array[$field_name] = ($sql_data_array[$field_name]) ? gen_db_date($sql_data_array[$field_name]) : '';
+        }
+    	if ($xtra_db_fields->fields['entry_type'] == 'decimal') {
+            $sql_data_array[$field_name] = ($sql_data_array[$field_name]) ? $currencies->clean_value($sql_data_array[$field_name]) : '';
         }
         $xtra_db_fields->MoveNext();
     }
@@ -482,8 +485,8 @@ class fields {
 	    $xtra_params = unserialize($result->fields['params']);
 	    if($this->type_params && !$type == null ){
 	    	$temp = explode(':',$xtra_params[$this->type_params]);
-			while ($value = array_shift($temp)){
-				if (substr($value, 0, 1) == $type) {
+	    	while ($value = array_shift($temp)){
+	    		if ($value == $type) {
 					$this->extra_tab_html .= xtra_field_build_entry($result->fields, $cInfo) . chr(10);
 				}
 			}
@@ -495,6 +498,20 @@ class fields {
 	}
 	$this->extra_tab_html .= '  </table>';
 	$this->extra_tab_html .= '</div>' . chr(10); 
+  }
+  
+  public function unwanted_fields($type = null){
+  	global $db;
+  	$values = array();
+  	if($this->type_params == '' && $type == null ) return $values;
+	$result = $db->Execute("select params, field_name from ".TABLE_EXTRA_FIELDS." where module_id='".$this->module."'");
+	while (!$result->EOF) {
+		$xtra_params = unserialize($result->fields['params']);
+  		$temp = explode(':',$xtra_params[$this->type_params]);
+	    if(!in_array($type,$temp)) $values [] = $result->fields['field_name'];
+  		$result->MoveNext();
+	}
+	return $values;
   }
 }
 ?>

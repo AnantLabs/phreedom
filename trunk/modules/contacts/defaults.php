@@ -43,6 +43,8 @@ $crm_actions = array(
   'flw'  => TEXT_FOLLOW_UP_CALL,
   'inac' => TEXT_INACTIVE,
   'lead' => TEXT_NEW_LEAD,
+  'mail_in'  => TEXT_EMAIL_RECEIVED,
+  'mail_out' => TEXT_EMAIL_SEND,
 );
 
 ?>

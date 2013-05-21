@@ -316,7 +316,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 <?php
 		  if ($order->item_rows) {
 			for ($j = 0, $i = 1; $j < count($order->item_rows); $j++, $i++) {
-				echo '<tr>' . chr(10);
+				echo '<tr class='.  $odd?'odd':'even' .' >' . chr(10);
 				// turn off delete icon if required
 				if (($order->item_rows[$j]['so_po_item_ref_id']) || ((JOURNAL_ID == 4 || JOURNAL_ID == 10) && $order->item_rows[$j]['pstd'])) {
 					echo '  <td align="center">&nbsp;</td>' . chr(10);
@@ -337,7 +337,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				if (in_array(JOURNAL_ID, array(6,7,12,13))) echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'id="imgSerial_'.$i.'" align="top" style="cursor:pointer; display:none;" onclick="serialList(\'serial_' . $i . '\')"');
 				echo '</td>' . chr(10);
 				echo '  <td nowrap="nowrap" align="center">';
-				echo html_input_field('sku_' . $i, $order->item_rows[$j]['sku'], ($sku_enable ? '' : ' readonly="readonly"') . ' size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\')" onblur="setField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\'); loadSkuDetails(0, ' . $i . ')"') . chr(10);
+				echo html_input_field('sku_' . $i, $order->item_rows[$j]['sku'], ($sku_enable ? '' : ' readonly="readonly"') . ' size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\')" onkeydown="checkEnterEvent(event,' . $i . ');" onblur="setField(\'sku_' . $i . '\', \'' . TEXT_SEARCH . '\'); loadSkuDetails(0, ' . $i . ')"') . chr(10);
 				echo html_icon('status/folder-open.png', TEXT_SEARCH, 'small', 'id="sku_open_' . $i . '" align="top" style="cursor:pointer' . ($sku_enable ? '' : ';display:none') . '" onclick="InventoryList(' . $i . ')"') . chr(10);
 				echo '</td>' . chr(10);
 // for textarea uncomment below (NOTE: the field length is set in the db to 255, this choice does not control the users input character count, or ...
@@ -348,7 +348,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				  echo '  <td>' . html_combo_box('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct'], 'size="10"') . '</td>' . chr(10);
 				} else {
 				  echo '  <td colspan="2">' . html_pull_down_menu('proj_' . $i, $proj_list, $order->item_rows[$j]['proj']) . '</td>' . chr(10);
-				  echo '</tr>' . chr(10) . '<tr>' . chr(10);
+				  echo '</tr>' . chr(10) .  '<tr class='.  $odd?'odd':'even' .' >' . chr(10);
 				  echo '  <td>' . html_input_field('item_cnt_' . $i, $order->item_rows[$j]['item_cnt'], 'size="3" maxlength="3" readonly="readonly"') . '</td>' . chr(10);
 				  echo '  <td colspan="3">' . html_pull_down_menu('acct_' . $i, $gl_array_list, $order->item_rows[$j]['acct']) . '</td>' . chr(10);
 				  echo '  <td>' . html_input_field('full_' . $i, '', 'readonly="readonly" size="11" maxlength="10" style="text-align:right"') . '</td>' . chr(10);
@@ -378,6 +378,7 @@ echo html_input_field('bill_email', $order->bill_email, 'size="35" maxlength="48
 				echo html_input_field('total_' . $i, $currencies->format($order->item_rows[$j]['total'], true, $order->currencies_code, $order->currencies_value), 'size="11" maxlength="20" onchange="updateUnitPrice(' . $i . ')" style="text-align:right"') . chr(10);
 				echo '  </td>' . chr(10);
 				echo '</tr>' . chr(10);
+				$odd = !$odd;
 			}
 		} else {
 			$hidden_fields .= '<script type="text/javascript">addInvRow();</script>' . chr(10);

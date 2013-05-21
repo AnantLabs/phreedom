@@ -150,7 +150,7 @@ $disp_order  = $result['disp_order'];
 $criteria = array();
 if ($_GET['journal_id']) $criteria[] = 'm.journal_id = ' . $_GET['journal_id'];
 
-$ref_fields = array('m.purchase_invoice_id', 'm.purch_order_id');
+$ref_fields = array('m.purchase_invoice_id', 'm.purch_order_id', 'i.serialize_number');
 $result = build_search_sql($ref_fields, $_GET['ref_id'], $_GET['ref_id_from'], $_GET['ref_id_to']);
 if ($result) $criteria[] = $result;
 

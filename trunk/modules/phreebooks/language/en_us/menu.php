@@ -35,6 +35,7 @@ define('ORD_TEXT_18_WINDOW_TITLE','Cash Receipts');
 define('ORD_TEXT_20_WINDOW_TITLE','Cash Distributions');
 define('ORD_TEXT_18_C_WINDOW_TITLE','Customer Receipts');
 define('ORD_TEXT_18_V_WINDOW_TITLE','Vendor Refunds');
+define('ORD_TEXT_19_WINDOW_TITLE','Pos Sales');
 define('ORD_TEXT_20_C_WINDOW_TITLE','Customer Refunds');
 define('ORD_TEXT_20_V_WINDOW_TITLE','Pay Bills');
 

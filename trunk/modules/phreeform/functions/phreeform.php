@@ -544,6 +544,9 @@ function BuildPDF($report, $delivery_method = 'D') { // for forms only - PDF sty
 			foreach ($field->boxfield as $key => $TableField) $tblField[] = prefixTables($TableField->fieldname) . ' as `' . $TableField->description . '`';
 			$tblField = implode(', ', $tblField);
 			$result = $db->Execute("select " . $tblField . $TrailingSQL . " LIMIT 1");
+		  	foreach ($field->boxfield as $key => $TableField) {
+		      if ($TableField->processing) $result->fields[$TableField->description] = ProcessData($result->fields[$TableField->description], $TableField->processing);
+		    }
 			$report->LetterData = $result->fields;
 		  }
 	    }

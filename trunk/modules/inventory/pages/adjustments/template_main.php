@@ -40,7 +40,7 @@ echo $toolbar->build_toolbar();
 ?>
 <h1><?php echo PAGE_TITLE; ?></h1>
 <div>
-  <table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">
+  <table class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto">
    <tbody>
 <?php if (ENABLE_MULTI_BRANCH) { ?>
 	<tr>
@@ -85,7 +85,7 @@ if (!$error) {
 	echo '  <tr>'   . chr(10);
 	echo '    <td>' . html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) removeInvRow(' . $rowCnt . ');"') . '</td>' . chr(10);
 	echo '    <td nowrap="nowrap">' . chr(10);
-	echo html_input_field('sku_' . $rowCnt, $_POST['sku_'.$rowCnt], 'size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\')" onblur="setField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\'); loadSkuDetails(0, '.$rowCnt.')"') . '&nbsp;';
+	echo html_input_field('sku_' . $rowCnt, $_POST['sku_'.$rowCnt], 'size="' . (MAX_INVENTORY_SKU_LENGTH + 1) . '" maxlength="' . MAX_INVENTORY_SKU_LENGTH . '" onfocus="clearField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\')" onblur="setField(\'sku_'.$rowCnt.'\', \''.TEXT_SEARCH.'\'); loadSkuDetails(0, '.$rowCnt.',0)"') . '&nbsp;';
 	echo html_icon('actions/system-search.png', TEXT_SEARCH, 'small', $params = 'align="top" style="cursor:pointer" onclick="InventoryList('.$rowCnt.')"');
 	echo html_icon('actions/tab-new.png', TEXT_SERIAL_NUMBER, 'small', 'id="imgSerial_'.$rowCnt.'" align="top" style="cursor:pointer; display:none;" onclick="serialList(\'serial_' . $rowCnt . '\')"');
 // Hidden fields
@@ -96,7 +96,7 @@ if (!$error) {
 	echo '    </td>'. chr(10);
 	echo '    <td>' . html_input_field('stock_' . $rowCnt, $_POST['stock_'.$rowCnt], 'readonly="readonly" size="6" maxlength="5" style="text-align:right"') . '</td>' . chr(10);
 	echo '    <td>' . html_input_field('qty_' . $rowCnt, $_POST['qty_'.$rowCnt], 'size="6" maxlength="5" style="text-align:right" onchange="updateBalance()"') . '</td>' . chr(10);
-	echo '    <td>' . html_input_field('price_' . $rowCnt, $_POST['price_'.$rowCnt], 'size="10" maxlength="9" style="text-align:right"') . '</td>' . chr(10);
+	echo '    <td>' . html_input_field('price_' . $rowCnt, $currencies->format($_POST['price_'.$rowCnt]), 'size="10" maxlength="9" style="text-align:right"') . '</td>' . chr(10);
 	echo '    <td>' . html_input_field('balance_' . $rowCnt, $_POST['balance_'.$rowCnt], 'readonly="readonly" size="6" maxlength="5" style="text-align:right"') . '</td>' . chr(10);
 	echo '    <td>' . html_input_field('desc_' . $rowCnt, $_POST['desc_'.$rowCnt], 'size="90"') . '</td>' . chr(10);
 	echo '  </tr>'  . chr(10);

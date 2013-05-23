@@ -172,6 +172,7 @@ class fields {
 	$sql_data_array = array(
 	  'module_id'   => $this->module,
 	  'description' => $this->description,
+	  'params'      => serialize($params),
 	);
 	if ($this->tab_id <> '') {
 	  $sql_data_array['group_by']  	 = $this->group_by;
@@ -179,8 +180,8 @@ class fields {
 	  $sql_data_array['entry_type']  = $this->entry_type;
 	  $sql_data_array['field_name']  = $this->field_name;
 	  $sql_data_array['tab_id']      = $this->tab_id;
-	  $sql_data_array['params']      = serialize($params);
 	}
+	
 	if (!$this->id == 0) {
 	  // load old field name as it may have been changed.
 	  if ($this->tab_id <> '') {

@@ -21,7 +21,8 @@
 echo html_form('inventory', FILENAME_DEFAULT, gen_get_all_get_params(array('action', 'cID', 'sku', 'add')), 'post', 'enctype="multipart/form-data"');
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
-echo html_hidden_field('rowSeq', $cInfo->id) . chr(10);
+echo html_hidden_field('rowSeq', 	$cInfo->id) . chr(10);
+echo html_hidden_field('id', 		$cInfo->id) . chr(10);
 echo html_hidden_field('ms_attr_0', $cInfo->ms_attr_0) . chr(10);
 echo html_hidden_field('ms_attr_1', $cInfo->ms_attr_1) . chr(10);
 // customize the toolbar actions
@@ -42,35 +43,40 @@ if ($action == 'properties') {
     $toolbar->icon_list['save']['show']   = false;
   }
   $toolbar->icon_list['print']['show']    = false;
-  $toolbar->add_help('07.04.01.02');
+  $toolbar->add_help($cInfo->help);
+}
+// pull in extra toolbar overrides and additions
+if (count($extra_toolbar_buttons_detail) > 0) {
+  foreach ($extra_toolbar_buttons_detail as $key => $value) $toolbar->icon_list[$key] = $value;
 }
 echo $toolbar->build_toolbar(); 
 $fields->set_fields_to_display($cInfo->inventory_type);
+
+function tab_sort($a, $b) {
+  if ($a['order'] == $b['order']) return 0;
+  return ($a['order'] > $b['order']) ? 1 : -1;
+}
+
+usort($cInfo->tab_list, 'tab_sort');
+
 ?>
-<h1><?php echo MENU_HEADING_INVENTORY . ' - ' . TEXT_SKU . '# ' . $cInfo->sku . ' (' . $cInfo->description_short . ')'; ?></h1>
+<h1 id='heading_title'><?php echo MENU_HEADING_INVENTORY . ' - ' . TEXT_SKU . '# ' . $cInfo->sku . ' (' . $cInfo->description_short . ')'; ?></h1>
 <div id="detailtabs">
 <ul>
-<?php 
-  echo add_tab_list('tab_general', TEXT_SYSTEM);
-  echo add_tab_list('tab_history', TEXT_HISTORY);
-  if ($cInfo->inventory_type == 'as' || $cInfo->inventory_type == 'sa') echo add_tab_list('tab_bom', INV_BOM);
-  if ($cInfo->inventory_type == 'ms') echo add_tab_list('tab_master', INV_MS_ATTRIBUTES);
-  echo $fields->extra_tab_li;
-  // pull in additional custom tabs
-  if (isset($extra_inventory_tabs) && is_array($extra_inventory_tabs)) {
-    foreach ($extra_inventory_tabs as $tabs) echo add_tab_list($tabs['tab_id'], $tabs['tab_title']);
-  }
+<?php // build the tab list's
+  foreach ($cInfo->tab_list as $value) echo add_tab_list('tab_'.$value['tag'],  $value['text']);
+  echo $fields->extra_tab_li . chr(10); // user added extra tabs
 ?>
 </ul>
 <?php
-require (DIR_FS_WORKING . 'pages/main/template_tab_gen.php'); // general tab
-require (DIR_FS_WORKING . 'pages/main/template_tab_hist.php'); // history tab
-if ($cInfo->inventory_type == 'as' || $cInfo->inventory_type == 'sa') {
-  require (DIR_FS_WORKING . 'pages/main/template_tab_bom.php'); // bill of materials tab
+foreach ($cInfo->tab_list as $value) {
+  if (file_exists(DIR_FS_WORKING . 'custom/pages/main/' . $value['file'] . '.php')) {
+	include(DIR_FS_WORKING . 'custom/pages/main/' . $value['file'] . '.php');
+  } else {
+	include(DIR_FS_WORKING . 'pages/main/' . $value['file'] . '.php');
+  }
 }
-if ($cInfo->inventory_type == 'ms') {
-  require (DIR_FS_WORKING . 'pages/main/template_tab_ms.php'); // master stock tab
-}
+
 //********************************* List Custom Fields Here ***********************************
 echo $fields->extra_tab_html;
 // pull in additional custom tabs

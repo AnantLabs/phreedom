@@ -29,21 +29,46 @@ $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
 if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.04.01');
-if ($search_text) $toolbar->search_text = $search_text;
-echo $toolbar->build_toolbar($add_search = true); 
+//if ($search_text) $toolbar->search_text = $search_text;
+echo $toolbar->build_toolbar($add_search = false); 
 ?>
 <h1><?php echo MENU_HEADING_INVENTORY; ?></h1>
-<div id="filter_bar">
-<table class="ui-widget" style="border-style:none">
- <tbody class="ui-widget-content">
-  <tr>
-	<td><?php echo TEXT_FILTERS . '&nbsp;' . TEXT_SHOW_INACTIVE . '&nbsp;' . html_checkbox_field('f0', '1', $f0); ?></td>
-	<td><?php echo '&nbsp;' . INV_ENTRY_INVENTORY_TYPE . '&nbsp;' . html_pull_down_menu('f1', $type_select_list, $f1, ''); ?></td>
-	<td><?php echo '&nbsp;' . html_button_field('apply', TEXT_APPLY, 'onclick="submitToDo(\'search\');"'); ?></td>
-  </tr>
+<table id="filter_table" class="ui-widget" style="border-collapse:collapse;">
+  <thead class="ui-widget-header">
+	<tr>
+	  <th></th>
+	  <th><?php echo FILTER_TABEL_HEAD_FIELD; ?></th>
+	  <th><?php echo FILTER_TABEL_HEAD_COPAIRISON; ?></th>
+	  <th> <?php echo FILTER_TABEL_HEAD_VALUE;?></th>
+	</tr>
+  </thead>
+  <tbody id="filter_table_body" class="ui-widget-content">
+	  <?php
+	  if($_POST['filter_field']){
+	  	foreach ($_POST['filter_field'] as $key => $value) {
+	  		echo '<script type="text/javascript"> addFilterRow();</script>' .chr(10);
+			echo '<script type="text/javascript"> TableStartValues("' . $x . '","' . $_POST['filter_field'][$key] . '","' . $_POST['filter_criteria'][$key] . '","' . $_POST['filter_value'][$key] . '");</script>'.chr(10);
+	  	}
+	  }else {
+	  	echo'<script type="text/javascript"> addFilterRow();</script>'.chr(10);
+	  	echo'<script type="text/javascript"> TableStartValues("1","a.sku","0","");</script>'.chr(10);
+	  	$x = 1;
+	  }
+	  ?>	
  </tbody>
+ <tfoot>
+ 	<tr>
+ 		<th></th>
+ 		<th>
+ 		<?php echo html_icon('actions/list-add.png', TEXT_ADD, 'medium', 'onclick="addFilterRow()"'); ?>
+		<?php echo html_icon('actions/system-search.png', TEXT_SEARCH, 'medium', 'onclick="submitToDo(\'filter\')"') ?>
+		<?php if($x != 1 )echo html_icon('actions/view-refresh.png', TEXT_RESET, 'small', 'onclick="location.href = \'index.php?' . gen_get_all_get_params(array('search_text', 'search_period', 'search_date', 'list', 'action')) . '\';" style="cursor:pointer;"');?>
+		</th>
+		<th></th>
+		<th></th>
+ 	</tr>
+ </tfoot>
 </table>
-</div>
 
 <div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
 <div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
@@ -63,14 +88,14 @@ echo $toolbar->build_toolbar($add_search = true);
 	  }
 	  $bkgnd = ($query_result->fields['inactive']) ? ' style="background-color:pink"' : '';
 ?>
-  <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
-	<td<?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $query_result->fields['sku']; ?></td>
-	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo ($query_result->fields['inactive']=='0' ? '' : TEXT_YES); ?></td>
-	<td onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $query_result->fields['description_short']; ?></td>
-	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $qty_in_stock; ?></td>
-	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_sales_order']; ?></td>
-	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_allocation']; ?></td>
-	<td align="center" onclick="submitSeq(<?php echo $query_result->fields['id'] . ', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_order']; ?></td>
+   <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
+	<td <?php echo $bkgnd; ?> onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['sku']; ?></td>
+	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo ($query_result->fields['inactive']=='0' ? '' : TEXT_YES); ?></td>
+	<td                       onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['description_short']; ?></td>
+	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $qty_in_stock; ?></td>
+	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_sales_order']; ?></td>
+	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_allocation']; ?></td>
+	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_order']; ?></td>
 	<td align="right">
 <?php // build the action toolbar
 	  if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
@@ -78,7 +103,7 @@ echo $toolbar->build_toolbar($add_search = true);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('apps/accessories-text-editor.png', TEXT_RENAME, 'small', 'onclick="renameItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) deleteItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 1 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('actions/edit-copy.png', TEXT_COPY_TO, 'small', 'onclick="copyItem(' . $query_result->fields['id'] . ')"') . chr(10);
-	  if ($security_level > 2) echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_SALES_PRICE_SHEETS, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', ' . $query_result->fields['item_cost'] . ', ' . $query_result->fields['full_price'] . ', \'c\')"') . chr(10);
+	  if ($security_level > 2) echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_SALES_PRICE_SHEETS, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', "", ' . $query_result->fields['full_price'] . ', \'c\')"') . chr(10);
 	  ?>
 	</td>
   </tr> 

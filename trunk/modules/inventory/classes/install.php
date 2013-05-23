@@ -88,6 +88,8 @@ class inventory_admin {
 		  price_sheet varchar(32) default NULL,
 		  price_sheet_v varchar(32) default NULL,
 		  full_price float NOT NULL default '0',
+		  full_price_with_tax float NOT NULL default '0',
+		  margin float NOT NULL default '0',
 		  item_weight float NOT NULL default '0',
 		  quantity_on_hand float NOT NULL default '0',
 		  quantity_on_order float NOT NULL default '0',
@@ -102,7 +104,9 @@ class inventory_admin {
 		  creation_date datetime NOT NULL default '0000-00-00 00:00:00',
 		  last_update datetime NOT NULL default '0000-00-00 00:00:00',
 		  last_journal_date datetime NOT NULL default '0000-00-00 00:00:00',
+		  attachments text,
 		  PRIMARY KEY (id)
+		  INDEX (sku)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci",
 	  TABLE_INVENTORY_ASSY_LIST => "CREATE TABLE " . TABLE_INVENTORY_ASSY_LIST . " (
 		  id int(11) NOT NULL auto_increment,
@@ -159,6 +163,18 @@ class inventory_admin {
 		  attr_1 varchar(255) NULL, 
 		  PRIMARY KEY (id)
 		) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;",
+	  TABLE_INVENTORY_PURCHASE => "CREATE TABLE " . TABLE_INVENTORY_PURCHASE . " (
+		  id int(11) NOT NULL auto_increment,
+		  sku varchar(24) NOT NULL default '',
+		  vendor_id int(11) NOT NULL default '0',
+		  description_purchase varchar(255) default NULL,
+		  purch_package_quantity float NOT NULL default '1',
+		  purch_taxable int(11) NOT NULL default '0',
+		  item_cost float NOT NULL default '0', 
+		  price_sheet_v varchar(32) default NULL,
+		  PRIMARY KEY (id)
+		  INDEX (sku)
+		) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;",
 	  TABLE_INVENTORY_SPECIAL_PRICES => "CREATE TABLE " . TABLE_INVENTORY_SPECIAL_PRICES . " (
 		  id int(11) NOT NULL auto_increment,
 		  inventory_id int(11) NOT NULL default '0',
@@ -193,7 +209,7 @@ class inventory_admin {
   }
 
   function update($module) {
-    global $db, $messageStack;
+    global $db, $messageStack, $currencies;
 	$error = false;
     if (MODULE_INVENTORY_STATUS < '3.1') {
 	  $tab_map = array('0' => '0');
@@ -227,9 +243,105 @@ class inventory_admin {
 	  if (!db_field_exists(TABLE_INVENTORY, 'price_sheet_v')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD price_sheet_v varchar(32) default NULL AFTER price_sheet");
 	  xtra_field_sync_list('inventory', TABLE_INVENTORY);
 	}
+	if (MODULE_INVENTORY_STATUS < '3.7') {
+		$db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD INDEX ( `sku` )"); 
+		if (!db_field_exists(TABLE_INVENTORY, 'attachments')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD attachments text AFTER last_journal_date");
+		if (!db_field_exists(TABLE_INVENTORY, 'full_price_with_tax')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD full_price_with_tax FLOAT NOT NULL DEFAULT '0' AFTER full_price");
+		if (!db_field_exists(TABLE_INVENTORY, 'product_margin')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD product_margin FLOAT NOT NULL DEFAULT '0' AFTER full_price_with_tax");
+		if (!db_field_exists(TABLE_EXTRA_FIELDS , 'use_in_inventory_filter')) $db->Execute("ALTER TABLE " . TABLE_EXTRA_FIELDS . " ADD use_in_inventory_filter ENUM( '0', '1' ) NOT NULL DEFAULT '0'");
+		$db->Execute("alter table " . TABLE_INVENTORY . " CHANGE `inactive` `inactive` ENUM( '0', '1' ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '0'");
+		xtra_field_sync_list('inventory', TABLE_INVENTORY);
+		$db->Execute("update " . TABLE_INVENTORY . " set inventory_type = 'ma' where inventory_type = 'as'");
+		$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory' and tab_id = '0'"); 
+		while (!$result->EOF) {
+			$temp = unserialize($result->fields['params']);
+			switch($result->fields['field_name']){
+				case 'serialize':
+					$temp['inventory_type'] = 'sa:sr'; 	
+					break;
+				case 'account_sales_income':
+				case 'item_taxable':
+		  		case 'purch_taxable':
+		  		case 'item_cost':
+		  		case 'price_sheet':
+		  		case 'price_sheet_v':
+		  		case 'full_price':
+		  		case 'full_price_with_tax':
+		  		case 'product_margin':
+					$temp['inventory_type'] = 'ci:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+		  			break;
+		  		case 'image_with_path':
+		  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+		  			break;
+		  		case 'account_inventory_wage':
+		  		case 'account_cost_of_sales':
+		  			$temp['inventory_type'] = 'ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+		  			break;
+		  		case 'cost_method':
+		  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:si';
+		  			break;
+		  		case 'item_weight':
+		  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+		  			break;
+		  		case 'quantity_on_hand':
+		  		case 'minimum_stock_level':
+		  		case 'reorder_quantity':
+		  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+		  			break;
+		  		case 'quantity_on_order':
+		  		case 'quantity_on_allocation':
+		  			$temp['inventory_type'] = 'ia:mi:sa:si:sr';
+		  			break;
+		  		case 'quantity_on_sales_order':
+		  			$temp['inventory_type'] = 'ia:ma:mi:sa:si:sr';
+		  			break;
+		  		case 'lead_time':
+		  			$temp['inventory_type'] = 'ai:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+		  			break;
+		  		case 'upc_code':
+		  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+		  			break; 
+		  		default:
+		  			$temp['inventory_type'] = 'ai:ci:ds:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+			}
+	    	$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set params = '" . serialize($temp) . "' where id = '".$result->fields['id']."'");
+	    	$result->MoveNext();
+	  	}
+	  	$haystack = array('attachments', 'account_sales_income', 'item_taxable', 'purch_taxable', 'image_with_path', 'account_inventory_wage', 'account_cost_of_sales', 'cost_method', 'lead_time');
+	  	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory'");
+	  	while (!$result->EOF) {
+	  		$use_in_inventory_filter = '1';
+			if(in_array($result->fields['field_name'], $haystack)) $use_in_inventory_filter = '0';
+			$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set use_in_inventory_filter = '".$use_in_inventory_filter."' where id = '".$result->fields['id']."'");
+			$result->MoveNext();
+	  	}
+		if(!db_table_exists(TABLE_INVENTORY_PURCHASE)){ 
+			foreach ($this->tables as $table => $sql) {
+				if ($table == TABLE_INVENTORY_PURCHASE) admin_install_tables(array($table => $sql));
+	  		}
+		  	if (db_field_exists(TABLE_INVENTORY, 'purch_package_quantity')){
+	  			$result = $db->Execute("insert into ".TABLE_INVENTORY_PURCHASE." ( sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v ) select sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v  from " . TABLE_INVENTORY);
+	  		}else{
+	  			$result = $db->Execute("insert into ".TABLE_INVENTORY_PURCHASE." ( sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v ) select sku, vendor_id, description_purchase, 1, purch_taxable, item_cost, price_sheet_v  from " . TABLE_INVENTORY);
+	  		}
+		}
+		require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
+		$tax_rates        = ord_calculate_tax_drop_down('c');
+		$result = $db->Execute("select id, item_taxable, full_price, item_cost from " . TABLE_INVENTORY);
+		while(!$result->EOF){
+			$sql_data_array = array();
+			$sql_data_array['full_price_with_tax'] = round((1 +($tax_rates[$result->fields['item_taxable']]['rate']/100))  * $result->fields['full_price'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+			if($result->fields['item_cost'] <> '' && $result->fields['item_cost'] > 0) $sql_data_array['product_margin'] = round($sql_data_array['full_price_with_tax'] / $result->fields['item_cost'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+			db_perform(TABLE_INVENTORY, $sql_data_array, 'update', "id = " . $result->fields['id']);
+			$result->MoveNext();
+		}
+		
+	  	mkdir(DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/attachments/', 0755, true);
+	}
 	if (!$error) {
-	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
-   	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');
+		xtra_field_sync_list('inventory', TABLE_INVENTORY);
+	  	write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
+   	  	$messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');
 	}
 	return $error;
   }

@@ -23,6 +23,7 @@ gen_pull_language('phreebooks');
 require(DIR_FS_MODULES . 'inventory/defaults.php');
 require(DIR_FS_MODULES . 'inventory/functions/inventory.php');
 /**************   page specific initialization  *************************/
+$stock_note = array();
 // One of the following identifers is required.
 $sku    = db_prepare_input($_GET['sku']); // specifies the sku, could be a search field as well
 $UPC    = db_prepare_input($_GET['upc']); // specifies the upc code
@@ -36,9 +37,14 @@ $qty    = db_prepare_input($_GET['qty']); // specifes the quantity (for pricing)
 $strict = $_GET['strict'] ? true : false; // specifes strict match of sku value
 // some error checking
 if (!$sku && !$UPC && !$iID) {
-  echo createXmlHeader() . xmlEntry('error', AJAX_INV_NO_INFO) . createXmlFooter();
-  die;
+	echo createXmlHeader() . xmlEntry('error', AJAX_INV_NO_INFO) . createXmlFooter();
+	die;
 }
+
+if(!$UPC && !$iID && (validate_UPCABarcode($sku) || validate_EAN13Barcode($sku) )){
+	$UPC = $sku;	
+}
+
 if (!$qty) $qty = 1; // assume that one is required, will set to 1 on the form
 if (!$bID) $bID = 0; // assume only one branch or main branch if not specified
 // Load the sku information
@@ -53,34 +59,49 @@ if ($iID) {
   $search = ' where ' . implode(' like \'%' . $sku . '%\' or ', $search_fields) . ' like \'%' . $sku . '%\'';
 }
 
-$vendor_search = false;
 $vendor        = in_array($jID, array(3,4,6,7)) ? true : false;
-if ($vendor) { // just search for products from that vendor for purchases
-  $first_search  = $search . " and vendor_id = '" . $cID . "'";
-  $inventory     = $db->Execute("select * from " . TABLE_INVENTORY . $first_search);
-  $vendor_search = $inventory->recordCount() ? true : false;
+if ($vendor && $strict == false && $UPC == false) { // just search for products from that vendor for purchases
+ 	$v_search_fields = array('a.sku', 'a.upc_code', 'a.description_short', 'a.description_sales', 'p.description_purchase' );
+  	$first_search = ' where ' . implode(' like \'%' . $sku . '%\' or ', $v_search_fields) . ' like \'%' . $sku . '%\'  and p.vendor_id = "' . $cID . '"';
+  	$purchase     = $db->Execute("select a.id as id, p.vendor_id as vendor_id, p.description_purchase as description_purchase, p.purch_package_quantity as purch_package_quantity, 
+  	p.purch_taxable as purch_taxable, p.item_cost as item_cost, p.price_sheet_v as price_sheet_v from " . TABLE_INVENTORY . " a join " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku " . $first_search);
+  	if($purchase->recordCount() == 1){
+  		$search = " where id = '" . $purchase->fields['id'] . "'";
+  	}
 }
-if (!$vendor || !$vendor_search) {
-  $inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
-}
+          $xml .= xmlEntry("qty", $qty);
+if ($cID) $xml .= xmlEntry("cID", $cID);
+if ($jID) $xml .= xmlEntry("jID", $jID);
+if ($rID) $xml .= xmlEntry("rID", $rID);
+
+$inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
 if ($UPC && $inventory->RecordCount() <> 1) { // for UPC codes submitted only, send an error
-  echo createXmlHeader() . xmlEntry('error', ORD_JS_SKU_NOT_UNIQUE) . createXmlFooter();
-  die;
+	$xml .= xmlEntry('error', ORD_JS_SKU_NOT_UNIQUE);
+  	echo createXmlHeader() . $xml . createXmlFooter();
+  	die;
 } elseif ($inventory->RecordCount() <> 1) { // need to return something to avoid error in FireFox
-  echo createXmlHeader() . xmlEntry('result', 'Not enough or too many hits, exiting!') . createXmlFooter();  
-  die;
+	$xml .= xmlEntry('result', 'Not enough or too many hits, exiting!');
+  	echo createXmlHeader() . $xml . createXmlFooter();  
+  	die;
 }
-$iID = $inventory->fields['id']; // set the item id (just in case UPC or sku was the only identifying parameter)
-$sku = $inventory->fields['sku'];
+foreach ($inventory->fields as $key => $value) $inventory_array[$key] = $value;
+if($vendor) {
+	$purchase  = $db->Execute("select vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."' and vendor_id = '" . $cID . "'" );
+	if($purchase->RecordCount() == 1 )foreach ($purchase->fields as $key => $value) $inventory_array[$key] = $value;
+	$purchase  = $db->Execute("select MIN(item_cost) as cheapest from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."'" );
+	if( $jID == 4 && $inventory_array['price_sheet_v'] == '' && $inventory_array['item_cost'] >= $purchase->fields['cheapest']) $stock_note[] = sprintf(INV_CHEAPER_ELSEWHERE, $inventory_array['sku']);
+}
+$iID = $inventory_array['id']; // set the item id (just in case UPC or sku was the only identifying parameter)
+$sku = $inventory_array['sku'];
 // fix some values for special cases
 $cog_types = explode(',', COG_ITEM_TYPES);
-if (!in_array($inventory->fields['inventory_type'], $cog_types)) $inventory->fields['quantity_on_hand'] = 'NA';
+if (!in_array($inventory_array['inventory_type'], $cog_types)) $inventory_array['quantity_on_hand'] = 'NA';
 // load branch stock ( must be before BOM loading )
-$inventory->fields['branch_qty_in_stock'] = (strpos(COG_ITEM_TYPES, $inventory->fields['inventory_type']) === false) ? 'NA' : strval(load_store_stock($sku, $bID));
-//$debug .= 'qty in stock = ' . $inventory->fields['quantity_on_hand'] . ' and branch qty = ' . $inventory->fields['branch_qty_in_stock'];
+$inventory_array['branch_qty_in_stock'] = (strpos(COG_ITEM_TYPES,$inventory_array['inventory_type']) === false) ? 'NA' : strval(load_store_stock($sku, $bID));
+//$debug .= 'qty in stock = ' . $inventory_array['quantity_on_hand'] . ' and branch qty = ' . $inventory_array['branch_qty_in_stock'];
 // Load the assembly information
 $assy_cost = 0;
-if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventory_type'] == 'sa') {
+if ($inventory_array['inventory_type'] == 'as' || $inventory_array['inventory_type'] == 'sa') {
   $result = $db->Execute("select sku, qty from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = '" . $iID . "'");
   $bom    = array();
   while (!$result->EOF) {
@@ -102,7 +123,7 @@ if ($inventory->fields['inventory_type'] == 'as' || $inventory->fields['inventor
 	$result->MoveNext();
   }
 } else {
-  $assy_cost = $inventory->fields['item_cost'];
+  $assy_cost = $inventory_array['item_cost'];
 }
 // load where used
 $result = $db->Execute("select ref_id, qty from " . TABLE_INVENTORY_ASSY_LIST . " where sku = '" . $sku . "'");
@@ -119,31 +140,25 @@ if ($result->RecordCount() == 0) {
 // load prices, tax
 $prices = inv_calculate_sales_price(abs($qty), $iID, $cID, $vendor ? 'v' : 'c');
 $sales_price = strval($prices['price']);
-$inventory->fields['item_taxable']  = strval($prices['sales_tax']);
-$inventory->fields['purch_taxable'] = strval($prices['purch_tax']);
+$inventory_array['item_taxable']  = strval($prices['sales_tax']);
+$inventory_array['purch_taxable'] = strval($prices['purch_tax']);
 //$debug .= 'sales_tax = ' . $prices['sales_tax'] . ' and purch tax = ' . $prices['purch_tax'] . ' and price = ' . $sales_price . chr(10);
 // Load default tax to use
 if ($cID) {
 	
 }
 // load sku stock status and open orders
-$stock_note = array();
 switch($jID) {
-  case  '3':
-  case  '4':
-  case  '6':
-  case '21':
-	break;
   case  '9':
   case '10':
   case '12':
   case '19':
 	// check for stock available for SO, Customer Quote and Sales
-	if ($qty > $inventory->fields['branch_qty_in_stock'] && strpos(COG_ITEM_TYPES, $inventory->fields['inventory_type']) !== false) {
-	  $stock_note   = array(ORD_INV_STOCK_LOW);
-	  $stock_note[] = ORD_INV_STOCK_BAL . $inventory->fields['branch_qty_in_stock'];
+	if ($qty > $inventory_array['branch_qty_in_stock'] && strpos(COG_ITEM_TYPES, $inventory_array['inventory_type']) !== false) {
+	  $stock_note[] = ORD_INV_STOCK_LOW;
+	  $stock_note[] = ORD_INV_STOCK_BAL . $inventory_array['branch_qty_in_stock'];
 	  // fetch open orders
-	  $sku_history = gather_history($inventory->fields['sku']);
+	  $sku_history = gather_history($inventory_array['sku']);
 	  if (is_array($sku_history['open_po'])) {
 	    $stock_note[] = ORD_INV_OPEN_POS;
 	    foreach ($sku_history['open_po'] as $value) {
@@ -153,19 +168,14 @@ switch($jID) {
 	  }
 	}
 	break;
-  case  '7':
-  case '13':
-  default:
+  default;
 }
 
 //put it all together
-          $xml .= xmlEntry("qty", $qty);
-if ($cID) $xml .= xmlEntry("cID", $cID);
-if ($jID) $xml .= xmlEntry("jID", $jID);
-if ($rID) $xml .= xmlEntry("rID", $rID);
 // build the core inventory data
-foreach ($inventory->fields as $key => $value) $xml .= "\t" . xmlEntry($key, $value);
+foreach ($inventory_array as $key => $value) $xml .= "\t" . xmlEntry($key, $value);
 // build the assembly information
+//print_r($inventory_array);
 if (sizeof($bom) > 0) foreach ($bom as $value) {
   $xml .= "<bom>\n";
   $xml .= "\t" . xmlEntry("bom_qty",               $value['qty']);

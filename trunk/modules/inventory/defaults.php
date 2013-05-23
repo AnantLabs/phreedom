@@ -17,6 +17,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/inventory/defaults.php
 //
+define('INVENTORY_DIR_ATTACHMENTS',  DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/attachments/');
 define('MAX_INVENTORY_SKU_LENGTH', 24); // database is currently set for a maximum of 24 characters
 define('MAX_NUM_PRICE_LEVELS', 5);
 // the inventory type indexes should not be changed or the inventory module won't work.
@@ -25,7 +26,8 @@ $inventory_types = array(
   'si' => INV_TYPES_SI,
   'sr' => INV_TYPES_SR,
   'ms' => INV_TYPES_MS,
-  'as' => INV_TYPES_AS,
+  'mb' => INV_TYPES_MB,
+  'ma' => INV_TYPES_AS,
   'sa' => INV_TYPES_SA,
   'ns' => INV_TYPES_NS,
   'lb' => INV_TYPES_LB,
@@ -39,6 +41,9 @@ $inventory_types = array(
 $inventory_types_plus       = $inventory_types;
 $inventory_types_plus['ia'] = INV_TYPES_IA;
 $inventory_types_plus['mi'] = INV_TYPES_MI;
+
+asort ($inventory_types);
+asort ($inventory_types_plus);
 
 $cost_methods = array(
   'f' => INV_TEXT_FIFO,	   // First-in, First-out

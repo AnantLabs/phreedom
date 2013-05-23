@@ -46,10 +46,11 @@ echo $toolbar->build_toolbar();
 	  <td align="right"><?php echo INV_ENTRY_INVENTORY_TYPE; ?></td>
 	  <td><?php echo html_pull_down_menu('inventory_type', gen_build_pull_down($inventory_types), isset($inventory_type) ? $inventory_type : 'si', 'onchange="setSkuLength()"'); ?></td>
     </tr>
+    <?php /*?>
     <tr>
 	  <td align="right"><?php echo INV_ENTRY_INVENTORY_COST_METHOD; ?></td>
 	  <td><?php echo html_pull_down_menu('cost_method', gen_build_pull_down($cost_methods), isset($cost_method) ? $cost_method : 'f'); ?></td>
-    </tr>
+    </tr><?php */?>
     <tr>
 	  <td nowrap="nowrap" colspan="2"><?php echo '&nbsp;'; ?></td>
     </tr>

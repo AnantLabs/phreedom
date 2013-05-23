@@ -23,6 +23,7 @@ define('INV_HEADING_NEW_ITEM', 'New Inventory Item');
 define('INV_TYPES_SI','Stock Item');
 define('INV_TYPES_SR','Serialized Item');
 define('INV_TYPES_MS','Master Stock Item');
+define('INV_TYPES_MB','Master Stock Assembly');
 define('INV_TYPES_AS','Item Assembly');
 define('INV_TYPES_SA','Serialized Assembly');
 define('INV_TYPES_NS','Non-stock Item');
@@ -144,6 +145,8 @@ define('INV_ENTRY_ACCT_INV', 'Inventory/Wage Account');
 define('INV_ENTRY_ACCT_COS', 'Cost of Sales Account');
 define('INV_ENTRY_INV_ITEM_COST','Item Cost');
 define('INV_ENTRY_FULL_PRICE', 'Full Price');
+define('INV_ENTRY_FULL_PRICE_WT', 'Full Price with tax');
+define('INV_MARGIN','Margin');
 define('INV_ENTRY_ITEM_WEIGHT', 'Item Weight');
 define('INV_ENTRY_ITEM_MINIMUM_STOCK', 'Minimum Stock Level');
 define('INV_ENTRY_ITEM_REORDER_QUANTITY', 'Reorder Quantity');
@@ -161,6 +164,8 @@ define('TEXT_DEST_BRANCH','To Branch');
 define('TEXT_TRANSFER_REASON','Reason for Transfer');
 define('TEXT_TRANSFER_ACCT','Transfer Account');
 define('TEXT_AVERAGE_USAGE','Average Usage (not including this month)');
+define('TEXT_PACKAGE_QUANTITY','Package Quantity');
+define('INV_MSG_DELETE_VENDOR_ROW','Are you sure you want to delete this vendor.');
 
 define('INV_MSG_COPY_INTRO', 'Please enter a new SKU ID to copy to:');
 define('INV_MSG_RENAME_INTRO', 'Please enter a new SKU ID to rename this SKU to:');
@@ -186,6 +191,9 @@ define('SRVCS_DUPLICATE_SHEET_NAME','The price sheet name already exists. Please
 define('INV_ERROR_DELETE_HISTORY_EXISTS','Cannot delete this inventory item since there is a record in the inventory_history table.');
 define('INV_ERROR_DELETE_ASSEMBLY_PART','Cannot delete this inventory item since it is part of an assembly.');
 define('INV_ADJ_QTY_ZERO','Cannot adjust inventory with a zero quantity!');
+define('INV_MS_ERROR_DELETE_HISTORY_EXISTS','Cannot delete sku %s since there is a record in the inventory_history table.');
+define('INV_MS_ERROR_DELETE_ASSEMBLY_PART','Cannot delete sku %s since it is part of an assembly. Will mark as inactive.');
+define('INV_MS_ERROR_CANNOT_DELETE','The sku %s cannot be deleted because there are matching journal entries. Will mark as inactive.');
 // java script errors and messages
 define('AJAX_INV_NO_INFO','Not enough information was passed to retrieve the item details');
 define('JS_SKU_BLANK', '* The new item needs a SKU or UPC Code\n');
@@ -220,5 +228,11 @@ define('TEXT_BULK_EDIT','Load Item Pricing');
 define('TEXT_SPECIAL_PRICING','Special Pricing');
 define('PRICE_SHEET_MSG_DELETE','Are you sure you want to delete this price sheet?');
 define('PRICE_SHEET_DEFAULT_DELETED','The default price sheet as been deleted, please select a new price sheet!');
-
+define('TEXT_AVERAGE_USE','Average use (excluding this month)');
+define('TEXT_MS_HELP','When saving the %s written in one of the descriptions will be replaced by the description of that field.');
+define('JS_MS_COMMA_NOT_ALLOWED','Comma is not allowed in the description.');
+define('JS_MS_COLON_NOT_ALLOWED','Colon is not allowed in the description.');
+define('INV_CALCULATING_ERROR', 'When Phreebooks has to calculate the full price with tax it will come to = ');
+define('INV_WHAT_TO_CALCULATE','enter 1 to recalculate the margin \nenter 2 to recalculate the sales prices');
+define('INV_CHEAPER_ELSEWHERE','sku %s is cheaper elsewhere.');
 ?>

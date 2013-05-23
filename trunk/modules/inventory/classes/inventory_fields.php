@@ -29,24 +29,30 @@ class inventory_fields extends fields{
   
   public function __construct(){
   	gen_pull_language('inventory');
-  	$this->type_array[] = array('id' =>'si', 'text' => INV_TYPES_SI);
-    $this->type_array[] = array('id' =>'sr', 'text' => INV_TYPES_SR);
-    $this->type_array[] = array('id' =>'ms', 'text' => INV_TYPES_MS);
-    $this->type_array[] = array('id' =>'as', 'text' => INV_TYPES_AS);
-    $this->type_array[] = array('id' =>'sa', 'text' => INV_TYPES_SA);
-    $this->type_array[] = array('id' =>'ns', 'text' => INV_TYPES_NS);
-    $this->type_array[] = array('id' =>'lb', 'text' => INV_TYPES_LB);
-    $this->type_array[] = array('id' =>'sv', 'text' => INV_TYPES_SV);
-    $this->type_array[] = array('id' =>'sf', 'text' => INV_TYPES_SF);
-    $this->type_array[] = array('id' =>'ci', 'text' => INV_TYPES_CI);
-    $this->type_array[] = array('id' =>'ai', 'text' => INV_TYPES_AI);
-    $this->type_array[] = array('id' =>'ds', 'text' => INV_TYPES_DS);
-    $this->type_array[] = array('id' =>'ia', 'text' => INV_TYPES_IA);
-    $this->type_array[] = array('id' =>'mi', 'text' => INV_TYPES_MI);
+  	require(DIR_FS_MODULES . 'inventory/defaults.php');
+  	foreach ($inventory_types_plus as $key => $value) {
+  		$this->type_array[] = array('id' =>$key, 'text' => $value);
+  	}
     $this->type_desc    = INV_ENTRY_INVENTORY_TYPE;
     parent::__construct();    
   }
 
-
+  function btn_save($id = '') {
+  	if(parent::btn_save($id = '')){
+  		$sql_data_array['use_in_inventory_filter']  	 = db_prepare_input($_POST['use_in_inventory_filter']);
+  		db_perform(TABLE_EXTRA_FIELDS, $sql_data_array, 'update', "id = " . $this->id );
+  		return true;
+  	}
+  	return false;
+  }
+  public function build_form_html($action, $id = '') {
+  	
+  	$output  = parent::build_form_html($action, $id = '');
+  	$output .= '  <tr class="ui-widget-header">' . chr(10);
+	$output .= '	<th colspan="2"> . Use in inventory filter . </th>' . chr(10);
+	$output .= '  </tr>' . chr(10);
+  	$output .= html_checkbox_field('use_in_inventory_filter', true,  $this->use_in_inventory_filter, '') . '&nbsp; Use in inventory filter  <br />';
+  	return $output;
+  }
 }
 ?>

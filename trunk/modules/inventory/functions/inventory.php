@@ -18,31 +18,6 @@
 //  Path: /modules/inventory/functions/inventory.php
 //
 
-function build_bom_list($id, $error = false) {
-  global $db;
-  $bom_list = array();
-  if ($error) { // re-generate the erroneous information
-	$x = 1;
-	while (isset($_POST['sku_' . $x])) { // while there are item rows to read in
-	  $bom_list[] = array(
-		'id'          => db_prepare_input($_POST['id_'   . $x]),
-		'sku'         => db_prepare_input($_POST['sku_'  . $x]),
-		'description' => db_prepare_input($_POST['desc_' . $x]),
-		'qty'         => db_prepare_input($_POST['qty_'  . $x]),
-	  );
-	  $x++;
-    }
-  } else { // pull the information from the database
-	$result = $db->Execute("select id, sku, description, qty 
-	  from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = " . $id . " order by id");
-	while (!$result->EOF) {
-	  $bom_list[] = $result->fields;
-	  $result->MoveNext();
-	}
-  }
-  return $bom_list;
-}
-
   function load_store_stock($sku, $store_id) {
 	global $db;
 	$sql = "select sum(remaining) as remaining from " . TABLE_INVENTORY_HISTORY . " 
@@ -120,67 +95,7 @@ function build_bom_list($id, $error = false) {
 	return $prices;
   }
 
-  function save_ms_items($sql_data_array, $attributes) {
-  	global $db;
-	$base_sku = $sql_data_array['sku'];
-	// split attributes
-	$attr0 = explode(',', $attributes['ms_attr_0']);
-	$attr1 = explode(',', $attributes['ms_attr_1']);
-	if (!count($attr0)) return true; // no attributes, nothing to do
-	// build skus
-	$sku_list = array();
-	for ($i = 0; $i < count($attr0); $i++) {
-		$temp = explode(':', $attr0[$i]);
-		$idx0 = $temp[0];
-		if (count($attr1)) {
-			for ($j = 0; $j < count($attr1); $j++) {
-				$temp = explode(':', $attr1[$j]);
-				$idx1 = $temp[0];
-				$sku_list[] = $sql_data_array['sku'] . '-' . $idx0 . $idx1;
-			}
-		} else {
-			$sku_list[] = $sql_data_array['sku'] . '-' . $idx0;
-		}
-	}
-	// either update, delete or insert sub skus depending on sku list
-	$result = $db->Execute("select sku from " . TABLE_INVENTORY . " 
-		where inventory_type = 'mi' and sku like '" . $sql_data_array['sku'] . "-%'");
-	$existing_sku_list = array();
-	while (!$result->EOF) {
-		$existing_sku_list[] = $result->fields['sku'];
-		$result->MoveNext();
-	}
-	$delete_list = array_diff($existing_sku_list, $sku_list);
-	$update_list = array_intersect($existing_sku_list, $sku_list);
-	$insert_list = array_diff($sku_list, $update_list);
-	$sql_data_array['inventory_type'] = 'mi';
-	foreach($delete_list as $sku) {
-		$result = $db->Execute("delete from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
-	}
-	foreach($update_list as $sku) {
-		$sql_data_array['sku'] = $sku;
-		db_perform(TABLE_INVENTORY, $sql_data_array, 'update', "sku = '" . $sku . "'");
-	}
-	foreach($insert_list as $sku) {
-		$sql_data_array['sku'] = $sku;
-		db_perform(TABLE_INVENTORY, $sql_data_array, 'insert');
-	}
-	// update/insert into inventory_ms_list table
-	$result = $db->Execute("select id from " . TABLE_INVENTORY_MS_LIST . " where sku = '" . $base_sku . "'");
-	$exists = $result->RecordCount();
-	$data_array = array(
-		'sku'         => $base_sku,
-		'attr_0'      => $attributes['ms_attr_0'],
-		'attr_name_0' => $attributes['attr_name_0'],
-		'attr_1'      => $attributes['ms_attr_1'],
-		'attr_name_1' => $attributes['attr_name_1']);
-	if ($exists) {
-		db_perform(TABLE_INVENTORY_MS_LIST, $data_array, 'update', "id = " . $result->fields['id']);
-	} else {
-		db_perform(TABLE_INVENTORY_MS_LIST, $data_array, 'insert');
-	}
-  }
-
+ 
   function gather_history($sku) {
     global $db;
 	$inv_history = array();
@@ -300,9 +215,15 @@ function build_bom_list($id, $error = false) {
 	  $contact_tax = $contact->fields['tax_id'];
 	}
 	// get the inventory prices
-	$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v, item_taxable, purch_taxable 
-	  from " . TABLE_INVENTORY . " where id = '" . $sku_id . "'");
-	$inv_price_sheet = ($type == 'v') ? $inventory->fields['price_sheet_v'] : $inventory->fields['price_sheet'];
+	if($type == 'v'){
+		if ($contact_id) $inventory = $db->Execute("select p.item_cost, a.full_price, a.price_sheet, p.price_sheet_v, a.item_taxable, p.purch_taxable from " . TABLE_INVENTORY . " a join " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku  where a.id = '" . $sku_id . "' and p.vendor_id = '" . $contact_id . "'");
+		else $inventory = $db->Execute("select MAX(p.item_cost) as item_cost, a.full_price, a.price_sheet, p.price_sheet_v, a.item_taxable, p.purch_taxable from " . TABLE_INVENTORY . " a join " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku  where a.id = '" . $sku_id . "'");
+		$inv_price_sheet = $inventory->fields['price_sheet_v'];
+	}else{
+		$inventory = $db->Execute("select item_cost, full_price, price_sheet, price_sheet_v, item_taxable, purch_taxable 
+	  		from " . TABLE_INVENTORY . " where id = '" . $sku_id . "'");
+		$inv_price_sheet = $inventory->fields['price_sheet'];
+	}
 	// set the default tax rates
 	$purch_tax = ($contact_tax == 0 && $type=='v') ? 0 : $inventory->fields['purch_taxable'];
 	$sales_tax = ($contact_tax == 0 && $type=='c') ? 0 : $inventory->fields['item_taxable'];
@@ -378,6 +299,46 @@ function inv_status_open_orders($journal_id, $gl_type) { // checks order status 
 	$orders->MoveNext();
   } // end for each open order
   return $item_list;
+}
+
+function validate_UPCABarcode($barcode){
+	// check to see if barcode is 12 digits long
+  	if(!preg_match("/^[0-9]{12}$/",$barcode)) return false;
+  	$digits = $barcode;
+	// 1. sum each of the odd numbered digits
+  	$odd_sum = $digits[0] + $digits[2] + $digits[4] + $digits[6] + $digits[8] + $digits[10];  
+  	// 2. multiply result by three
+  	$odd_sum_three = $odd_sum * 3;
+  	// 3. add the result to the sum of each of the even numbered digits
+  	$even_sum = $digits[1] + $digits[3] + $digits[5] + $digits[7] + $digits[9];
+  	$total_sum = $odd_sum_three + $even_sum;
+	// 4. subtract the result from the next highest power of 10
+  	$next_ten = (ceil($total_sum/10))*10;
+  	$check_digit = $next_ten - $total_sum;
+	// if the check digit and the last digit of the barcode are OK return true;
+	if($check_digit == $digits[11]) return true;
+	return false;
+}
+
+function validate_EAN13Barcode($barcode) {
+	// check to see if barcode is 13 digits long
+	if(!preg_match("/^[0-9]{13}$/",$barcode)) return false;
+
+	$digits = $barcode;	
+	// 1. Add the values of the digits in the even-numbered positions: 2, 4, 6, etc.
+	$even_sum = $digits[1] + $digits[3] + $digits[5] + $digits[7] + $digits[9] + $digits[11];
+	// 2. Multiply this result by 3.
+	$even_sum_three = $even_sum * 3;
+	// 3. Add the values of the digits in the odd-numbered positions: 1, 3, 5, etc.
+	$odd_sum = $digits[0] + $digits[2] + $digits[4] + $digits[6] + $digits[8] + $digits[10];
+	// 4. Sum the results of steps 2 and 3.
+	$total_sum = $even_sum_three + $odd_sum;
+	// 5. The check character is the smallest number which, when added to the result in step 4, produces a multiple of 10.
+	$next_ten = (ceil($total_sum/10))*10;
+	$check_digit = $next_ten - $total_sum;
+	// if the check digit and the last digit of the barcode are OK return true;
+	if($check_digit == $digits[12]) return true;
+	return false;
 }
 
 ?>

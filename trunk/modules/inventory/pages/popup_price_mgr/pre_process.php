@@ -66,8 +66,11 @@ switch ($action) {
 		  $db->Execute("update " . TABLE_INVENTORY_SPECIAL_PRICES . " set price_levels = '" . $price_levels . "' 
 			where inventory_id = " . $id . " and price_sheet_id = " . $sheet_id);
 		}
-		$inv_price_sheet = ($type == 'v') ? 'price_sheet_v' : 'price_sheet';
-		$db->Execute("update " . TABLE_INVENTORY . " set ". $inv_price_sheet . " = '" . $_POST['sheet_name_'.$tab_id ] . "' where id = " . $id );
+		$sql_data_array = array();
+		if($type == 'v')  $sql_data_array ['price_sheet_v'] = $_POST['sheet_name_'.$tab_id ];
+		else 			  $sql_data_array ['price_sheet']   = $_POST['sheet_name_'.$tab_id ];
+		$sql_data_array['last_update'] = date('Y-m-d');
+		db_perform(TABLE_INVENTORY, $sql_data_array, 'update', "id = " . $id);
 	  }
 	  $tab_id++;
 	}
@@ -77,6 +80,10 @@ switch ($action) {
 }
 
 /*****************   prepare to display templates  *************************/
+if ($item_cost == ''){
+	$temp =  inv_calculate_sales_price(1, $id, 0, 'v');
+	$item_cost = $temp['price'];
+}
 // some preliminary information
 $sql = "select id, sheet_name, revision, default_sheet, default_levels from " . TABLE_PRICE_SHEETS . " 
 	where inactive = '0' and type = '" . $type . "' and 

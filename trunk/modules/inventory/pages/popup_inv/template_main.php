@@ -68,15 +68,19 @@ echo $toolbar->build_toolbar($add_search = true);
 	  }
 	  switch ($account_type) {
 		default:
-		case 'c': $price = $query_result->fields['full_price']; break;
-		case 'v': $price = $query_result->fields['item_cost'];  break;
+		case 'c':
+			$price = inv_calculate_sales_price(1, $query_result->fields['id'], 0, 'c');
+			break;
+		case 'v':
+			$price = inv_calculate_sales_price(1, $query_result->fields['id'], 0, 'v');
+			break;
 	  }
 	  $bkgnd = ($query_result->fields['inactive']) ? ' style="background-color:pink"' : '';
 ?>
   <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer" onclick="setReturnItem(<?php echo $query_result->fields['id']; ?>)">
 	<td<?php echo $bkgnd; ?>><?php echo $query_result->fields['sku']; ?></td>
 	<td><?php echo $query_result->fields['description_short']; ?></td>
-	<td align="right"><?php echo $currencies->precise($price); ?></td>
+	<td align="right"><?php echo $currencies->precise($price['price']); ?></td>
 	<td align="center"><?php echo ($display_stock) ? $query_result->fields['quantity_on_hand'] : '&nbsp;'; ?></td>
 	<td align="center"><?php echo ($display_stock) ? $query_result->fields['quantity_on_order'] : '&nbsp;'; ?></td>
 	<?php if (ENABLE_MULTI_BRANCH) echo '<td align="center">' . ($display_stock ? $store_stock : '&nbsp;') . '</td>' . chr(10); ?>

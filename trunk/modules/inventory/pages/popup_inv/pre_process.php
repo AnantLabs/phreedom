@@ -71,15 +71,15 @@ $type_select_list = array( // add some extra options
   array('id' => '0',   'text' => TEXT_ALL),
   array('id' => 'cog', 'text' => TEXT_INV_MANAGED),
 );
-foreach ($inventory_types as $key => $value) $type_select_list[] = array('id' => $key,  'text' => $value);
+foreach ($inventory_types_plus as $key => $value) $type_select_list[] = array('id' => $key,  'text' => $value);
 
 // build the list header
 $heading_array = array(
-  'sku'               => TEXT_SKU,
-  'description_short' => TEXT_DESCRIPTION,
-  'full_price'        => ($account_type == 'v') ? INV_ENTRY_INV_ITEM_COST : INV_ENTRY_FULL_PRICE,
-  'quantity_on_hand'  => INV_HEADING_QTY_ON_HAND,
-  'quantity_on_order' => INV_HEADING_QTY_ON_ORDER,
+  'a.sku'               => TEXT_SKU,
+  'a.description_short' => TEXT_DESCRIPTION,
+  'a.full_price'        => ($account_type == 'v') ? INV_ENTRY_INV_ITEM_COST : INV_ENTRY_FULL_PRICE,
+  'a.quantity_on_hand'  => INV_HEADING_QTY_ON_HAND,
+  'a.quantity_on_order' => INV_HEADING_QTY_ON_ORDER,
 );
 $extras      = (ENABLE_MULTI_BRANCH) ? array(TEXT_QTY_THIS_STORE) : array();
 $result      = html_heading_bar($heading_array, $_GET['sf'], $_GET['so'], $extras);
@@ -89,7 +89,7 @@ $disp_order  = $result['disp_order'];
 // build the list for the page selected
 $criteria = array();
 if (isset($search_text) && $search_text <> '') {
-  $search_fields = array('sku', 'description_short', 'description_purchase');
+  $search_fields = array('a.sku', 'a.description_short', 'p.description_purchase', 'description_sales');
   // hook for inserting new search fields to the query criteria.
   if (is_array($extra_search_fields)) $search_fields = array_merge($search_fields, $extra_search_fields);
   $criteria[] = '(' . implode(' like \'%' . $search_text . '%\' or ', $search_fields) . ' like \'%' . $search_text . '%\')';
@@ -99,21 +99,21 @@ if ($f1) { // sort by inventory type
   switch ($f1) {
     case 'cog': 
 	  $cog_types = explode(',',COG_ITEM_TYPES);
-	  $criteria[] = "inventory_type in ('" . implode("','", $cog_types) . "')"; break;
-	default:    $criteria[] = "inventory_type = '$f1'";                     break;
+	  $criteria[] = "a.inventory_type in ('" . implode("','", $cog_types) . "')"; break;
+	default:    $criteria[] = "a.inventory_type = '$f1'";                     break;
   }
 }
-if ($f2 && $contactID) $criteria[] = "vendor_id = " . $contactID; // limit to preferred vendor flag
+if ($f2 && $contactID) $criteria[] = "p.vendor_id = " . $contactID; // limit to preferred vendor flag
 // build search filter string
 $search = (sizeof($criteria) > 0) ? (' where ' . implode(' and ', $criteria)) : '';
 
-$field_list = array('id', 'sku', 'inactive', 'inventory_type', 'quantity_on_hand', 'quantity_on_order', 
-  'description_short', 'full_price', 'item_cost');
+$field_list = array('a.id as id', 'a.sku as sku', 'inactive', 'inventory_type', 'quantity_on_hand', 'quantity_on_order', 
+  'description_short');
 
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw = "select " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY . $search . " order by $disp_order";
+$query_raw = "select DISTINCT " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY ."  a LEFT OUTER JOIN " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku " . $search . " order by $disp_order";
 
 $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
 $query_result = $db->Execute($query_raw);

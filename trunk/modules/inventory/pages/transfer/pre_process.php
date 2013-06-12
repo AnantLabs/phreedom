@@ -89,12 +89,13 @@ switch ($action) {
 	  $adj_total = 0;
 	  $adj_lines = 0;
 	  while (true) {
-	    if (!isset($_POST['sku_'.$rowCnt])) break;
+	    if (!isset($_POST['sku_'.$rowCnt]) || $_POST['sku_'.$rowCnt] == TEXT_SEARCH) break;
 	    $sku              = db_prepare_input($_POST['sku_'.$rowCnt]);
 	    $qty              = db_prepare_input($_POST['qty_'.$rowCnt]);
 	    $serialize_number = db_prepare_input($_POST['serial_'.$rowCnt]);
 	    $desc             = db_prepare_input($_POST['desc_'.$rowCnt]);
 	    $acct             = db_prepare_input($_POST['acct_'.$rowCnt]);
+	  	$_POST['total_'.$rowCnt] = $glEntry->calculateCost($sku, $qty, $serialize_number);
 	    if ($sku && $sku <> TEXT_SEARCH) {
 	      $glEntry->journal_rows[] = array(
 		    'sku'              => $sku,
@@ -151,10 +152,8 @@ switch ($action) {
 			$serialize_number = db_prepare_input($_POST['serial_'.$rowCnt]);
 			$desc             = db_prepare_input($_POST['desc_'.$rowCnt]);
 			$acct             = db_prepare_input($_POST['acct_'.$rowCnt]);
-			// TBD - Extract the cost to use as the total amount for the next adjustment, for now use item_cost from inventory table
-			$result = $db->Execute("select item_cost from " . TABLE_INVENTORY . " where sku = '" . $sku . "'");
-			$item_cost = $result->fields['item_cost'];
-	 	    if ($sku && $sku <> TEXT_SEARCH) {
+			$cost             = db_prepare_input($_POST['total_'.$rowCnt]);
+			if ($sku && $sku <> TEXT_SEARCH) {
 			  $glEntry->journal_rows[] = array(
 				'sku'              => $sku,
 				'qty'              => $qty,
@@ -163,10 +162,10 @@ switch ($action) {
 				'gl_account'       => $acct,
 				'description'      => $desc,
 				'credit_amount'    => 0,
-				'debit_amount'     => $qty * $item_cost,
+				'debit_amount'     => $cost,
 				'post_date'        => $post_date,
 			  );
-			  $tot_amount += $qty * $item_cost;
+			  $tot_amount += $cost;
 			}
 			$rowCnt++;
 		  }

@@ -126,7 +126,7 @@ switch ($action) {
 		$db->Execute("TRUNCATE TABLE " . TABLE_INVENTORY_COGS_OWED);
 		$db->Execute("TRUNCATE TABLE " . TABLE_INVENTORY_COGS_USAGE);
 		$db->Execute("TRUNCATE TABLE " . TABLE_RECONCILIATION);
-		$db->Execute("TRUNCATE TABLE " . TABLE_SHIPPING_LOG);
+		if (defined('MODULE_SHIPPING_STATUS')) $db->Execute("TRUNCATE TABLE " . TABLE_SHIPPING_LOG);
 		$db->Execute("update " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " set beginning_balance = 0, debit_amount = 0, credit_amount = 0");
 		$db->Execute("update " . TABLE_INVENTORY . " set quantity_on_hand = 0, quantity_on_order = 0, quantity_on_sales_order = 0");
 		$messageStack->add_session(GL_UTIL_PURGE_CONFIRM, 'success');

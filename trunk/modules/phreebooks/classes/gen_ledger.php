@@ -798,10 +798,12 @@ class journal {
 	  // update will never happen because the entries are removed during the unpost operation.
 	  switch ($this->journal_id) {
 		case 12: // for negative sales/invoices and customer credit memos the price needs to be the last unit_cost, 
-		case 13: // not the invoice price (customers price), then continue as unbuild/return
-		  $item['price'] = $defaults['item_cost'];
-		case 14: // for un-build assemblies, customer returns, cogs will not be zero
-		  $cogs = -($item['qty'] * $defaults['item_cost']); // use negative last cost (cust credit memos, neg invoices, unbuild assy)
+		case 13: // not the invoice price (customers price)
+		  $item['price'] = $this->calculateCost($item['sku'], 1, $item['serialize_number']);
+		  $cogs = -($item['qty'] * $item['price']);
+		  break;
+		case 14: // for un-build assemblies cogs will not be zero
+		  $cogs = -($item['qty'] * $this->calculateCost($item['sku'], 1, $item['serialize_number'])); // use negative last cost (unbuild assy)
 		  break;
 		default: // for all other journals, use the cost as entered to calculate added inventory
 	  }
@@ -938,6 +940,7 @@ class journal {
 	  }
 	}
 
+	$this->sku_cogs = $cogs;
 	if ($return_cogs) return $cogs; // just calculate cogs and adjust inv history
 	$messageStack->debug("\n    Adding COGS to array (if not zero), sku = " . $item['sku'] . " with calculated value = " . $cogs);
 	if ($cogs) {
@@ -958,6 +961,38 @@ class journal {
 	}
 	$messageStack->debug(" ... Finished calculating COGS.");
 	return true;
+  }
+
+  function calculateCost($sku, $qty=1, $serial_num='') {
+  	global $db, $messageStack;
+  	$messageStack->debug("\n    Calculating SKU cost, SKU = $sku and QTY = $qty");
+  	$cogs = 0;
+  	$defaults = $db->Execute("SELECT inventory_type, item_cost, cost_method, serialize FROM ".TABLE_INVENTORY." WHERE sku='$sku'");
+	if ($defaults->RecordCount() == 0) return $cogs; // not in inventory, return no cost
+	if (strpos(COG_ITEM_TYPES, $defaults->fields['inventory_type']) === false) return $cogs; // this type not tracked in cog, return no cost
+	if ($defaults->fields['cost_method'] == 'a') return $qty * $this->fetch_avg_cost($sku);
+	if ($defaults->fields['serialize']) { // there should only be one record
+		$result = $db->Execute("SELECT unit_cost FROM ".TABLE_INVENTORY_HISTORY." WHERE sku='$sku' AND serialize_number='$serial_num'");
+		return $result->fields['unit_cost'];
+	}
+	$sql = "SELECT remaining, unit_cost FROM ".TABLE_INVENTORY_HISTORY." WHERE sku='$sku' AND remaining>0";
+	if (ENABLE_MULTI_BRANCH) $sql .= " AND store_id='$this->store_id'";
+	$sql .= " ORDER BY id" . ($defaults->fields['cost_method'] == 'l' ? ' DESC' : '');
+	$result = $db->Execute($sql);
+	$working_qty = abs($qty);
+	while (!$result->EOF) { // loops until either qty is zero and/or inventory history is exhausted
+		if ($working_qty <= $result->fields['remaining']) { // this history record has enough to fill request
+			$cogs += $result->fields['unit_cost'] * $working_qty;
+			$working_qty = 0;
+			break; // exit loop
+		}
+		$cogs += $result->fields['unit_cost'] * $result->fields['remaining'];
+		$working_qty -= $result->fields['remaining'];
+		$result->MoveNext();
+	}
+	if ($working_qty > 0) $cogs += $defaults->fields['item_cost'] * $working_qty; // leftovers, use default cost
+	$messageStack->debug(" ... Finished calculating cost: $cogs");
+	return $cogs;
   }
 
   function fetch_avg_cost($sku) {

@@ -1,4 +1,5 @@
 <html>
+   <!-- License:  LGPL 2.1 or QZ INDUSTRIES SOURCE CODE LICENSE -->
    <head><title>jZebra Demo</title>    
    <script type="text/javascript">
       function findPrinter() {
@@ -233,14 +234,14 @@
       }
       
       
-      function printFile() {
+      function printFile(file) {
       	    var applet = document.jzebra;
       	    if (applet != null) {
 	       // Using jzebra's "appendFile()" function, a file containg your raw EPL/ZPL
 	       // can be sent directly to the printer
 	       // Example: 
 	       //     applet.appendFile("http://yoursite/zpllabel.txt"); // ...etc
-	       applet.appendFile(getPath() + "misc/zpl_sample.txt");
+	       applet.appendFile(getPath() + "misc/" + file);
 	       applet.print();
 	    }
 	    
@@ -628,6 +629,15 @@
               alert('Logging of PostScript printer capabilities to console set to "' + !logging + '"');
           }
       }
+   
+      function useAlternatePrinting() {
+          var applet = document.jzebra;
+          if (applet != null) {
+              var alternate = applet.isAlternatePrinting();
+              applet.useAlternatePrinting(!alternate);
+              alert('Alternate CUPS printing set to "' + !alternate + '"');
+          }
+      }
 
    </script>
    <script type="text/javascript" src="js/jquery-1.7.1.js"></script>
@@ -643,7 +653,15 @@
    <input type=button onClick="findPrinters()" value="List All Printers"><br />
    <input type=button onClick="useDefaultPrinter()" value="Use Default Printer"><br /><br />
    <applet name="jzebra" code="jzebra.PrintApplet.class" archive="./jzebra.jar" width="50px" height="50px">
+      <!-- Optional, searches for printer with "zebra" in the name on load -->
+      <!-- Note:  It is recommended to use applet.findPrinter() instead for ajax heavy applications -->
       <param name="printer" value="zebra">
+      <!-- Optional, these "cache_" params enable faster loading "caching" of the applet -->
+      <param name="cache_option" value="plugin">
+      <!-- Change "cache_archive" to point to relative URL of jzebra.jar -->
+      <param name="cache_archive" value="./jzebra.jar">
+      <!-- Change "cache_version" to reflect current jZebra version -->
+      <param name="cache_version" value="1.4.8.0">
    </applet><br />
    
    </td><td valign="top"><h2>Raw Printers Only</h2>
@@ -653,9 +671,12 @@
    <input type=button onClick="printPages()" value="Print Spooling Every 3" /><br />
    <input type=button onClick="printXML()" value="Print XML" /><br />
    <input type=button onClick="printHex()" value="Print Hex" /><br />
-   <input type=button onClick="printFile()" value="Print File" /><br />                                                       
+   Print File: 
+      <input type=button onClick="printFile('zpl_sample.txt')" value="ZPL" />
+      <input type=button onClick="printFile('fgl_sample.txt')" value="FGL" /><br />                                                       
    <input type=button onClick="printZPLImage()" value="Print ZPL Image" /><br />
    <input type=button onClick="printToFile()" value="Print To File" /><br />
+   <input type=button onClick="useAlternatePrinting()" value="Use Alternate Printing" /><br />
    
    </td><td valign="top"><h2>PostScript Printers Only</h2>
    <a href="http://code.google.com/p/jzebra/wiki/WhatIsPostScriptPrinting" target="new">What is PostScript Printing?</a><br />

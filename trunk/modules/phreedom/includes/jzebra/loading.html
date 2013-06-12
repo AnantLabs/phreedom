@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><body>
+<!-- License:  LGPL 2.1 or QZ INDUSTRIES SOURCE CODE LICENSE -->
 <script type="text/javascript" src="js/PluginDetect.js"></script>
 <script type="text/javascript">
 
@@ -61,6 +62,15 @@ function appendApplet() {
    if (PluginDetect.isMinVersion('Java', JAVA_MIN_VER) == 1) {
       if (document.applets[APPLET_NAME] == null) {
          setStatus(MSG_LOADING);
+         // Note, for faster loading, it's recommended to also use 
+         // cache applet param tags.  See sample.html for more information.
+         // i.e. 
+         //    <applet ...>
+         //       <param name="cache_option" value="plugin">
+         //       <param name="cache_archive" value="./jzebra.jar">
+         //       <param name="cache_version" value="1.4.8.0">
+         //    </applet>
+         
          document.getElementById('applet').innerHTML = '<applet name="' + APPLET_NAME + '" code="' + APPLET_CLASS + 
       	      '" archive="' + APPLET_URL + '" width="0" height="0" mayscript></applet>';
       }

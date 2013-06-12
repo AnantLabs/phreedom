@@ -85,9 +85,9 @@ switch ($action) {
 	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = $period where id in (" . implode(',', $cleared_items) . ")";
 	  $result = $db->Execute($sql);
 	}
-	// set reconciled flag to '0' for all records that were unchecked
+	// set reconciled flag to '0' for all records that were unchecked during this period
 	if (count($uncleared_items)) {
-	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = 0 where id in (" . implode(',', $uncleared_items) . ")";
+	  $sql = "update " . TABLE_JOURNAL_ITEM . " set reconciled = 0 where reconciled = $period and id in (" . implode(',', $uncleared_items) . ")";
 	  $result = $db->Execute($sql);
 	}
 	// check to see if the journal main closed flag should be set or cleared based on all cash accounts
@@ -126,7 +126,7 @@ $statement_balance = $currencies->format(0);
 // load the payments and deposits that are open
 $fiscal_dates = gen_calculate_fiscal_dates($period);
 $end_date = $fiscal_dates['end_date'];
-$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description, m.journal_id 
+$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description, i.reconciled, m.journal_id 
 	from ".TABLE_JOURNAL_MAIN." m inner join ".TABLE_JOURNAL_ITEM." i on m.id = i.ref_id
 	where i.gl_account = '$gl_account' and (i.reconciled = 0 or i.reconciled > $period) and m.post_date <= '".$fiscal_dates['end_date']."'";
 $result = $db->Execute($sql);
@@ -141,14 +141,13 @@ while (!$result->EOF) {
 	'dep_amount' => ($new_total < 0) ? ''          : $new_total,
 	'pmt_amount' => ($new_total < 0) ? -$new_total : '',
 	'payment'    => ($new_total < 0) ? 1           : 0,
-	'cleared'    => 0,
+	'cleared'    => $result->fields['reconciled'],
   );
   $result->MoveNext();
 }
 
 // check to see if in partial reconciliation, if so add checked items
-$sql = "select statement_balance, cleared_items from " . TABLE_RECONCILIATION . " 
-	where period = " . $period . " and gl_account = '" . $gl_account . "'";
+$sql = "select statement_balance, cleared_items from ".TABLE_RECONCILIATION." where period = $period and gl_account = '$gl_account'";
 $result = $db->Execute($sql);
 if ($result->RecordCount() <> 0) { // there are current cleared items in the present accounting period (edit)
   $statement_balance = $currencies->format($result->fields['statement_balance']);
@@ -156,12 +155,15 @@ if ($result->RecordCount() <> 0) { // there are current cleared items in the pre
   // load information from general ledger
   if (count($cleared_items) > 0) {
 	$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description, m.journal_id 
-		from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-		where i.gl_account = '" . $gl_account . "' and i.id in (" . implode(',', $cleared_items) . ")";
+		from ".TABLE_JOURNAL_MAIN." m inner join ".TABLE_JOURNAL_ITEM." i on m.id = i.ref_id
+		where i.gl_account = '$gl_account' and i.id in (".implode(',', $cleared_items).")";
+  	$sql = "select i.id, m.post_date, i.debit_amount, i.credit_amount, m.purchase_invoice_id, m.bill_primary_name, i.description, m.journal_id 
+		from ".TABLE_JOURNAL_MAIN." m inner join ".TABLE_JOURNAL_ITEM." i on m.id = i.ref_id
+		where i.gl_account = '$gl_account' and i.reconciled =$period";
 	$result = $db->Execute($sql);
 	while (!$result->EOF) {
 	  if (isset($bank_list[$result->fields['id']])) { // record exists, mark as cleared (shouldn't happen)
-		$bank_list[$result->fields['id']]['cleared'] = 1;
+		$bank_list[$result->fields['id']]['cleared'] = $period;
 	  } else {
 		$previous_total = $bank_list[$result->fields['id']]['dep_amount'] - $bank_list[$result->fields['id']]['pmt_amount'];
 		$new_total      = $previous_total + $result->fields['debit_amount'] - $result->fields['credit_amount'];
@@ -173,7 +175,7 @@ if ($result->RecordCount() <> 0) { // there are current cleared items in the pre
 		  'dep_amount' => ($new_total < 0) ? ''          : $new_total,
 		  'pmt_amount' => ($new_total < 0) ? -$new_total : '',
 		  'payment'    => ($new_total < 0) ? 1           : 0,
-		  'cleared'    => 1,
+		  'cleared'    => $period,
 		);
 	  }
 	  $result->MoveNext();

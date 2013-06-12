@@ -63,7 +63,9 @@ echo $toolbar->build_toolbar($add_search = false, $add_period = true);
 	if (sizeof($combined_list) > 0) {
 	  $odd = true;
 	  foreach ($combined_list as $values) { 
-		$bkgnd = ($values['partial']) ? ' style="background-color:yellow"' : '';
+	  	$bkgnd = ($values['partial']) ? ' style="background-color:yellow"' : '';
+	  	$disabled = ($values['cleared'] <> $period && $values['cleared'] > 0) ? 'disabled="disabled" ' : '';
+	  	$cleared  = ($values['cleared'] <> $period && $values['cleared'] > 0) ? $values['cleared'].' ' : '';
 	?>
 		<tr class="<?php echo $odd?'odd':'even'; ?>">
 			<td width="16%"><?php echo $values['reference']; ?></td>
@@ -73,11 +75,11 @@ echo $toolbar->build_toolbar($add_search = false, $add_period = true);
 			<td width="30%"><?php echo htmlspecialchars($values['name']); ?></td>
 			<td width="7%" align="center">
 				<?php if (sizeof($values['detail']) == 1) {
-				  echo html_checkbox_field('chk[' . $i . ']', '1', ($values['cleared'] == 1 ? true : false), '', 'onclick="updateBalance()"') . chr(10);
+				  echo $cleared . html_checkbox_field('chk[' . $i . ']', '1', ($values['cleared'] == $period ? true : false), '', $disabled.'onclick="updateBalance()"') . chr(10);
 				  echo html_hidden_field('id[' . $i . ']', $values['detail'][0]['id']) . chr(10); 
 				  echo html_hidden_field('pmt_' . $i, $values['detail'][0]['payment']) . chr(10); 
 				} else {
-				  echo html_checkbox_field('sum_' . $i, '1', ($values['cleared'] == 1 ? true : false), '', 'onclick="updateSummary(' . $i . ')"') . chr(10);
+				  echo $cleared . html_checkbox_field('sum_' . $i, '1', ($values['cleared'] == $period ? true : false), '', $disabled.'onclick="updateSummary(' . $i . ')"') . chr(10);
 				} ?>
 			</td>
 <?php if (sizeof($values['detail']) > 1) { ?>
@@ -92,7 +94,10 @@ echo $toolbar->build_toolbar($add_search = false, $add_period = true);
 		  $ref = $i;
 		  $even = true;
 		  echo '<tr id="detail_' . $i . '" style="display:none"><td colspan="7"><table style="width:100%">' . chr(10);
-		  foreach ($values['detail'] as $detail) { ?>
+		  foreach ($values['detail'] as $detail) { 
+		  	$disabled = ($detail['cleared'] <> $period && $detail['cleared'] > 0) ? 'disabled="disabled" ' : '';
+	  		$cleared  = ($detail['cleared'] <> $period && $detail['cleared'] > 0) ? $detail['cleared'].' ' : '';
+		  	?>
 		    <tr class="<?php echo $even?'even':'odd'; ?>">
 			  <td width="16%"><?php echo '&nbsp;'; ?></td>
 			  <td width="10%"><?php echo gen_locale_date($detail['post_date']); ?></td>
@@ -100,7 +105,7 @@ echo $toolbar->build_toolbar($add_search = false, $add_period = true);
 			  <td width="15%" align="right"><?php echo $detail['pmt_amount'] ? $currencies->format($detail['pmt_amount']) : '&nbsp;'; ?></td>
 			  <td width="30%"><?php echo htmlspecialchars($detail['name']); ?></td>
 			  <td width="7%" align="center">
-			    <?php echo html_checkbox_field('chk[' . $i . ']', '1', ($detail['cleared'] == 1 ? true : false), '', 'onclick="updateDetail(' . $ref . ')"') . chr(10); ?>
+			    <?php echo $cleared . html_checkbox_field('chk[' . $i . ']', '1', ($detail['cleared'] == $period ? true : false), '', $disabled.'onclick="updateDetail(' . $ref . ')"') . chr(10); ?>
 			    <?php echo html_hidden_field('id[' . $i . ']', $detail['id']) . chr(10); ?>
 			    <?php echo html_hidden_field('pmt_' . $i, $detail['payment']) . chr(10); ?>
 			  </td>

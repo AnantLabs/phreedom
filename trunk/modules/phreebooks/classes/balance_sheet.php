@@ -88,12 +88,16 @@ class balance_sheet {
 	function add_bal_sheet_data($the_list, $negate_array, $period) {
 		global $db, $Seq;
 		foreach($the_list as $key => $account_type) {
-			$sql = "select h.beginning_balance + h.debit_amount - h.credit_amount as balance, c.description  
+			$sql = "select h.beginning_balance + h.debit_amount - h.credit_amount as balance, c.description, c.account_inactive  
 				from " . TABLE_CHART_OF_ACCOUNTS . " c inner join " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " h on c.id = h.account_id
-				where h.period = " . $period . " and c.account_type = " . $account_type;
+				where h.period = $period and c.account_type = $account_type";
 			$result = $db->Execute($sql);
 			$total_1 = 0;
 			while (!$result->EOF) {
+				if ($result->fields['account_inactive'] && $result->fields['balance'] == 0) { // skip if inactive and no balance
+					$result->MoveNext();
+					continue;
+				}
 				if ($negate_array[$key]) {
 					$total_1 -= $result->fields['balance'];
 					$temp = ProcessData(-$result->fields['balance'], $Seq[1]['processing']);

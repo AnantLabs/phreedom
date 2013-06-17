@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -22,27 +22,33 @@ error_reporting(E_ALL & ~E_NOTICE);
 require_once('pages/main/pre_process.php');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" <?php echo HTML_PARAMS; ?>>
- <head>
-  <title><?php echo PAGE_TITLE; ?></title>
-  <meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>" />
-  <link rel="shortcut icon" type="image/ico" href="../favicon.ico" />
-  <link rel="stylesheet" type="text/css" href="../themes/default/css/start/stylesheet.css" />
-  <link rel="stylesheet" type="text/css" href="../themes/default/css/start/jquery_datatables.css" />
-  <link rel="stylesheet" type="text/css" href="../themes/default/css/start/jquery-ui.css" />
+<html xmlns="http://www.w3.org/1999/xhtml"  <?php echo HTML_PARAMS; ?>>
+<head>
+<title><?php echo PAGE_TITLE; ?></title>
+<meta http-equiv="Content-Type"
+	content="text/html; charset=<?php echo CHARSET; ?>" />
+<link rel="shortcut icon" type="image/ico" href="../favicon.ico" />
+<link rel="stylesheet" type="text/css"
+	href="../themes/default/css/start/stylesheet.css" />
+<link rel="stylesheet" type="text/css"
+	href="../themes/default/css/start/jquery_datatables.css" />
+<link rel="stylesheet" type="text/css"
+	href="../themes/default/css/start/jquery-ui.css" />
 
-  <script type="text/javascript">
+<script type="text/javascript">
 	var pbBrowser       = (document.all) ? 'IE' : 'FF';
     var combo_image_on  = '';
     var combo_image_off = '';
   </script>
-  <script type="text/javascript" src="../includes/jquery-1.6.2.min.js"></script>
-  <script type="text/javascript" src="../includes/jquery-ui-1.8.16.custom.min.js"></script>
-  <script type="text/javascript" src="../includes/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="../includes/common.js"></script>
+<script type="text/javascript" src="../includes/jquery-1.6.2.min.js"></script>
+<script type="text/javascript"
+	src="../includes/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript"
+	src="../includes/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../includes/common.js"></script>
   <?php require_once('pages/main/js_include.php'); ?>
  </head>
- <body>
-  <?php require_once('pages/main/' . $include_template); ?>
- </body>
+<body>
+<?php require_once('pages/main/' . $include_template); ?>
+</body>
 </html>

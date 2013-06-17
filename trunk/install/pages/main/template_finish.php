@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -18,20 +18,26 @@
 //  Path: /install/pages/main/template_finish.php
 //
 ?>
-<form name="install" id="install" action="index.php?action=open_company<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
- <table class="ui-widget" style="margin-left:auto;margin-right:auto;width:800px">
-  <thead class="ui-widget-header">
-   <tr>
-    <th align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></th>
-   </tr>
-  </thead>
-  <tbody class="ui-widget-content">
-   <tr>
-    <td><?php echo INTRO_FINISHED; ?></td>
-   </tr>
-   <tr>
-    <td align="right"><?php echo html_button_field('submit_form', TEXT_GO_TO_COMPANY, 'onclick="document.forms[0].submit()"'); ?></td>
-   </tr>
-  </tbody>
- </table>
+<form name="install" id="install"
+	action="index.php?action=open_company<?php echo $lang ? '&amp;lang='.$lang : ''; ?>"
+	method="post">
+	<table class="ui-widget"
+		style="margin-left: auto; margin-right: auto; width: 800px">
+		<thead class="ui-widget-header">
+			<tr>
+				<th align="right"><img
+					src="../modules/phreedom/images/phreesoft_logo.png"
+					alt="Phreedom Small Business Toolkit" height="50" /></th>
+			</tr>
+		</thead>
+		<tbody class="ui-widget-content">
+			<tr>
+				<td><?php echo INTRO_FINISHED; ?></td>
+			</tr>
+			<tr>
+				<td align="right"><?php echo html_button_field('submit_form', TEXT_GO_TO_COMPANY, 'onclick="document.forms[0].submit()"'); ?>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </form>

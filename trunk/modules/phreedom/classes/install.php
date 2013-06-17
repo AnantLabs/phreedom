@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -130,6 +130,7 @@ class phreedom_admin {
 		  description varchar(64) NOT NULL default '',
 		  sort_order varchar(64) NOT NULL default '',
 		  group_by varchar(64) NOT NULL default '',
+		  use_in_inventory_filter enum('0','1') NOT NULL DEFAULT '0',
 		  params text,
 		  PRIMARY KEY (id)
 		) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",

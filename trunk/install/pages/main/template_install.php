@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -18,20 +18,37 @@
 //  Path: /install/pages/main/template_install.php
 //
 ?>
-<div id="please_wait" style="display:hidden">
-  <p><?php echo html_icon('phreebooks/please_wait.gif', '', 'large'); ?></p>
+<div id="please_wait" style="display: hidden">
+	<p>
+
+	<?php echo html_icon('phreebooks/please_wait.gif', '', 'large'); ?></p>
 </div>
-<form name="install" id="install" action="index.php?action=install<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
- <table class="ui-widget" style="margin-left:auto;margin-right:auto;width:800px">
-  <thead class="ui-widget-header">
-   <tr>
-    <th colspan="2" align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></th>
-   </tr>
-  </thead>
-  <tbody class="ui-widget-content">
-<?php if ($error || $caution) { ?>
-   <tr><td colspan="2"><?php echo MSG_INSPECT_ERRORS; ?></td></tr>
-   <tr><td colspan="2"><?php echo $messageStack->output(); ?></td></tr>
+<form name="install" id="install"
+	action="index.php?action=install<?php echo $lang ? '&amp;lang='.$lang : ''; ?>"
+	method="post">
+	<table class="ui-widget"
+		style="margin-left: auto; margin-right: auto; width: 800px">
+		<thead class="ui-widget-header">
+			<tr>
+				<th colspan="2" align="right"><img
+					src="../modules/phreedom/images/phreesoft_logo.png"
+					alt="Phreedom Small Business Toolkit" height="50" /></th>
+			</tr>
+		</thead>
+		<tbody class="ui-widget-content">
+			
+			
+		<?php if ($error || $caution) { ?>
+			<tr>
+				<td colspan="2"><?php echo MSG_INSPECT_ERRORS; ?></td>
+			</tr>
+			<tr>
+				<td colspan="2"><?php echo $messageStack->output(); ?></td>
+			</tr>
+			
+			
+			
+			
 <?php } ?>
    <tr><td colspan="2"><?php echo MSG_INSTALL_INTRO; ?></td></tr>
    <tr class="ui-widget-header"><th colspan="2"><?php echo TEXT_COMPANY_INFO; ?></th></tr>
@@ -112,5 +129,5 @@
 	<td colspan="2" align="right"><?php echo html_submit_field('btn_install', TEXT_CONTINUE, 'onclick="showLoading()"'); ?></td>
    </tr>
   </tbody>
- </table>
+	</table>
 </form>

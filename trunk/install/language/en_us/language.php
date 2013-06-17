@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -91,7 +91,7 @@ define('ERROR_TEXT_LOGIN_PASS_ISEMPTY', 'The administrator password cannot be em
 define('ERROR_TEXT_LOGIN_PASS_NOTEQUAL', 'The two passwords entered do not match');
 define('ERROR_TEXT_DB_PREFIX_NODOTS','The database Table-Prefix may only contain the characters a-z and _ (underscore)');
 define('ERROR_TEXT_DB_HOST_ISEMPTY', 'The database hostname is empty');
-define('ERROR_TEXT_DB_NAME_ISEMPTY', 'The database name is empty'); 
+define('ERROR_TEXT_DB_NAME_ISEMPTY', 'The database name is empty');
 define('ERROR_TEXT_DB_USERNAME_ISEMPTY', 'The database user name cannot empty');
 define('ERROR_TEXT_DB_PASSWORD_ISEMPTY', 'The database password cannot be empty');
 define('MSG_ERROR_MODULE_INSTALL','There were errors installing module: %s. See above messages for more details.');

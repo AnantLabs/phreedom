@@ -17,6 +17,8 @@
 // +-----------------------------------------------------------------+
 //  Path: /soap/classes/orders.php
 //
+// hook for custom functions for additional processing
+if (file_exists(DIR_FS_ADMIN."soap/custom/orders.php")) { require_once(DIR_FS_ADMIN."soap/custom/orders.php"); }
 
 class xml_orders extends parser {
   function __construct() {
@@ -26,12 +28,14 @@ class xml_orders extends parser {
   }
 
 	function processXML($rawXML) {
+		global $messageStack;
 //echo '<pre>' . $rawXML . '</pre>';
 	  $rawXML = utf8_decode($rawXML);
 	  $rawXML = iconv("UTF-8", "UTF-8//IGNORE", $rawXML); 
 //echo '<pre>' . $rawXML . '</pre>';
 	  if (!$objXML = xml_to_object($rawXML)) return false;  // parse the submitted string, check for errors
 //echo 'parsed string = '; print_r($objXML); echo '<br />';
+	  if (DEBUG) $messageStack->debug("\n\nobjXML array = ".serialize($objXML));
 	  $this->username = $objXML->Request->UserID;
 	  $this->password = $objXML->Request->Password;
 	  $this->version  = $objXML->Request->Version;
@@ -54,7 +58,7 @@ class xml_orders extends parser {
 	}
 
   function processOrder($objXML) {
-	global $db;
+	global $db, $messageStack;
 	// build the tax table to set the tax rates
 	switch ($this->function) {
 	  case 'SalesInvoice':
@@ -66,11 +70,11 @@ class xml_orders extends parser {
 		define('JOURNAL_ID',10);
 		define('GL_TYPE','soo');
 	}
+	$messageStack->debug("\njournal_id = ".JOURNAL_ID." and function = ".$this->function);
 	$tax_rates = ord_calculate_tax_drop_down('c');
 	// Here we map the received xml array to the pre-defined generic structure (application specific format later)
 	if (!is_array($objXML->Request->Order)) $objXML->Request->Order = array($objXML->Request->Order);
 	foreach ($objXML->Request->Order as $order) {
-//echo 'order = '; print_r($order); echo '<br>';
 	  if ($order->ReceivablesGLAccount <> '') { // see if requestor specifies a AR account else use default
 	    define('DEF_GL_ACCT', $order->ReceivablesGLAccount);
 	  } else {
@@ -148,6 +152,7 @@ class xml_orders extends parser {
 		$item['total_price'] = $entry->TotalPrice;
 		$this->order['items'][] = $item;
 	  }
+	  if (function_exists('xtra_order_data')) $this->order = xtra_order_data($this->order, $order);
 	  $this->buildJournalEntry();
 	}
 	return true;
@@ -284,9 +289,12 @@ class xml_orders extends parser {
 	  $this->response[] = sprintf(SOAP_MISSING_FIELDS, $this->order['reference'], implode(', ', $missing_fields));
 	  return;
 	}
+	if (function_exists('xtra_order_build')) $this->order = xtra_order_build($psOrd, $this->order);
+	
 	// post the sales order
 //echo 'ready to post =><br />'; echo 'psOrd object = '; print_r($psOrd); echo '<br />';
 	$post_success = $psOrd->post_ordr($action);
+	if (DEBUG) $messageStack->write_debug();
 	if (!$post_success) { // extract the error message from the messageStack and return with error
 // echo 'failed a post need to rollback here.<br>';
 	  $db->transRollback();

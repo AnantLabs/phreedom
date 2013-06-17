@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -216,24 +216,22 @@ class journal {
 	  case 20: // Cash Distribution Journal
 	  case 21: // Inventory Direct Purchase Journal
 		$accounts = array();
+		$precision = $this->currencies[DEFAULT_CURRENCY]['decimal_places'] + 2;
 	    if (sizeof($this->journal_rows) > 0) foreach ($this->journal_rows as $value) {
 		  $credit_amount = ($value['credit_amount']) ? $value['credit_amount'] : '0';
 		  $debit_amount  = ($value['debit_amount'])  ? $value['debit_amount']  : '0';
-		  if  (round($credit_amount, $this->currencies[DEFAULT_CURRENCY]['decimal_places'] + 2) <> 0 
-		    || round($debit_amount,  $this->currencies[DEFAULT_CURRENCY]['decimal_places'] + 2) <> 0) {
+		  if  (round($credit_amount, $precision) <> 0 || round($debit_amount, $precision) <> 0) {
 			$accounts[$value['gl_account']]['credit'] += $credit_amount;
 			$accounts[$value['gl_account']]['debit']  += $debit_amount;
 		    $this->affected_accounts[$value['gl_account']] = 1;
 		  }
 		}
 		if (sizeof($accounts) > 0) foreach ($accounts as $gl_acct => $values) {
-		  if ($values['credit'] <> 0 || $values['debit'] <> 0) {
-		    $sql = "update " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " set 
-			  credit_amount = credit_amount + " . $values['credit'] . ", 
-			  debit_amount = debit_amount + " . $values['debit'] . ", 
-			  last_update = '" . $this->post_date . "' 
-			  where account_id = '" . $gl_acct . "' and period = " . $this->period;
-		    $messageStack->debug("\n    Post chart balances: credit_amount = " . $values['credit'] . ", debit_amount = " . $values['debit'] . ", acct = " . $gl_acct . ", period = " . $this->period);
+		  if  (round($values['credit'], $precision) <> 0 || round($values['debit'], $precision) <> 0) {
+		    $sql = "UPDATE " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " SET 
+			  credit_amount = credit_amount + ".$values['credit'].", debit_amount = debit_amount + ".$values['debit'].", 
+			  last_update = '$this->post_date' WHERE account_id = '$gl_acct' AND period = $this->period";
+		    $messageStack->debug("\n    Post chart balances: credit_amount = ".$values['credit'].", debit_amount = ".$values['debit'].", acct = $gl_acct, period = $this->period");
 		    $result = $db->Execute($sql);
 		    if ($result->AffectedRows() <> 1) return $this->fail_message(GL_ERROR_POSTING_CHART_BALANCES . ($gl_acct ? $gl_acct : TEXT_NOT_SPECIFIED));
 		  }

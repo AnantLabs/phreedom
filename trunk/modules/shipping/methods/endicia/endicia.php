@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -31,9 +31,9 @@ define('RUBBERSTAMP1',''); // User-supplied text to print on the label. max 50 c
 define('RUBBERSTAMP2','');
 define('RUBBERSTAMP3','');
 // Set the Label Type
-// For Default LabelType: 4×6, 4×5, 4×4.5, DocTab, 6×4
-// For DestinationConfirm: 7×3, 6×4, Dymo30384, EnvelopeSize10, Mailer7×5
-// For CertifiedMail: 4×6, 7×4, 8×3, Booklet, EnvelopeSize10
+// For Default LabelType: 4ï¿½6, 4ï¿½5, 4ï¿½4.5, DocTab, 6ï¿½4
+// For DestinationConfirm: 7ï¿½3, 6ï¿½4, Dymo30384, EnvelopeSize10, Mailer7ï¿½5
+// For CertifiedMail: 4ï¿½6, 7ï¿½4, 8ï¿½3, Booklet, EnvelopeSize10
 // For International: Null or any other value, 4x6c
 define('ENDICIA_LABEL_SIZE', 'DocTab');
 // constants used in rate screen to match carrier descrptions

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -18,17 +18,32 @@
 //  Path: /install/pages/main/template_inspect.php
 //
 ?>
-<form name="install" id="install" action="index.php?action=inspect<?php echo $lang ? '&amp;lang='.$lang : ''; ?>" method="post">
- <table class="ui-widget" style="margin-left:auto;margin-right:auto;width:800px">
-  <thead class="ui-widget-header">
-   <tr>
-    <th align="right"><img src="../modules/phreedom/images/phreesoft_logo.png" alt="Phreedom Small Business Toolkit" height="50" /></th>
-   </tr>
-  </thead>
-  <tbody class="ui-widget-content">
-<?php if ($error || $caution) { ?>
-   <tr><td><?php echo MSG_INSPECT_ERRORS; ?></td></tr>
-   <tr><td><?php echo $messageStack->output(); ?></td></tr>
+<form name="install" id="install"
+	action="index.php?action=inspect<?php echo $lang ? '&amp;lang='.$lang : ''; ?>"
+	method="post">
+	<table class="ui-widget"
+		style="margin-left: auto; margin-right: auto; width: 800px">
+		<thead class="ui-widget-header">
+			<tr>
+				<th align="right"><img
+					src="../modules/phreedom/images/phreesoft_logo.png"
+					alt="Phreedom Small Business Toolkit" height="50" /></th>
+			</tr>
+		</thead>
+		<tbody class="ui-widget-content">
+			
+			
+		<?php if ($error || $caution) { ?>
+			<tr>
+				<td><?php echo MSG_INSPECT_ERRORS; ?></td>
+			</tr>
+			<tr>
+				<td><?php echo $messageStack->output(); ?></td>
+			</tr>
+			
+			
+			
+			
 <?php } ?>
    <tr>
     <td align="right">
@@ -37,5 +52,5 @@
     </td>
    </tr>
   </tbody>
- </table>
+	</table>
 </form>

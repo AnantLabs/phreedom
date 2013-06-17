@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -169,7 +169,7 @@ define('CD_12_70_DESC', 'Enter the mailbox account name (me@mydomain.com) suppli
 define('CD_12_71_DESC', 'Enter the password for your SMTP mailbox. (Only required if using SMTP Authentication for email)');
 define('CD_12_72_DESC', 'Enter the DNS name of your SMTP mail server. i.e. mail.mydomain.com or 55.66.77.88 (Only required if using SMTP Authentication for email)');
 define('CD_12_73_DESC', 'Enter the IP port number that your SMTP mailserver operates on. (Only required if using SMTP Authentication for email)');
-define('CD_12_74_DESC', 'What currency conversions do you need for Text emails? (Default = &amp;pound;,£:&amp;euro;,€)');
+define('CD_12_74_DESC', 'What currency conversions do you need for Text emails? (Default = &amp;pound;,ï¿½:&amp;euro;,ï¿½)');
 /************************** Currencies Settings ***********************************************/
 define('SETUP_TITLE_CURRENCIES', 'Currencies');
 define('SETUP_CURRENCY_NAME', 'Currency');

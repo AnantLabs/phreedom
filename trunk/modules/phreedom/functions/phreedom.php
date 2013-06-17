@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
@@ -48,7 +48,7 @@ function load_language_dropdown($language_directory = 'modules/phreedom/language
   $output   = array();
   $contents = scandir($language_directory);
   foreach ($contents as $lang) {
-	if ($lang <> '.' && $lang <> '..' && file_exists($language_directory . $lang . '/language.php')) {
+	if ($lang <> '.' && $lang <> '..' && is_dir($language_directory. $lang) && file_exists($language_directory . $lang . '/language.php')) {
 	  if ($config_file = file($language_directory . $lang . '/language.php')) {
 	    foreach ($config_file as $line) {
 		  if (strstr($line,'\'LANGUAGE\'') !== false) {

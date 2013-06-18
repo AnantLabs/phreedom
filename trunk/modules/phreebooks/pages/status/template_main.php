@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -27,14 +26,15 @@ $toolbar->icon_list['open']['show']     = false;
 $toolbar->icon_list['save']['show']     = false;
 $toolbar->icon_list['delete']['show']   = false;
 $toolbar->icon_list['print']['show']    = false;
-if (JOURNAL_ID == 2 ){
-	$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=journal', 'SSL') . '\'"', 2);
-} else {
-	$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;jID=' . JOURNAL_ID, 'SSL') . '\'"', 2);
-}
+
+$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=orders&amp;jID=' . JOURNAL_ID, 'SSL') . '\'"', 2);
+
 if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 switch (JOURNAL_ID) {
-  case  2: $toolbar->add_help('');            break;
+  case  2: 
+	$toolbar->add_icon('new', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=journal', 'SSL') . '\'"', 2);
+  	$toolbar->add_help('');
+  	break;
   case  3: $toolbar->add_help('07.02.03.04'); break;
   case  4: $toolbar->add_help('07.02.03.04'); break;
   case  6: $toolbar->add_help('07.02.03.04'); break;
@@ -43,8 +43,14 @@ switch (JOURNAL_ID) {
   case 10: $toolbar->add_help('07.03.03.04'); break;
   case 12: $toolbar->add_help('07.03.03.04'); break;
   case 13: $toolbar->add_help('07.03.03.04'); break;
-  case 18: $toolbar->add_help('');            break;
-  case 20: $toolbar->add_help('');            break;
+  case 18: 
+  	$toolbar->add_icon('new', 'onclick="location.href=\''.html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;type=c&amp;jID='.JOURNAL_ID, 'SSL') . '\'"', 2);
+  	$toolbar->add_help('');
+  	break;
+  case 20: 
+  	$toolbar->add_icon('new', 'onclick="location.href=\''.html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=bills&amp;type=v&amp;jID='.JOURNAL_ID, 'SSL') . '\'"', 2);
+  	$toolbar->add_help('');
+  	break;
 }
 if ($search_text) $toolbar->search_text = $search_text;
 $toolbar->search_period = $acct_period;

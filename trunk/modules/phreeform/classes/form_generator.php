@@ -317,7 +317,7 @@ class PDF extends TCPDF {
 	  } else {
 	    $this->SetFillColor(255);
 	  }
-	  if ($fillReq) $this->Cell($Params->width, $MaxBoxY - $this->y0, '', 0, 0, 'L', 1); // sets background to white
+	  $this->Cell($Params->width, $MaxBoxY - $this->y0, '', 0, 0, 'L', 1); // sets background proper color
 	  $maxY = $this->y0; // set to current top of row
 	  $Col  = 0;
 	  $NextXPos = $Params->abscissa;

@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -22,16 +21,18 @@
 $xml = NULL;
 $security_level = validate_ajax_user();
 /**************   include page specific files   *********************/
+require_once(DIR_FS_ADMIN . 'modules/phreebooks/defaults.php');
 /**************   page specific initialization  *********************/
 $rID   = db_prepare_input($_GET['rID']);
 $error = false;
-$main  = $db->Execute("select * from " . TABLE_JOURNAL_MAIN . " where id = '" . $rID . "'");
+$main  = $db->Execute("select * from ".TABLE_JOURNAL_MAIN." where id = '$rID'");
 if ($main->RecordCount() <> 1) {
   echo createXmlHeader() . xmlEntry('error', 'Bad record submitted. No results found!') . createXmlFooter();
   die;
 }
-$items = $db->Execute("select * from " . TABLE_JOURNAL_ITEM . " where ref_id = '" . $rID . "'");
+$items = $db->Execute("select * from ".TABLE_JOURNAL_ITEM." where ref_id = '$rID'");
 // build the journal record data
+$main->fields['attach_exist'] = file_exists(PHREEBOOKS_DIR_MY_ORDERS.'order_'.$rID.'.zip') ? '1' : '0';
 foreach ($main->fields as $key => $value) $xml .= "\t" . xmlEntry($key, $value);
 while (!$items->EOF) {
   $xml .= "\t<items>\n";

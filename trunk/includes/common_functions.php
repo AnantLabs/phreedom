@@ -1158,7 +1158,13 @@ function gen_db_date($raw_date = '', $separator = '/') {
   }
 
   function html_textarea_field($name, $width, $height, $text = '', $parameters = '') {
-    $field = '<textarea name="' . $name . '" id="' . $name . '" cols="' . $width . '" rows="' . $height . '"';
+  	if (strpos($name, '[]')) { // don't show id attribute if generic array
+	  $id = false;
+	} else {
+	  $id = str_replace('[','_', $name); // clean up for array inputs causing html errors
+	  $id = str_replace(']','',  $id);
+    }
+  	$field = '<textarea name="' . $name . '" id="' . $id . '" cols="' . $width . '" rows="' . $height . '"';
     if ($parameters) $field .= ' ' . $parameters;
     $field .= '>';
     if ($text) $field .= $text;

@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-// | http://www.PhreeSoft.com                                        |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -29,46 +28,47 @@ $toolbar->icon_list['print']['show']    = false;
 if ($security_level > 1) $toolbar->add_icon('new', 'onclick="submitToDo(\'new\')"', $order = 10);
 if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.04.01');
-//if ($search_text) $toolbar->search_text = $search_text;
-echo $toolbar->build_toolbar($add_search = false); 
+if ($search_text) $toolbar->search_text = $search_text;
+echo $toolbar->build_toolbar($add_search = true); 
 ?>
 <h1><?php echo MENU_HEADING_INVENTORY; ?></h1>
-<table id="filter_table" class="ui-widget" style="border-collapse:collapse;">
-  <thead class="ui-widget-header">
-	<tr>
-	  <th></th>
-	  <th><?php echo FILTER_TABEL_HEAD_FIELD; ?></th>
-	  <th><?php echo FILTER_TABEL_HEAD_COPAIRISON; ?></th>
-	  <th> <?php echo FILTER_TABEL_HEAD_VALUE;?></th>
-	</tr>
-  </thead>
-  <tbody id="filter_table_body" class="ui-widget-content">
-	  <?php
-	  if($_POST['filter_field']){
-	  	foreach ($_POST['filter_field'] as $key => $value) {
-	  		echo '<script type="text/javascript"> addFilterRow();</script>' .chr(10);
-			echo '<script type="text/javascript"> TableStartValues("' . $x . '","' . $_POST['filter_field'][$key] . '","' . $_POST['filter_criteria'][$key] . '","' . $_POST['filter_value'][$key] . '");</script>'.chr(10);
-	  	}
-	  }else {
-	  	echo'<script type="text/javascript"> addFilterRow();</script>'.chr(10);
-	  	echo'<script type="text/javascript"> TableStartValues("1","a.sku","0","");</script>'.chr(10);
-	  	$x = 1;
-	  }
-	  ?>	
- </tbody>
- <tfoot>
- 	<tr>
- 		<th></th>
- 		<th>
- 		<?php echo html_icon('actions/list-add.png', TEXT_ADD, 'medium', 'onclick="addFilterRow()"'); ?>
-		<?php echo html_icon('actions/system-search.png', TEXT_SEARCH, 'medium', 'onclick="submitToDo(\'filter\')"') ?>
-		<?php if($x != 1 )echo html_icon('actions/view-refresh.png', TEXT_RESET, 'small', 'onclick="location.href = \'index.php?' . gen_get_all_get_params(array('search_text', 'search_period', 'search_date', 'list', 'action')) . '\';" style="cursor:pointer;"');?>
-		</th>
-		<th></th>
-		<th></th>
- 	</tr>
- </tfoot>
-</table>
+<table><tr><td>
+	<table id="filter_table" class="ui-widget" style="border-collapse:collapse;">
+	  <thead class="ui-widget-header">
+		<tr>
+		  <th></th>
+		  <th><?php echo FILTER_TABEL_HEAD_FIELD; ?></th>
+		  <th><?php echo FILTER_TABEL_HEAD_COPAIRISON; ?></th>
+		  <th><?php echo FILTER_TABEL_HEAD_VALUE;?></th>
+		</tr>
+	  </thead>
+	  <tbody id="filter_table_body" class="ui-widget-content">
+		  <?php
+		  if ($_POST['filter_field']) {
+		  	foreach ($_POST['filter_field'] as $key => $value) {
+		  		echo '<script type="text/javascript"> addFilterRow();</script>' .chr(10);
+				echo '<script type="text/javascript"> TableStartValues("' . $x . '","' . $_POST['filter_field'][$key] . '","' . $_POST['filter_criteria'][$key] . '","' . $_POST['filter_value'][$key] . '");</script>'.chr(10);
+		  	}
+		  } else {
+		  	echo'<script type="text/javascript"> addFilterRow();</script>'.chr(10);
+		  	echo'<script type="text/javascript"> TableStartValues("1","a.sku","0","");</script>'.chr(10);
+		  	$x = 1;
+		  }
+		  ?>	
+	 </tbody>
+	</table>
+  </td>
+  <td>
+	 <table>
+	 	<tr>
+	 		<td>
+	 		<?php echo html_icon('actions/list-add.png', TEXT_ADD, 'medium', 'onclick="addFilterRow()"'); ?>
+			<?php echo html_icon('actions/system-search.png', TEXT_SEARCH, 'medium', 'onclick="submitToDo(\'filter\')"') ?>
+			<?php if($x != 1 )echo html_icon('actions/view-refresh.png', TEXT_RESET, 'small', 'onclick="location.href = \'index.php?' . gen_get_all_get_params(array('search_text', 'search_period', 'search_date', 'list', 'action')) . '\';" style="cursor:pointer;"');?>
+			</td>
+	 	</tr>
+	 </table>
+</td></tr></table>
 
 <div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
 <div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>

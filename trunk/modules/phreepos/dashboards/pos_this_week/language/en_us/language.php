@@ -3,7 +3,7 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-// | http://www.PhreeSoft.com                                        |
+
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,6 +20,6 @@
 
 define('CP_POS_THIS_WEEK_TITLE','Pos Sales This Week');
 define('CP_POS_THIS_WEEK_DESCRIPTION','Lists the total of pos sales day by day from the beginning of the week. ');
-
+define('CP_POS_THIS_WEEK_SECURITY',SECURITY_ID_PHREEPOS);
 
 ?>

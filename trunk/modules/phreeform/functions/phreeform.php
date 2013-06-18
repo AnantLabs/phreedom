@@ -1067,20 +1067,8 @@ function BuildDataArray($sql, $report) { // for reports only
 	return $OutputArray;
 }
 
-function ReplaceNonAllowedCharacters($String) {
-	$DodgyCharactersArray = array('"', ' ', '&', "'");
-	$ContainsDodgyCharacters = true;
-	while ($ContainsDodgyCharacters == true){
-		$ContainsDodgyCharacters = false; //assume all dodgy characters are replaced on the last pass
-		foreach ($DodgyCharactersArray as $DodgyCharacter){
-			if (strpos($String, $DodgyCharacter, 0)){
-				$StrPointer = strpos($String, $DodgyCharacter, 0);
-				$String = substr($String, 0, $StrPointer) . '_' . substr($String, $StrPointer+1);
-				$ContainsDodgyCharacters = true;
-			}
-		}
-	}
-	return $String;
+function ReplaceNonAllowedCharacters($input) {
+	return str_replace(array('"', "'", ' ', '&', "/", "\\"), "_", $input);
 }
 
 function GeneratePDFFile($Data, $report, $delivery_method = 'D') { // for pdf reports only

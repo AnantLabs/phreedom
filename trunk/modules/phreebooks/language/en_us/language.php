@@ -28,6 +28,7 @@ define('GL_BTN_CHG_ACCT_PERIOD', 'Change Current Accounting Period');
 define('GL_BTN_NEW_FY', 'Generate Next Fiscal Year');
 define('GL_BTN_UPDATE_FY', 'Update Fiscal Year Changes');
 // General Text
+define('TEXT_AUTO_COMPLETE','Auto Complete');
 define('BNK_CASH_ACCOUNT','Cash Account');
 define('BNK_DISCOUNT_ACCOUNT','Discount Account');
 define('BNK_AMOUNT_DUE','Amount Due');

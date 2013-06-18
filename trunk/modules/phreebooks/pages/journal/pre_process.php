@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -42,9 +41,7 @@ switch ($action) {
   case 'copy':
 	validate_security($security_level, 2);
     // for copy operation, erase the id to force post a new journal entry with same values
-	if ($action == 'copy') {
-	  $glEntry->id                = '';
-	}
+	if ($action == 'copy') $glEntry->id = '';
 	$glEntry->journal_id          = JOURNAL_ID;
 	$glEntry->post_date           = $post_date;
 	$glEntry->period              = $period;
@@ -53,6 +50,7 @@ switch ($action) {
 	$glEntry->recur_id            = db_prepare_input($_POST['recur_id']);
 	$glEntry->recur_frequency     = db_prepare_input($_POST['recur_frequency']);
 	$glEntry->store_id            = db_prepare_input($_POST['store_id']);
+	$glEntry->rm_attach           = isset($_POST['rm_attach']) ? true : false;
 	if ($glEntry->store_id == '') $glEntry->store_id = 0;
 
 	// process the request, build main record
@@ -64,8 +62,8 @@ switch ($action) {
 			$x++;
 			continue;
 		}
-		$debit_amount  = ($_POST['debit_' . $x])  ? $currencies->clean_value($_POST['debit_' . $x])  : 0;
-		$credit_amount = ($_POST['credit_' . $x]) ? $currencies->clean_value($_POST['credit_' . $x]) : 0;
+		$debit_amount  = ($_POST['debit_' . $x]) ? $currencies->clean_value($_POST['debit_' . $x]) : 0;
+		$credit_amount = ($_POST['credit_'. $x]) ? $currencies->clean_value($_POST['credit_'. $x]) : 0;
 		$glEntry->journal_rows[] = array(
 			'id'            => ($action == 'copy') ? '' : db_prepare_input($_POST['id_' . $x]),
 			'qty'           => '1',
@@ -80,12 +78,15 @@ switch ($action) {
 	}
 
 	$glEntry->journal_main_array = array(
+		'id'                  => $glEntry->id,
 		'period'              => $glEntry->period,
 		'journal_id'          => JOURNAL_ID,
 		'post_date'           => $glEntry->post_date,
 		'total_amount'        => $total_amount,
 		'description'         => GL_ENTRY_TITLE,
 		'purchase_invoice_id' => $glEntry->purchase_invoice_id,
+		'currencies_code'     => DEFAULT_CURRENCY,
+		'currencies_value'    => 1,
 		'admin_id'            => $glEntry->admin_id,
 		'bill_primary_name'   => $journal_entry_desc,
 		'recur_id'            => $glEntry->recur_id,
@@ -183,6 +184,11 @@ switch ($action) {
 		}
 		if (!$error) {
 		  $db->transCommit();
+		  if ($glEntry->rm_attach) @unlink(PHREEBOOKS_DIR_MY_ORDERS . 'order_'.$glEntry->id.'.zip');
+		  if (is_uploaded_file($_FILES['file_name']['tmp_name'])) {
+			$messageStack->debug('Saving file to: '.PHREEBOOKS_DIR_MY_ORDERS.'order_'.$glEntry->id.'.zip');
+		  	saveUploadZip('file_name', PHREEBOOKS_DIR_MY_ORDERS, 'order_'.$glEntry->id.'.zip');
+		  }
 		  if (DEBUG) $messageStack->write_debug();
 		  gen_add_audit_log(GL_LOG_ADD_JOURNAL . (($glEntry->id) ? TEXT_EDIT : TEXT_ADD), $glEntry->purchase_invoice_id);
 		  gen_redirect(html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'SSL'));
@@ -243,6 +249,15 @@ switch ($action) {
 	validate_security($security_level, 2);
    	$cInfo = new objectInfo(array());
 	break;
+
+  case 'dn_attach':
+	$oID = db_prepare_input($_POST['id']);
+	if (file_exists(PHREEBOOKS_DIR_MY_ORDERS . 'order_' . $oID . '.zip')) {
+		require_once(DIR_FS_MODULES . 'phreedom/classes/backup.php');
+		$backup = new backup();
+		$backup->download(PHREEBOOKS_DIR_MY_ORDERS, 'order_' . $oID . '.zip', true);
+	}
+	die;
   default:
 }
 

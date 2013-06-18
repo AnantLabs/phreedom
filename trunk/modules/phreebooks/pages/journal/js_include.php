@@ -131,6 +131,13 @@ function processEditJournal(sXml) {
   document.getElementById('post_date').value = formatDate($(xml).find("post_date").first().text());
   document.getElementById('recur_id').value  = $(xml).find("recur_id").text();
   document.getElementById('store_id').value  = $(xml).find("store_id").text();
+  if ($(xml).find("attach_exist").text() == 1) {
+	alert ('Showing attach val = '+$(xml).find("attach_exist").text());
+	document.getElementById('show_attach').style.display = ''; // show attachment button and delete checkbox if it exists
+  } else {
+	alert ('Not showing attach val = '+$(xml).find("attach_exist").text());
+  }
+  
   // delete the rows
   while (document.getElementById("item_table").rows.length > 0) document.getElementById("item_table").deleteRow(-1);
   // turn off some icons
@@ -153,6 +160,11 @@ function processEditJournal(sXml) {
   });
   updateBalance();
   if ($(xml).find("closed").text() == '1') alert('<?php echo WARNING_ENTRY_RECONCILED; ?>');
+}
+
+function downloadAttachment() {
+  document.getElementById('todo').value = 'dn_attach';
+  document.getElementById('todo').form.submit();
 }
 
 function glProperties(id, description, asset) {

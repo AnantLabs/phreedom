@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -17,7 +16,7 @@
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreebooks/pages/journal/template_main.php
 //
-echo html_form('journal', FILENAME_DEFAULT, gen_get_all_get_params(array('action'))) . chr(10);
+echo html_form('journal', FILENAME_DEFAULT, gen_get_all_get_params(array('action')), 'post', 'enctype="multipart/form-data"', true) . chr(10);
 $hidden_fields = NULL;
 // include hidden fields
 echo html_hidden_field('todo', '') . chr(10);
@@ -127,6 +126,21 @@ echo $toolbar->build_toolbar();
   </tr>
  </tbody>
 </table>
+<table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto">
+  <tbody class="ui-widget-content">
+    <tr>
+      <td><?php echo TEXT_SELECT_FILE_TO_ATTACH . ' ' . html_file_field('file_name'); ?></td>
+    </tr>
+    <tr>
+      <td><div id="show_attach" style="display:none">
+		<?php echo html_checkbox_field('rm_attach', '1', ($order->del_attach) ? true : false, '', '') . ' ' . TEXT_DELETE_ATTACHMENT; ?>
+    	<?php echo html_button_field('dn_attach', TEXT_DOWNLOAD_ATTACHMENT, 'onclick="downloadAttachment()"'); ?>
+	    </div>&nbsp;
+	  </td>
+    </tr>
+  </tbody>
+</table>
+
 <?php // display the hidden fields that are not used in this rendition of the form
 echo $hidden_fields;
 ?>

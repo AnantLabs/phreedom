@@ -3,7 +3,7 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-// | http://www.PhreeSoft.com                                        |
+
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -753,7 +753,7 @@ function TableStartValues( rowCnt, valueFilterField, valueCriteriaField, valueVa
 }
 
 $(document).ready(function(){
-	$("#tb_search_0").hide() ;
+//	$("#tb_search_0").hide() ;
 });
 
 <?php if ($include_template == 'template_main.php'){?>

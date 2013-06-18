@@ -10,5 +10,6 @@
 
 define('CP_POS_THIS_WEEK_DESCRIPTION','Lijst met totale kassa verkopen per dag van deze week.');
 define('CP_POS_THIS_WEEK_TITLE','Kassa verkopen deze week');
+define('CP_POS_THIS_WEEK_SECURITY',SECURITY_ID_PHREEPOS);
 
 ?>

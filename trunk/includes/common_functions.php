@@ -3,7 +3,7 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-// | http://www.PhreeSoft.com                                        |
+
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -45,33 +45,35 @@
   }
 
   function gen_pull_language($page, $file = 'language') {
-    if       (file_exists(DIR_FS_MODULES . $page . '/custom/language/' . $_SESSION['language'] . '/' . $file . '.php')) {
-      include_once       (DIR_FS_MODULES . $page . '/custom/language/' . $_SESSION['language'] . '/' . $file . '.php');
-	} elseif (file_exists(DIR_FS_MODULES . $page . '/custom/language/en_us/' . $file . '.php')) {
-      include_once       (DIR_FS_MODULES . $page . '/custom/language/en_us/' . $file . '.php');
+  	if (!is_dir(DIR_FS_MODULES . $page)) return;
+  	if       (file_exists(DIR_FS_MODULES . "$page/custom/language/".$_SESSION['language']."/$file.php")) {
+      include_once       (DIR_FS_MODULES . "$page/custom/language/".$_SESSION['language']."/$file.php");
+	} elseif (file_exists(DIR_FS_MODULES . "$page/custom/language/en_us/$file.php")) {
+      include_once       (DIR_FS_MODULES . "$page/custom/language/en_us/$file.php");
 	}
-    if       (file_exists(DIR_FS_MODULES . $page . '/language/' . $_SESSION['language'] . '/' . $file . '.php')) {
-      include_once       (DIR_FS_MODULES . $page . '/language/' . $_SESSION['language'] . '/' . $file . '.php');
-	} elseif (file_exists(DIR_FS_MODULES . $page . '/language/en_us/' . $file . '.php')) {
-      include_once       (DIR_FS_MODULES . $page . '/language/en_us/' . $file . '.php');
+    if       (file_exists(DIR_FS_MODULES . "$page/language/".$_SESSION['language']."/$file.php")) {
+      include_once       (DIR_FS_MODULES . "$page/language/".$_SESSION['language']."/$file.php");
+	} elseif (file_exists(DIR_FS_MODULES . "$page/language/en_us/$file.php")) {
+      include_once       (DIR_FS_MODULES . "$page/language/en_us/$file.php");
 	}
   }
 
   function load_method_language($path, $file = '') {
-    if (file_exists($path . $file . '/language/' . $_SESSION['language'] . '/language.php')) {
-      include_once ($path . $file . '/language/' . $_SESSION['language'] . '/language.php');
-    } elseif (file_exists($path . $file . '/language/en_us/language.php')) {
-      include_once       ($path . $file . '/language/en_us/language.php');
+  	if (!is_dir($path . $file)) return;
+    if (file_exists($path . "$file/language/".$_SESSION['language'].'/language.php')) {
+      include_once ($path . "$file/language/".$_SESSION['language'].'/language.php');
+    } elseif (file_exists($path . "$file/language/en_us/language.php")) {
+      include_once       ($path . "$file/language/en_us/language.php");
     }
   }
 
   function load_all_methods($module, $active_only = true, $inc_select = false) {
     $choices     = array();
 	if (!$module) return $choices;
-    $method_dir  = DIR_FS_MODULES . $module . '/methods/';
+    $method_dir  = DIR_FS_MODULES . "$module/methods/";
 	if ($inc_select) $choices[] = array('id' => '0', 'text' => GEN_HEADING_PLEASE_SELECT);
     if ($methods = @scandir($method_dir)) foreach ($methods as $method) {
-	  if ($method == '.' || $method == '..') continue;
+	  if ($method == '.' || $method == '..' || !is_dir($method_dir . $method)) continue;
 	  if ($active_only && !defined('MODULE_' . strtoupper($module) . '_' . strtoupper($method) . '_STATUS')) continue;
 	  load_method_language($method_dir, $method);
 	  include_once($method_dir . $method . '/' . $method . '.php');

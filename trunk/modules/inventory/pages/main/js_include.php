@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -733,13 +732,13 @@ function addFilterRow(){
 }
 
 function buildSelect(selElement, value, id) {
-	  for (i=0; i<value.length; i++) {
-		newOpt = document.createElement("option");
-		newOpt.text = value[i];
-		document.getElementById(selElement).options.add(newOpt);
-		document.getElementById(selElement).options[i].value = id[i];
-	  }
-	}
+  for (i=0; i<value.length; i++) {
+	newOpt = document.createElement("option");
+	newOpt.text = value[i];
+	document.getElementById(selElement).options.add(newOpt);
+	document.getElementById(selElement).options[i].value = id[i];
+  }
+}
 
 function removeFilterRow(rowCnt) {
 	$('#'+rowCnt).remove();

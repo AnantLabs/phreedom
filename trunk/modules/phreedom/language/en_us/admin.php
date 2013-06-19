@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -39,6 +38,8 @@ define('TEXT_ENGINE','DB Engine');
 define('TEXT_NUM_ROWS','Number of Rows');
 define('TEXT_COLLATION','Collation');
 define('TEXT_NEXT_ID','Next Row ID');
+define('TEXT_USE_IN_FILTER','Use in inventory filter');
+define('TEXT_SETTINGS','Settings');
 
 // Defines for login screen
 define('HEADING_TITLE', 'PhreeBooks Login');

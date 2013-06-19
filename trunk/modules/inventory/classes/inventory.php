@@ -1,4 +1,21 @@
 <?php
+// +-----------------------------------------------------------------+
+// |                   PhreeBooks Open Source ERP                    |
+// +-----------------------------------------------------------------+
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
+// +-----------------------------------------------------------------+
+// | This program is free software: you can redistribute it and/or   |
+// | modify it under the terms of the GNU General Public License as  |
+// | published by the Free Software Foundation, either version 3 of  |
+// | the License, or any later version.                              |
+// |                                                                 |
+// | This program is distributed in the hope that it will be useful, |
+// | but WITHOUT ANY WARRANTY; without even the implied warranty of  |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
+// | GNU General Public License for more details.                    |
+// +-----------------------------------------------------------------+
+//  Path: /modules/inventory/classes/inventory.php
+//
 
 class inventory {
 	public $inventory_type			= '';
@@ -35,12 +52,12 @@ class inventory {
 		}
 	}
 	
-	function get_item_by_id($id){
+	function get_item_by_id($id) {
 		global $db;
 		$this->id = $id;
-		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where id = '" . $id  . "'");
-		if($result->RecordCount()!=0) foreach ($result->fields as $key => $value) {
-			if(is_null($value)) $this->$key = '';
+		$result = $db->Execute("SELECT * FROM ".TABLE_INVENTORY." WHERE id = '" . $id  . "'");
+		if ($result->RecordCount() != 0) foreach ($result->fields as $key => $value) {
+			if (is_null($value)) $this->$key = '';
 			else $this->$key = $value;
 		}
 		$this->attachments = $result->fields['attachments'] ? unserialize($result->fields['attachments']) : array();

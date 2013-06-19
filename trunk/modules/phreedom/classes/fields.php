@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -62,7 +61,7 @@ class fields {
 	}
 	// if the id is empty then check for duplicate field names
 	if($this->id == ''){
-	   $result = $db->Execute("select id from " . TABLE_EXTRA_FIELDS . " where module_id='$this->module' and field_name='" . $this->field_name . "'");
+	   $result = $db->Execute("SELECT id FROM ".TABLE_EXTRA_FIELDS." WHERE module_id='$this->module' AND field_name='$this->field_name'");
 	   if ($result->RecordCount() > 0 && $this->id ==''){ 
 	       $messageStack->add(ASSETS_ERROR_FIELD_DUPLICATE,'error');
 	       $this->error = true;
@@ -71,9 +70,7 @@ class fields {
 	}
 	// condense the type array to a single string.
     while ($type = array_shift($this->type_array)){
-        if (db_prepare_input($_POST['type_'. $type['id']]) == true){
-            $temp_type .= $type['id'].':';
-        }
+        if (db_prepare_input($_POST['type_'. $type['id']]) == true) $temp_type .= $type['id'].':';
     }
 	$values = array();
 	$params = array(
@@ -268,7 +265,7 @@ class fields {
   function build_form_html($action, $id = '') {
     global $db, $messageStack, $currencies, $integer_lengths, $decimal_lengths, $check_box_choices;
 	if ($action <> 'new' && $this->error == false) {
-	   $result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS . " where id = '" . $this->id  . "'");
+	   $result = $db->Execute("select * from ".TABLE_EXTRA_FIELDS." where id='$this->id'");
 	   $params = unserialize($result->fields['params']);
 	   foreach ($result->fields as $key => $value) $this->$key = $value;
 	   if (is_array($params)) foreach ($params as $key => $value) $this->$key = $value;
@@ -314,7 +311,7 @@ class fields {
 	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
 	$output .= '  <thead class="ui-widget-header">' . "\n";
 	$output .= '  <tr>' . chr(10);
-	$output .= '    <th colspan="2">' . ($action=='new' ? TEXT_NEW_FIELD : TEXT_EDIT_FIELD) . '</th>' . chr(10);
+	$output .= '    <th colspan="2">' . ($action=='new' ? TEXT_NEW_FIELD : TEXT_SETTINGS) . '</th>' . chr(10);
     $output .= '  </tr>' . chr(10);
 	$output .= '  </thead>' . "\n";
 	$output .= '  <tbody class="ui-widget-content">' . "\n";
@@ -505,11 +502,11 @@ class fields {
   	global $db;
   	$values = array();
   	if($this->type_params == '' && $type == null ) return $values;
-	$result = $db->Execute("select params, field_name from ".TABLE_EXTRA_FIELDS." where module_id='".$this->module."'");
+	$result = $db->Execute("SELECT params, field_name FROM ".TABLE_EXTRA_FIELDS." WHERE module_id='".$this->module."'");
 	while (!$result->EOF) {
 		$xtra_params = unserialize($result->fields['params']);
   		$temp = explode(':',$xtra_params[$this->type_params]);
-	    if(!in_array($type,$temp)) $values [] = $result->fields['field_name'];
+	    if(!in_array($type, $temp)) $values [] = $result->fields['field_name'];
   		$result->MoveNext();
 	}
 	return $values;

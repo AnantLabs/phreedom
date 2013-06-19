@@ -198,10 +198,74 @@ class inventory_admin {
   }
 
   function install($module) {
+	global $db;
 	$error = false;
 	$this->notes[] = MODULE_INVENTORY_NOTES_1;
 	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 	xtra_field_sync_list('inventory', TABLE_INVENTORY);
+	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory' and tab_id = '0'"); 
+	while (!$result->EOF) {
+		$temp = unserialize($result->fields['params']);
+		switch($result->fields['field_name']){
+			case 'serialize':
+				$temp['inventory_type'] = 'sa:sr'; 	
+				break;
+			case 'account_sales_income':
+			case 'item_taxable':
+	  		case 'purch_taxable':
+	  		case 'item_cost':
+	  		case 'price_sheet':
+	  		case 'price_sheet_v':
+	  		case 'full_price':
+	  		case 'full_price_with_tax':
+	  		case 'product_margin':
+				$temp['inventory_type'] = 'ci:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+	  			break;
+	  		case 'image_with_path':
+	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+	  			break;
+	  		case 'account_inventory_wage':
+	  		case 'account_cost_of_sales':
+	  			$temp['inventory_type'] = 'ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+	  			break;
+	  		case 'cost_method':
+	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:si';
+	  			break;
+	  		case 'item_weight':
+	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+	  			break;
+	  		case 'quantity_on_hand':
+	  		case 'minimum_stock_level':
+	  		case 'reorder_quantity':
+	  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+	  			break;
+	  		case 'quantity_on_order':
+	  		case 'quantity_on_allocation':
+	  			$temp['inventory_type'] = 'ia:mi:sa:si:sr';
+	  			break;
+	  		case 'quantity_on_sales_order':
+	  			$temp['inventory_type'] = 'ia:ma:mi:sa:si:sr';
+	  			break;
+	  		case 'lead_time':
+	  			$temp['inventory_type'] = 'ai:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+	  			break;
+	  		case 'upc_code':
+	  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+	  			break; 
+	  		default:
+	  			$temp['inventory_type'] = 'ai:ci:ds:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+		}
+    	$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set params = '" . serialize($temp) . "' where id = '".$result->fields['id']."'");
+    	$result->MoveNext();
+	}
+	$haystack = array('attachments', 'account_sales_income', 'item_taxable', 'purch_taxable', 'image_with_path', 'account_inventory_wage', 'account_cost_of_sales', 'cost_method', 'lead_time');
+	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory'");
+	while (!$result->EOF) {
+		$use_in_inventory_filter = '1';
+		if(in_array($result->fields['field_name'], $haystack)) $use_in_inventory_filter = '0';
+		$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set use_in_inventory_filter = '".$use_in_inventory_filter."' where id = '".$result->fields['id']."'");
+		$result->MoveNext();
+	}
     return $error;
   }
 
@@ -401,6 +465,29 @@ class inventory_admin {
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY_ASSY_LIST . " VALUES (13, 18, 'MB-ATI-K8N', 'ATI K8 Motherboard w/network', 1);");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY_ASSY_LIST . " VALUES (14, 18, 'CASE-ALIEN', 'Alien Case - Red', 1);");
 	$db->Execute("INSERT INTO " . TABLE_INVENTORY_ASSY_LIST . " VALUES (15, 18, 'VID-NV-512MB', 'nVidea 512 MB Video Card', 1);");
+	// data for table inventory_purchase_details
+	$db->Execute("TRUNCATE TABLE " . TABLE_INVENTORY_PURCHASE);
+	$db->Execute("INSERT INTO " . TABLE_INVENTORY_PURCHASE . " (`id`, `sku`, `vendor_id`, `description_purchase`, `purch_taxable`, `item_cost`, `price_sheet_v`) VALUES
+(1, 'AMD-3600-CPU', 3, 'AMD 3600+ Athlon CPU', 0, 100, ''),
+(2, 'ASSY-BB', 0, 'Labor Cost - Assemble Bare Bones Computer', 0, 25, ''),
+(3, 'BOX-TW-322', 0, 'TW-322 Shipping Box - 12 x 12 x 12', 0, 1.35, ''),
+(4, 'BOX-TW-553', 0, 'TW-533 Shipping Box - 24 x 12 x 12', 0, 1.75, ''),
+(5, 'CASE-ALIEN', 13, 'Closed Cases - Red Full Tower ATX case w/o power supply', 0, 47, ''),
+(6, 'DESC-WARR', 0, 'Warranty Template', 0, 0, ''),
+(7, 'DVD-RW', 15, 'DVD RW with Lightscribe - 8x', 0, 23.6, ''),
+(8, 'HD-150GB', 15, '150GB SATA Hard Drive - 7200 RPM', 0, 27, ''),
+(9, 'KB-128-ERGO', 11, 'KeysRus ergonomic keyboard - Lighted for Gaming', 1, 23.51, ''),
+(10, 'LCD-21-WS', 5, 'LCDisplays 21\" LCD Monitor - wide screen w/anti-glare finish, Black', 0, 145.01, ''),
+(11, 'MB-ATI-K8', 3, 'ATI-K8-TW AMD socket 939 Motherboard for Athlon Processors', 0, 125, ''),
+(12, 'MB-ATI-K8N', 3, 'ATI-K8-TW AMD socket 939 Motherboard for Athlon Processors with network ports', 0, 135, ''),
+(13, 'Mouse-S', 11, 'Serial Mouse - 300 DPI', 0, 4.85, ''),
+(14, 'PC-2GB-120GB-21', 0, 'Fully assembled computer AMD/ATI 2048GB Ram/1282 GB HD/Red Case/ Monitor/ Keyboard/ Mouse', 0, 0, ''),
+(15, 'PS-450W', 14, '850 Watt Silent Power Supply - for use with Intel or AMD processors', 0, 86.26, ''),
+(16, 'RAM-2GB-0.2', 3, '2 GB PC3200 Memory Modules - for Athlon processors', 0, 56.25, ''),
+(17, 'VID-NV-512MB', 1, 'nVidea 512 MB Video Card - with SLI support', 0, 0, ''),
+(18, 'PC-BB-512', 0, 'Fully assembled bare bones computer AMD/ATI 512MB/2GB/Red Case', 0, 0, '');
+	");
+	
 	// copy the demo images
 	require(DIR_FS_MODULES . 'phreedom/classes/backup.php');
 	$backups = new backup;

@@ -44,6 +44,11 @@ class ma extends inventory { //Item Assembly formerly know as 'as' but this resu
 		$this->allow_edit_bom = (($result->fields['last_journal_date'] == '0000-00-00 00:00:00' || $result->fields['last_journal_date'] == '') && ($result->fields['quantity_on_hand'] == 0|| $result->fields['quantity_on_hand'] == '')) ? true : false;
 	}
 	
+	function remove(){
+		global $db;
+		parent::remove();
+		$db->Execute("delete from " . TABLE_INVENTORY_ASSY_LIST . " where sku = '" . $this->sku . "'");
+	}
 	
 	function save(){
 		global $db, $currencies, $messageStack;

@@ -752,10 +752,6 @@ function TableStartValues( rowCnt, valueFilterField, valueCriteriaField, valueVa
 	document.getElementById('filter_value'+ rowCnt ).value = valueValueField;
 }
 
-$(document).ready(function(){
-//	$("#tb_search_0").hide() ;
-});
-
 <?php if ($include_template == 'template_main.php'){?>
 $(document).keydown(function(e) {
     if(e.keyCode == 13) {

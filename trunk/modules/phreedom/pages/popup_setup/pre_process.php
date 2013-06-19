@@ -47,8 +47,6 @@ switch ($action) {
 /*****************   prepare to display templates  *************************/
 $include_header   = false;
 $include_footer   = false;
-$include_tabs     = false;
-$include_calendar = false;
 $include_template = 'template_main.php';
 define('PAGE_TITLE', $subject_module->title);
 

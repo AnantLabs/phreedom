@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -45,15 +44,15 @@ $f1 = $_GET['f1'] = isset($_POST['f1']) ? $_POST['f1'] : $_GET['f1']; // invento
 $id = isset($_POST['rowSeq']) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['cID']);
 $type = db_prepare_input($_POST['inventory_type']);
 // getting the right inventory type.
-if(is_null($type)){
-	$result = $db->Execute("select inventory_type from " . TABLE_INVENTORY . " where id = '" . $id  . "'");
-	if($result->RecordCount()>0) $type = $result->fields['inventory_type'];
+if (is_null($type)){
+	$result = $db->Execute("SELECT inventory_type FROM ".TABLE_INVENTORY." WHERE id='$id'");
+	if ($result->RecordCount()>0) $type = $result->fields['inventory_type'];
 	else $type ='si';
 } 
-if($type == 'as') $type = 'ma'; 
+if ($type == 'as') $type = 'ma'; 
 if (file_exists(DIR_FS_WORKING . 'custom/classes/type/'.$type.'.php')) { 
 	require_once(DIR_FS_WORKING . 'custom/classes/type/'.$type.'.php'); 
-}else{
+} else {
 	require_once(DIR_FS_WORKING . 'classes/type/'.$type.'.php'); // is needed here for the defining of the class and retriving the security_token
 }
 $cInfo = new $type();
@@ -159,7 +158,6 @@ $js_tax_rates = 'var tax_rates = new Array(' . count($tax_rates) . ');' . chr(10
 for ($i = 0; $i < count($tax_rates); $i++) {
   $js_tax_rates .= 'tax_rates[' . $i . '] = new tax("' . $tax_rates[$i]['id'] . '", "' . $tax_rates[$i]['text'] . '", "' . $tax_rates[$i]['rate'] . '");' . chr(10);
 }
-
 
 // load gl accounts
 $gl_array_list    = gen_coa_pull_down();

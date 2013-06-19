@@ -66,6 +66,7 @@ class inventory_admin {
 	$this->dirlist = array(
 	  'inventory',
 	  'inventory/images',
+	  'inventory/attachments',
 	);
 	// Load tables
 	$this->tables = array(
@@ -203,61 +204,62 @@ class inventory_admin {
 	$this->notes[] = MODULE_INVENTORY_NOTES_1;
 	require_once(DIR_FS_MODULES . 'phreedom/functions/phreedom.php');
 	xtra_field_sync_list('inventory', TABLE_INVENTORY);
-	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory' and tab_id = '0'"); 
+	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory' and tab_id = '0'");
 	while (!$result->EOF) {
 		$temp = unserialize($result->fields['params']);
 		switch($result->fields['field_name']){
 			case 'serialize':
-				$temp['inventory_type'] = 'sa:sr'; 	
+				$temp['inventory_type'] = 'sa:sr';
 				break;
 			case 'account_sales_income':
 			case 'item_taxable':
-	  		case 'purch_taxable':
-	  		case 'item_cost':
-	  		case 'price_sheet':
-	  		case 'price_sheet_v':
-	  		case 'full_price':
-	  		case 'full_price_with_tax':
-	  		case 'product_margin':
+			case 'purch_taxable':
+			case 'item_cost':
+			case 'price_sheet':
+			case 'price_sheet_v':
+			case 'full_price':
+			case 'full_price_with_tax':
+			case 'product_margin':
 				$temp['inventory_type'] = 'ci:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
-	  			break;
-	  		case 'image_with_path':
-	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
-	  			break;
-	  		case 'account_inventory_wage':
-	  		case 'account_cost_of_sales':
-	  			$temp['inventory_type'] = 'ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
-	  			break;
-	  		case 'cost_method':
-	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:si';
-	  			break;
-	  		case 'item_weight':
-	  			$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
-	  			break;
-	  		case 'quantity_on_hand':
-	  		case 'minimum_stock_level':
-	  		case 'reorder_quantity':
-	  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
-	  			break;
-	  		case 'quantity_on_order':
+				break;
+			case 'image_with_path':
+				$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+				break;
+			case 'account_inventory_wage':
+			case 'account_cost_of_sales':
+				$temp['inventory_type'] = 'ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+				break;
+			case 'cost_method':
+				$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:si';
+				break;
+			case 'item_weight':
+				$temp['inventory_type'] = 'ia:ma:mb:mi:ms:ns:sa:si:sr';
+				break;
+			case 'quantity_on_hand':
+			case 'minimum_stock_level':
+			case 'reorder_quantity':
+				$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+				break;
+			case 'quantity_on_order':
 	  		case 'quantity_on_allocation':
-	  			$temp['inventory_type'] = 'ia:mi:sa:si:sr';
-	  			break;
-	  		case 'quantity_on_sales_order':
-	  			$temp['inventory_type'] = 'ia:ma:mi:sa:si:sr';
-	  			break;
-	  		case 'lead_time':
-	  			$temp['inventory_type'] = 'ai:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
-	  			break;
-	  		case 'upc_code':
-	  			$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
-	  			break; 
-	  		default:
-	  			$temp['inventory_type'] = 'ai:ci:ds:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+				$temp['inventory_type'] = 'ia:mi:sa:si:sr';
+				break;
+			case 'quantity_on_sales_order':
+				$temp['inventory_type'] = 'ia:ma:mi:sa:si:sr';
+				break;
+			case 'lead_time':
+				$temp['inventory_type'] = 'ai:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
+				break;
+			case 'upc_code':
+				$temp['inventory_type'] = 'ia:ma:mi:ns:sa:si:sr';
+				break;
+			default:
+				$temp['inventory_type'] = 'ai:ci:ds:ia:lb:ma:mb:mi:ms:ns:sa:sf:si:sr:sv';
 		}
-    	$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set params = '" . serialize($temp) . "' where id = '".$result->fields['id']."'");
-    	$result->MoveNext();
+		$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set params = '" . serialize($temp) . "' where id = '".$result->fields['id']."'");
+		$result->MoveNext();
 	}
+	// set the fields to view in the inventory field filters 
 	$haystack = array('attachments', 'account_sales_income', 'item_taxable', 'purch_taxable', 'image_with_path', 'account_inventory_wage', 'account_cost_of_sales', 'cost_method', 'lead_time');
 	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS ." where module_id = 'inventory'");
 	while (!$result->EOF) {
@@ -266,6 +268,7 @@ class inventory_admin {
 		$updateDB = $db->Execute("update " . TABLE_EXTRA_FIELDS . " set use_in_inventory_filter = '".$use_in_inventory_filter."' where id = '".$result->fields['id']."'");
 		$result->MoveNext();
 	}
+	
     return $error;
   }
 
@@ -390,7 +393,7 @@ class inventory_admin {
 	  		}
 		}
 		require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
-		$tax_rates        = ord_calculate_tax_drop_down('c');
+		$tax_rates = ord_calculate_tax_drop_down('c');
 		$result = $db->Execute("select id, item_taxable, full_price, item_cost from " . TABLE_INVENTORY);
 		while(!$result->EOF){
 			$sql_data_array = array();
@@ -399,7 +402,6 @@ class inventory_admin {
 			db_perform(TABLE_INVENTORY, $sql_data_array, 'update', "id = " . $result->fields['id']);
 			$result->MoveNext();
 		}
-		
 	  	mkdir(DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/attachments/', 0755, true);
 	}
 	if (!$error) {

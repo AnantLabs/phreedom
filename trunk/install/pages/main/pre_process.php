@@ -89,7 +89,7 @@ switch ($action) {
 		}
 		//Check for OpenSSL support (only relevant for Apache
 		if (@!extension_loaded('openssl')) {
-	  $error = $messageStack->add(INSTALL_ERROR_OPENSSL, 'caution');
+	  $caution = $messageStack->add(INSTALL_ERROR_OPENSSL, 'caution');
 		}
 		//Check for cURL support (ie: for payment/shipping gateways)
 		if (@!extension_loaded('curl')) {

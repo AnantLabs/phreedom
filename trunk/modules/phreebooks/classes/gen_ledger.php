@@ -750,6 +750,11 @@ class journal {
 	  if ($item_cost) $sql .= "item_cost = " . $item_cost . ", ";
 	  $sql .= "last_journal_date = now() where sku = '" . $sku . "'";
 	  $result = $db->Execute($sql);
+	  if ($item_cost){
+	  	$sql = "update " . TABLE_INVENTORY_PURCHASE . " set item_cost = " . $item_cost;
+	  	$sql .= " where sku = '" . $sku . "' and vendor_id = '".$this->bill_acct_id."'";
+	  	$result = $db->Execute($sql);
+	  }
 	}
 	return true;
   }

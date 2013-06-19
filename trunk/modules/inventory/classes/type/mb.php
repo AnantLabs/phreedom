@@ -140,10 +140,22 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 	
 	function remove(){
 		global $db;
+		$ms_array = $db->Execute("select * from " . TABLE_INVENTORY . " where sku like '" . $this->sku . "-%'");
 		parent::remove();
 		$db->Execute("delete from " . TABLE_INVENTORY_MS_LIST . " where sku = '" . $this->sku . "'");
 		$db->Execute("delete from " . TABLE_INVENTORY . " where sku like '" . $this->sku . "-%'");
 		$db->Execute("delete from " . TABLE_INVENTORY_PURCHASE . " where sku like '" . $this->sku . "-%'");
+		$db->Execute("delete from " . TABLE_INVENTORY_ASSY_LIST . " where sku = '" . $this->sku . "'");
+		while(!$ms_array->EOF){
+			if($ms_array->fields['image_with_path'] != ''){
+				$result = $db->Execute("select * from " . TABLE_INVENTORY . " where image_with_path = '" . $ms_array->fields['image_with_path'] ."'");
+	  			if ( $result->RecordCount() == 0){ // delete image
+					$file_path = DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/images/';
+					if (file_exists($file_path . $ms_array->fields['image_with_path'])) unlink ($file_path . $ms_array->fields['image_with_path']);
+	  			}
+			}
+			$ms_array->MoveNext();
+		}
 	}
 	
 	function save(){

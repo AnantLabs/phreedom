@@ -87,7 +87,7 @@ switch ($action) {
 	
   case 'edit':
   case 'properties':
-	$cInfo->get_item_by_id($id);
+	if(!$error) $cInfo->get_item_by_id($id);
 	break;
 
   case 'rename':

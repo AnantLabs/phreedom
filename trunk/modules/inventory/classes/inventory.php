@@ -286,10 +286,13 @@ class inventory {
 	function remove(){
 		global $db;
 		$db->Execute("delete from " . TABLE_INVENTORY . " where id = " . $this->id);
-	  	if ($this->image_with_path) { // delete image
-			$file_path = DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/images/';
-			if (file_exists($file_path . $this->image_with_path)) unlink ($file_path . $this->image_with_path);
-	  	}
+		if($this->image_with_path != '') {
+			$result = $db->Execute("select * from " . TABLE_INVENTORY . " where image_with_path = '" . $this->image_with_path ."'");
+	  		if ( $result->RecordCount() == 0) { // delete image
+				$file_path = DIR_FS_MY_FILES . $_SESSION['company'] . '/inventory/images/';
+				if (file_exists($file_path . $this->image_with_path)) unlink ($file_path . $this->image_with_path);
+	  		}
+		}
 	  	$db->Execute("delete from " . TABLE_INVENTORY_SPECIAL_PRICES . " where inventory_id = '" . $this->id . "'");
 	  	$db->Execute("delete from " . TABLE_INVENTORY_PURCHASE . " where sku = '" . $this->sku . "'");
 		gen_add_audit_log(INV_LOG_INVENTORY . TEXT_DELETE, $this->sku);

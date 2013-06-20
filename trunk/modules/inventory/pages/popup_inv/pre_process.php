@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -29,8 +28,8 @@ $contactID    = isset($_GET['cID'])     ? $_GET['cID']     : 0;
 $assembly     = isset($_GET['asy'])     ? true             : false;
 // load the filters
 $f0 = $_GET['f0'] = isset($_POST['f0']) ? $_POST['f0'] : $_GET['f0']; // show inactive checkbox
-$f1 = $_GET['f0'] = isset($_POST['f1']) ? $_POST['f1'] : $_GET['f1']; // inventory_type dropdown
-$f2 = $_GET['f0'] = isset($_POST['f2']) ? $_POST['f2'] : $_GET['f2']; // limit to preferred_vendor checkbox
+$f1 = $_GET['f1'] = isset($_POST['f1']) ? $_POST['f1'] : $_GET['f1']; // inventory_type dropdown
+$f2 = $_GET['f2'] = isset($_POST['f2']) ? $_POST['f2'] : $_GET['f2']; // limit to preferred_vendor checkbox
 // save the filters for page jumps
 $_GET['f0'] = $f0;
 $_GET['f1'] = $f1;

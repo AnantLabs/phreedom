@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -24,7 +23,6 @@ class inventory_tabs extends tabs{
     public  $module      = 'inventory';
     public  $title       = '';
     public  $extra_buttons = '';
-
 }
 
 ?>

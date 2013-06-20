@@ -20,11 +20,11 @@ class phreebooks_admin {
   function __construct() {
 	$this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'  => '3.4',
-	  'contacts'  => '3.6',
-	  'inventory' => '3.4',
-	  'payment'   => '3.4',
-	  'phreeform' => '3.4',
+	  'phreedom'  => '3.6',
+	  'contacts'  => '3.7.1',
+	  'inventory' => '3.6',
+	  'payment'   => '3.6',
+	  'phreeform' => '3.6',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -327,9 +327,18 @@ class phreebooks_admin {
 	  }
 	  $db_version = '3.3';
 	}
-	if ($db_version == '3.3') {
+	if ($db_version < '3.4') {
 	  if (!db_field_exists(TABLE_JOURNAL_ITEM, 'item_cnt')) $db->Execute("ALTER TABLE ".TABLE_JOURNAL_ITEM." ADD item_cnt INT(11) NOT NULL DEFAULT '0' AFTER ref_id");
 	  $db_version = '3.4';
+	}
+	if ($db_version < '3.5.1') {
+		$result = $db->Execute("SELECT id, so_po_ref_id FROM ".TABLE_JOURNAL_MAIN." WHERE journal_id = 16 AND so_po_ref_id > 0");
+		while(!$result->EOF) { // to fix transfers to store 0 from any other store
+			if ($result->fields['so_po_ref_id'] > $result->fields['id']) {
+				$db->Execute("UPDATE ".TABLE_JORNAL_MAIN." SET so_po_ref_id = -1 WHERE id=".$result->fields['id']);
+			}
+			$result->MoveNext();
+		}
 	}
 	if (!$error) {
 	  write_configure('MODULE_'.strtoupper($module).'_STATUS', constant('MODULE_'.strtoupper($module).'_VERSION'));

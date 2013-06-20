@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -123,7 +122,7 @@ class contacts {
   	global $db; 
   	if ( $this->id == '' ) $this->id = $id;
 	// error check, no delete if a journal entry exists
-	$result = $db->Execute("select id from ".TABLE_JOURNAL_MAIN." where bill_acct_id =". $this->id." or ship_acct_id =". $this->id ." or store_id =". $this->id ."limit 1");
+	$result = $db->Execute("SELECT id FROM ".TABLE_JOURNAL_MAIN." WHERE bill_acct_id=$this->id OR ship_acct_id=$this->id OR store_id=$this->id LIMIT 1");
 	if ($result->RecordCount() == 0) {
 	  return $this->do_delete();
 	}
@@ -132,10 +131,10 @@ class contacts {
   
   public function do_delete(){
 	  global $db; // ajax nog controleren
-	  $db->Execute("delete from ".TABLE_ADDRESS_BOOK ." where ref_id =". $this->id);
-	  $db->Execute("delete from ".TABLE_DATA_SECURITY." where ref_1 =". $this->id);
-	  $db->Execute("delete from ".TABLE_CONTACTS     ." where id =". $this->id);
-	  $db->Execute("delete from ".TABLE_CONTACTS_LOG ." where contact_id =". $this->id);
+	  $db->Execute("DELETE FROM ".TABLE_ADDRESS_BOOK ." WHERE ref_id=$this->id");
+	  $db->Execute("DELETE FROM ".TABLE_DATA_SECURITY." WHERE ref_1=$this->id");
+	  $db->Execute("DELETE FROM ".TABLE_CONTACTS     ." WHERE id=$this->id");
+	  $db->Execute("DELETE FROM ".TABLE_CONTACTS_LOG ." WHERE contact_id=$this->id");
 	  foreach (glob(CONTACTS_DIR_ATTACHMENTS.'contacts_'.$this->id.'_*.zip') as $filename) unlink($filename); // remove attachments
 	  return true;
   }

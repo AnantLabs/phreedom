@@ -254,8 +254,8 @@ class entry_builder {
 	  load_specific_method('shipping', $carrier);
 	  $this->ship_carrier = constant('MODULE_SHIPPING_' . strtoupper($carrier) . '_TITLE_SHORT');
 	  $this->ship_service = defined($carrier . '_' . $shipping_info[1]) ? constant($carrier . '_' . $shipping_info[1]) : '';
-	  $result = $db->Execute("select tracking_id from " . TABLE_SHIPPING_LOG . " 
-	    where ref_id = ".$this->purchase_invoice_id." or ref_id like '".$this->purchase_invoice_id."-%'");
+	  $result = $db->Execute("SELECT tracking_id FROM ".TABLE_SHIPPING_LOG." 
+	    WHERE ref_id='$this->purchase_invoice_id' OR ref_id LIKE '".$this->purchase_invoice_id."-%'");
 	  if ($result->RecordCount() > 0) {
 	    $tracking = array();
 		while(!$result->EOF) {

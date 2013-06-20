@@ -56,14 +56,13 @@ echo $toolbar->build_toolbar($add_search = false);
  </tbody>
  <tfoot>
  	<tr>
- 		<th></th>
- 		<th>
- 		<?php echo html_icon('actions/list-add.png', TEXT_ADD, 'medium', 'onclick="addFilterRow()"'); ?>
+ 		<td><?php echo html_icon('actions/list-add.png', TEXT_ADD, 'medium', 'onclick="addFilterRow()"'); ?></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+ 		<td style="text-align:right">
 		<?php echo html_icon('actions/system-search.png', TEXT_SEARCH, 'medium', 'onclick="submitToDo(\'filter\')"') ?>
 		<?php if($_POST['filter_field']) echo html_icon('actions/view-refresh.png', TEXT_RESET, 'small', 'onclick="location.href = \'index.php?' . gen_get_all_get_params(array('search_text', 'search_period', 'search_date', 'list', 'action')) . '\';" style="cursor:pointer;"');?>
-		</th>
-		<th></th>
-		<th></th>
+		</td>
  	</tr>
  </tfoot>
 </table>
@@ -87,13 +86,13 @@ echo $toolbar->build_toolbar($add_search = false);
 	  $bkgnd = ($query_result->fields['inactive']) ? ' style="background-color:pink"' : '';
 ?>
    <tr class="<?php echo $odd?'odd':'even'; ?>" style="cursor:pointer">
-	<td <?php echo $bkgnd; ?> onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['sku']; ?></td>
-	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo ($query_result->fields['inactive']=='0' ? '' : TEXT_YES); ?></td>
-	<td                       onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['description_short']; ?></td>
-	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $qty_in_stock; ?></td>
-	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_sales_order']; ?></td>
-	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_allocation']; ?></td>
-	<td align="center"        onclick="window.open('<?php echo html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL'); ?>','_blank')"><?php echo $query_result->fields['quantity_on_order']; ?></td>
+	<td <?php echo $bkgnd; ?> onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $query_result->fields['sku']; ?></td>
+	<td align="center"        onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo ($query_result->fields['inactive']=='0' ? '' : TEXT_YES); ?></td>
+	<td                       onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $query_result->fields['description_short']; ?></td>
+	<td align="center"        onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $qty_in_stock; ?></td>
+	<td align="center"        onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_sales_order']; ?></td>
+	<td align="center"        onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_allocation']; ?></td>
+	<td align="center"        onclick="submitSeq(<?php echo $query_result->fields['id'].', \'edit\''; ?>)"><?php echo $query_result->fields['quantity_on_order']; ?></td>
 	<td align="right">
 <?php // build the action toolbar
 	  if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);

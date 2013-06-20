@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -21,9 +20,9 @@ class inventory_admin {
   function __construct() {
     $this->notes = array();
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'contacts'   => '3.6',
-	  'phreedom'   => '3.4',
-	  'phreebooks' => '3.4',
+	  'contacts'   => '3.7.1',
+	  'phreedom'   => '3.6',
+	  'phreebooks' => '3.6',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -394,7 +393,7 @@ class inventory_admin {
 		}
 		require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 		$tax_rates = ord_calculate_tax_drop_down('c');
-		$result = $db->Execute("select id, item_taxable, full_price, item_cost from " . TABLE_INVENTORY);
+		$result = $db->Execute("SELECT id, item_taxable, full_price, item_cost FROM ".TABLE_INVENTORY);
 		while(!$result->EOF){
 			$sql_data_array = array();
 			$sql_data_array['full_price_with_tax'] = round((1 +($tax_rates[$result->fields['item_taxable']]['rate']/100))  * $result->fields['full_price'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);

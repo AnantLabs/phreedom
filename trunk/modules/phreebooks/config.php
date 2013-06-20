@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -24,8 +23,9 @@
 // 3.3 => 2011-11-15 - Bug fixes, themeroller changes
 // 3.4 => 2012-02-15 - Bug fixes
 // 3.5 => 2012-10-01 - bug fixes
+// 3.6 => 2013-06-30 - bug fixes
 // Module software version information
-define('MODULE_PHREEBOOKS_VERSION',    '3.5');
+define('MODULE_PHREEBOOKS_VERSION',    '3.6');
 // Menu Sort Positions
 define('MENU_HEADING_BANKING_ORDER',      40);
 define('MENU_HEADING_GL_ORDER',           50);

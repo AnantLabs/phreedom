@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -24,7 +23,7 @@
 // 3.3 => 2012-11 compleet rewrite
 // 3.4 => 2012-12 added other transactions
 // 3.5 => 2013-04 bug fix    
-// 3.6 => 2013-05 bug fix and added function to check if payments are set properly before page is loaded
+// 3.6 => 2013-06-30 bug fix and added function to check if payments are set properly before page is loaded
 // Module software version information
 define('MODULE_PHREEPOS_VERSION', '3.6');
 // Menu Sort Positions

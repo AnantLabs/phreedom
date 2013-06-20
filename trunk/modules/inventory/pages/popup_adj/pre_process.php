@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -76,20 +75,18 @@ $field_list = array('m.id', 'm.purchase_invoice_id', 'm.post_date', 'm.store_id'
 	'i.sku', 'count(i.sku) as sku_cnt', 'i.description');
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-$filters[] = 'i.gl_type = \'adj\'';
+$filters[] = "i.gl_type = 'adj'";
 $filters[] = 'm.journal_id = 16';
-$filters[] = ($adj_type == 'xfr') ? 'm.so_po_ref_id > 0' : 'm.so_po_ref_id = 0';
-if ($adj_type == 'xfr') $filters[] = 'm.bill_acct_id > 0'; // only pull the first record
-$query_raw    = "select distinct " . implode(', ', $field_list) . " 
-	from " . TABLE_JOURNAL_MAIN . " m left join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id 
-	where " . implode(' and ', $filters) . " group by m.id order by $disp_order, m.id";
+$filters[] = ($adj_type == 'xfr') ? 'm.so_po_ref_id = -1' : 'm.so_po_ref_id = 0';
+//if ($adj_type == 'xfr') $filters[] = 'm.bill_acct_id > 0'; // only pull the first record
+$query_raw    = "SELECT DISTINCT " . implode(', ', $field_list) . " 
+	FROM " . TABLE_JOURNAL_MAIN . " m JOIN " . TABLE_JOURNAL_ITEM . " i ON m.id = i.ref_id 
+	WHERE " . implode(' AND ', $filters) . " GROUP BY m.id ORDER BY $disp_order, m.id";
 $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
 $query_result = $db->Execute($query_raw);
 
 $include_header   = false;
 $include_footer   = false;
-$include_tabs     = false;
-$include_calendar = false;
 $include_template = 'template_main.php';
 define('PAGE_TITLE', GEN_HEADING_PLEASE_SELECT);
 ?>

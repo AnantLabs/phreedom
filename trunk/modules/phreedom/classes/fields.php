@@ -208,17 +208,16 @@ class fields {
 	  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 	  return false;
 	}
-	$result = $db->Execute("select * from " . TABLE_EXTRA_FIELDS . " where id = " . $id);
+	$result = $db->Execute("SELECT * FROM ".TABLE_EXTRA_FIELDS." WHERE id=$id");
 	foreach ($result->fields as $key => $value) $this->$key = $value;
-	if ($this->tab_id <> '0') { // don't allow deletion of system fields
-	  $db->Execute("delete from " . TABLE_EXTRA_FIELDS . " where id = " . $this->id);
-	  $db->Execute("alter table " . $this->db_table . " drop column " . $this->field_name);
-	  gen_add_audit_log ($this->module .' '. sprintf(EXTRA_FIELDS_LOG , TEXT_DELETE), $id . ' - ' . $this->field_name);
-	  return true;
-	} else {
+	if ($this->tab_id == '0') { // don't allow deletion of system fields
 	  $messageStack->add_session(INV_CANNOT_DELETE_SYSTEM,'error');
 	  return false;
 	}
+	$db->Execute("DELETE FROM ".TABLE_EXTRA_FIELDS." WHERE id=$this->id");
+	$db->Execute("ALTER TABLE $this->db_table DROP COLUMN $this->field_name");
+	gen_add_audit_log ($this->module.' '.sprintf(EXTRA_FIELDS_LOG, TEXT_DELETE), "$id - $this->field_name");
+	return true;
   }
 
   function build_main_html() {

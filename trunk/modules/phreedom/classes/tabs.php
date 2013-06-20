@@ -65,13 +65,13 @@ class tabs {
 		  $messageStack->add_session(ERROR_NO_PERMISSION,'error');
 		  return false;
 		}
-		$result = $db->Execute("select field_name from " . TABLE_EXTRA_FIELDS . " where tab_id = '" . $this->id . "'");
+		$result = $db->Execute("SELECT field_name FROM ".TABLE_EXTRA_FIELDS." WHERE tab_id='$id'");
 		if ($result->RecordCount() > 0) {
 		  $messageStack->add(INV_CATEGORY_CANNOT_DELETE . $result->fields['field_name'], 'error');
 		  return false;
 		}
-		$result = $db->Execute("select tab_name from " . TABLE_EXTRA_TABS . " where id = '" . $this->id . "'");
-		$db->Execute("delete from " . TABLE_EXTRA_TABS . " where id = " . $this->id);
+		$result = $db->Execute("SELECT tab_name FROM ".TABLE_EXTRA_TABS." WHERE id='$id'");
+		$db->Execute("DELETE FROM ".TABLE_EXTRA_TABS." WHERE id=$id");
 		gen_add_audit_log(sprintf(EXTRA_TABS_LOG, TEXT_DELETE), $result->fields['tab_name']);
 		return true;
 	}

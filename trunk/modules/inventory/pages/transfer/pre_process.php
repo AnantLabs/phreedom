@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -70,6 +69,7 @@ switch ($action) {
 	if (!$error) {
 	  $glEntry                      = new journal();
 	  $glEntry->id                  = isset($_POST['id']) ? $_POST['id'] : '';
+	  $glEntry->so_po_ref_id        = '-1'; // first of 2 adjustments
 	  $glEntry->journal_id          = JOURNAL_ID;
 	  $glEntry->post_date           = $post_date;
 	  $glEntry->period              = gen_calculate_period($post_date);
@@ -136,6 +136,7 @@ switch ($action) {
 	      $glEntry->post_date           = $post_date;
 	      $glEntry->period              = $period;
 	      $glEntry->store_id            = $dest_store_id;
+	      $glEntry->bill_acct_id        = $source_store_id;
 	      $glEntry->admin_id            = $_SESSION['admin_id'];
 	      $glEntry->purchase_invoice_id = db_prepare_input($_POST['purchase_invoice_id']);
 	      $glEntry->closed              = '1'; // closes by default
@@ -182,7 +183,7 @@ switch ($action) {
           );
 	      if (!$glEntry->Post($glEntry->id ? 'edit' : 'insert')) $error = true;
 		  // link first record to second record
-		  $db->Execute("update " . TABLE_JOURNAL_MAIN . " set so_po_ref_id = " . $glEntry->id . " where id = " . $first_id);
+//		  $db->Execute("UPDATE ".TABLE_JOURNAL_MAIN." SET so_po_ref_id=$glEntry->id WHERE id=$first_id");
 	      $db->transCommit();	// post the chart of account values
 	      // *************** END TRANSACTION *************************
 		  gen_add_audit_log(sprintf(INV_LOG_TRANSFER, $source_store_id, $dest_store_id), $sku, $qty);
@@ -206,7 +207,8 @@ switch ($action) {
 	validate_security($security_level, 4); // security check
 	if ($id = $_POST['id']) {
 	  $delOrd = new journal($id);
-	  $xfer_to_id = $delOrd->so_po_ref_id; // save the matching adjust ID
+	  $result = $db->Execute("SELECT id FROM ".TABLE_JOURNAL_MAIN." WHERE so_po_ref_id = $delOrd->id");
+	  $xfer_to_id = $result->fields['id']; // save the matching adjust ID
 	  if (!$xfer_to_id) $error = $messageStack('cannot deltete there is no offsetting record to delete!','error');
 	  if (!$error) {
 	    // *************** START TRANSACTION *************************

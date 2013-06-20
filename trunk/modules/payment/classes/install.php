@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -22,9 +21,9 @@ class payment_admin {
   function __construct() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'contacts'   => '3.6',
-	  'phreedom'   => '3.4',
-	  'phreebooks' => '3.4',
+	  'contacts'   => '3.7.1',
+	  'phreedom'   => '3.6',
+	  'phreebooks' => '3.6',
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array();

@@ -57,6 +57,7 @@ define('RW_EB_GOV_ID_NUMBER','Gov ID Number');
 define('RW_EB_TOTAL_PAID','Amount Paid');
 define('RW_EB_PAYMENT_DATE','Payment Date');
 define('RW_EB_PAYMENT_METHOD','Payment Method');
+define('RW_EB_PAYMENT_AMOUNT','Payment Amount');
 define('RW_EB_PAYMENT_REF','Payment Reference');
 define('RW_EB_BALANCE_DUE','Balance Due');
 define('RW_EB_PAYMENT_DETAIL','Payment Detail');

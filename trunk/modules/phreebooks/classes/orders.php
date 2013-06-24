@@ -400,6 +400,7 @@ class orders extends journal {
 			'taxable'                 => $this->item_rows[$i]['tax'],
 			'serialize_number'        => $this->item_rows[$i]['serial'],
 			'project_id'              => $this->item_rows[$i]['proj'],
+			'purch_package_quantity'  => $this->item_rows[$i]['purch_package_quantity'],
 			'post_date'               => $this->post_date,
 			'date_1'                  => $this->item_rows[$i]['date_1'] ? $this->item_rows[$i]['date_1'] : $terminal_date,
 		  );
@@ -432,7 +433,7 @@ class orders extends journal {
 				  $line_total = $line_total * (1 - $this->disc_percent);
 				}
 				if (ROUND_TAX_BY_AUTH) {
-				  $auth_array[$auth] += round((($tax_auths[$auth]['tax_rate'] / 100) * $line_total), $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
+				  $auth_array[$auth] += number_format(($tax_auths[$auth]['tax_rate'] / 100) * $line_total, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places'], '.', '');
 				} else {
 				  $auth_array[$auth] += ($tax_auths[$auth]['tax_rate'] / 100) * $line_total;
 				}
@@ -454,6 +455,7 @@ class orders extends journal {
 		);
 		$total += $auth_tax_collected;
 	  }
+	  $this->sales_tax = $total;
 	  return $total;
 	} else {
 	  die('bad parameter passed to add_tax_journal_rows in class orders');

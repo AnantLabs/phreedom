@@ -505,7 +505,7 @@ class fields {
 	while (!$result->EOF) {
 		$xtra_params = unserialize($result->fields['params']);
   		$temp = explode(':',$xtra_params[$this->type_params]);
-	    if(!in_array($type, $temp)) $values [] = $result->fields['field_name'];
+	    if(!in_array($type,$temp)) $values [] = $result->fields['field_name'];
   		$result->MoveNext();
 	}
 	return $values;

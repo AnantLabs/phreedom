@@ -134,7 +134,6 @@ function init() {
 	}
   }
 
-  if (journalID == '19') activateFields();
   document.orders.elements['search'].focus();
 
 <?php 

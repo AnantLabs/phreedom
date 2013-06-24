@@ -320,7 +320,14 @@ function fillOrder(xml) {
 		  insertValue('lead_' + jIndex,              $(this).find("lead").text());
 		  insertValue('price_' + jIndex,             unitPrice);
 		  insertValue('total_' + jIndex,             $(this).find("total").text());
-	      if ($(this).find("so_po_item_ref_id").text() || ((journalID == '04' || journalID == '10') && $(this).find("pstd").text())) {
+		  if(journalID == 4){
+			  if($(this).find("purch_package_quantity").text() != '' ){
+				  insertValue('purch_package_quantity_' + jIndex, $(this).find("purch_package_quantity").text());
+			  }else{
+				  insertValue('purch_package_quantity_' + jIndex, 1);
+			  }
+		  }
+	      if ($(this).find("so_po_item_ref_id").text() || ((journalID == 4 || journalID == 10) && $(this).find("pstd").text())) {
 	        // don't allow sku to change, hide the sku search icon
 	        document.getElementById('sku_' + jIndex).readOnly = true;
 	        document.getElementById('sku_open_' + jIndex).style.display = 'none';
@@ -683,6 +690,7 @@ function addInvRow() {
   cell += '<input type="hidden" name="lead_'+rowCnt+'" id="lead_'+rowCnt+'" value="0" />';
   cell += '<input type="hidden" name="serial_'+rowCnt+'" id="serial_'+rowCnt+'" value="" />';
   cell += '<input type="hidden" name="date_1_'+rowCnt+'" id="date_1_'+rowCnt+'" value="" />';
+  cell += '<input type="hidden" name="purch_package_quantity_'+rowCnt+'" id="purch_package_quantity_'+rowCnt+'" value="" />';
   if (single_line_list == '1') {
 	cell += '<input type="hidden" name="proj_'+rowCnt+'" id="proj_'+rowCnt+'" value="" />';
     cell += '<input type="hidden" name="full_'+rowCnt+'" id="full_'+rowCnt+'" value="" />';
@@ -728,29 +736,30 @@ function removeInvRow(index) {
 	} else {
 	  document.getElementById('item_table').rows[newOffset].cells[0].innerHTML = delete_icon_HTML + i + ');">';
 	}
-	document.getElementById('qty_'+i).value               = document.getElementById('qty_'+(i+1)).value;
-	document.getElementById('pstd_'+i).value              = document.getElementById('pstd_'+(i+1)).value;
-	document.getElementById('sku_'+i).value               = document.getElementById('sku_'+(i+1)).value;
-	document.getElementById('sku_'+i).readOnly            =(document.getElementById('sku_'+(i+1)).readOnly) ? true : false;
-	document.getElementById('sku_open_'+i).style.display  =(document.getElementById('sku_'+(i+1)).readOnly) ? 'none' : '';
-	document.getElementById('desc_'+i).value              = document.getElementById('desc_'+(i+1)).value;
-	document.getElementById('proj_'+i).value              = document.getElementById('proj_'+(i+1)).value;
-	document.getElementById('price_'+i).value             = document.getElementById('price_'+(i+1)).value;
-	document.getElementById('acct_'+i).value              = document.getElementById('acct_'+(i+1)).value;
-	document.getElementById('tax_'+i).selectedIndex       = document.getElementById('tax_'+(i+1)).selectedIndex;
+	document.getElementById('qty_'+i).value               		= document.getElementById('qty_'+(i+1)).value;
+	document.getElementById('pstd_'+i).value              		= document.getElementById('pstd_'+(i+1)).value;
+	document.getElementById('sku_'+i).value               		= document.getElementById('sku_'+(i+1)).value;
+	document.getElementById('sku_'+i).readOnly            		=(document.getElementById('sku_'+(i+1)).readOnly) ? true : false;
+	document.getElementById('sku_open_'+i).style.display  		=(document.getElementById('sku_'+(i+1)).readOnly) ? 'none' : '';
+	document.getElementById('desc_'+i).value              		= document.getElementById('desc_'+(i+1)).value;
+	document.getElementById('proj_'+i).value              		= document.getElementById('proj_'+(i+1)).value;
+	document.getElementById('price_'+i).value             		= document.getElementById('price_'+(i+1)).value;
+	document.getElementById('acct_'+i).value              		= document.getElementById('acct_'+(i+1)).value;
+	document.getElementById('tax_'+i).selectedIndex       		= document.getElementById('tax_'+(i+1)).selectedIndex;
 // Hidden fields
-	document.getElementById('id_'+i).value                = document.getElementById('id_'+(i+1)).value;
-	document.getElementById('so_po_item_ref_id_'+i).value = document.getElementById('so_po_item_ref_id_'+(i+1)).value;
-	document.getElementById('weight_'+i).value            = document.getElementById('weight_'+(i+1)).value;
-	document.getElementById('stock_'+i).value             = document.getElementById('stock_'+(i+1)).value;
-	document.getElementById('inactive_'+i).value          = document.getElementById('inactive_'+(i+1)).value;
-	document.getElementById('lead_'+i).value              = document.getElementById('lead_'+(i+1)).value;
-	document.getElementById('serial_'+i).value            = document.getElementById('serial_'+(i+1)).value;
-	document.getElementById('full_'+i).value              = document.getElementById('full_'+(i+1)).value;
-	document.getElementById('disc_'+i).value              = document.getElementById('disc_'+(i+1)).value;
+	document.getElementById('id_'+i).value                		= document.getElementById('id_'+(i+1)).value;
+	document.getElementById('so_po_item_ref_id_'+i).value 		= document.getElementById('so_po_item_ref_id_'+(i+1)).value;
+	document.getElementById('weight_'+i).value            		= document.getElementById('weight_'+(i+1)).value;
+	document.getElementById('stock_'+i).value             		= document.getElementById('stock_'+(i+1)).value;
+	document.getElementById('inactive_'+i).value          		= document.getElementById('inactive_'+(i+1)).value;
+	document.getElementById('lead_'+i).value              		= document.getElementById('lead_'+(i+1)).value;
+	document.getElementById('serial_'+i).value            		= document.getElementById('serial_'+(i+1)).value;
+	document.getElementById('full_'+i).value              		= document.getElementById('full_'+(i+1)).value;
+	document.getElementById('disc_'+i).value              		= document.getElementById('disc_'+(i+1)).value;
+	document.getElementById('purch_package_quantity_'+i).value	= document.getElementById('purch_package_quantity_'+(i+1)).value;
 // End hidden fields
-	document.getElementById('total_'+i).value             = document.getElementById('total_'+(i+1)).value;
-	document.getElementById('sku_'+i).style.color         = (document.getElementById('sku_'+i).value == text_search) ? inactive_text_color : '';
+	document.getElementById('total_'+i).value             		= document.getElementById('total_'+(i+1)).value;
+	document.getElementById('sku_'+i).style.color         		= (document.getElementById('sku_'+i).value == text_search) ? inactive_text_color : '';
   }
   document.getElementById('item_table').deleteRow(-1);
   if (single_line_list != '1') document.getElementById('item_table').deleteRow(-1);
@@ -1206,18 +1215,14 @@ function fillInventory(sXml) {
   document.getElementById('lead_'    +rowCnt).value       = $(xml).find("lead_time").text();
   document.getElementById('inactive_'+rowCnt).value       = $(xml).find("inactive").text();
   switch (journalID) {
-	case  '3':
 	case  '4':
+	  document.getElementById('purch_package_quantity_'  +rowCnt).value     = $(xml).find("purch_package_quantity").text();
+	case  '3':
 	  qty_pstd = 'qty_';
-	  if (journalID == '4'){
-		  $purchase_qty = $(xml).find("purch_package_quantity").text() != '' ? $(xml).find("purch_package_quantity").text() : 1;
-	  }else{
-		  $purchase_qty = 1;
-	  }
 	  document.getElementById('qty_'   +rowCnt).value     = $(xml).find("qty").first().text();
 	  document.getElementById('acct_'  +rowCnt).value     = $(xml).find("account_inventory_wage").text();
-	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate * $purchase_qty);
-	  document.getElementById('full_'  +rowCnt).value     = formatCurrency($(xml).find("item_cost").text() * exchange_rate * $purchase_qty);
+	  document.getElementById('price_' +rowCnt).value     = formatPrecise($(xml).find("sales_price").text() * exchange_rate);
+	  document.getElementById('full_'  +rowCnt).value     = formatCurrency($(xml).find("item_cost").text() * exchange_rate);
 	  if(default_sales_tax == -1) document.getElementById('tax_'   +rowCnt).value     = $(xml).find("purch_taxable").text();
 	  if ($(xml).find("description_purchase").text()) {
 	    document.getElementById('desc_'  +rowCnt).value   = $(xml).find("description_purchase").text();
@@ -1376,14 +1381,15 @@ function PostProcessLowStock(sXml) {
 		document.getElementById('stock_'   +rowCnt).value       = $(this).find("quantity").text(); 
 		document.getElementById('lead_'    +rowCnt).value       = $(this).find("lead_time").text();
 		document.getElementById('inactive_'+rowCnt).value       = $(this).find("inactive").text();
-		document.getElementById('qty_'   +rowCnt).value     	= $(this).find("reorder_quantity").text();
-		document.getElementById('acct_'  +rowCnt).value     	= $(this).find("account_inventory_wage").text();
-		document.getElementById('price_' +rowCnt).value     	= formatPrecise($(this).find("item_cost").text() * exchange_rate);
-		document.getElementById('tax_'   +rowCnt).value     = $(this).find("purch_taxable").text();
+		document.getElementById('qty_'     +rowCnt).value     	= $(this).find("reorder_quantity").text();
+		document.getElementById('acct_'    +rowCnt).value     	= $(this).find("account_inventory_wage").text();
+		document.getElementById('price_'   +rowCnt).value     	= formatPrecise($(this).find("item_cost").text() * exchange_rate);
+		document.getElementById('tax_'     +rowCnt).value		= $(this).find("purch_taxable").text();
+		document.getElementById('purch_package_quantity_'+rowCnt).value	 = $(this).find("purch_package_quantity").text();
 		if ($(this).find("description_purchase").text()) {
-			document.getElementById('desc_'  +rowCnt).value   = $(this).find("description_purchase").text();
+			document.getElementById('desc_'+rowCnt).value   	= $(this).find("description_purchase").text();
 		} else {
-			document.getElementById('desc_'  +rowCnt).value   = $(this).find("description_short").text();
+			document.getElementById('desc_'+rowCnt).value   	= $(this).find("description_short").text();
 		}
 		i++;
 		updateRowTotal(rowCnt, false);

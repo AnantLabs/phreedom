@@ -68,7 +68,8 @@ switch ($action) {
 	
   case 'save':
 	validate_security($security_level, 2); // security check
-	if(!$cInfo->save()) $action = 'edit';
+	$error = $cInfo->save() == false;
+	if($error) $action = 'edit';
 	break;
 
   case 'delete':

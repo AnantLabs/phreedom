@@ -387,6 +387,7 @@ class inventory_admin {
 	  		}
 		  	if (db_field_exists(TABLE_INVENTORY, 'purch_package_quantity')){
 	  			$result = $db->Execute("insert into ".TABLE_INVENTORY_PURCHASE." ( sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v ) select sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v  from " . TABLE_INVENTORY);
+	  			$db->Execute("ALTER TABLE " . TABLE_INVENTORY . " DROP `purch_package_quantity`");
 	  		}else{
 	  			$result = $db->Execute("insert into ".TABLE_INVENTORY_PURCHASE." ( sku, vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v ) select sku, vendor_id, description_purchase, 1, purch_taxable, item_cost, price_sheet_v  from " . TABLE_INVENTORY);
 	  		}

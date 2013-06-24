@@ -21,8 +21,10 @@
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 
 class pos_builder {
-	public $discount = 0;
-	public $taxes    = array();
+	public $discount 		= 0;
+	public $taxes    		= array();
+	public $payment_rows	= array();
+	public $line_items		= array();
 	
   function __construct() {
 	$taxes = ord_calculate_tax_drop_down('c');
@@ -36,12 +38,13 @@ class pos_builder {
 	$result = $db->Execute($sql);
 	while (list($key, $value) = each($result->fields)) $this->$key = db_prepare_input($value);
 	$this->load_item_details($this->id);
+	$this->load_payment_details($this->id);
 	$this->load_account_details($this->bill_acct_id);
 	// convert particular values indexed by id to common name
 	if ($this->rep_id) {
 	  $sql = "select short_name, contact_first, contact_last from " . TABLE_CONTACTS . " where id = " . $this->rep_id;
 	  $result = $db->Execute($sql);
-	  $this->rep_id  = $result->fields['short_name'] ;
+	  $this->rep_id   = $result->fields['short_name'] ;
 	  $this->rep_name = $result->fields['contact_first'] . ' ' . $result->fields['contact_last'];
 	} else {
 	  $this->rep_id   = '';
@@ -74,6 +77,16 @@ class pos_builder {
 		$row_data = array();
 		foreach ($fields as $idx => $element) {
 		  $row_data['r' . $idx] = $this->line_items[$key][$element->fieldname];
+		}
+		$output[] = $row_data;
+	  }
+	}
+  	if (is_array($this->payment_rows) && is_array($fields)) {
+	  foreach ($this->payment_rows as $key => $row) {
+		if (!isset($row['payment_amount'])) continue; // skip SO lines that are not on this invoice
+		$row_data = array();
+		foreach ($fields as $idx => $element) {
+		  $row_data['r' . $idx] = $this->payment_rows[$key][$element->fieldname];
 		}
 		$output[] = $row_data;
 	  }
@@ -177,31 +190,14 @@ class pos_builder {
 
   function load_payment_details($id) {
 	global $db;
-	$this->total_paid     = 0;
-	$this->payment_method = '';
-	$sql = "select * from " . TABLE_JOURNAL_ITEM . " where so_po_item_ref_id = " . $id . " and gl_type in ('pmt', 'chk')";
+	$sql = "select * from " . TABLE_JOURNAL_ITEM . " where ref_id = " . $id . " and gl_type in ('pmt', 'chk')";
 	$result = $db->Execute($sql);
-	$this->payment = array();
+	$this->payment_rows = array();
 	while (!$result->EOF) {
-	  $this->total_paid += $result->fields['credit_amount'] - $result->fields['debit_amount']; // one will be zero
-	  $sql = "select post_date, shipper_code, purchase_invoice_id, purch_order_id 
-	    from " . TABLE_JOURNAL_MAIN . " where id = " . $result->fields['ref_id'];
-	  $pmt_info = $db->Execute($sql);
-	  // keep the last payment reference, type and method
-	  $this->payment_method     = $pmt_info->fields['shipper_code'];
-	  $this->payment_reference  = $pmt_info->fields['purch_order_id'];
-	  // pull the payment detail
-	  $sql = "select description from " . TABLE_JOURNAL_ITEM . " 
-		where ref_id = " . $result->fields['ref_id'] . " and gl_type = 'ttl'";
-	  $pmt_det = $db->Execute($sql);
-	  $this->payment_detail = $this->pull_desc($pmt_det->fields['description']);
 	  // keep all payments in an array
-	  $this->payment[] = array(
-		'amount'     => $result->fields['credit_amount'],
-		'method'     => $pmt_info->fields['shipper_code'],
-		'date'       => $pmt_info->fields['post_date'],
-		'reference'  => $pmt_info->fields['purch_order_id'],
-		'deposit_id' => $pmt_info->fields['purchase_invoice_id'],
+	  $this->payment_rows[] = array(
+		'payment_amount'     => ($result->fields['debit_amount'] != 0)? $result->fields['debit_amount'] : $result->fields['credit_amount'],
+		'payment_method'     => $this->pull_desc($result->fields['description']),
 	  );
 	  $result->MoveNext();
 	}
@@ -211,14 +207,14 @@ class pos_builder {
 	$output = '';
 	$parts = explode(':', $desc);
 	if (strpos($parts[2], '****') !== false) { // it is a credit card, return the last 4 numbers
-	  switch(substr($parts[2], 0, 1)) {
+	  switch(substr($parts[1], 0, 1)) {
 		case '4': $output .= 'Visa *'; break;
 		case '5': $output .= 'MC *';   break;
 		case '3': $output .= 'AMX *';  break;
 	  }
 	  return $output . substr($parts[2], -4);
 	}
-	return $parts[2];
+	return $parts[1];
   }
 
   function build_selection_dropdown() {
@@ -267,9 +263,6 @@ class pos_builder {
 	$output[] = array('id' => 'gov_id_number',       'text' => RW_EB_GOV_ID_NUMBER);
 	$output[] = array('id' => 'terminal_date',       'text' => RW_EB_SHIP_DATE);
 	$output[] = array('id' => 'total_paid',          'text' => RW_EB_TOTAL_PAID);
-	$output[] = array('id' => 'payment_method',      'text' => RW_EB_PAYMENT_METHOD);
-	$output[] = array('id' => 'payment_reference',   'text' => RW_EB_PAYMENT_REF);
-	$output[] = array('id' => 'payment_detail',      'text' => RW_EB_PAYMENT_DETAIL);
 	$output[] = array('id' => 'balance_due',         'text' => RW_EB_BALANCE_DUE);
 	$output[] = array('id' => 'rounded_of',          'text' => RW_EB_ROUNDED_OF);
 	return $output;
@@ -289,6 +282,9 @@ class pos_builder {
 	$output[] = array('id' => 'invoice_line_tax',    'text' => RW_EB_INV_LINE_TAX);
 	$output[] = array('id' => 'invoice_sku',         'text' => RW_EB_INV_SKU);
 	$output[] = array('id' => 'invoice_serial_num',  'text' => RW_EB_INV_SERIAL_NUM);
+	//payment methodes.
+	$output[] = array('id' => 'payment_amount',      'text' => RW_EB_PAYMENT_AMOUNT);
+	$output[] = array('id' => 'payment_method',      'text' => RW_EB_PAYMENT_METHOD);
 	return $output;
   }
 

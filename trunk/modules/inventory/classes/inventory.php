@@ -55,7 +55,7 @@ class inventory {
 	function get_item_by_id($id) {
 		global $db;
 		$this->id = $id;
-		$result = $db->Execute("SELECT * FROM ".TABLE_INVENTORY." WHERE id = '" . $id  . "'");
+		$result = $db->Execute("SELECT * FROM ".TABLE_INVENTORY." WHERE id = $id");
 		if ($result->RecordCount() != 0) foreach ($result->fields as $key => $value) {
 			if (is_null($value)) $this->$key = '';
 			else $this->$key = $value;
@@ -360,7 +360,7 @@ class inventory {
 				}
 	  		}
 		}
-		if (db_field_exists(TABLE_INVENTORY, 'attachments')){
+		if ($this->id != ''){
 			$result = $db->Execute("select attachments from ".TABLE_INVENTORY." where id = $this->id");
 			$this->attachments = $result->fields['attachments'] ? unserialize($result->fields['attachments']) : array();
 			$image_id = 0;
@@ -388,7 +388,7 @@ class inventory {
 		}else{
 			db_perform(TABLE_INVENTORY, $sql_data_array, 'insert');
 			$this->id = db_insert_id();
-			$result = $db->Execute("select price_sheet_id, price_levels from " . TABLE_INVENTORY_SPECIAL_PRICES . " where inventory_id = " . $this->rowSeq);
+			$result = $db->Execute("select price_sheet_id, price_levels from " . TABLE_INVENTORY_SPECIAL_PRICES . " where inventory_id = " . $this->id);
 			while(!$result->EOF) {
 	  			$output_array = array(
 					'inventory_id'   => $this->id,
@@ -398,17 +398,14 @@ class inventory {
 	  			db_perform(TABLE_INVENTORY_SPECIAL_PRICES, $output_array, 'insert');
 	  			$result->MoveNext();
 			}
-			gen_add_audit_log(INV_LOG_INVENTORY . TEXT_COPY, " id " . $this->rowSeq . ' new sku = ' . $this->sku);
+			gen_add_audit_log(INV_LOG_INVENTORY . TEXT_COPY, " id " . $this->id . ' new sku = ' . $this->sku);
 		}
 		return $sql_data_array;
 	}
 	
 	function create_purchase_array(){
 		global $db;
-		if(!in_array('purchase',$this->posible_transactions)) {
-			$this->purchase_array = array();
-			return;
-		}
+		if(!in_array('purchase',$this->posible_transactions)) return;
 		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = '" . $this->sku  . "'");
 		while(!$result->EOF){
 			$this->purchase_array[]= array (
@@ -425,7 +422,7 @@ class inventory {
 	}
 
 	function store_purchase_array(){
-		global $db;
+		global $db, $currencies;
 		$this->backup_purchase_array = array();
 		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = '" . $this->sku  . "'");
 		while(!$result->EOF){
@@ -441,68 +438,59 @@ class inventory {
 			);// mark delete by default overwrite later if 
 			$result->MoveNext();
 		}
+		$i = 0;
 		if($_POST['vendor_id_array']) foreach ($_POST['vendor_id_array'] as $key => $value) {
-			$this->purchase_array[]= array (
-				'id'						=> isset($_POST['row_id_array'][$key]) ? $_POST['row_id_array'][$key] : '',
-				'vendor_id' 				=> $_POST['vendor_id_array'][$key],
-				'description_purchase'		=> $_POST['description_purchase_array'][$key],
-				'item_cost'	 				=> $_POST['item_cost_array'][$key],
-				'purch_package_quantity'	=> $_POST['purch_package_quantity_array'][$key],
-				'purch_taxable'	 			=> $_POST['purch_taxable_array'][$key],
-				'price_sheet_v'				=> $_POST['price_sheet_v_array'][$key],
-			);
-			$sql_data_array = array (
-				'sku'						=> $this->sku,
-				'vendor_id' 				=> $_POST['vendor_id_array'][$key],
-				'description_purchase'		=> $_POST['description_purchase_array'][$key],
-				'item_cost'	 				=> $_POST['item_cost_array'][$key],
-				'purch_package_quantity'	=> $_POST['purch_package_quantity_array'][$key],
-				'purch_taxable'	 			=> $_POST['purch_taxable_array'][$key],
-				'price_sheet_v'				=> $_POST['price_sheet_v_array'][$key],
-			);
-			if(isset($_POST['row_id_array'][$key])){//update
-				$this->backup_purchase_array[$_POST['row_id_array'][$key]]['action'] = 'update';
-				db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'update', "id = " . $_POST['row_id_array'][$key]);
-			}else{//insert
-				db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'insert');
-				$this->backup_purchase_array[db_insert_id()]= array (
-					'id'						=> db_insert_id(),
-					'vendor_id' 				=> $_POST['vendor_id_array'][$key],
-					'description_purchase'		=> $_POST['description_purchase_array'][$key],
-					'item_cost'	 				=> $_POST['item_cost_array'][$key],
-					'purch_package_quantity'	=> $_POST['purch_package_quantity_array'][$key],
-					'purch_taxable'	 			=> $_POST['purch_taxable_array'][$key],
-					'price_sheet_v'				=> $_POST['price_sheet_v_array'][$key],
-					'action'					=> 'insert',
-				);// mark delete by default overwrite later if 
+			$sql_data_array = array ();
+			$sql_data_array['sku'] 		= $this->sku;
+			$this->purchase_array[$i]['id']	= isset($_POST['row_id_array'][$key]) ? $_POST['row_id_array'][$key] : '';
+			if(isset($_POST['vendor_id_array'][$key])) {
+				$sql_data_array['vendor_id'] 					= $_POST['vendor_id_array'][$key];
+				$this->purchase_array[$i]['vendor_id'] 				= $_POST['vendor_id_array'][$key];
+			} 	
+			if(isset($_POST['description_purchase_array'][$key])){
+				$sql_data_array['description_purchase']			= $_POST['description_purchase_array'][$key];
+				$this->purchase_array[$i]['description_purchase']	= $_POST['description_purchase_array'][$key];
+			} 	
+			if(isset($_POST['item_cost_array'][$key])) {
+				$sql_data_array['item_cost']	 				= $currencies->clean_value($_POST['item_cost_array'][$key]);
+				$this->purchase_array[$i]['item_cost']	 			= $currencies->clean_value($_POST['item_cost_array'][$key]);
+			}	
+			if(isset($_POST['purch_package_quantity_array'][$key])){
+				$sql_data_array['purch_package_quantity']		= $_POST['purch_package_quantity_array'][$key];
+				$this->purchase_array[$i]['purch_package_quantity']	= $_POST['purch_package_quantity_array'][$key];
+			}	
+			if(isset($_POST['purch_taxable_array'][$key]))	{
+				$sql_data_array['purch_taxable']	 			= $_POST['purch_taxable_array'][$key];
+				$this->purchase_array[$i]['purch_taxable']	 		= $_POST['purch_taxable_array'][$key];		
+			}	
+			if(isset($_POST['price_sheet_v_array'][$key])){
+				$sql_data_array['price_sheet_v']				= $_POST['price_sheet_v_array'][$key];
+				$this->purchase_array[$i]['price_sheet_v']			= $_POST['price_sheet_v_array'][$key];
 			}
+			if(!empty($sql_data_array)){
+				if(isset($_POST['row_id_array'][$key])){//update
+					$this->backup_purchase_array[$_POST['row_id_array'][$key]]['action'] = 'update';
+					db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'update', "id = " . $_POST['row_id_array'][$key]);
+				}else{//insert
+					db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'insert');
+					$this->backup_purchase_array[db_insert_id()]= array (
+						'id'						=> db_insert_id(),
+						'vendor_id' 				=> $_POST['vendor_id_array'][$key],
+						'description_purchase'		=> $_POST['description_purchase_array'][$key],
+						'item_cost'	 				=> $_POST['item_cost_array'][$key],
+						'purch_package_quantity'	=> $_POST['purch_package_quantity_array'][$key],
+						'purch_taxable'	 			=> $_POST['purch_taxable_array'][$key],
+						'price_sheet_v'				=> $_POST['price_sheet_v_array'][$key],
+						'action'					=> 'insert',
+					);// mark delete by default overwrite later if 
+				}
+			}
+			$i++;
 		}
 		
 		foreach($this->backup_purchase_array as $key => $value){
 			if($value['action'] == 'delete') $result = $db->Execute("delete from " . TABLE_INVENTORY_PURCHASE . " where id = '" . $value['id'] . "'");
 		}
-	}
-	
-	function set_vendor_details($vendor_id, $qty, $jID){
-		if(is_array($this->purchase_array))foreach ($this->purchase_array as $key => $value) {
-			if($value['vendor_id'] == $vendor_id){
-				$this->vendor_id 				= $vendor_id;
-				$this->description_purchase		= $value['desciption'];
-				$this->purch_taxable	 		= $value['tax'];
-				$this->price_sheet_v			= $value['price_sheet_v'];
-				if($jID == 4){
-					$this->purch_package_quantity	= $qty;
-					$this->item_cost	 			= $value['item_cost'] * $value['qty'];
-				}elseif($jID == 6 || $jID == 7 || $jID == 21){
-					$this->purch_package_quantity	= $value['qty'] * $qty;
-					$this->item_cost	 			= $value['item_cost'];
-				}else{
-					$this->purch_package_quantity	= $value['qty'];
-					$this->item_cost	 			= $value['item_cost'];
-				}
-			}
-		}
-			
 	}
 	
 	function gather_history() {

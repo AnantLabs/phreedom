@@ -44,9 +44,6 @@ if (!$sku && !$UPC && !$iID) {
 if(!$UPC && !$iID && (validate_UPCABarcode($sku) || validate_EAN13Barcode($sku) )){
 	$UPC = $sku;	
 }
-
-if (!$qty) $qty = 1; // assume that one is required, will set to 1 on the form
-if (!$bID) $bID = 0; // assume only one branch or main branch if not specified
 // Load the sku information
 if ($iID) {
   $search = " where id = '" . $iID . "'";
@@ -68,19 +65,22 @@ if ($vendor && $strict == false && $UPC == false) { // just search for products 
   	if($purchase->recordCount() == 1){
   		$search = " where id = '" . $purchase->fields['id'] . "'";
   	}
-}
-          $xml .= xmlEntry("qty", $qty);
+} 
+$inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
+
+if (!$bID) $bID = 0; // assume only one branch or main branch if not specified
 if ($cID) $xml .= xmlEntry("cID", $cID);
 if ($jID) $xml .= xmlEntry("jID", $jID);
 if ($rID) $xml .= xmlEntry("rID", $rID);
 
-$inventory = $db->Execute("select * from " . TABLE_INVENTORY . $search);
 if ($UPC && $inventory->RecordCount() <> 1) { // for UPC codes submitted only, send an error
 	$xml .= xmlEntry('error', ORD_JS_SKU_NOT_UNIQUE);
+	$xml .= xmlEntry("qty", 1);
   	echo createXmlHeader() . $xml . createXmlFooter();
   	die;
 } elseif ($inventory->RecordCount() <> 1) { // need to return something to avoid error in FireFox
 	$xml .= xmlEntry('result', 'Not enough or too many hits, exiting!');
+	$xml .= xmlEntry("qty", 1);
   	echo createXmlHeader() . $xml . createXmlFooter();  
   	die;
 }
@@ -89,8 +89,18 @@ if($vendor) {
 	$purchase  = $db->Execute("select vendor_id, description_purchase, purch_package_quantity, purch_taxable, item_cost, price_sheet_v from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."' and vendor_id = '" . $cID . "'" );
 	if($purchase->RecordCount() == 1 )foreach ($purchase->fields as $key => $value) $inventory_array[$key] = $value;
 	$purchase  = $db->Execute("select MIN(item_cost) as cheapest from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."'" );
-	if( $jID == 4 && $inventory_array['price_sheet_v'] == '' && $inventory_array['item_cost'] >= $purchase->fields['cheapest']) $stock_note[] = sprintf(INV_CHEAPER_ELSEWHERE, $inventory_array['sku']);
+	if( $jID == 4 && $inventory_array['price_sheet_v'] == '' && $inventory_array['item_cost'] >= $purchase->fields['cheapest'] &&
+	  abs($inventory_array['item_cost'] - $purchase->fields['cheapest']) > 0.00001 ) $stock_note[] = sprintf(INV_CHEAPER_ELSEWHERE, $inventory_array['sku']);
 }
+if($inventory_array['purch_package_quantity'] == 0) $inventory_array['purch_package_quantity'] = 1;
+if (!$qty){
+	if($jID == 4 && $inventory_array['reorder_quantity'] != 0) {
+		$qty = ceil($inventory_array['reorder_quantity'] / $inventory_array['purch_package_quantity']); 
+	}else{
+		$qty = 1; // assume that one is required, will set to 1 on the form
+	}
+}
+$xml .= xmlEntry("qty", $qty); // assume that one is required, will set to 1 on the form
 $iID = $inventory_array['id']; // set the item id (just in case UPC or sku was the only identifying parameter)
 $sku = $inventory_array['sku'];
 // fix some values for special cases
@@ -170,6 +180,14 @@ switch($jID) {
 	break;
   default;
 }
+if ($jID == 4 ) {
+	$inventory_array['item_cost'] = $inventory_array['item_cost'] * $inventory_array['purch_package_quantity'];
+	// build the sales price
+	$xml .= xmlEntry("sales_price", $sales_price * $inventory_array['purch_package_quantity']);
+}else{
+	// build the sales price
+	$xml .= xmlEntry("sales_price", $sales_price);
+}
 
 //put it all together
 // build the core inventory data
@@ -192,8 +210,7 @@ foreach ($sku_usage as $value) {
   $xml .= "\t" . xmlEntry("text_line", $value);
   $xml .= "</sku_usage>\n";
 }
-// build the sales price
-$xml .= xmlEntry("sales_price", $sales_price);
+
 // build the stock status
 if (sizeof($stock_note) > 0) {
   foreach ($stock_note as $value) {

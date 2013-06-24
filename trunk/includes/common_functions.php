@@ -1693,7 +1693,7 @@ function validate_ajax_user($token = 0) {
 		$sql_data_array['DateDb'] 		= date("Y-m-d H:i:s");
 		$sql_data_array['Subject']		= $email_subject;
 		//$sql_data_array['MsgSize'] 		= $email["SIZE"];?? Rene Unknown
-  		if(db_table_exists(TABLE_INVENTORY_PURCHASE)) db_perform(TABLE_PHREEMAIL, $sql_data_array, 'insert');  		
+  		if(db_table_exists(TABLE_PHREEMAIL)) db_perform(TABLE_PHREEMAIL, $sql_data_array, 'insert');  		
   		// save in crm_notes
 		$temp = $db->Execute("select account_id from " . TABLE_USERS . " where admin_email = '" . $from_email_address . "'");
 		$sql_array['contact_id'] = $ref_id;

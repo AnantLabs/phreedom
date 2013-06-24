@@ -141,23 +141,24 @@ if (sizeof($order->fields) > 0) {
 		    from " . TABLE_INVENTORY . " where sku = '" . $ordr_items->fields['sku'] . "'");
 		  if (!in_array($inv_details->fields['inventory_type'], $cog_types)) $inv_details->fields['quantity_on_hand'] = 'NA';
 		  $item_list[] = array(
-			'item_cnt'          => $ordr_items->fields['item_cnt'],
-			'so_po_item_ref_id' => $ordr_items->fields['id'],
-		    'qty'               => $ordr_items->fields['qty'],
-			'sku'               => $ordr_items->fields['sku'],
-			'gl_type'           => $ordr_items->fields['gl_type'],
-			'description'       => $ordr_items->fields['description'],
-			'gl_account'        => $ordr_items->fields['gl_account'],
-			'taxable'           => $ordr_items->fields['taxable'],
-			'serialize'         => $ordr_items->fields['serialize_number'],
-			'proj_id'           => $ordr_items->fields['project_id'],
-			'unit_price'        => $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value),
-			'total'             => $currencies->format($total, true, $currencies_code, $currencies_value),
-			'full_price'        => $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value),
-			'inactive'          => $inv_details->fields['inactive'],
-			'weight'            => $inv_details->fields['item_weight'],
-			'stock'             => $inv_details->fields['quantity_on_hand'],
-			'lead'              => $inv_details->fields['lead_time'],
+			'item_cnt'          		=> $ordr_items->fields['item_cnt'],
+			'so_po_item_ref_id' 		=> $ordr_items->fields['id'],
+		    'qty'               		=> $ordr_items->fields['qty'],
+			'sku'               		=> $ordr_items->fields['sku'],
+			'gl_type'           		=> $ordr_items->fields['gl_type'],
+			'description'       		=> $ordr_items->fields['description'],
+			'gl_account'        		=> $ordr_items->fields['gl_account'],
+			'taxable'           		=> $ordr_items->fields['taxable'],
+			'serialize'         		=> $ordr_items->fields['serialize_number'],
+			'proj_id'           		=> $ordr_items->fields['project_id'],
+		  	'purch_package_quantity'	=> $ordr_items->fields['purch_package_quantity'],
+			'unit_price'        		=> $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value),
+			'total'             		=> $currencies->format($total, true, $currencies_code, $currencies_value),
+			'full_price'       			=> $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value),
+			'inactive'          		=> $inv_details->fields['inactive'],
+			'weight'            		=> $inv_details->fields['item_weight'],
+			'stock'             		=> $inv_details->fields['quantity_on_hand'],
+			'lead'              		=> $inv_details->fields['lead_time'],
 		  );
 		} else if ($ordr_items->fields['gl_type'] == 'dsc') {
 		  $discount = $ordr_items->fields['credit_amount'] + $ordr_items->fields['debit_amount'];
@@ -216,22 +217,23 @@ if (sizeof($order->fields) > 0) {
 		if ($so_po_ref_id) {
 		  for ($i = 0; $i < count($item_list); $i++) {
 		    if ($ordr_items->fields['so_po_item_ref_id'] && $item_list[$i]['so_po_item_ref_id'] == $ordr_items->fields['so_po_item_ref_id']) {
-			  $item_list[$i]['id']          = $ordr_items->fields['id'];
-			  $item_list[$i]['item_cnt']    = $ordr_items->fields['item_cnt'];
-			  $item_list[$i]['gl_type']     = $ordr_items->fields['gl_type'];
-			  $item_list[$i][$qty_pstd]     = $ordr_items->fields['qty'];
-			  $item_list[$i]['description'] = $ordr_items->fields['description'];
-			  $item_list[$i]['gl_account']  = $ordr_items->fields['gl_account'];
-			  $item_list[$i]['taxable']     = $ordr_items->fields['taxable'];
-			  $item_list[$i]['serialize']   = $ordr_items->fields['serialize_number'];
-			  $item_list[$i]['proj_id']     = $ordr_items->fields['project_id'];
-			  $item_list[$i]['unit_price']  = $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value);
-			  $item_list[$i]['total']       = $currencies->format($total, true, $currencies_code, $currencies_value);
-			  $item_list[$i]['full_price']  = $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value);
-			  $item_list[$i]['inactive']    = $inv_details->fields['inactive'];
-			  $item_list[$i]['weight']      = $inv_details->fields['item_weight'];
-			  $item_list[$i]['stock']       = $inv_details->fields['quantity_on_hand'];
-			  $item_list[$i]['lead']        = $inv_details->fields['lead_time'];
+			  $item_list[$i]['id']          			= $ordr_items->fields['id'];
+			  $item_list[$i]['item_cnt']    			= $ordr_items->fields['item_cnt'];
+			  $item_list[$i]['gl_type']     			= $ordr_items->fields['gl_type'];
+			  $item_list[$i][$qty_pstd]     			= $ordr_items->fields['qty'];
+			  $item_list[$i]['description'] 			= $ordr_items->fields['description'];
+			  $item_list[$i]['gl_account']  			= $ordr_items->fields['gl_account'];
+			  $item_list[$i]['taxable']     			= $ordr_items->fields['taxable'];
+			  $item_list[$i]['serialize']   			= $ordr_items->fields['serialize_number'];
+			  $item_list[$i]['proj_id']     			= $ordr_items->fields['project_id'];
+			  $item_list[$i]['purch_package_quantity']	= $ordr_items->fields['purch_package_quantity'];
+			  $item_list[$i]['unit_price']  			= $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value);
+			  $item_list[$i]['total']       			= $currencies->format($total, true, $currencies_code, $currencies_value);
+			  $item_list[$i]['full_price']  			= $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value);
+			  $item_list[$i]['inactive']    			= $inv_details->fields['inactive'];
+			  $item_list[$i]['weight']      			= $inv_details->fields['item_weight'];
+			  $item_list[$i]['stock']       			= $inv_details->fields['quantity_on_hand'];
+			  $item_list[$i]['lead']        			= $inv_details->fields['lead_time'];
 			  $found = true;
 			  break;
 		    }
@@ -239,24 +241,25 @@ if (sizeof($order->fields) > 0) {
 	    }
 	    if (!$found) {	// it's an addition to the po/so entered at the purchase/sales window
 		  $item_list[] = array(
-			'id'          => $ordr_items->fields['id'],
-			'item_cnt'    => $ordr_items->fields['item_cnt'],
-		    'gl_type'     => $ordr_items->fields['gl_type'],
-			$qty_pstd     => $ordr_items->fields['qty'],
-			'sku'         => $ordr_items->fields['sku'],
-			'description' => $ordr_items->fields['description'],
-			'gl_account'  => $ordr_items->fields['gl_account'],
-			'taxable'     => $ordr_items->fields['taxable'],
-			'serialize'   => $ordr_items->fields['serialize_number'],
-			'proj_id'     => $ordr_items->fields['project_id'],
-			'date_1'      => substr($ordr_items->fields['date_1'], 0, 10),
-			'unit_price'  => $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value),
-			'total'       => $currencies->format($total, true, $currencies_code, $currencies_value),
-			'full_price'  => $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value),
-			'inactive'    => $inv_details->fields['inactive'],
-			'weight'      => $inv_details->fields['item_weight'],
-			'stock'       => $inv_details->fields['quantity_on_hand'],
-			'lead'        => $inv_details->fields['lead_time'],
+			'id'          				=> $ordr_items->fields['id'],
+			'item_cnt'    				=> $ordr_items->fields['item_cnt'],
+		    'gl_type'     				=> $ordr_items->fields['gl_type'],
+			$qty_pstd     				=> $ordr_items->fields['qty'],
+			'sku'         				=> $ordr_items->fields['sku'],
+			'description'				=> $ordr_items->fields['description'],
+			'gl_account'  				=> $ordr_items->fields['gl_account'],
+			'taxable'     				=> $ordr_items->fields['taxable'],
+			'serialize'   				=> $ordr_items->fields['serialize_number'],
+			'proj_id'     				=> $ordr_items->fields['project_id'],
+			'purch_package_quantity'	=> $ordr_items->fields['purch_package_quantity'],
+			'date_1'      				=> substr($ordr_items->fields['date_1'], 0, 10),
+			'unit_price'  				=> $currencies->precise($ordr_items->fields['qty'] ? ($total / $ordr_items->fields['qty']) : '0', true, $currencies_code, $currencies_value),
+			'total'       				=> $currencies->format($total, true, $currencies_code, $currencies_value),
+			'full_price'  				=> $currencies->format($ordr_items->fields['full_price'], true, $currencies_code, $currencies_value),
+			'inactive'    				=> $inv_details->fields['inactive'],
+			'weight'      				=> $inv_details->fields['item_weight'],
+			'stock'       				=> $inv_details->fields['quantity_on_hand'],
+			'lead'       				=> $inv_details->fields['lead_time'],
 		  );
 	    }
 	    $ordr_items->MoveNext();

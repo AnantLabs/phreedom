@@ -50,7 +50,12 @@ function init() {
 	<?php if ($action <> 'new' && $action <> 'edit') { // set focus for main window
 		echo "  document.getElementById('search_text').focus();";
 		echo "  document.getElementById('search_text').select();";
-  	} ?>
+  	} 
+  	if(empty($cInfo->purchase_array)) {
+  		echo "  addVendorRow();";
+  	}
+  	?>
+  	
 }
 
 function check_form() {

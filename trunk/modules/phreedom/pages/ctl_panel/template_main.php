@@ -43,14 +43,12 @@ echo $toolbar->build_toolbar();
 	<tbody class="ui-widget-content">
 <?php 
 $odd = true;
-foreach ($the_list as $value) {
-	if (!$value['security'] || $_SESSION['admin_security'][$value['security']] > 0) { // make sure user can view this control panel element
-		echo '	  <tr class="'.($odd?'odd':'even').'"><td align="center">';
-		$checked = (in_array($value['dashboard_id'], $my_profile)) ? ' selected' : '';
-		echo html_checkbox_field($value['dashboard_id'], '1', $checked, '', $parameters = '');
-		echo '	  </td><td>' . $value['title'] . '</td><td>' . $value['description'] . '</td></tr>';
-		$odd = !$odd;
-	}
+foreach ($dashboards as $dashboard) {
+	load_method_language(DIR_FS_MODULES . $dashboard['module_id'] . '/dashboards/', $dashboard['dashboard_id']);
+	require_once        (DIR_FS_MODULES . $dashboard['module_id'] . '/dashboards/' . $dashboard['dashboard_id'] . '/' . $dashboard['dashboard_id'] . '.php');
+	$dashboard = new $dashboard['dashboard_id'];
+	echo $dashboard->pre_install($odd, $my_profile);// returns nothing if user isn't valid.
+	if ($dashboard->valid_user) $odd = !$odd; //so only update if user is valid.
 } ?>
     </tbody>
   </table>

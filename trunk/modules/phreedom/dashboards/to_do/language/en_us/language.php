@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,8 +19,4 @@
 
 define('CP_TO_DO_TITLE','My ToDo List');
 define('CP_TO_DO_DESCRIPTION','Creates a list of activities and things to do.');
-define('CP_TO_DO_SECURITY',SECURITY_ID_MY_PROFILE);
-
-define('CP_TO_DO_NO_RESULTS','No results found!');
-
 ?>

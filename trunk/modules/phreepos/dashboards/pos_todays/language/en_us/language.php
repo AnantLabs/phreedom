@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,6 +19,4 @@
 
 define('CP_POS_TODAYS_TITLE','Today\'s Pos Sales');
 define('CP_POS_TODAYS_DESCRIPTION','Lists today\'s pos sales.');
-define('CP_POS_TODAYS_SECURITY',SECURITY_ID_PHREEPOS);
-
 ?>

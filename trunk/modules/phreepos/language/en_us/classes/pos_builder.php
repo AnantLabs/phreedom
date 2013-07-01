@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -57,6 +56,7 @@ define('RW_EB_GOV_ID_NUMBER','Gov ID Number');
 define('RW_EB_TOTAL_PAID','Amount Paid');
 define('RW_EB_PAYMENT_DATE','Payment Date');
 define('RW_EB_PAYMENT_METHOD','Payment Method');
+define('RW_EB_PAYMENT_AMOUNT','Payment Amount');
 define('RW_EB_PAYMENT_REF','Payment Reference');
 define('RW_EB_BALANCE_DUE','Balance Due');
 define('RW_EB_PAYMENT_DETAIL','Payment Detail');

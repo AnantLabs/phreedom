@@ -1,8 +1,7 @@
 // +-----------------------------------------------------------------+
 // |                   Phreedom Open Source ERP                      |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011, 2012 PhreeSoft, LLC       |
-// | http://www.PhreeSoft.com                                        |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 //  Path: /modules/phreeform/includes/tcpdf.txt
 //

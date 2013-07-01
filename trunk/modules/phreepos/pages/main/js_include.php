@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -102,10 +101,19 @@ function refreshOrderClock() {
     var upc = document.getElementById('sku').value;
     if (upc != text_search && upc.length == skuLength) {
       var acct = document.getElementById('bill_acct_id').value;
-	  var qty  = 1;
+	  var numRows = document.getElementById('item_table_body').rows.length;
+	  var qty = 1;
+	  var rowCnt = 0;
+	  for (var i=1; i<=numRows; i++) {
+		if (document.getElementById('sku_' +i).value == sku && document.getElementById('fixed_price_' +i).value > formatted_zero){
+		  qty = document.getElementById('pstd_' +i).value;
+		  qty++;
+		  rowCnt = i;
+		}
+	  }
 	  $.ajax({
 		type: "GET",
-		url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&cID='+acct+'&qty='+qty+'&upc='+upc+'&rID='+setId+'&jID='+journalID,
+		url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&cID='+acct+'&qty='+qty+'&upc='+upc+'&rID='+rowCnt+'&jID='+journalID,
 		dataType: ($.browser.msie) ? "text" : "xml",
 		error: function(XMLHttpRequest, textStatus, errorThrown) {
 		  alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
@@ -930,7 +938,7 @@ function fillInventory(sXml) {
   var xml    = parseXml(sXml);
   if (!xml) return;
   var sku    = $(xml).find("sku").first().text(); // only the first find, avoids bom add-ons
-  if (!sku || $(xml).find("inventory_type").text() == 'ms') {
+  if (!sku || $(xml).find("inventory_type").text() == 'ms' || $(xml).find("inventory_type").text() == 'mb') {
 	  InventoryList(0);
 	  return;
   }

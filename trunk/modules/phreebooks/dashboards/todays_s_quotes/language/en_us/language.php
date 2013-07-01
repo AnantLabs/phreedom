@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010 PhreeSoft, LLC                   |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -24,7 +23,4 @@
 
 define('CP_TODAYS_S_QUOTES_TITLE','Today\'s Sales Quotes');
 define('CP_TODAYS_S_QUOTES_DESCRIPTION','Lists today\'s sales quotes. Links to review the quotes are also provided.');
-define('CP_TODAYS_S_QUOTES_NO_RESULTS','No results found!');
-define('CP_TODAYS_S_QUOTES_SECURITY',SECURITY_ID_SALES_QUOTE);
-
 ?>

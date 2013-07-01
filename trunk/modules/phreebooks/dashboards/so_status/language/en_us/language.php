@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -18,12 +17,8 @@
 //  Path: /modules/phreebooks/dashboards/so_status/language/en_us/so_status.php
 //
 
-define('MAX_NUM_SO_LIST',20);
-
 define('CP_SO_STATUS_TITLE','Open Sales Orders');
 define('CP_SO_STATUS_DESCRIPTION','Lists sales orders with current open status. Links to reveiw the sales order are also provided.');
-define('CP_SO_STATUS_SECURITY',SECURITY_ID_SALES_ORDER);
-
 define('CP_SO_STATUS_SORT_ORDER','Sort Order by Post Date');
 define('CP_SO_STATUS_HIDE_FUTURE','Restrict to Today and Earlier');
 

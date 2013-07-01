@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010 PhreeSoft, LLC                   |
-// | http://www.PhreeSoft.com                                        |
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -54,7 +53,7 @@ class import_bank_admin {
   function install($module) {
     global $db, $messageStack;
 	$error = false;
-	if (!db_field_exists(TABLE_CONTACTS, 'bank_account')) { 
+	if (!db_field_exists(TABLE_CONTACTS, 'bank_account_1')) { 
 		$sql = "select id from " . TABLE_EXTRA_FIELDS . " where module_id = 'contacts' and field_name = 'bank_account'";
 		$result = $db->Execute($sql);
 		if ( $result->RecordCount() == 0 ){

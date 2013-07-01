@@ -10,6 +10,4 @@
 
 define('CP_TO_RECEIVE_INV_TITLE','Facturen Nog Te Ontvangen');
 define('CP_TO_RECEIVE_INV_DESCRIPTION','Lijst van nog te ontvangen facturen. Links om de facturen te herzien zijn aanwezig.');
-define('CP_TO_RECEIVE_INV_NO_RESULTS','Geen resultaten!');
-define('CP_TO_RECEIVE_INV_SECURITY',SECURITY_ID_PURCHASE_INVENTORY);
 ?>

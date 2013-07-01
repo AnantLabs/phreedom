@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,8 +19,6 @@
 
 define('CP_MINI_FINANCIAL_TITLE','My Financial Summary');
 define('CP_MINI_FINANCIAL_DESCRIPTION','Lists a shortened version of your financial situation.');
-define('CP_MINI_FINANCIAL_SECURITY',SECURITY_ID_JOURNAL_ENTRY);
-
 define('CP_MINI_FINANCIAL_NO_OPTIONS','There are no selectable options for this item!');
 define('RW_FIN_CURRENT_ASSETS','Current Assets');
 define('RW_FIN_PROP_EQUIP','Property & Equipment');

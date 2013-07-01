@@ -22,86 +22,66 @@
 define('DASHBOARD_MY_NOTES_VERSION','3.2');
 
 class my_notes extends ctl_panel {
+	public $dashboard_id 		= 'my_notes';
+	public $description	 		= CP_MY_NOTES_DESCRIPTION;
+	public $security_id  		= SECURITY_ID_MY_PROFILE;
+	public $title		 		= CP_MY_NOTES_TITLE;
+	public $version      		= 3.5;
 
-  function __construct() {
-  }
-
-  function Install($column_id = 1, $row_id = 0) {
-	global $db;
-	if (!$row_id) $row_id = $this->get_next_row();
-	$sql_array = array(
-	  'user_id'     => $_SESSION['admin_id'], 
-	  'menu_id'     => $this->menu_id, 
-	  'module_id'   => $this->module_id, 
-	  'dashboard_id'=> $this->dashboard_id, 
-	  'column_id'   => $column_id, 
-	  'row_id'      => $row_id, 
-	  'params'      => '',
-	);
-	db_perform(TABLE_USERS_PROFILES, $sql_array);
-  }
-
-  function Remove() {
-	global $db;
-	$result = $db->Execute("delete from " . TABLE_USERS_PROFILES . " 
-	  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' 
-	    and dashboard_id = '" . $this->dashboard_id . "'");
-  }
-
-  function Output($params) {
-	global $db;
-	// Build control box form data
-	$control  = '  <div class="row">' . chr(10);
-	$control .= '    <div style="white-space:nowrap">';
-	$control .= TEXT_NOTE . '&nbsp;' . html_input_field('my_notes_field_0', '', 'size="64"') . '<br />';
-	$control .= '&nbsp;&nbsp;&nbsp;&nbsp;';
-	$control .= html_submit_field('sub_my_notes', TEXT_ADD);
-	$control .= html_hidden_field('my_notes_rId', '');
-	$control .= '    </div>' . chr(10);
-	$control .= '  </div>' . chr(10);
-	// Build content box
-	$contents = '';
-	if (is_array($params)) {
-	  $index = 1;
-	  foreach ($params as $my_note) {
-	    $contents .= '  <div>';
-		$contents .= '    <div style="float:right; height:16px;">';
-		$contents .= html_icon('phreebooks/dashboard-remove.png', TEXT_REMOVE, 'small', 'onclick="return del_index(\'' . $this->dashboard_id . '\', ' . $index . ')"');
-		$contents .= '    </div>' . chr(10);
-		$contents .= '    <div style="min-height:16px;">&#9679; '. $my_note . '</div>' . chr(10);
-	    $contents .= '  </div>' . chr(10);
-		$index++;
-	  }
-	} else {
-	  $contents = CP_MY_NOTES_NO_RESULTS;
+	function Output($params) {
+		global $db;
+		// Build control box form data
+		$control  = '  <div class="row">' . chr(10);
+		$control .= '    <div style="white-space:nowrap">';
+		$control .= TEXT_NOTE . '&nbsp;' . html_input_field('my_notes_field_0', '', 'size="64"') . '<br />';
+		$control .= '&nbsp;&nbsp;&nbsp;&nbsp;';
+		$control .= html_submit_field('sub_my_notes', TEXT_ADD);
+		$control .= html_hidden_field('my_notes_rId', '');
+		$control .= '    </div>' . chr(10);
+		$control .= '  </div>' . chr(10);
+		// Build content box
+		$contents = '';
+		if (is_array($params)) {
+			$index = 1;
+		  	foreach ($params as $my_note) {
+		    	$contents .= '  <div>';
+				$contents .= '    <div style="float:right; height:16px;">';
+				$contents .= html_icon('phreebooks/dashboard-remove.png', TEXT_REMOVE, 'small', 'onclick="return del_index(\'' . $this->dashboard_id . '\', ' . $index . ')"');
+				$contents .= '    </div>' . chr(10);
+				$contents .= '    <div style="min-height:16px;">&#9679; '. $my_note . '</div>' . chr(10);
+		    	$contents .= '  </div>' . chr(10);
+				$index++;
+		  	}
+		} else {
+		  	$contents = ACT_NO_RESULTS;
+		}
+		return $this->build_div('', $contents, $control);
 	}
-	return $this->build_div(CP_MY_NOTES_TITLE, $contents, $control);
-  }
 
-  function Update() {
-	global $db;
-	$my_note   = db_prepare_input($_POST['my_notes_field_0']);
-	$remove_id = db_prepare_input($_POST['my_notes_rId']);
-	// do nothing if no title or url entered
-	if (!$remove_id && $my_note == '') return; 
-	// fetch the current params
-	$result = $db->Execute("select params from " . TABLE_USERS_PROFILES . "
-	  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' 
-		and dashboard_id = '" . $this->dashboard_id . "'");
-	if ($remove_id) { // remove element
-	  $params     = unserialize($result->fields['params']);
-	  $first_part = array_slice($params, 0, $remove_id - 1);
-	  $last_part  = array_slice($params, $remove_id);
-	  $params     = array_merge($first_part, $last_part);
-	} elseif ($result->fields['params']) { // append new note and sort
-	  $params     = unserialize($result->fields['params']);
-	  $params[]   = $my_note;
-	  ksort($params);
-	} else { // first entry
-	  $params     = array($my_note);
+	function Update() {
+		global $db;
+		$my_note   = db_prepare_input($_POST['my_notes_field_0']);
+		$remove_id = db_prepare_input($_POST['my_notes_rId']);
+		// do nothing if no title or url entered
+		if (!$remove_id && $my_note == '') return; 
+		// fetch the current params
+		$result = $db->Execute("select params from " . TABLE_USERS_PROFILES . "
+		  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' 
+		  and dashboard_id = '" . $this->dashboard_id . "'");
+		if ($remove_id) { // remove element
+		  	$this->params	= unserialize($result->fields['params']);
+		  	$first_part 	= array_slice($this->params, 0, $remove_id - 1);
+		  	$last_part  	= array_slice($this->params, $remove_id);
+		  	$this->params	= array_merge($first_part, $last_part);
+		} elseif ($result->fields['params']) { // append new note and sort
+		  	$this->params   = unserialize($result->fields['params']);
+		  	$this->params[] = $my_note;
+		} else { // first entry
+		  	$this->params[] = $my_note;
+		}
+		ksort($this->params);
+		db_perform(TABLE_USERS_PROFILES, array('params' => serialize($this->params)), "update", "user_id = ".$_SESSION['admin_id']." and menu_id = '".$this->menu_id."' and dashboard_id = '".$this->dashboard_id."'");
 	}
-	db_perform(TABLE_USERS_PROFILES, array('params' => serialize($params)), "update", "user_id = ".$_SESSION['admin_id']." and menu_id = '".$this->menu_id."' and dashboard_id = '".$this->dashboard_id."'");
-  }
 
 }
 ?>

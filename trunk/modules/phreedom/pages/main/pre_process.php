@@ -126,9 +126,9 @@ switch ($action) {
 	  if ($module_name <> '') break;
 	}
     include_once (DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php');
-    $new_box = new $dashboard_id;
-	$new_box->dashboard_id = $dashboard_id;
-	$new_box->menu_id      = $menu_id;
+    $new_box 				= new $dashboard_id;
+	$new_box->dashboard_id 	= $dashboard_id;
+	$new_box->menu_id      	= $menu_id;
 	$new_box->Update();
 	break;
   case 'delete':

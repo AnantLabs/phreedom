@@ -39,18 +39,17 @@ while(!$cp_boxes->EOF) {
 	  echo '      <div id="col_' . $column . '" style="position:relative;">' . chr(10);
 	}
   }
-  $dashboard_id = $cp_boxes->fields['dashboard_id'];
+  $dashboard = $cp_boxes->fields['dashboard_id'];
   $module_id    = $cp_boxes->fields['module_id'];
   $column_id    = $cp_boxes->fields['column_id'];
   $row_id       = $cp_boxes->fields['row_id'];
   $params       = unserialize($cp_boxes->fields['params']);
-  if (file_exists(DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php')) {
-    load_method_language(DIR_FS_MODULES . $module_id . '/dashboards/', $dashboard_id);
-    require_once        (DIR_FS_MODULES . $module_id . '/dashboards/' . $dashboard_id . '/' . $dashboard_id . '.php');
-    $new_box               = new $dashboard_id;
+  if (file_exists(DIR_FS_MODULES . "$module_id/dashboards/$dashboard/$dashboard.php")) {
+    load_method_language(DIR_FS_MODULES . "$module_id/dashboards/$dashboard");
+    require_once        (DIR_FS_MODULES . "$module_id/dashboards/$dashboard/$dashboard.php");
+    $new_box               = new $dashboard;
     $new_box->menu_id      = $menu_id;
     $new_box->module_id    = $module_id;
-    $new_box->dashboard_id = $dashboard_id;
     $new_box->column_id    = $cp_boxes->fields['column_id'];
     $new_box->row_id       = $cp_boxes->fields['row_id'];
   echo $new_box->Output($params);

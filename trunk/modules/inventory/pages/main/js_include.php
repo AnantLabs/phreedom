@@ -47,10 +47,7 @@ var text_properties     = '<?php echo TEXT_PROPERTIES;?>';
 function init() {
 	$(function() { $('#detailtabs').tabs(); });
 	$('#inv_image').dialog({ autoOpen:false, width:800 });
-	<?php if ($action <> 'new' && $action <> 'edit') { // set focus for main window
-		echo "  document.getElementById('search_text').focus();";
-		echo "  document.getElementById('search_text').select();";
-  	} 
+	<?php 
   	if(empty($cInfo->purchase_array)) {
   		echo "  addVendorRow();";
   	}

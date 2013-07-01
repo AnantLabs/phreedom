@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010 PhreeSoft, LLC                   |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -24,7 +23,4 @@
 
 define('CP_TODAYS_AUDIT_LOG_TITLE','Today\'s Audit Log');
 define('CP_TODAYS_AUDIT_LOG_DESCRIPTION','Lists today\'s audit log');
-define('CP_TODAYS_AUDIT_LOG_NO_RESULTS','No results!');
-define('CP_TODAYS_AUDIT_LOG_SECURITY',SECURITY_ID_CONFIGURATION);
-
 ?>

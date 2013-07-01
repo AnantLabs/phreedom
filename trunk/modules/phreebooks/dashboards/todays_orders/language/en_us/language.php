@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,8 +19,4 @@
 
 define('CP_TODAYS_ORDERS_TITLE','Today\'s Sales Orders');
 define('CP_TODAYS_ORDERS_DESCRIPTION','Lists today\'s sales orders. Links to reveiw the sales orders are also provided.');
-define('CP_TODAYS_ORDERS_SECURITY',SECURITY_ID_SALES_ORDER);
-
-define('CP_TODAYS_ORDERS_NO_RESULTS','No results found!');
-
 ?>

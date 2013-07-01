@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,7 +19,4 @@
 
 define('CP_FAVORITE_REPORTS_TITLE','Favorite Reports');
 define('CP_FAVORITE_REPORTS_DESCRIPTION','Lists favorite reports for quick display.');
-define('CP_FAVORITE_REPORTS_SECURITY',SECURITY_ID_PHREEFORM);
-define('CP_FAVORITE_REPORTS_NO_RESULTS','No results found!');
-
 ?>

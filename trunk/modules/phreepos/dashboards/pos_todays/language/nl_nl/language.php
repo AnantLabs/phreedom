@@ -8,8 +8,6 @@
 // +-----------------------------------------------------------------+
 // Path: /modules/phreepos/dashboards/pos_todays/language/nl_nl/language.php
 
-
 define('CP_POS_TODAYS_DESCRIPTION','Lijst met verkopen van vandaag.');
 define('CP_POS_TODAYS_TITLE','Kassa verkopen vandaag');
-
 ?>

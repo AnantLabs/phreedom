@@ -47,6 +47,7 @@ define('RW_EB_GOV_ID_NUMBER','BTW Nummer');
 define('RW_EB_TOTAL_PAID','Bedrag Betaald');
 define('RW_EB_PAYMENT_DATE','Betaal Datum');
 define('RW_EB_PAYMENT_METHOD','Betaal Methode');
+define('RW_EB_PAYMENT_AMOUNT','Betaal Bedrag');
 define('RW_EB_PAYMENT_REF','Betaal Referentie');
 define('RW_EB_BALANCE_DUE','Openstaand Bedrag');
 define('RW_EB_PAYMENT_DETAIL','Betaling Details');

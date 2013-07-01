@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,8 +19,4 @@
 
 define('CP_PERSONAL_LINKS_TITLE','My Links');
 define('CP_PERSONAL_LINKS_DESCRIPTION','Lists URLs for personal use as quicklinks.');
-define('CP_PERSONAL_LINKS_SECURITY',SECURITY_ID_MY_PROFILE);
-
-define('CP_PERSONAL_LINKS_NO_RESULTS','No results found!');
-
 ?>

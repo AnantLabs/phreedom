@@ -191,17 +191,24 @@ class inventory {
 		else return false;
 		$this->old_id					= $this->id;
 		$this->old_sku					= $this->sku;
-		$this->id           			= '';
-		$this->sku						= $newSku ;
-		$this->last_journal_date 		= '';
-		$this->upc_code 				= '';
-		$this->image_with_path 			= '';
-		$this->quantity_on_hand 		= '';
-		$this->quantity_on_order 		= '';
-		$this->quantity_on_sales_order	= '';
-		$this->creation_date 			= date('Y-m-d H:i:s');
-		$this->last_update 				= date('Y-m-d H:i:s');
-		$this->save();
+		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku = " . $this->old_sku);
+		//if ($result->RecordCount() == 0) return false;
+		$sql_data_array = array();
+		$not_usable_keys = array('id','sku','last_journal_date','upc_code','image_with_path','quantity_on_hand','quantity_on_order','quantity_on_sales_order','creation_date','last_update');
+		foreach ($result->fields as $key => $value) {
+			if(!in_array($key, $not_usable_keys)) $sql_data_array[$key] = $value;
+		}
+		$this->sku 							= $newSku;
+		$sql_data_array['sku']				= $newSku ;
+		$sql_data_array['creation_date'] 	= date('Y-m-d H:i:s');
+		$sql_data_array['last_update'] 		= date('Y-m-d H:i:s');
+		db_perform(TABLE_INVENTORY, $sql_data_array, 'insert');
+		$this->id							= db_insert_id();
+		$this->store_stock 					= array();
+		$this->purchase_array				= array();
+		$this->history 						= array();
+		$this->qty_per_store				= array();
+		$this->attachments					= array();
 		$result = $db->Execute("select price_sheet_id, price_levels from " . TABLE_INVENTORY_SPECIAL_PRICES . " where inventory_id = " . $id);
 		while(!$result->EOF) {
 	  		$output_array = array(
@@ -214,7 +221,7 @@ class inventory {
 		}
 		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = " . $this->old_sku);
 		while(!$result->EOF) {
-			$output_array = array (
+			$sql_data_array = array (
 				'sku'						=> $this->sku,
 				'vendor_id' 				=> $result->fields['vendor_id'],
 				'description_purchase'		=> $result->fields['description_purchase'],
@@ -226,8 +233,8 @@ class inventory {
 			db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'insert');
 	  		$result->MoveNext();
 		}
-		
-		gen_add_audit_log(INV_LOG_INVENTORY . TEXT_COPY, $old_sku . ' => ' . $this->sku);
+		gen_add_audit_log(INV_LOG_INVENTORY . TEXT_COPY, $this->old_sku . ' => ' . $this->sku);
+		$this->get_item_by_sku($this->sku);
 		return true;
 	}
 	
@@ -422,7 +429,7 @@ class inventory {
 	}
 
 	function store_purchase_array(){
-		global $db, $currencies;
+		global $db, $currencies, $action;
 		$this->backup_purchase_array = array();
 		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = '" . $this->sku  . "'");
 		while(!$result->EOF){
@@ -487,7 +494,6 @@ class inventory {
 			}
 			$i++;
 		}
-		
 		foreach($this->backup_purchase_array as $key => $value){
 			if($value['action'] == 'delete') $result = $db->Execute("delete from " . TABLE_INVENTORY_PURCHASE . " where id = '" . $value['id'] . "'");
 		}

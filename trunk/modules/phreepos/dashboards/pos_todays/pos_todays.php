@@ -2,8 +2,7 @@
 // +-----------------------------------------------------------------+
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
-// | Copyright (c) 2008, 2009, 2010, 2011 PhreeSoft, LLC             |
-
+// | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -19,59 +18,56 @@
 //
 
 class pos_todays extends ctl_panel {
-	public $security_id  = SECURITY_ID_POS_MGR;
-	public $dashboard_id = 'pos_today';
-	public $version      = '3.2';
-	public $title		 = CP_POS_TODAYS_TITLE;
-	public $description	 = CP_POS_TODAYS_DESCRIPTION;
+	public $dashboard_id 		= 'pos_today';
+	public $description	 		= CP_POS_TODAYS_DESCRIPTION;
+	public $security_id  		= SECURITY_ID_POS_MGR;
+	public $title		 		= CP_POS_TODAYS_TITLE;
+	public $version      		= 3.5;
 
-  function Output($params) {
-	global $db, $currencies;
-	$list_length = array();
-	for ($i = 0; $i <= $this->max_length; $i++) $list_length[] = array('id' => $i, 'text' => $i);
-	// Build control box form data
-	$control  = '<div class="row">';
-	$control .= '<div style="white-space:nowrap">' . TEXT_SHOW . TEXT_SHOW_NO_LIMIT;
-	$control .= html_pull_down_menu('pos_todays_field_0', $list_length, $params['num_rows']);
-	$control .= html_submit_field('sub_pos_todays', TEXT_SAVE);
-	$control .= '</div></div>';
-
-	// Build content box
-	$total = 0;
-	$sql = "select id, purchase_invoice_id, total_amount, bill_primary_name, currencies_code, currencies_value 
-	  from " . TABLE_JOURNAL_MAIN . " 
-	  where journal_id = 19 and post_date = '" . date('Y-m-d', time()) . "' order by purchase_invoice_id";
-	if ($params['num_rows']) $sql .= " limit " . $params['num_rows'];
-	$result = $db->Execute($sql);
-	if ($result->RecordCount() < 1) {
-	  $contents = ACT_NO_RESULTS;
-	} else {
-	  while (!$result->EOF) {
-	 	$total += $result->fields['total_amount'];
-		$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['total_amount'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
-		$contents .= '<div>';
-		$contents .= $result->fields['purchase_invoice_id'];
-		if($result->fields['bill_primary_name']<>''){
-			$contents .= ' - ' . htmlspecialchars($result->fields['bill_primary_name']);
+	function Output($params) {
+		global $db, $currencies;
+		$list_length = array();
+		for ($i = 0; $i <= $this->max_length; $i++) $list_length[] = array('id' => $i, 'text' => $i);
+		// Build control box form data
+		$control  = '<div class="row">';
+		$control .= '<div style="white-space:nowrap">' . TEXT_SHOW . TEXT_SHOW_NO_LIMIT;
+		$control .= html_pull_down_menu('pos_todays_field_0', $list_length, $params['num_rows']);
+		$control .= html_submit_field('sub_pos_todays', TEXT_SAVE);
+		$control .= '</div></div>';
+	
+		// Build content box
+		$total = 0;
+		$sql = "select id, purchase_invoice_id, total_amount, bill_primary_name, currencies_code, currencies_value 
+		  from " . TABLE_JOURNAL_MAIN . " 
+		  where journal_id = 19 and post_date = '" . date('Y-m-d', time()) . "' order by purchase_invoice_id";
+		if ($params['num_rows']) $sql .= " limit " . $params['num_rows'];
+		$result = $db->Execute($sql);
+		if ($result->RecordCount() < 1) {
+		  	$contents = ACT_NO_RESULTS;
+		} else {
+			while (!$result->EOF) {
+			 	$total += $result->fields['total_amount'];
+				$contents .= '<div style="float:right">' . $currencies->format_full($result->fields['total_amount'], true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</div>';
+				$contents .= '<div>';
+				$contents .= $result->fields['purchase_invoice_id'];
+				if($result->fields['bill_primary_name']<>''){
+					$contents .= ' - ' . htmlspecialchars($result->fields['bill_primary_name']);
+				}
+				$contents .= '</a></div>' . chr(10);
+				$result->MoveNext();
+			}
 		}
-		$contents .= '</a></div>' . chr(10);
-		$result->MoveNext();
-	  }
+		if (!$params['num_rows'] && $result->RecordCount() > 0) {
+		  	$contents .= '<div style="float:right"><b>' . $currencies->format_full($total, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</b></div>';
+		  	$contents .= '<div><b>' . TEXT_TOTAL . '</b></div>' . chr(10);
+		}
+		return $this->build_div('', $contents, $control);
 	}
-	if (!$params['num_rows'] && $result->RecordCount() > 0) {
-	  $contents .= '<div style="float:right"><b>' . $currencies->format_full($total, true, $result->fields['currencies_code'], $result->fields['currencies_value']) . '</b></div>';
-	  $contents .= '<div><b>' . TEXT_TOTAL . '</b></div>' . chr(10);
-	}
-	return $this->build_div($contents, $control);
-  }
 
-  function Update() {
-	global $db;
-	$params['num_rows'] = db_prepare_input($_POST['pos_todays_field_0']);
-	$db->Execute("update " . TABLE_USERS_PROFILES . " set params = '" . serialize($params) . "' 
-	  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' 
-	    and dashboard_id = '" . $this->dashboard_id . "'");
-  }
+	function Update() {
+		$this->params['num_rows'] = db_prepare_input($_POST['pos_todays_field_0']);
+		parent::Update();
+	}
 
 }
 ?>

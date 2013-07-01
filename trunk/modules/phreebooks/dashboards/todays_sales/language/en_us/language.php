@@ -3,7 +3,6 @@
 // |                   PhreeBooks Open Source ERP                    |
 // +-----------------------------------------------------------------+
 // | Copyright(c) 2008-2013 PhreeSoft, LLC (www.PhreeSoft.com)       |
-
 // +-----------------------------------------------------------------+
 // | This program is free software: you can redistribute it and/or   |
 // | modify it under the terms of the GNU General Public License as  |
@@ -20,8 +19,4 @@
 
 define('CP_TODAYS_SALES_TITLE','Today\'s Sales');
 define('CP_TODAYS_SALES_DESCRIPTION','Lists today\'s sales/invoices. Links to reveiw the invoice are also provided.');
-define('CP_TODAYS_SALES_SECURITY',SECURITY_ID_SALES_INVOICE);
-
-define('CP_TODAYS_SALES_NO_RESULTS','No results found!');
-
 ?>

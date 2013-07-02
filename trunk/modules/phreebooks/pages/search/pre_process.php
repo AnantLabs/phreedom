@@ -40,33 +40,12 @@ for ($i = 1; $i < 30; $i++) {
 	$journal_choices[$i] = sprintf(TEXT_JID_ENTRY, constant('GEN_ADM_TOOLS_J' . $j_constant));
   }
 }
-$_GET['sort_id']         = $_POST['sort_id']           ? db_prepare_input($_POST['sort_id'])         : $_GET['sort_id'];
-$_GET['date_id']         = $_POST['date_id']           ? db_prepare_input($_POST['date_id'])         : $_GET['date_id'];
-$_GET['date_from']       = $_POST['date_from']         ? db_prepare_input($_POST['date_from'])       : $_GET['date_from'];
-$_GET['date_to']         = $_POST['date_to']           ? db_prepare_input($_POST['date_to'])         : $_GET['date_to'];
-$_GET['journal_id']      = isset($_POST['journal_id']) ? db_prepare_input($_POST['journal_id'])      : $_GET['journal_id'];
-$_GET['ref_id']          = $_POST['ref_id']            ? db_prepare_input($_POST['ref_id'])          : $_GET['ref_id'];
-$_GET['ref_id_from']     = $_POST['ref_id_from']       ? db_prepare_input($_POST['ref_id_from'])     : $_GET['ref_id_from'];
-$_GET['ref_id_to']       = $_POST['ref_id_to']         ? db_prepare_input($_POST['ref_id_to'])       : $_GET['ref_id_to'];
-$_GET['account_id']      = $_POST['account_id']        ? db_prepare_input($_POST['account_id'])      : $_GET['account_id'];
-$_GET['account_id_from'] = $_POST['account_id_from']   ? db_prepare_input($_POST['account_id_from']) : $_GET['account_id_from'];
-$_GET['account_id_to']   = $_POST['account_id_to']     ? db_prepare_input($_POST['account_id_to'])   : $_GET['account_id_to'];
-$_GET['sku_id']          = $_POST['sku_id']            ? db_prepare_input($_POST['sku_id'])          : $_GET['sku_id'];
-$_GET['sku_id_from']     = $_POST['sku_id_from']       ? db_prepare_input($_POST['sku_id_from'])     : $_GET['sku_id_from'];
-$_GET['sku_id_to']       = $_POST['sku_id_to']         ? db_prepare_input($_POST['sku_id_to'])       : $_GET['sku_id_to'];
-$_GET['amount_id']       = $_POST['amount_id']         ? db_prepare_input($_POST['amount_id'])       : $_GET['amount_id'];
-$_GET['amount_id_from']  = $_POST['amount_id_from']    ? $currencies->clean_value(db_prepare_input($_POST['amount_id_from'])) : $currencies->clean_value($_GET['amount_id_from']);
-$_GET['amount_id_to']    = $_POST['amount_id_to']      ? $currencies->clean_value(db_prepare_input($_POST['amount_id_to']))   : $currencies->clean_value($_GET['amount_id_to']);
-$_GET['gl_acct_id']      = $_POST['gl_acct_id']        ? db_prepare_input($_POST['gl_acct_id'])      : $_GET['gl_acct_id'];
-$_GET['gl_acct_id_from'] = $_POST['gl_acct_id_from']   ? db_prepare_input($_POST['gl_acct_id_from']) : $_GET['gl_acct_id_from'];
-$_GET['gl_acct_id_to']   = $_POST['gl_acct_id_to']     ? db_prepare_input($_POST['gl_acct_id_to'])   : $_GET['gl_acct_id_to'];
-$_GET['main_id']         = $_POST['main_id']           ? db_prepare_input($_POST['main_id'])         : $_GET['main_id'];
-$_GET['main_id_from']    = $_POST['main_id_from']      ? db_prepare_input($_POST['main_id_from'])    : $_GET['main_id_from'];
-$_GET['main_id_to']      = $_POST['main_id_to']        ? db_prepare_input($_POST['main_id_to'])      : $_GET['main_id_to'];
+$_REQUEST['amount_id_from']  = $currencies->clean_value($_REQUEST['amount_id_from']);
+$_REQUEST['amount_id_to']    = $currencies->clean_value($_REQUEST['amount_id_to']);
 // set some defaults
-$_GET['date_id']   = $_GET['date_id']   ? $_GET['date_id']   : 'l'; // default to current period
-$_GET['date_from'] = $_GET['date_from'] ? $_GET['date_from'] : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
-$_GET['date_to']   = $_GET['date_to']   ? $_GET['date_to']   : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_END);
+$_REQUEST['date_id']   = $_REQUEST['date_id']   ? $_REQUEST['date_id']   : 'l'; // default to current period
+$_REQUEST['date_from'] = $_REQUEST['date_from'] ? $_REQUEST['date_from'] : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
+$_REQUEST['date_to']   = $_REQUEST['date_to']   ? $_REQUEST['date_to']   : gen_locale_date(CURRENT_ACCOUNTING_PERIOD_END);
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
 // load the sort fields
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
@@ -81,31 +60,31 @@ switch ($action) {
   case 'go_next':     $_GET['list']++;       break;
   case 'go_last':     $_GET['list'] = 99999; break;
   case 'reset':
-	$_GET['date_id']         = 'l';
-	$_GET['date_from']       = gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
-	$_GET['date_to']         = gen_locale_date(CURRENT_ACCOUNTING_PERIOD_END);
-	$_GET['journal_id']      = '-1';
-	$_GET['ref_id']          = 'all';
-	$_GET['ref_id_from']     = '';
-	$_GET['ref_id_to']       = '';
-	$_GET['account_id']      = 'all';
-	$_GET['account_id_from'] = '';
-	$_GET['account_id_to']   = '';
-	$_GET['sku_id']          = 'all';
-	$_GET['sku_id_from']     = '';
-	$_GET['sku_id_to']       = '';
-	$_GET['amount_id']       = 'all';
-	$_GET['amount_id_from']  = '';
-	$_GET['amount_id_to']    = '';
-	$_GET['gl_acct_id']      = 'all';
-	$_GET['gl_acct_id_from'] = '';
-	$_GET['gl_acct_id_to']   = '';
-	$_GET['main_id']         = 'all';
-	$_GET['main_id_from']    = '';
-	$_GET['main_id_to']      = '';
-    $_GET['search_text']     = ''; 
-  	$_GET['list']            = 1; 
-	unset($_GET['list_order']);
+	$_REQUEST['date_id']         = 'l';
+	$_REQUEST['date_from']       = gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
+	$_REQUEST['date_to']         = gen_locale_date(CURRENT_ACCOUNTING_PERIOD_END);
+	$_REQUEST['journal_id']      = '-1';
+	$_REQUEST['ref_id']          = 'all';
+	$_REQUEST['ref_id_from']     = '';
+	$_REQUEST['ref_id_to']       = '';
+	$_REQUEST['account_id']      = 'all';
+	$_REQUEST['account_id_from'] = '';
+	$_REQUEST['account_id_to']   = '';
+	$_REQUEST['sku_id']          = 'all';
+	$_REQUEST['sku_id_from']     = '';
+	$_REQUEST['sku_id_to']       = '';
+	$_REQUEST['amount_id']       = 'all';
+	$_REQUEST['amount_id_from']  = '';
+	$_REQUEST['amount_id_to']    = '';
+	$_REQUEST['gl_acct_id']      = 'all';
+	$_REQUEST['gl_acct_id_from'] = '';
+	$_REQUEST['gl_acct_id_to']   = '';
+	$_REQUEST['main_id']         = 'all';
+	$_REQUEST['main_id_from']    = '';
+	$_REQUEST['main_id_to']      = '';
+    $_REQUEST['search_text']     = ''; 
+  	$_REQUEST['list']            = 1; 
+	unset($_REQUEST['list_order']);
 	break;
   case 'search':
   case 'go_page':
@@ -118,7 +97,7 @@ $cal_from = array(
   'form'      => 'site_search',
   'fieldname' => 'date_from',
   'imagename' => 'btn_date_1',
-  'default'   => $_GET['date_from'],
+  'default'   => $_REQUEST['date_from'],
   'params'    => array('align' => 'left'),
 );
 $cal_to = array(
@@ -126,7 +105,7 @@ $cal_to = array(
   'form'      => 'site_search',
   'fieldname' => 'date_to',
   'imagename' => 'btn_date_2',
-  'default'   => $_GET['date_to'],
+  'default'   => $_REQUEST['date_to'],
   'params'    => array('align' => 'left'),
 );
 
@@ -148,35 +127,35 @@ $disp_order  = $result['disp_order'];
 
 // build the list for the page selected
 $criteria = array();
-if ($_GET['journal_id']) $criteria[] = 'm.journal_id = ' . $_GET['journal_id'];
+if ($_REQUEST['journal_id']) $criteria[] = 'm.journal_id = ' . $_REQUEST['journal_id'];
 
 $ref_fields = array('m.purchase_invoice_id', 'm.purch_order_id', 'i.serialize_number');
-$result = build_search_sql($ref_fields, $_GET['ref_id'], $_GET['ref_id_from'], $_GET['ref_id_to']);
+$result = build_search_sql($ref_fields, $_REQUEST['ref_id'], $_REQUEST['ref_id_from'], $_REQUEST['ref_id_to']);
 if ($result) $criteria[] = $result;
 
 $account_fields = array('m.bill_primary_name', 'm.ship_primary_name');
-$result = build_search_sql($account_fields, $_GET['account_id'], $_GET['account_id_from'], $_GET['account_id_to']);
+$result = build_search_sql($account_fields, $_REQUEST['account_id'], $_REQUEST['account_id_from'], $_REQUEST['account_id_to']);
 if ($result) $criteria[] = $result;
 
 $sku_fields = array('i.sku', 'i.description');
-$result = build_search_sql($sku_fields, $_GET['sku_id'], $_GET['sku_id_from'], $_GET['sku_id_to']);
+$result = build_search_sql($sku_fields, $_REQUEST['sku_id'], $_REQUEST['sku_id_from'], $_REQUEST['sku_id_to']);
 if ($result) $criteria[] = $result;
 
 $amt_fields = array('m.total_amount', 'i.debit_amount', 'i.credit_amount');
-$result = build_search_sql($amt_fields, $_GET['amount_id'], $currencies->clean_value($_GET['amount_id_from']), $currencies->clean_value($_GET['amount_id_to']));
+$result = build_search_sql($amt_fields, $_REQUEST['amount_id'], $_REQUEST['amount_id_from'], $_REQUEST['amount_id_to']);
 if ($result) $criteria[] = $result;
 
 $gl_acct_fields = array('m.gl_acct_id', 'i.gl_account');
-$result = build_search_sql($gl_acct_fields, $_GET['gl_acct_id'], $_GET['gl_acct_id_from'], $_GET['gl_acct_id_to']);
+$result = build_search_sql($gl_acct_fields, $_REQUEST['gl_acct_id'], $_REQUEST['gl_acct_id_from'], $_REQUEST['gl_acct_id_to']);
 if ($result) $criteria[] = $result;
 
 $main_fields = array('m.id');
-$result = build_search_sql($main_fields, $_GET['main_id'], $_GET['main_id_from'], $_GET['main_id_to']);
+$result = build_search_sql($main_fields, $_REQUEST['main_id'], $_REQUEST['main_id_from'], $_REQUEST['main_id_to']);
 if ($result) $criteria[] = $result;
 
 $date_prefs = array(
 	'fieldname' => 'm.post_date',
-	'params' => $_GET['date_id'] . ':' . ($_GET['date_from']) . ':' . ($_GET['date_to']));
+	'params' => $_REQUEST['date_id'] . ':' . ($_REQUEST['date_from']) . ':' . ($_REQUEST['date_to']));
 $temp = gen_build_sql_date($date_prefs['params'], $date_prefs['fieldname']);
 if ($temp['sql']) $criteria[] = '(' . $temp['sql'] . ')';
 

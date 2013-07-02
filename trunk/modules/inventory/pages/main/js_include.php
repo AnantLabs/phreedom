@@ -48,7 +48,8 @@ function init() {
 	$(function() { $('#detailtabs').tabs(); });
 	$('#inv_image').dialog({ autoOpen:false, width:800 });
 	<?php 
-  	if(empty($cInfo->purchase_array)) {
+	$action_array = array('edit','properties','create');
+  	if(in_array($action, $action_array)&& empty($cInfo->purchase_array)) {
   		echo "  addVendorRow();";
   	}
   	?>

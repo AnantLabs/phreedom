@@ -48,51 +48,51 @@ echo $toolbar->build_toolbar();
  <tbody class="ui-widget-content">
   <tr>
     <td><?php echo TEXT_TRANSACTION_TYPE; ?></td>
-    <td colspan="3"><?php echo html_pull_down_menu('journal_id', gen_build_pull_down($journal_choices), $_GET['journal_id']); ?></td>
+    <td colspan="3"><?php echo html_pull_down_menu('journal_id', gen_build_pull_down($journal_choices), $_REQUEST['journal_id']); ?></td>
 	<td rowspan="3" align="right"><?php echo html_icon('actions/view-refresh.png', TEXT_RESET, 'large', 'style="cursor:pointer;" onclick="submitToDo(\'reset\')"');
     echo '&nbsp;' . html_icon('actions/system-search.png', TEXT_SEARCH, 'large', 'style="cursor:pointer;" onclick="submitToDo(\'search\')"'); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_TRANSACTION_DATE; ?></td>
-    <td><?php echo html_pull_down_menu('date_id', gen_build_pull_down($DateChoices), $_GET['date_id'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('date_id', gen_build_pull_down($DateChoices), $_REQUEST['date_id'], $params = ''); ?></td>
     <td><?php echo html_calendar_field($cal_from); ?></td>
     <td><?php echo html_calendar_field($cal_to); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_REFERENCE_NUMBER; ?></td>
-    <td><?php echo html_pull_down_menu('ref_id', gen_build_pull_down($choices), $_GET['ref_id'], $params = ''); ?></td>
-    <td><?php echo html_input_field('ref_id_from', $_GET['ref_id_from'], $params = ''); ?></td>
-    <td><?php echo html_input_field('ref_id_to', $_GET['ref_id_to'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('ref_id', gen_build_pull_down($choices), $_REQUEST['ref_id'], $params = ''); ?></td>
+    <td><?php echo html_input_field('ref_id_from', $_REQUEST['ref_id_from'], $params = ''); ?></td>
+    <td><?php echo html_input_field('ref_id_to', $_REQUEST['ref_id_to'], $params = ''); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_CUST_VEND_ACCT; ?></td>
-    <td><?php echo html_pull_down_menu('account_id', gen_build_pull_down($choices), $_GET['account_id'], $params = ''); ?></td>
-    <td><?php echo html_input_field('account_id_from', $_GET['account_id_from'], $params = ''); ?></td>
-    <td><?php echo html_input_field('account_id_to', $_GET['account_id_to'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('account_id', gen_build_pull_down($choices), $_REQUEST['account_id'], $params = ''); ?></td>
+    <td><?php echo html_input_field('account_id_from', $_REQUEST['account_id_from'], $params = ''); ?></td>
+    <td><?php echo html_input_field('account_id_to', $_REQUEST['account_id_to'], $params = ''); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_INVENTORY_ITEM; ?></td>
-    <td><?php echo html_pull_down_menu('sku_id', gen_build_pull_down($choices), $_GET['sku_id'], $params = ''); ?></td>
-    <td><?php echo html_input_field('sku_id_from', $_GET['sku_id_from'], $params = ''); ?></td>
-    <td><?php echo html_input_field('sku_id_to', $_GET['sku_id_to'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('sku_id', gen_build_pull_down($choices), $_REQUEST['sku_id'], $params = ''); ?></td>
+    <td><?php echo html_input_field('sku_id_from', $_REQUEST['sku_id_from'], $params = ''); ?></td>
+    <td><?php echo html_input_field('sku_id_to', $_REQUEST['sku_id_to'], $params = ''); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_TRANSACTION_AMOUNT; ?></td>
-    <td><?php echo html_pull_down_menu('amount_id', gen_build_pull_down($choices), $_GET['amount_id'], $params = ''); ?></td>
-    <td><?php echo html_input_field('amount_id_from',($_GET['amount_id_from'])? $currencies->precise($_GET['amount_id_from']):'', $params = ''); ?></td>
-    <td><?php echo html_input_field('amount_id_to', ($_GET['amount_id_to']) ? $currencies->precise($_GET['amount_id_to']):'', $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('amount_id', gen_build_pull_down($choices), $_REQUEST['amount_id'], $params = ''); ?></td>
+    <td><?php echo html_input_field('amount_id_from',($_REQUEST['amount_id_from'])? $currencies->precise($_REQUEST['amount_id_from']):'', $params = ''); ?></td>
+    <td><?php echo html_input_field('amount_id_to', ($_REQUEST['amount_id_to']) ? $currencies->precise($_REQUEST['amount_id_to']):'', $params = ''); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_GENERAL_LEDGER_ACCOUNT; ?></td>
-    <td><?php echo html_pull_down_menu('gl_acct_id', gen_build_pull_down($choices), $_GET['gl_acct_id'], $params = ''); ?></td>
-    <td><?php echo html_pull_down_menu('gl_acct_id_from', $gl_array_list, $_GET['gl_acct_id_from']); ?></td>
-    <td><?php echo html_pull_down_menu('gl_acct_id_to', $gl_array_list, $_GET['gl_acct_id_to']); ?></td>
+    <td><?php echo html_pull_down_menu('gl_acct_id', gen_build_pull_down($choices), $_REQUEST['gl_acct_id'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('gl_acct_id_from', $gl_array_list, $_REQUEST['gl_acct_id_from']); ?></td>
+    <td><?php echo html_pull_down_menu('gl_acct_id_to', $gl_array_list, $_REQUEST['gl_acct_id_to']); ?></td>
   </tr>
   <tr>
     <td><?php echo TEXT_JOURNAL_RECORD_ID; ?></td>
-    <td><?php echo html_pull_down_menu('main_id', gen_build_pull_down($choices), $_GET['main_id'], $params = ''); ?></td>
-    <td><?php echo html_input_field('main_id_from', $_GET['main_id_from'], $params = ''); ?></td>
-    <td><?php echo html_input_field('main_id_to', $_GET['main_id_to'], $params = ''); ?></td>
+    <td><?php echo html_pull_down_menu('main_id', gen_build_pull_down($choices), $_REQUEST['main_id'], $params = ''); ?></td>
+    <td><?php echo html_input_field('main_id_from', $_REQUEST['main_id_from'], $params = ''); ?></td>
+    <td><?php echo html_input_field('main_id_to', $_REQUEST['main_id_to'], $params = ''); ?></td>
   </tr>
  </tbody>
 </table>

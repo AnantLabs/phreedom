@@ -33,8 +33,8 @@ echo $toolbar->build_toolbar();
 ?>
 <h1><?php echo HEADING_TITLE_SEARCH_INFORMATION; ?></h1>
 <?php if ($query_numrows > 0) { ?>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_RESULTS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_RESULTS); ?></div>
 <?php } ?>
 <table class="ui-widget" style="border-style:none;margin-left:auto;margin-right:auto">
  <thead class="ui-widget-header">
@@ -216,7 +216,7 @@ echo $toolbar->build_toolbar();
  </tbody>
 </table>
 <?php if ($query_numrows > 0) { ?>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_RESULTS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_RESULTS); ?></div>
 <?php } ?>
 </form>

@@ -136,6 +136,7 @@
 	 	</thead>
 		<tbody id="vendor_table_tbody">
 		<?php
+		$odd = false;
 		if(is_array($cInfo->purchase_array))foreach($cInfo->purchase_array as $purchaseRow){
 			$i = rand();
 			echo '<tr class="' . ($odd?'odd':'even') .'" id ="row_id_'.$i.'" >';

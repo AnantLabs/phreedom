@@ -27,15 +27,15 @@ $store_id     = isset($_GET['storeID']) ? $_GET['storeID'] : 0;
 $contactID    = isset($_GET['cID'])     ? $_GET['cID']     : 0;
 $assembly     = isset($_GET['asy'])     ? true             : false;
 // load the filters
-$f0 = $_GET['f0'] = isset($_POST['f0']) ? $_POST['f0'] : $_GET['f0']; // show inactive checkbox
-$f1 = $_GET['f1'] = isset($_POST['f1']) ? $_POST['f1'] : $_GET['f1']; // inventory_type dropdown
-$f2 = $_GET['f2'] = isset($_POST['f2']) ? $_POST['f2'] : $_GET['f2']; // limit to preferred_vendor checkbox
+$f0 = isset($_REQUEST['f0']) ? $_REQUEST['f0'] : ''; // show inactive checkbox
+$f1 = isset($_REQUEST['f1']) ? $_REQUEST['f1'] : ''; // inventory_type dropdown
+$f2 = isset($_REQUEST['f2']) ? $_REQUEST['f2'] : ''; // limit to preferred_vendor checkbox
 // save the filters for page jumps
 $_GET['f0'] = $f0;
 $_GET['f1'] = $f1;
 $_GET['f2'] = $f2;
-
-$search_text  = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action       = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -54,10 +54,10 @@ if (file_exists($custom_path)) { include($custom_path); }
 
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -112,13 +112,13 @@ $field_list = array('a.id as id', 'a.sku as sku', 'inactive', 'inventory_type', 
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw = "select DISTINCT " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY ."  a LEFT OUTER JOIN " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku " . $search . " order by $disp_order";
-
-$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result = $db->Execute($query_raw);
+$query_raw = "select SQL_CALC_FOUND_ROWS DISTINCT " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY ."  a LEFT OUTER JOIN " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku " . $search . " order by $disp_order";
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 
 // check for auto close (if auto fill is turned on and only one result is found, the data will already be there)
-$auto_close = (INVENTORY_AUTO_FILL && $query_result->RecordCount() == 1 && $_GET['list'] == 1) ? true : false;
+$auto_close = (INVENTORY_AUTO_FILL && $query_result->RecordCount() == 1 && $_REQUEST['list'] == 1) ? true : false;
 $auto_close = false; // disable until all modules that use this function are ajax compliant
 
 $include_header   = false;

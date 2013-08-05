@@ -21,8 +21,8 @@ class shipping_admin {
   function __construct() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom'   => '3.6',
-	  'phreebooks' => '3.6',
+	  'phreedom'   => 3.6,
+	  'phreebooks' => 3.6,
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -117,7 +117,7 @@ class shipping_admin {
   function update($module) {
     global $db, $messageStack;
 	$error = false;
-	if (MODULE_SHIPPING_STATUS < '3.2') {
+	if (MODULE_SHIPPING_STATUS < 3.2) {
 	  if (!db_field_exists(TABLE_CURRENT_STATUS, 'next_shipment_num')) $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " ADD next_shipment_num VARCHAR(16) NOT NULL DEFAULT '1'");
 	  if (db_field_exists(TABLE_CURRENT_STATUS, 'next_shipment_desc')) $db->Execute("ALTER TABLE " . TABLE_CURRENT_STATUS . " DROP next_shipment_desc");
 	}

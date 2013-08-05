@@ -28,10 +28,10 @@ define('TEXT_PRODUCTION','Production');
 define('TEXT_AUTHORIZE','Authorize');
 define('TEXT_CAPTURE','Capture');
 define('TEXT_REMOVE_MESSAGE','Are you sure you want to remove this module and all the data associated with it?');
-define('OPEN_POS_DRAWER_DESC','Allow the pos drawer to open when payment is selected.');
+
 define('OPEN_POS_DRAWER','0');
 define('SORT_ORDER_DESC', 'Sort order of display. Lowest is displayed first.');
-define('POS_GL_ACCT_DESC','POS gl account payment type');
-define('SHOW_IN_POS_DESC','Show this payment in PhreePOS');
+
+
 
 ?>

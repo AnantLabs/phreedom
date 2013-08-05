@@ -38,8 +38,8 @@ echo $toolbar->build_toolbar($add_search = true, $add_period = true);
 $list_types = ($adj_type == 'xfr') ? TEXT_TRANSFERS : ORD_TEXT_16_WINDOW_TITLE;
 ?>
 <h1><?php echo GEN_HEADING_PLEASE_SELECT; ?></h1>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . $list_types); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . $list_types); ?></div>
 <table class="ui-widget" style="border-collapse:collapse;width:100%">
  <thead class="ui-widget-header">
     <tr><?php  echo $list_header; ?></tr>
@@ -73,6 +73,6 @@ $list_types = ($adj_type == 'xfr') ? TEXT_TRANSFERS : ORD_TEXT_16_WINDOW_TITLE;
 	} ?>
   </tbody>
 </table>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . $list_types); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . $list_types); ?></div>
 </form>

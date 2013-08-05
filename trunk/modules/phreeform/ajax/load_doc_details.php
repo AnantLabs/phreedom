@@ -24,6 +24,7 @@ $security_level = validate_ajax_user(SECURITY_ID_PHREEFORM);
 require_once(DIR_FS_MODULES . 'phreeform/defaults.php');
 require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
 /**************   page specific initialization  *************************/
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
 // load the sort fields
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
@@ -36,9 +37,10 @@ if ($id == 0 || $doc_details->fields['doc_type'] == '0') { // folder
   $result       = html_heading_bar(array(), $_GET['sf'], $_GET['so'], array(' ', $dir_path, TEXT_ACTION));
   $list_header  = $result['html_code'];
   $field_list   = array('id', 'doc_type', 'doc_title', 'security');
-  $query_raw    = "select " . implode(', ', $field_list)  . " from " . TABLE_PHREEFORM . " where parent_id = '" . $id . "'";
-  $query_result = $db->Execute($query_raw);
-  $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
+  $query_raw    = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list)  . " from " . TABLE_PHREEFORM . " where parent_id = '" . $id . "'";
+  $query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+  // the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+  $query_split  = new splitPageResults($_REQUEST['list'], '');  
   include (DIR_FS_MODULES . 'phreeform/pages/main/tab_folder.php');
 } else { // load document details
   include (DIR_FS_MODULES . 'phreeform/pages/main/tab_report.php');

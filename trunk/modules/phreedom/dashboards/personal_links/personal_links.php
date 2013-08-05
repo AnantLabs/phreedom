@@ -29,6 +29,8 @@ class personal_links extends ctl_panel {
 
 	function Output($params) {
 		global $db;
+		$contents = '';
+		$control  = '';
 		// Build control box form data
 		$control  = '<div class="row">';
 		$control .= '<div style="white-space:nowrap">';

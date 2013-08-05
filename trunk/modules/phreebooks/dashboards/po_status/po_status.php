@@ -29,6 +29,8 @@ class po_status extends ctl_panel {
 	function Output($params) {
 		global $db, $currencies;
 		$list_length = array();
+		$contents = '';
+		$control  = '';
 		for ($i = 0; $i <= $this->max_length; $i++) $list_length[] = array('id' => $i, 'text' => $i);
 		$list_order = array(
 		  array('id'=>'asc', 'text'=>TEXT_ASC),

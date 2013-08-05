@@ -28,7 +28,7 @@ if (PHREEHELP_FORCE_RELOAD == '1') { // load/reload db tables if forced to
 }
 $frame_id    = isset($_GET['fID'])          ? $_GET['fID']          : 'main';
 $context_ref = isset($_GET['idx'])          ? $_GET['idx']          : '';
-$search_text = isset($_POST['search_text']) ? $_POST['search_text'] : '';
+$search_text = db_input($_REQUEST['search_text']);
 $result = false;
 $start_page = DOC_ROOT_URL;
 if ($context_ref) {

@@ -1038,16 +1038,6 @@ function checkShipAll() {
   }
 }
 
-function activateFields() {
-  if (payments_installed) {
-    var index = document.getElementById('payment_method').selectedIndex;
-    for (var i=0; i<document.getElementById('payment_method').options.length; i++) {
-  	  document.getElementById('pm_'+i).style.visibility = 'hidden';
-    }
-    document.getElementById('pm_'+index).style.visibility = '';
-  }
-}
-
 function updateDesc(rowID) {
  // this function not used - it sets the chart of accounts description if required by the form
 }

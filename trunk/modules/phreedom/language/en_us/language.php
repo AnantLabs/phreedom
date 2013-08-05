@@ -146,7 +146,6 @@ define('TEXT_HELP', 'Help');
 define('TEXT_HERE', 'here');
 define('TEXT_HIDE','Hide');
 define('TEXT_HISTORY','History');
-define('TEXT_HOME','Home');
 define('TEXT_HORIZONTAL','Horizontal');
 define('TEXT_IMPORT','Import');
 define('TEXT_INACTIVE','Inactive');
@@ -413,6 +412,7 @@ define('TEXT_GO_LAST','Jump to last page');
 define('JS_ERROR', 'Errors have occurred during the processing of your form!\nPlease make the following corrections:\n\n');
 define('JS_CTL_PANEL_DELETE_BOX','Do you really want to delete this box?');
 define('JS_CTL_PANEL_DELETE_IDX','Do you really want to delete this index?');
+define('SORRY_YOU_ARE_LOGGED_OUT','Sorry you need to log in');
 // Audit Log Messages
 define('GEN_LOG_USER','User admin (%s)');
 define('AUDIT_LOG_REMOVE_SUCCESS','Uninstalled module:');

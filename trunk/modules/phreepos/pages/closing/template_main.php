@@ -133,29 +133,29 @@ echo html_hidden_field('post_date', gen_locale_date($post_date))      . chr(10);
  <tfoot class="ui-widget-header">
  <?php 
  	$i=0;	
- 	foreach(gen_get_currency_array() as $currency){ 
+ 	foreach($currencies->currencies as $key => $currency){ 
  		echo '<tr onclick="show('.$i.')">';
  		echo   '<td colspan="1" align="left">'. TEXT_SHOW_COUNT_HELP .'</td>';
 		echo   '<td colspan="4" align="right">'. NEW_BALANCE .' ' .$currency['text'].'&nbsp;</td>';
-		echo   '<td colspan="2" align="right">'.html_hidden_field('currencies_value_'.$i, $currencies->get_value($currency['id']));
+		echo   '<td colspan="2" align="right">'.html_hidden_field('currencies_value_'.$i, $currency['value']);
 		echo   html_input_field('new_balance_'.$i, '0', 'style="text-align:right" size="13" onchange="updateBalance()"').'</td>';
   		echo '</tr>';
   		echo '<tr id="curr_' . $i . '" style="display:none"><td colspan="7"><table style="width:100%">' . chr(10);
-  		echo ' <tr><td>0,01 * '  . html_input_field('t_'.$currency['id'].'_001', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>0,10 * '  . html_input_field('t_'.$currency['id'].'_01',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>1,00 * '  . html_input_field('t_'.$currency['id'].'_1',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>10,00 * ' . html_input_field('t_'.$currency['id'].'_10',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>100,00 * '. html_input_field('t_'.$currency['id'].'_100', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') . '</td></tr>';
-  		echo ' <tr><td>0,02 * '  . html_input_field('t_'.$currency['id'].'_002', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>0,20 * '  . html_input_field('t_'.$currency['id'].'_02',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>2,00 * '  . html_input_field('t_'.$currency['id'].'_2',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>20,00 * ' . html_input_field('t_'.$currency['id'].'_20',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>200,00 * '. html_input_field('t_'.$currency['id'].'_200', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') . '</td></tr>';
-  		echo ' <tr><td>0,05 * '  . html_input_field('t_'.$currency['id'].'_005', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>0,50 * '  . html_input_field('t_'.$currency['id'].'_05',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>5,00 * '  . html_input_field('t_'.$currency['id'].'_5',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>50,00 * ' . html_input_field('t_'.$currency['id'].'_50',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') .
-  			 '</td><td>500,00 * '. html_input_field('t_'.$currency['id'].'_500', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''.$currency['id'].'\','.$i.')"') . '</td></tr>';
+  		echo ' <tr><td>0,01 * '  . html_input_field('t_'. $key .'_001', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>0,10 * '  . html_input_field('t_'. $key .'_01',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>1,00 * '  . html_input_field('t_'. $key .'_1',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>10,00 * ' . html_input_field('t_'. $key .'_10',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>100,00 * '. html_input_field('t_'. $key .'_100', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') . '</td></tr>';
+  		echo ' <tr><td>0,02 * '  . html_input_field('t_'. $key .'_002', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>0,20 * '  . html_input_field('t_'. $key .'_02',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>2,00 * '  . html_input_field('t_'. $key .'_2',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>20,00 * ' . html_input_field('t_'. $key .'_20',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>200,00 * '. html_input_field('t_'. $key .'_200', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') . '</td></tr>';
+  		echo ' <tr><td>0,05 * '  . html_input_field('t_'. $key .'_005', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>0,50 * '  . html_input_field('t_'. $key .'_05',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>5,00 * '  . html_input_field('t_'. $key .'_5',   '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>50,00 * ' . html_input_field('t_'. $key .'_50',  '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') .
+  			 '</td><td>500,00 * '. html_input_field('t_'. $key .'_500', '','style="text-align:right; width:50px" size="4" onchange="updateCurr(\''. $key .'\','.$i.')"') . '</td></tr>';
   		
   		echo '</table></td></tr>' . chr(10);
   		$i++;

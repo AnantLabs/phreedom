@@ -22,8 +22,8 @@ echo html_form('inventory', FILENAME_DEFAULT, gen_get_all_get_params(array('acti
 echo html_hidden_field('todo', '') . chr(10);
 echo html_hidden_field('rowSeq', 	$cInfo->id) . chr(10);
 echo html_hidden_field('id', 		$cInfo->id) . chr(10);
-echo html_hidden_field('ms_attr_0', $cInfo->ms_attr_0) . chr(10);
-echo html_hidden_field('ms_attr_1', $cInfo->ms_attr_1) . chr(10);
+if(isset($cInfo->ms_attr_0)) echo html_hidden_field('ms_attr_0', $cInfo->ms_attr_0) . chr(10);
+if(isset($cInfo->ms_attr_1)) echo html_hidden_field('ms_attr_1', $cInfo->ms_attr_1) . chr(10);
 // customize the toolbar actions
 if ($action == 'properties') {
   echo html_hidden_field('search_text', '') . chr(10);
@@ -42,7 +42,7 @@ if ($action == 'properties') {
     $toolbar->icon_list['save']['show']   = false;
   }
   $toolbar->icon_list['print']['show']    = false;
-  $toolbar->add_help($cInfo->help);
+  $toolbar->add_help($cInfo->help_path);
 }
 // pull in extra toolbar overrides and additions
 if (count($extra_toolbar_buttons_detail) > 0) {

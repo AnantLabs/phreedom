@@ -39,6 +39,7 @@ var text_enter_new       = '<?php echo TEXT_ENTER_NEW; ?>';
 var text_properties      = '<?php echo TEXT_PROPERTIES; ?>';
 var post_error           = <?php echo $error ? "true" : "false"; ?>;
 var default_sales_tax    = '-1';
+var contact_sales_tax    = '-1';
 var image_delete_text    = '<?php echo TEXT_DELETE; ?>';
 var image_delete_msg     = '<?php echo TEXT_DELETE_ENTRY; ?>';
 var store_country_code   = '<?php echo COMPANY_COUNTRY; ?>';
@@ -148,7 +149,7 @@ function currencyType(id, text, value, decimal_point, thousands_point, decimal_p
 	  this.decimal_precise = decimal_precise;
 }
 
-function till (id, restrictCurrency, currenciesCode, printer, startingLine, closingLine, openDrawer) {
+function till (id, restrictCurrency, currenciesCode, printer, startingLine, closingLine, openDrawer, defaultTax) {
 	  this.id   		    = id;
 	  this.restrictCurrency = restrictCurrency;
 	  this.currenciesCode 	= currenciesCode;
@@ -156,6 +157,7 @@ function till (id, restrictCurrency, currenciesCode, printer, startingLine, clos
 	  this.startingLine		= startingLine;
 	  this.closingLine		= closingLine;	
 	  this.openDrawer		= openDrawer;
+	  this.defaultTax		= defaultTax;
 }
 
 function ot_option (till_id, id, type, use_tax, taxable, description) {
@@ -263,6 +265,7 @@ function orderFillAddress(xml, type, fill_address) {
       case 'bill':
 		bill_add          = this;
 		default_sales_tax = $(this).find("tax_id").text();
+		contact_sales_tax = $(this).find("tax_id").text();
 		default_inv_acct  = ($(this).find("gl_type_account").text()) ? $(this).find("gl_type_account").text() : '';
 		insertValue('bill_acct_id',    id);
 		insertValue('search',          $(this).find("short_name").text());
@@ -520,6 +523,7 @@ function addInvRow() {
   cell += '<input type="hidden" name="disc_'+rowCnt+'" id="disc_'+rowCnt+'" value="0" />';
   cell += '<input type="hidden" name="acct_'+rowCnt+'" id="acct_'+rowCnt+'" value="'+default_inv_acct+'" />';
   cell += '<input type="hidden" name="tax_'+rowCnt+'" id="tax_'+rowCnt+'" value="0" />';
+  cell += '<input type="hidden" name="product_tax_'+rowCnt+'" id="product_tax_'+rowCnt+'" value="0" />';
   if (display_with_tax) { 
 	cell += '<input type="hidden" name="price_'+rowCnt+'" id="price_'+rowCnt+'" value="'+formatted_zero+'" />';
     cell += '<input type="hidden" name="total_'+rowCnt+'" id="total_'+rowCnt+'" value="'+formatted_zero+'" />';
@@ -550,6 +554,7 @@ function removeInvRow(index) {
 	document.getElementById('price_'+i).value    	= document.getElementById('price_'+(i+1)).value;
 	document.getElementById('acct_'+i).value     	= document.getElementById('acct_'+(i+1)).value;
 	document.getElementById('tax_'+i).value      	= document.getElementById('tax_'+(i+1)).value;
+	document.getElementById('product_tax_'+i).value = document.getElementById('product_tax_'+(i+1)).value;
 // Hidden fields
 	document.getElementById('id_'+i).value       	= document.getElementById('id_'+(i+1)).value;
 	document.getElementById('stock_'+i).value    	= document.getElementById('stock_'+(i+1)).value;
@@ -632,6 +637,7 @@ function updateRowTotal(rowCnt, useAjax) {
 	var unit_price   = cleanCurrency(document.getElementById('price_'+rowCnt).value);
 	var full_price   = cleanCurrency(document.getElementById('full_' +rowCnt).value);
 	var tax_index    = document.getElementById('tax_'+rowCnt).value;
+	if(tax_index == '-1' || tax_index == '') tax_index = 0;
 	var wtunit_price = unit_price * (1 +(tax_rates[tax_index].rate / 100));
 	var qty          = parseFloat(document.getElementById('pstd_'+rowCnt).value);
 	if (isNaN(qty)) qty = 1; // if blank or a non-numeric value is in the pstd field, assume one
@@ -733,10 +739,9 @@ function updateTotalPrices() {
   var lineTotal        = '';
   var numRows          = document.getElementById('item_table_body').rows.length;
   for (var i=1; i<=numRows; i++) {
-	var tax_index    = document.getElementById('tax_'+numRows).value;
+	var tax_index    = document.getElementById('tax_'+i).value;
     lineTotal  = parseFloat(cleanCurrency(document.getElementById('total_'+i).value));
-  	if (document.getElementById('tax_'+i).value != '0') {
-      tax_index = document.getElementById('tax_'+i).value;
+  	if (tax_index != '0') {
 	  if (tax_index == -1 || tax_index == '') { // if the rate array index is not defined
 		tax_index = 0;
 		document.getElementById('tax_'+i).value = tax_index;
@@ -962,7 +967,12 @@ function fillInventory(sXml) {
   if($(xml).find("inventory_type").text() == 'sr' || $(xml).find("inventory_type").text() == 'sa') {
   		$('#serial_' +rowCnt).show();
   }
-  if(default_sales_tax == -1) document.getElementById('tax_'   +rowCnt).value     = $(xml).find("item_taxable").text();
+  document.getElementById('product_tax_'+rowCnt).value    = $(xml).find("item_taxable").text();
+  if(default_sales_tax == '-1'){
+	document.getElementById('tax_'   +rowCnt).value       = $(xml).find("item_taxable").text();
+  }else{
+	document.getElementById('tax_'   +rowCnt).value       = default_sales_tax;
+  }
   if ($(xml).find("description_sales").text()) {
     document.getElementById('desc_'  +rowCnt).value       = $(xml).find("description_sales").text();
   } else {
@@ -977,8 +987,10 @@ function fillInventory(sXml) {
   }
   setImage(image);
 }
+
 function changeOfTill(){
 	var tillId = document.getElementById('till_id').value;
+	var applet = document.jZebra;
 	if( tills[tillId].restrictCurrency == '1'){
 		$('#display_currency').attr("disabled", true);
 	}else{
@@ -993,6 +1005,23 @@ function changeOfTill(){
 	}else{
 		$('#tb_icon_open_drawer').show();
 	}
+	var old_tax = default_sales_tax;
+	default_sales_tax = tills[tillId].defaultTax;
+	if(contact_sales_tax == '-1'){
+		var rowCnt = 1;
+		while(true) {
+	  		if (!document.getElementById('tax_'+rowCnt)) break;
+	  		if(old_tax != '-1' && tills[tillId].defaultTax == '-1'){
+	  			document.getElementById('tax_'+rowCnt).value = document.getElementById('product_tax_'+rowCnt).value;
+	  		}else{
+	  			document.getElementById('tax_'+rowCnt).value = tills[tillId].defaultTax;
+	  		}
+	  		updateRowTotal(rowCnt);
+	  		rowCnt++;
+		}
+	}
+	applet.findPrinter(tills[tillId].printer);
+	if (applet.getVersion() != '1.4.9' ) alert('update jzebra');
 	set_ot_options();
 	document.getElementById('ot_till_id').value = tillId ;
 }
@@ -1012,29 +1041,30 @@ function monitorPrinting() {
 	alert("Error: Java printing applet not loaded!");
   }
 }
-function InventoryProp(elementID) {
-	  var sku = document.getElementById('sku_'+elementID).value;
-	  if (sku != text_search && sku != '') {
-	    $.ajax({
-	      type: "GET",
-		  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuValid&strict=1&sku='+sku,
-	      dataType: ($.browser.msie) ? "text" : "xml",
-	      error: function(XMLHttpRequest, textStatus, errorThrown) {
-	        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-	      },
-		  success: processSkuProp
-	    });
-	  }
-	}
 
-	function processSkuProp(sXml) {
-	  var xml = parseXml(sXml);
-	  if (!xml) return;
-	  if ($(xml).find("id").first().text() != 0) {
-		var id = $(xml).find("id").first().text();
-		window.open("index.php?module=inventory&page=main&action=properties&cID="+id,"inventory","width=800px,height=600px,resizable=1,scrollbars=1,top=50,left=50");
-	  }
-	}
+function InventoryProp(elementID) {
+  var sku = document.getElementById('sku_'+elementID).value;
+  if (sku != text_search && sku != '') {
+    $.ajax({
+      type: "GET",
+	  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuValid&strict=1&sku='+sku,
+      dataType: ($.browser.msie) ? "text" : "xml",
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+      },
+	  success: processSkuProp
+    });
+  }
+}
+
+function processSkuProp(sXml) {
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  if ($(xml).find("id").first().text() != 0) {
+	var id = $(xml).find("id").first().text();
+	window.open("index.php?module=inventory&page=main&action=properties&cID="+id,"inventory","width=800px,height=600px,resizable=1,scrollbars=1,top=50,left=50");
+  }
+}
 // -->
 </script>
 <script type="text/javascript">
@@ -1156,7 +1186,7 @@ function ajaxPrintAndClean(sXml) { // call back function
   	var tillId 		= document.getElementById('till_id').value;
   	if ( print && applet != null && tills[tillId].printer != '') {	
   	  	//print receipt and open drawer.
-		applet.findPrinter(tills[tillId].printer);
+  	  	//applet.setEncoding(tills[tillId].printerEncoding);
 		for(var i in tills[tillId].startingLine){
 			applet.append(tills[tillId].startingLine[i]);
 		}
@@ -1171,8 +1201,8 @@ function ajaxPrintAndClean(sXml) { // call back function
         for(var i in tills[tillId].closingLine){
 			applet.append(tills[tillId].closingLine[i]);
 		}
-        applet.print();
-        monitorPrinting();
+        applet.setEndOfDocument("\n");
+        jzebraDoneAppending();
 	}else if($(xml).find("open_cash_drawer").text() == 1 ){
   		  	OpenDrawer();
     }else if( print ){
@@ -1182,21 +1212,62 @@ function ajaxPrintAndClean(sXml) { // call back function
 	}
 	resetForm();
 }
+
+function jzebraReady(){
+//	alert('POS is now ready');
+}
+
+//Automatically gets called when applet is done appending a file
+function jzebraDoneAppending(){
+	var applet = document.jZebra;
+	if (applet != null) {
+	   if (!applet.isDoneAppending()) {
+	      window.setTimeout('monitorAppending()', 100);
+	   } else {
+	      applet.print(); 
+	      // Don't print until all of the data has been appended
+          // *Note:  monitorPrinting() still works but is too complicated and
+              // outdated.  Instead create a JavaScript  function called 
+              // "jzebraDonePrinting()" and handle your next steps there.
+          monitorPrinting();
+	   }
+	} else {
+    	alert("Applet not loaded!. Please reload the page and except ");
+    }
+}
+
+//Automatically gets called when applet is done finding
+function jzebraDoneFinding() {
+	var tillId = document.getElementById('till_id').value;
+	var applet = document.jZebra;
+   	if (applet.getPrinter() == null) {
+    	return alert('Error: Can not find Printer ' + tills[tillId].printer); 
+   	}
+}
+
+// Automatically gets called when the applet is done printing
+function jzebraDonePrinting() {
+	var applet = document.jZebra;
+   	if (applet.getException() != null) {
+    	return alert('Error:' + applet.getExceptionMessage());
+   	}
+}
+
 /*
  *printing previous reciept by this admin user 
  *
  */
 function GetPrintPreviousReceipt() {
 	$.ajax({
-	    type: "GET",
-        url: 'index.php?module=phreepos&page=ajax&op=print_previous',
-        dataType: ($.browser.msie) ? "text" : "xml",
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-        },
-        success: PrintPreviousReceipt
+	  type: "GET",
+      url: 'index.php?module=phreepos&page=ajax&op=print_previous',
+      dataType: ($.browser.msie) ? "text" : "xml",
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+      	alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+      },
+      success: PrintPreviousReceipt
      });
-   }
+}
 
 function PrintPreviousReceipt(sXml) { // call back function
 	  var xml = parseXml(sXml);
@@ -1207,18 +1278,18 @@ function PrintPreviousReceipt(sXml) { // call back function
 	  var tillId = document.getElementById('till_id').value;
 	  var applet = document.jZebra;
 	  if (applet != null && tills[tillId].printer != '') {
-			applet.findPrinter(tills[tillId].printer);
+		  //applet.setEncoding(tills[tillId].printerEncoding);
 			for(var i in tills[tillId].startingLine){
 				applet.append(tills[tillId].startingLine[i]);
 			}
 	        $(xml).find("receipt_data").each(function() {
-	            applet.append($(this).find("line").text() + "\n");
+	        	applet.append($(this).find("line").text() + "\n");
 	        });
 	        for(var i in tills[tillId].closingLine){
 				applet.append(tills[tillId].closingLine[i]);
 			}
-	        applet.print();
-	        monitorPrinting();
+	        applet.setEndOfDocument("\n");
+	        jzebraDoneAppending();
 	  } else {
 	        var order_id = $(xml).find("order_id").text();
 	        var printWin = window.open("index.php?module=phreeform&page=popup_gen&gID=<?php echo POPUP_FORM_TYPE;?>&date=a&xfld=journal_main.id&xcr=EQUAL&xmin=" + order_id ,"reportFilter","width=700px,height=550px,resizable=1,scrollbars=1,top=150px,left=200px");
@@ -1231,11 +1302,12 @@ function OpenDrawer(){
 	var tillId = document.getElementById('till_id').value;
 	var applet = document.jZebra;
 	if ( applet != null && tills[tillId].printer != '') {
-		applet.findPrinter(tills[tillId].printer);
+		//applet.setEncoding("UTF-8");
 		for(var i in tills[tillId].openDrawer){
 			applet.append(tills[tillId].openDrawer[i] + "\n");
 		}
-		applet.print();
+		applet.setEndOfDocument("\n");
+		jzebraDoneAppending();
 	}
 	document.getElementById('sku').focus();
 }
@@ -1247,6 +1319,7 @@ function OpenOrdrList(currObj) {
 // start other transactions
 
 function changeOfType(){
+	if(document.getElementById('Other_trans_type').options.length == 0) return;
 	var elt = document.getElementById('Other_trans_type');
 	for (i = 0; i < ot_options.length; i++) {
 		if(elt.options[elt.selectedIndex].value == ot_options[i].id){
@@ -1283,6 +1356,11 @@ function set_ot_options() {
 			newOpt.value = ot_options[i].id;
 			document.getElementById('Other_trans_type').options.add(newOpt);
 		}
+	}
+	if(document.getElementById('Other_trans_type').options.length == 0) {
+		$("#other_trans").hide();
+	}else{
+		$("#other_trans").show();
 	}
 	changeOfType();
 }
@@ -1566,7 +1644,7 @@ $(document).keydown(function(event){
 			// if F12 is pressed and the payment popup is shown the transaction will be saved and printed
 			SavePayment('print');
 		}else{
-			//if F11 is pressed and the payment popup is not shown the payment popup will be shown
+			//if F12 is pressed and the payment popup is not shown the payment popup will be shown
 			popupPayment();
 		}	
 		event.originalEvent.keyCode = 0;

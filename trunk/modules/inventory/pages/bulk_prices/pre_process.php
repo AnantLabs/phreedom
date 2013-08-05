@@ -20,10 +20,11 @@
 $security_level = validate_user(SECURITY_ID_PRICE_SHEET_MANAGER);
 /**************  include page specific files    *********************/
 /**************   page specific initialization  *************************/
-$search_text = $_POST['search_text'] ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
 // load the sort fields
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
@@ -52,10 +53,10 @@ switch ($action) {
 	}
 	gen_add_audit_log(PRICE_SHEETS_LOG_BULK . TEXT_UPDATE);
 	break;
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -88,9 +89,10 @@ $field_list = array('id', 'sku', 'inactive', 'description_short', 'lead_time', '
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw    = "select " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY . $search . " order by $disp_order";
-$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result = $db->Execute($query_raw);
+$query_raw    = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY . $search . " order by $disp_order";
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 
 $include_template = 'template_main.php';
 define('PAGE_TITLE', INV_BULK_SKU_ENTRY_TITLE);

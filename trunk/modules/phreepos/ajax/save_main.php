@@ -215,6 +215,11 @@ if (file_exists($custom_path)) { include($custom_path); }
 	  $error .= 'The total payment was not equal to the order total!'. chr(10);
 	  $error .= $tot_paid .' + '. $order->rounding_amt.' + '. $order->total_amount;
 	}
+	if(substr($action,0,5) == 'print') {
+		$order->printed = true;
+	}else{
+		$order->printed = FALSE;
+	} 
 	// End of error checking, process the order
 	if (!$error) { // Post the order
 		if (!$order->item_rows) {
@@ -227,35 +232,36 @@ if (file_exists($custom_path)) { include($custom_path); }
 			$order->id = ''; // will be null unless opening an existing purchase/receive
 	  	}
 	}
-	
-	//print
-	$result = $db->Execute("select id from " . TABLE_PHREEFORM . " where doc_group = '" . POPUP_FORM_TYPE . "' and doc_ext = 'frm'");
-    if ($result->RecordCount() == 0) {
-	    $error .= 'No form was found for this type ('.POPUP_FORM_TYPE.'). ';
-	}
-    if (!$error ) { 
-		if ($result->RecordCount() > 1) {
-	    	if(DEBUG) $massage .= 'More than one form was found for this type ('.POPUP_FORM_TYPE.'). Using the first form found.';
-	  	}
-	  	$rID    = $result->fields['id']; // only one form available, use it
-	  	$report = get_report_details($rID);
-	  	$title  = $report->title;
-	  	$report->datedefault = 'a';
-	  	$report->xfilterlist[0]->fieldname = 'journal_main.id';
-	  	$report->xfilterlist[0]->default   = 'EQUAL';
-	  	$report->xfilterlist[0]->min_val   = $order->id;
-	  	$output = BuildForm($report, $delivery_method = 'S'); // force return with report
-	  	if ($output === true) {
-	  		if(DEBUG) $massage .='direct printing failt.';
-	  	} else if (!is_array($output) ){// if it is a array then it is not a sequential report
-	    	// fetch the receipt and prepare to print
-	  		$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
-	  		foreach (explode("\n",$receipt_data) as $value){
-	  			$xml .= "<receipt_data>\n";
-        		$xml .= "\t" . xmlEntry("line", $value);
-	    		$xml .= "</receipt_data>\n";
-	  		}
-	  	}
+	if($order->printed){
+		//print
+		$result = $db->Execute("select id from " . TABLE_PHREEFORM . " where doc_group = '" . POPUP_FORM_TYPE . "' and doc_ext = 'frm'");
+	    if ($result->RecordCount() == 0) {
+		    $error .= 'No form was found for this type ('.POPUP_FORM_TYPE.'). ';
+		}
+	    if (!$error ) { 
+			if ($result->RecordCount() > 1) {
+		    	if(DEBUG) $massage .= 'More than one form was found for this type ('.POPUP_FORM_TYPE.'). Using the first form found.';
+		  	}
+		  	$rID    = $result->fields['id']; // only one form available, use it
+		  	$report = get_report_details($rID);
+		  	$title  = $report->title;
+		  	$report->datedefault = 'a';
+		  	$report->xfilterlist[0]->fieldname = 'journal_main.id';
+		  	$report->xfilterlist[0]->default   = 'EQUAL';
+		  	$report->xfilterlist[0]->min_val   = $order->id;
+		  	$output = BuildForm($report, $delivery_method = 'S'); // force return with report
+		  	if ($output === true) {
+		  		if(DEBUG) $massage .='direct printing failt.';
+		  	} else if (!is_array($output) ){// if it is a array then it is not a sequential report
+		    	// fetch the receipt and prepare to print
+		  		$receipt_data = str_replace("\r", "", addslashes($output)); // for javascript multi-line
+		  		foreach (explode("\n",$receipt_data) as $value){
+		  			$xml .= "<receipt_data>\n";
+	        		$xml .= "\t" . xmlEntry("line", $value);
+		    		$xml .= "</receipt_data>\n";
+		  		}
+		  	}
+		}
 	}
 						$xml .= "\t" . xmlEntry("action",			$action);
 						$xml .= "\t" . xmlEntry("open_cash_drawer", $order->opendrawer);

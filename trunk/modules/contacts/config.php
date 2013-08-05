@@ -27,7 +27,7 @@
 // 3.7 => 2012-10-01 - bug fixes, redesign of the classes/methods
 // 3.7.1 => 2013-06-30 - Bug fixes 
 // Module software version information
-define('MODULE_CONTACTS_VERSION',     '3.7.1');
+define('MODULE_CONTACTS_VERSION',     3.71);
 // Menu Sort Positions
 define('MENU_HEADING_CUSTOMERS_ORDER',   10);
 define('MENU_HEADING_VENDORS_ORDER',     20);
@@ -71,20 +71,25 @@ $menu[] = array(
   'security_id' => SECURITY_ID_MAINTAIN_CUSTOMERS, 
   'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_CUSTOMERS] > 1 ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=c', 'SSL'),
+  'params'	    => '',
 );
 $menu[] = array(
   'text'        => BOX_CONTACTS_MAINTAIN_CUSTOMERS, 
   'heading'     => MENU_HEADING_CUSTOMERS, 
   'rank'        => 10, 
-  'security_id' => SECURITY_ID_MAINTAIN_CUSTOMERS, 
+  'security_id' => SECURITY_ID_MAINTAIN_CUSTOMERS,
+  'hidden'      => false, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=c&amp;list=1', 'SSL'),
+  'params'	    => '',
 );
 $menu[] = array(
   'text'        => BOX_PHREECRM_MODULE, 
   'heading'     => MENU_HEADING_CUSTOMERS, 
   'rank'        => 15, 
-  'security_id' => SECURITY_ID_PHREECRM, 
+  'security_id' => SECURITY_ID_PHREECRM,
+  'hidden'      => false, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=i&amp;list=1', 'SSL'),
+  'params'	    => '',
 );
 $menu[] = array(
   'text'        => BOX_CONTACTS_NEW_VENDOR, 
@@ -94,13 +99,16 @@ $menu[] = array(
   'security_id' => SECURITY_ID_MAINTAIN_VENDORS, 
   'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_VENDORS] > 1 ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=v', 'SSL'),
+  'params'      => '',
 );
 $menu[] = array(
   'text'        => BOX_CONTACTS_MAINTAIN_VENDORS, 
   'heading'     => MENU_HEADING_VENDORS, 
   'rank'        => 10, 
-  'security_id' => SECURITY_ID_MAINTAIN_VENDORS, 
+  'security_id' => SECURITY_ID_MAINTAIN_VENDORS,
+  'hidden'      => false, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=v&amp;list=1', 'SSL'),
+  'params'      => '',
 );
 $menu[] = array(
   'text'        => BOX_CONTACTS_NEW_EMPLOYEE,
@@ -110,13 +118,16 @@ $menu[] = array(
   'security_id' => SECURITY_ID_MAINTAIN_EMPLOYEES, 
   'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_EMPLOYEES] > 1 ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=e', 'SSL'),
+  'params'      => '',
 );
 $menu[] = array(
   'text'        => BOX_CONTACTS_MAINTAIN_EMPLOYEES, 
   'heading'     => MENU_HEADING_EMPLOYEES, 
   'rank'        => 10, 
-  'security_id' => SECURITY_ID_MAINTAIN_EMPLOYEES, 
+  'security_id' => SECURITY_ID_MAINTAIN_EMPLOYEES,
+  'hidden'      => false, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=e&amp;list=1', 'SSL'),
+  'params'      => '',
 );
 if (ENABLE_MULTI_BRANCH) { // don't show menu if multi-branch is disabled
   $menu[] = array(
@@ -127,21 +138,26 @@ if (ENABLE_MULTI_BRANCH) { // don't show menu if multi-branch is disabled
 	'security_id' => SECURITY_ID_MAINTAIN_BRANCH, 
     'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_BRANCH] > 1 ? false : true,
 	'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=b', 'SSL'),
+    'params'      => '',
   );
   $menu[] = array(
 	'text'        => BOX_CONTACTS_MAINTAIN_BRANCHES, 
 	'heading'     => MENU_HEADING_COMPANY, 
 	'rank'        => 56, 
-	'security_id' => SECURITY_ID_MAINTAIN_BRANCH, 
+	'security_id' => SECURITY_ID_MAINTAIN_BRANCH,
+    'hidden'      => false, 
 	'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=b&amp;list=1', 'SSL'),
+    'params'      => '',
   );
 } // end disable if not looking at branches
 $menu[] = array(
   'text'        => BOX_CONTACTS_MAINTAIN_PROJECTS, 
   'heading'     => MENU_HEADING_CUSTOMERS, 
   'rank'        => 60, 
-  'security_id' => SECURITY_ID_MAINTAIN_PROJECTS, 
+  'security_id' => SECURITY_ID_MAINTAIN_PROJECTS,
+  'hidden'      => false, 
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;type=j&amp;list=1', 'SSL'),
+  'params'      => '',
 );
 
 ?>

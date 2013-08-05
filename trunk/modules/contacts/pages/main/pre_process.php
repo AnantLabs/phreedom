@@ -25,8 +25,7 @@ $criteria    = array();
 $tab_list    = array();
 if ($_POST['crm_date']) $_POST['crm_date'] = gen_db_date($_POST['crm_date']);
 if ($_POST['due_date']) $_POST['due_date'] = gen_db_date($_POST['due_date']);
-$search_text = $_POST['search_text'] ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
-if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
+$search_text = db_input($_REQUEST['search_text']); 
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action      = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -34,6 +33,7 @@ $type        = isset($_GET['type']) ? $_GET['type'] : 'c'; // default to custome
 // load the filters
 $f0 = isset($_POST['todo']) ? (isset($_POST['f0']) ? $_POST['f0'] : '0') : (isset($_GET['f0']) ? $_GET['f0'] : '1'); // show inactive checkbox
 $_GET['f0'] = $f0;
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
 if (file_exists(DIR_FS_WORKING . 'custom/classes/type/'.$type.'.php')) { 
 	require_once(DIR_FS_WORKING . 'custom/classes/type/'.$type.'.php'); 
 }else{
@@ -193,10 +193,10 @@ switch ($action) {
 		   }
   	    }
 
-    case 'go_first':    $_GET['list'] = 1;     break;
-    case 'go_previous': $_GET['list']--;       break;
-    case 'go_next':     $_GET['list']++;       break; 
-    case 'go_last':     $_GET['list'] = 99999; break;
+    case 'go_first':    $_REQUEST['list'] = 1;     break;
+    case 'go_previous': $_REQUEST['list']--;       break;
+    case 'go_next':     $_REQUEST['list']++;       break; 
+    case 'go_last':     $_REQUEST['list'] = 99999; break;
     case 'search':
     case 'search_reset':
     case 'go_page':
@@ -268,10 +268,11 @@ switch ($action) {
 			'a.primary_name', 'a.address1', 'a.city_town', 'a.state_province', 'a.postal_code');
 		// hook to add new fields to the query return results
 		if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-	    $query_raw = "select " . implode(', ', $field_list)  . " 
+	    $query_raw = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list)  . " 
 			from " . TABLE_CONTACTS . " c left join " . TABLE_ADDRESS_BOOK . " a on c.id = a.ref_id " . $search . " order by $disp_order";
-	    $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-	    $query_result = $db->Execute($query_raw);
+	    $query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+	    // the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+    	$query_split  = new splitPageResults($_REQUEST['list'], '');
 	    $include_template = 'template_main.php'; // include display template (required)
 		define('PAGE_TITLE', constant('ACT_' . strtoupper($type) . '_HEADING_TITLE'));
 }

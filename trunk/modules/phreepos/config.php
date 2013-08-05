@@ -25,8 +25,9 @@
 // 3.5 => 2013-04 bug fix    
 // 3.6 => 2013-05 bug fix and added function to check if payments are set properly before page is loaded
 // 3.7 => 2013-05 bug fix changed the js function refreshOrderClock because it was using the wrong row.
+// 3.8 => 2013-07 added tax_id to till
 // Module software version information
-define('MODULE_PHREEPOS_VERSION', '3.7');
+define('MODULE_PHREEPOS_VERSION', 3.8);
 // Menu Sort Positions
 //define('MENU_HEADING_PHREEPOS_ORDER', 40);
 // Menu Security id's (refer to master doc to avoid security setting overlap)
@@ -52,35 +53,45 @@ if (defined('MODULE_PHREEPOS_STATUS')) {
     'heading'     => MENU_HEADING_CUSTOMERS, // MENU_HEADING_PHREEPOS
     'rank'        => 51,
     'security_id' => SECURITY_ID_PHREEPOS,
+    'hidden'      => false,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=main', 'SSL'),
+    'params'      => '',
   );
   $menu[] = array(
     'text'        => BOX_POS_MGR, 
     'heading'     => MENU_HEADING_BANKING, 
     'rank'        => 53, 
-    'security_id' => SECURITY_ID_POS_MGR, 
+    'security_id' => SECURITY_ID_POS_MGR,
+    'hidden'      => false, 
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=pos_mgr&amp;list=1', 'SSL'),
+    'params'      => '',
   );
   $menu[] = array(
     'text'        => BOX_POS_CLOSING, 
     'heading'     => MENU_HEADING_BANKING, 
     'rank'        => 54, 
-    'security_id' => SECURITY_ID_POS_CLOSING, 
+    'security_id' => SECURITY_ID_POS_CLOSING,
+    'hidden'      => false, 
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=closing', 'SSL'),
+    'params'      => '',
   );
   $menu[] = array(
     'text'        => BOX_CUSTOMER_DEPOSITS,
     'heading'     => MENU_HEADING_BANKING,
     'rank'        => 10,
     'security_id' => SECURITY_ID_CUSTOMER_DEPOSITS,
+    'hidden'      => false,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=deposit&amp;type=c', 'SSL'),
+    'params'      => '',
   );
   $menu[] = array(
     'text'        => BOX_VENDOR_DEPOSITS,
     'heading'     => MENU_HEADING_BANKING,
     'rank'        => 50,
     'security_id' => SECURITY_ID_VENDOR_DEPOSITS,
+    'hidden'      => false,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreepos&amp;page=deposit&amp;type=v', 'SSL'),
+    'params'      => '',
   );
   
 }

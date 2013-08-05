@@ -19,8 +19,6 @@
 //
 // default directory for contact attachments
 define('CONTACTS_DIR_ATTACHMENTS',  DIR_FS_MY_FILES . $_SESSION['company'] . '/contacts/main/');
-// set the maximum number of subitems to import if importing in csv format
-define('MAX_IMPORT_CSV_ITEMS',5);
 
 $employee_types = array(
   'e' => TEXT_EMPLOYEE,

@@ -19,6 +19,7 @@
 // POS Journal
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
 class journal_19 extends journal {
+	public $id					= '';
 	public $save_payment        = false;
     public $closed 				= '0';
     public $journal_id          = 19;
@@ -26,6 +27,9 @@ class journal_19 extends journal {
     public $currencies_code     = DEFAULT_CURRENCY;
     public $currencies_value    = '1.0';
     public $gl_disc_acct_id     = AR_DISCOUNT_SALES_ACCOUNT;
+    public $bill_acct_id		= '';
+    public $bill_address_id		= '';
+    public $bill_add_update		= false;
     public $bill_primary_name   = GEN_PRIMARY_NAME;
     public $bill_contact        = GEN_CONTACT;
     public $bill_address1       = GEN_ADDRESS1;
@@ -34,14 +38,30 @@ class journal_19 extends journal {
     public $bill_state_province = GEN_STATE_PROVINCE;
     public $bill_postal_code    = GEN_POSTAL_CODE;
     public $bill_country_code   = COMPANY_COUNTRY;
+    public $bill_telephone1		= '';
+    public $bill_email			= '';
     public $journal_rows        = array();	// initialize ledger row(s) array
 	public $opendrawer			= false;
+	public $printed				= false;
+	public $post_date			= '';
+	public $store_id			= 0;
+	public $till_id				= 0;
+	public $rep_id				= 0;
+	public $subtotal			= 0;
+	public $disc_percent		= 0;
+	public $discount			= 0;
+	public $sales_tax			= 0;
+	public $rounded_of			= 0;
+	public $total_amount		= 0;
+	public $pmt_recvd			= 0;
+	public $bal_due				= 0;
+	public $shipper_code		= '';
     
     public function __construct($id = '') {
         $this->purchase_invoice_id = 'DP' . date('Ymd');
         $this->gl_acct_id          = $_SESSION['admin_prefs']['def_cash_acct'] ? $_SESSION['admin_prefs']['def_cash_acct'] : AR_SALES_RECEIPTS_ACCOUNT;
-		parent::__construct($id = '');  
-	  }
+		parent::__construct($id);  
+	}
 
 	function post_ordr($action) {
 		global $db, $messageStack;
@@ -213,11 +233,7 @@ class journal_19 extends journal {
 			    if (ENABLE_ORDER_DISCOUNT && $tax_discount == '0') {
 				  $line_total = $line_total * (1 - $this->disc_percent);
 			    }
-			    if (ROUND_TAX_BY_AUTH) {
-				  $auth_array[$auth] += round((($tax_auths[$auth]['tax_rate'] / 100) * $line_total), $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
-			    } else {
-				  $auth_array[$auth] += ($tax_auths[$auth]['tax_rate'] / 100) * $line_total;
-			    }
+				$auth_array[$auth] += ($tax_auths[$auth]['tax_rate'] / 100) * $line_total;
 			  }
 		    }
 		  }
@@ -226,15 +242,20 @@ class journal_19 extends journal {
 	  // calculate each tax total by authority and put into journal row array
 	  foreach ($auth_array as $auth => $auth_tax_collected) {
 		if ($auth_tax_collected == '' && $tax_auths[$auth]['account_id'] == '') continue;
+	  	if( ROUND_TAX_BY_AUTH == true ){
+			$amount = number_format($auth_tax_collected, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places'], '.', '');
+		}else {
+			$amount = $auth_tax_collected;
+		} 
 	    $this->journal_rows[] = array( // record for specific tax authority
 		  'qty'                     => '1',
 		  'gl_type'                 => 'tax',		// code for tax entry
-		  'credit_amount' 			=> $auth_tax_collected,
+		  'credit_amount' 			=> $amount,
 		  'description'             => $tax_auths[$auth]['description_short'],
 		  'gl_account'              => $tax_auths[$auth]['account_id'],
 		  'post_date'               => $this->post_date,
 	    );
-	    $total += $auth_tax_collected;
+	    $total += $amount;
 	  }
 	  return $total;
   }

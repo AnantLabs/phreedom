@@ -123,7 +123,7 @@ echo html_pull_down_menu('ship_to_country_code', $country_list, $pkg->ship_to_co
 			echo html_checkbox_field('insurance', '1', $pkg->insurance);
 			echo SHIPPING_INSURANCE_AMOUNT;
 			echo html_input_field('insurance_value', $pkg->insurance_value, 'size="6"') . '&nbsp;';
-			echo html_pull_down_menu('insurance_currency', $currency_array, $pkg->insurance_currency, $parameters = '', $required = false);
+			echo html_pull_down_menu('insurance_currency', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $pkg->insurance_currency, $parameters = '', $required = false);
 		} else echo '&nbsp;'; ?>
 		</td></tr>
 		<tr><td colspan="2">

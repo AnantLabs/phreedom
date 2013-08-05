@@ -35,13 +35,12 @@ $toolbar->icon_list['delete']['show']     = false;
 $toolbar->icon_list['print']['show']      = false;
 if (count($extra_toolbar_buttons) > 0) foreach ($extra_toolbar_buttons as $key => $value) $toolbar->icon_list[$key] = $value;
 $toolbar->add_help('07.05.04');
-$toolbar->search_period = $period;
-$toolbar->period_strict = false; // hide the All option in period selection
-echo $toolbar->build_toolbar($add_search = false, $add_period = true); 
+echo $toolbar->build_toolbar($add_search = false, $add_period = false); 
 // Build the page
 ?>
 <h1><?php echo BANKING_HEADING_RECONCILIATION; ?></h1>
-<div align="center"><?php echo TEXT_CASH_ACCOUNT . '&nbsp;' . html_pull_down_menu('gl_account', $account_array, $gl_account, 'onchange="submit();"'); ?></div>
+<div align="center"><?php  echo TEXT_CASH_ACCOUNT 			 . '&nbsp;' . html_pull_down_menu('gl_account', $account_array, $gl_account, 'onchange="submit();"'); ?> &nbsp;
+<?php echo TEXT_INFO_SEARCH_PERIOD_FILTER . '&nbsp;' . html_pull_down_menu('search_period', gen_get_period_pull_down(false), $period, 'onchange="submit();"'); ?></div>
 <?php if (ENABLE_MULTI_CURRENCY) echo '<p>'.sprintf(GEN_PRICE_SHEET_CURRENCY_NOTE, $currencies->currencies[DEFAULT_CURRENCY]['title']) .'</p>'. chr(10); ?>
 <table class="ui-widget" style="border-collapse:collapse;width:900px;margin-left:auto;margin-right:auto;">
  <thead class="ui-widget-header">

@@ -45,12 +45,10 @@ echo $toolbar->build_toolbar($add_search = false);
 	  <?php
 	  if($_POST['filter_field']){
 	  	foreach ($_POST['filter_field'] as $key => $value) {
-	  		echo '<script type="text/javascript"> addFilterRow();</script>' .chr(10);
-			echo '<script type="text/javascript"> TableStartValues("' . $x . '","' . $_POST['filter_field'][$key] . '","' . $_POST['filter_criteria'][$key] . '","' . $_POST['filter_value'][$key] . '");</script>'.chr(10);
+			echo '<script type="text/javascript"> TableStartValues("' . $_POST['filter_field'][$key] . '","' . $_POST['filter_criteria'][$key] . '","' . $_POST['filter_value'][$key] . '");</script>'.chr(10);
 	  	}
 	  }else {
-	  	echo'<script type="text/javascript"> addFilterRow();</script>'.chr(10);
-	  	echo'<script type="text/javascript"> TableStartValues("1","a.sku","0","");</script>'.chr(10);
+	  	echo'<script type="text/javascript"> TableStartValues("a.sku","0","");</script>'.chr(10);
 	  }
 	  ?>	
  </tbody>
@@ -67,8 +65,8 @@ echo $toolbar->build_toolbar($add_search = false);
  </tfoot>
 </table>
 
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 <table class="ui-widget" style="border-collapse:collapse;width:100%">
  <thead class="ui-widget-header">
   <tr><?php  echo $list_header; ?></tr>
@@ -78,7 +76,8 @@ echo $toolbar->build_toolbar($add_search = false);
   $odd = true;
     while (!$query_result->EOF) {
 	  // only show quantity on hand if it is an inventory trackable item
-	  if (strpos(COG_ITEM_TYPES, $query_result->fields['inventory_type']) === false) {
+	  $not_show_types = array('ns','lb','sv','sf','ci','ai','ds');
+	  if (in_array($query_result->fields['inventory_type'], $not_show_types)) {
 		$qty_in_stock = '';
 	  } else {
 		$qty_in_stock = $query_result->fields['quantity_on_hand'];
@@ -96,7 +95,9 @@ echo $toolbar->build_toolbar($add_search = false);
 	<td align="right">
 <?php // build the action toolbar
 	  if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
-	  if ($security_level > 1) echo html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="window.open(\'' . html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL')."','_blank')\""). chr(10); 
+	  if ($security_level > 1) echo html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 
+	  'onclick="window.open(\'' . html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $query_result->fields['id'] . '&amp;action=edit', 'SSL')."','_blank')\""). chr(10); 
+	  
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('apps/accessories-text-editor.png', TEXT_RENAME, 'small', 'onclick="renameItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) deleteItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 1 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('actions/edit-copy.png', TEXT_COPY_TO, 'small', 'onclick="copyItem(' . $query_result->fields['id'] . ')"') . chr(10);
@@ -111,6 +112,6 @@ echo $toolbar->build_toolbar($add_search = false);
 ?>
  </tbody>
 </table>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 </form>

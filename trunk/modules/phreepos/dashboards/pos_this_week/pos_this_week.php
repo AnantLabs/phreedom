@@ -26,7 +26,8 @@ class pos_this_week extends ctl_panel {
 
 	function Output($params) {
 		global $db, $currencies;
-		$control = '';
+		$contents = '';
+		$control  = '';
 		for($i=0; $i<=7; $i++){
 			if ('Mon'== strftime("%a", time()-($i * 24 * 60 * 60)) ){
 				$a = $i;

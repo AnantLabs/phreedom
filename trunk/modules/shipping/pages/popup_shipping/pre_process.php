@@ -96,7 +96,6 @@ switch ($action) {
     define('PAGE_TITLE', SHIPPING_POPUP_WINDOW_RATE_TITLE);
 	break;
   default:
-	$currency_array   = gen_get_currency_array();
     $include_template = 'template_main.php';
     define('PAGE_TITLE', SHIPPING_ESTIMATOR_OPTIONS);
 }

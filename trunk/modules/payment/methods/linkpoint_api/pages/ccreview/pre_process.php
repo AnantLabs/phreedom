@@ -23,8 +23,9 @@ $security_level = validate_user(SECURITY_ID_PAY_BILLS);
 /**************   page specific initialization  *************************/
 $error = false;
 // fill search whether it has been submited through GET or POST (can be passed either way)
-$acct_period = ($_GET['search_period']) ? $_GET['search_period'] : CURRENT_ACCOUNTING_PERIOD;
-$search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
+$acct_period = isset($_REQUEST['search_period']) ? $_REQUEST['search_period'] : CURRENT_ACCOUNTING_PERIOD;
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -33,10 +34,10 @@ $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -84,14 +85,12 @@ if (isset($search_text) && $search_text <> '') {
    $search = '';
 }
 
-$customers_query_raw  = "select lp.*, c.short_name, c.contact_last, c.contact_first, c.first_date 
-                          from  " . TABLE_CONTACTS . " c,  linkpoint_api lp 
-                          where c.id = lp.customer_id " .    
-                          $search . $period_filter . 
-						  " order by $disp_order ";
-						  
-$query_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $customers_query_raw, $query_numrows);
-$customers   = $db->Execute($customers_query_raw);
+$query_raw  = "select SQL_CALC_FOUND_ROWS lp.*, c.short_name, c.contact_last, c.contact_first, c.first_date 
+                from  " . TABLE_CONTACTS . " c,  linkpoint_api lp 
+                where c.id = lp.customer_id $search  $period_filter order by $disp_order ";
+$customers = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');						  
                                  
 $include_header   = true;
 $include_footer   = true;

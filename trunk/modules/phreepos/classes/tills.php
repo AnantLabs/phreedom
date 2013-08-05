@@ -56,6 +56,7 @@ class tills {
 		'printer_open_drawer' 	=> $this->printer_open_drawer,
 		'balance' 				=> $currencies->clean_value($this->balance, $this->currencies_code),
 		'max_discount'		    => $this->max_discount,
+		'tax_id'				=> $this->tax_id,
 	);
 	
     if ($id) {
@@ -124,6 +125,7 @@ class tills {
         $result = $db->Execute($sql);
         foreach ($result->fields as $key => $value) $this->$key = $value;
 	}
+	$tax_rates = inv_calculate_tax_drop_down('c');
 	$output  = '<table style="border-collapse:collapse;margin-left:auto; margin-right:auto;">' . chr(10);
 	$output .= '  <thead class="ui-widget-header">' . "\n";
 	$output .= '  <tr>' . chr(10);
@@ -150,6 +152,10 @@ class tills {
 	$output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . TEXT_DIF_GL_ACCOUNT . '</td>' . chr(10);
 	$output .= '    <td>' . html_pull_down_menu('dif_gl_acct_id', gen_coa_pull_down(SHOW_FULL_GL_NAMES, true, true, false, $restrict_types = array(30)), $this->dif_gl_acct_id) . '</td>' . chr(10);
+    $output .= '  </tr>' . chr(10);
+    $output .= '  <tr>' . chr(10);
+	$output .= '    <td>' . INV_ENTRY_ITEM_TAXABLE . '</td>' . chr(10);
+	$output .= '    <td>' . html_pull_down_menu('tax_id', $tax_rates, $this->tax_id) . '</td>' . chr(10);
     $output .= '  </tr>' . chr(10);
     $output .= '  <tr>' . chr(10);
 	$output .= '    <td>' . TEXT_BALANCE . '</td>' . chr(10);
@@ -276,7 +282,7 @@ class tills {
 		$startingline = rtrim($startingline, '","');
 		$closingline  = rtrim($closingline , '","');
 		$opendrawer   = rtrim($opendrawer  , '","');
-		$js_tills .= 'tills["' . $result->fields['till_id'] . '"] = new till("' . $result->fields['till_id'] . '", "' . $result->fields['restrict_currency'] . '", "' . $result->fields['currencies_code'] . '", "' . $result->fields['printer_name'] . '", Array("' . $startingline . '"), Array("' . $closingline . '"), Array("' . $opendrawer . '"));' . chr(10);
+		$js_tills .= 'tills["' . $result->fields['till_id'] . '"] = new till("' . $result->fields['till_id'] . '", "' . $result->fields['restrict_currency'] . '", "' . $result->fields['currencies_code'] . '", "' . $result->fields['printer_name'] . '", Array("' . $startingline . '"), Array("' . $closingline . '"), Array("' . $opendrawer . '" ), "' . $result->fields['tax_id'] . '");' . chr(10);
 		$result->MoveNext();
 	}
 	return $js_tills;

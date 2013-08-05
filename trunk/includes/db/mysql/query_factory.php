@@ -19,11 +19,13 @@
 //
 
 class queryFactory {
-
-  function __construct() {
-    $this->count_queries = 0;
-    $this->total_query_time = 0;
-  }
+	public $count_queries 	  	= 0;
+    public $total_query_time 	= 0;
+	public $database		  	= '';
+	public $db_connected		= false;
+	public $link			  	= '';
+	public $error_number 		= '';
+    public $error_text			= '';
 
   function connect($zf_host, $zf_user, $zf_password, $zf_database) {
     $this->database = $zf_database;
@@ -160,6 +162,10 @@ class queryFactory {
       if (!$this->db_connected) $this->set_error('0', DB_ERROR_NOT_CONNECTED);
       $zp_db_resource = @mysql_query($zf_sql, $this->link);
       if (!$zp_db_resource) {
+      	if ($_POST['page'] == 'ajax' || $_GET['page'] == 'ajax'){
+      		echo createXmlHeader() . xmlEntry('error', 'There was a SQL Error: '.@mysql_error($this->link)) . createXmlFooter();
+      		die();	
+      	}
 		if (method_exists($messageStack, 'debug')) {
 		  $messageStack->debug("\n\nThe failing sql was: " . $zf_sql);
 		  $messageStack->debug("\n\nmySQL returned: " . @mysql_errno($this->link) . ' ' . @mysql_error($this->link));
@@ -167,10 +173,13 @@ class queryFactory {
 		    $messageStack->write_debug();
 		    $messageStack->add_session('The last transaction had a SQL database error.', 'error');
 		    gen_redirect(html_href_link(FILENAME_DEFAULT, 'cat=phreedom&page=main&amp;action=crash', 'SSL'));
-		  } else { 
-		    echo str_replace("\n", '<br />', $messageStack->debug_info); 
+		  } else{
+		  	echo str_replace("\n", '<br />', $messageStack->debug_info); 
 			die;
 		  }
+		} else { 
+		    echo str_replace("\n", '<br />', $messageStack->debug_info); 
+			die;
 		}
 	  }
       $obj->resource = $zp_db_resource;
@@ -212,7 +221,6 @@ class queryFactory {
 		$this->set_error(0, '', false); // clear the error
 	}
 	$obj->resource = $zp_db_resource;
-	$obj->cursor = 0;
 	if ($obj->RecordCount() > 0) {
 		$obj->EOF = false;
 		$zp_result_array = @mysql_fetch_array($zp_db_resource);
@@ -242,11 +250,13 @@ class queryFactory {
 }
 
 class queryFactoryResult {
-
-  function __construct() {
-    $this->is_cached = false;
-  }
-  
+	public $cursor		= 0;
+	public $fields 		= array();
+	public $is_cached	= false;
+	public $EOF			= false;
+	public $result		= array();
+	public $resource	= '';
+ 
   function MoveNext() {
     global $zc_cache;
     $this->cursor++;

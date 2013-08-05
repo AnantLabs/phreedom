@@ -28,6 +28,8 @@ class to_do extends ctl_panel {
 
 	function Output($params) {
 		global $db;
+		$contents = '';
+		$control  = '';
 		// Build control box form data
 		$control  = '  <div class="row">' . chr(10);
 		$control .= '    <div style="white-space:nowrap">';

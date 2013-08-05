@@ -28,6 +28,7 @@ class contacts {
 	public  $tab_list           = array(); 
 	public  $address_types      = array();
 	public  $type               = '';
+	public  $crm_log			= array();
 	public  $crm_date           = '';
 	public  $crm_rep_id         = '';
     public  $crm_action         = '';

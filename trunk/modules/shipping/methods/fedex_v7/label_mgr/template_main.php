@@ -206,7 +206,7 @@ echo $toolbar->build_toolbar();
 			<?php echo html_checkbox_field('cod', '1', $sInfo->cod);
 			echo SHIPPING_COD_AMOUNT;
 			echo html_input_field('total_amount',  $sInfo->total_amount, 'size="6" style="text-align:right"') . '&nbsp;';
-			echo html_pull_down_menu('cod_currency', $currency_array, $sInfo->cod_currency) . '&nbsp;';
+			echo html_pull_down_menu('cod_currency', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $sInfo->cod_currency) . '&nbsp;';
 			echo html_pull_down_menu('cod_payment_type', gen_build_pull_down($shipping_defaults['cod_funds_code']), $sInfo->cod_payment_type); ?>
 		</td>
 	  </tr>

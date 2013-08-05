@@ -37,8 +37,9 @@ switch (JOURNAL_ID) {
 		break;
 	default: die ('Bad Journal id in modules/phreebooks/popup.php');
 }
-$search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
 $action = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
 // load the sort fields
@@ -49,10 +50,10 @@ $custom_path = DIR_FS_WORKING . 'custom/pages/popup_bills_accts/extra_actions.ph
 if (file_exists($custom_path)) { include($custom_path); }
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -84,14 +85,15 @@ $field_list = array('m.bill_acct_id', 'm.bill_primary_name', 'm.bill_city_town',
 		// hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw = "select " . implode(', ', $field_list) . " 
+$query_raw = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list) . " 
 	from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_CONTACTS . " c on m.bill_acct_id = c.id
 	where c.type = '" . (ACCOUNT_TYPE == 'v' ? 'v' : 'c') . "' 
 	and m.journal_id in " . (ACCOUNT_TYPE == 'v' ? '(6, 7)' : '(12, 13)') . " and m.closed = '0'" . $search . " 
 	group by m.bill_acct_id order by $disp_order";
 
-$query_split      = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result     = $db->Execute($query_raw);
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 $include_header   = false;
 $include_footer   = true;
 $include_tabs     = false;

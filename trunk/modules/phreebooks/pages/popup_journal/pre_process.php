@@ -22,6 +22,7 @@ $security_level = validate_user(0, true);
 require(DIR_FS_WORKING . 'functions/phreebooks.php');
 /**************   page specific initialization  *************************/
 $action = (isset($_GET['action']) ? $_GET['action'] : $_POST['todo']);
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
 // load the sort fields
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
@@ -31,10 +32,10 @@ if (file_exists($custom_path)) { include($custom_path); }
 
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -74,12 +75,11 @@ $field_list = array('id', 'post_date', 'purchase_invoice_id', 'total_amount', 's
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw = "select " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 
+$query_raw = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 
 	where journal_id = 2" . $period_filter . $search . " order by $disp_order, id";
-
-$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result = $db->Execute($query_raw);
-
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 $include_header   = false;
 $include_footer   = true;
 $include_tabs     = false;

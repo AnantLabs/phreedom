@@ -27,6 +27,7 @@
 // Section 6. Validation Functions
 // Section 7. Password Functions
 // Section 8. Conversion Functions
+// Section 9. Error Handling Functions
 
 /**************************************************************************************************************/
 // Section 1. General Functions
@@ -401,17 +402,6 @@
 	return $result['long'];
   }
 
-  function gen_get_currency_array() {
-  	global $db;
-	$result = $db->Execute('select code, title from ' . TABLE_CURRENCIES);
-    $result_array = array();
-	while(!$result->EOF) {
- 	   $result_array[] = array('id' => $result->fields['code'], 'text' => $result->fields['title']);
-	   $result->MoveNext();
-	}
-    return $result_array;
-  }
-
   function get_price_sheet_data($type = 'c') {
     global $db;
     $sql = "select distinct sheet_name, default_sheet from " . TABLE_PRICE_SHEETS . " 
@@ -487,7 +477,7 @@
     $get_url = '';
     reset($_GET);
     while (list($key, $value) = each($_GET)) {
-      if (($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array))) $get_url .= $key . '=' . $value . '&amp;';
+      if (($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array))) $get_url .= $key . '=' . $_REQUEST[$key] . '&amp;';
     }
     return $get_url;
   }
@@ -498,7 +488,7 @@
     $get_url = '';
     reset($_GET);
     while (list($key, $value) = each($_GET)) {
-      if (($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array))) $get_url .= $key . '=' . $value . '&';
+      if (($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array))) $get_url .= $key . '=' . $_REQUEST[$key] . '&';
     }
     return $get_url;
   }
@@ -1143,7 +1133,7 @@ function gen_db_date($raw_date = '', $separator = '/') {
   }
 
   function html_checkbox_field($name, $value = '', $checked = false, $compare = '', $parameters = '') {
-    return html_selection_field($name, 'checkbox', $value, $checked, $compare, $parameters, $reinsert_value);
+    return html_selection_field($name, 'checkbox', $value, $checked, $compare, $parameters);
   }
 
   function html_radio_field($name, $value = '', $checked = false, $compare = '', $parameters = '') {
@@ -1904,6 +1894,126 @@ function array_to_object($arr = array()) {
 function csv_string_to_array($str = '') {
   $results = preg_split("/,(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))/", trim($str));
   return preg_replace("/^\"(.*)\"$/", "$1", $results);
+}
+
+/**************************************************************************************************************/
+// Section 9. Error Handling Functions
+/**************************************************************************************************************/
+
+function PhreebooksErrorHandler($errno, $errstr, $errfile, $errline) {
+	global $messageStack;
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+
+    switch ($errno) {
+    	case E_ERROR: //1
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " FATAL RUN-TIME ERROR: '$errstr' Fatal error on line $errline in file $errfile, PHP " . PHP_VERSION . " (" . PHP_OS . ") Aborting...";
+    		//error_log($text, 1, "operator@example.com");
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+    		if ($_POST['page'] == 'ajax' || $_GET['page'] == 'ajax'){
+                echo createXmlHeader() . xmlEntry('error', "Sorry! FATAL RUN-TIME ERROR. We encounterd the following error: $errstr.  and had to cancel the script") . createXmlFooter();
+                die();
+                break;  
+            }
+    		header('HTTP/1.1 500 Internal Server Error'); 
+    		die("<h1>Sorry! 1 FATAL RUN-TIME ERROR</h1> <p>We encounterd the following error:<br/> $errstr. <br/><br/> and had to cancel the script.</p>");
+	        break;
+    	case E_WARNING: //2
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " RUN-TIME WARNING: '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+    	case E_PARSE: //4
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " COMPILE-TIME PARSE ERROR: '$errstr' error on line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+        case E_NOTICE: //8
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " RUN-TIME NOTICE:  '$errstr' line $errline in file $errfile";
+    		if(DEBUG) error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+        case E_CORE_ERROR: //16
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " FATAL ERROR THAT OCCURED DURING PHP's INITIAL STARTUP: '$errstr' Fatal error on line $errline in file $errfile, PHP " . PHP_VERSION . " (" . PHP_OS . ") Aborting...";
+    		//error_log($text, 1, "operator@example.com");
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+    		header('HTTP/1.1 500 Internal Server Error');
+    		die("<h1>Sorry! 16 FATAL ERROR THAT OCCURED DURING PHP's INITIAL STARTUP</h1> <p>We encounterd the following error:<br/> $errstr. <br/><br/> and had to cancel the script.</p>");
+	        break;
+        case E_CORE_WARNING: //32
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " WARNING THAT OCCURED DURING PHP's INITIAL STARTUP: '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+        case E_COMPILE_ERROR://64
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " FATAL COMPILE-TIME ERROR: '$errstr' Fatal error on line $errline in file $errfile, PHP " . PHP_VERSION . " (" . PHP_OS . ") Aborting...";
+    		//error_log($text, 1, "operator@example.com");
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+    		if ($_POST['page'] == 'ajax' || $_GET['page'] == 'ajax'){
+                echo createXmlHeader() . xmlEntry('error', "Sorry! FATAL COMPILE-TIME ERROR. We encounterd the following error: $errstr.  and had to cancel the script") . createXmlFooter();
+                die();
+                break;  
+            }
+    		header('HTTP/1.1 500 Internal Server Error');
+    		die("<h1>Sorry! 64 FATAL COMPILE-TIME ERROR</h1> <p>We encounterd the following error:<br/> $errstr. <br/><br/> and had to cancel the script.</p>");
+	        break;
+        case E_COMPILE_WARNING: //128
+        	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " COMPILE-TIME WARNING: '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+    	case E_USER_ERROR: //256
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " USER ERROR: '$errstr' Fatal error on line $errline in file $errfile, PHP " . PHP_VERSION . " (" . PHP_OS . ") Aborting...";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+    		//error_log($text, 1, "operator@example.com");
+    		if ($_POST['page'] == 'ajax' || $_GET['page'] == 'ajax'){
+                echo createXmlHeader() . xmlEntry('error', "Sorry! User Error. We encounterd the following error: $errstr.  and had to cancel the script") . createXmlFooter();
+                die();
+                break;  
+            }
+    		$messageStack->add($errstr, 'error');
+    		//header('HTTP/1.1 500 Internal Server Error');
+    		//die("<h1>Sorry! 256 User Error</h1> <p>We encounterd the following error:<br/> $errstr. <br/><br/> and had to cancel the script.</p>");
+	        break;
+    	case E_USER_WARNING: //512
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " USER WARNING: '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+    	case E_USER_NOTICE: //1024
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " USER NOTICE:  '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+    	case E_RECOVERABLE_ERROR : //4096
+    		$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " RECOVERABLE ERROR:  '$errstr' error on line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+        case E_DEPRECATED : //4096
+    		$text  = "PLEASE REPORT THIS TO THE DEV TEAM ".date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " DEPRECATED FUNCTION:  '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+        case E_USER_DEPRECATED : //16384 	
+    		$text  = "PLEASE REPORT THIS TO THE DEV TEAM ".date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    		$text .= " USER DEPRECATED FUNCTION:  '$errstr' line $errline in file $errfile";
+    		error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break; 	
+        default:
+	    	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+	    	$text .=  " Unknown error type: [$errno] '$errstr' error on line $errline in file $errfile";
+	    	error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+        	break;
+    }
+    /* Don't execute PHP internal error handler */
+    return true;
 }
 
 ?>

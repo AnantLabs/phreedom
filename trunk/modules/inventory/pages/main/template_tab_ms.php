@@ -100,7 +100,7 @@
   <table id="sku_list" class="ui-widget" style="border-collapse:collapse;margin-left:auto;margin-right:auto;margin-top:20px">
    <thead class="ui-widget-header">
     <tr>
-	  <th colspan="11" align="center"><?php if($cInfo->inventory_type=='ms') echo INV_MS_CREATED_SKUS; ?></th>
+	  <th colspan="11" align="center"><?php if($cInfo->edit_ms_list) echo INV_MS_CREATED_SKUS; ?></th>
     </tr>
     <tr>
 	  <th><?php echo TEXT_SKU; ?></th>
@@ -118,6 +118,7 @@
     </thead>
     <tbody id="sku_list_body" class="ui-widget-content">
     	<?php 
+    	$odd = false;
     	 if(!empty($cInfo->child_array)){
     		foreach ($cInfo->child_array as $value) {
 		  		if($odd) echo '<tr class="odd" style="cursor:pointer"  onclick="window.open(\''. html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;cID=' . $value['id'] . '&amp;action=edit', 'SSL').'\',\'_blank\')">' . chr(10);
@@ -133,8 +134,8 @@
 				echo '<td width="20px" align="center">' . $value['on_sales'] . '</td>'. chr(10);
 				echo '<td width="20px" align="center">' . $value['min_stock'] . '</td>'. chr(10);
 				echo '<td width="20px" align="center">' . $value['reorder_qty'] . '</td>'. chr(10);
-				echo '<td width="20px" align="center">' . $currencies->precise($value['cost']) . '</td>'. chr(10);
-				echo '<td width="20px" align="center">' . $currencies->precise($value['price']) . '</td>'. chr(10);
+				echo '<td width="20px" align="right">' . $currencies->precise($value['cost']) . '</td>'. chr(10);
+				echo '<td width="20px" align="right">' . $currencies->precise($value['price']) . '</td>'. chr(10);
 		      	echo '</tr>' . chr(10);
 		      	$odd = !$odd;
     		}

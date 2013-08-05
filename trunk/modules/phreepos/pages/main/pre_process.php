@@ -17,7 +17,7 @@
 //  Path: /modules/phreepos/pages/main/pre_process.php
 //
 $security_level = validate_user(SECURITY_ID_PHREEPOS);
-define('JOURNAL_ID','19');
+define('JOURNAL_ID',19);
 /**************  include page specific files    *********************/
 gen_pull_language('contacts');
 gen_pull_language('phreebooks');
@@ -27,9 +27,13 @@ require_once(DIR_FS_MODULES . 'phreeform/defaults.php');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 require_once(DIR_FS_MODULES . 'phreeform/functions/phreeform.php');
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
-require_once(DIR_FS_WORKING . 'classes/phreepos.php');
 require_once(DIR_FS_WORKING . 'classes/tills.php');
 require_once(DIR_FS_WORKING . 'classes/other_transactions.php');
+if (file_exists(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php')) { 
+	require_once(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php') ; 
+}else{
+    require_once(DIR_FS_MODULES . 'phreepos/classes/journal/journal_'.JOURNAL_ID.'.php'); // is needed here for the defining of the class and retriving the security_token
+}
 /**************   page specific initialization  *************************/
 define('ORD_ACCT_ID',		GEN_CUSTOMER_ID);
 define('GL_TYPE',			'sos');
@@ -39,10 +43,12 @@ define('DEF_GL_ACCT_TITLE',	ORD_AR_ACCOUNT);
 define('POPUP_FORM_TYPE',	'pos:rcpt');
 $account_type = 'c';
 $action       = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
-$order        = new phreepos();
+$order        = new journal_19();
 $tills        = new tills();
 $trans	 	  = new other_transactions();
 $payment_modules = load_all_methods('payment');
+$extra_ThirdToolbar_buttons = null;
+$extra_toolbar_buttons		= null;
 /***************   hook for custom actions  ***************************/
 $custom_path = DIR_FS_WORKING . 'custom/pages/main/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }

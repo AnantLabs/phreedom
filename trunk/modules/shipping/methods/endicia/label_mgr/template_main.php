@@ -54,7 +54,7 @@ echo $toolbar->build_toolbar();
 				echo html_pull_down_menu('pkg_dimension_unit', gen_build_pull_down($shipping_defaults['dimension_unit']), $sInfo->pkg_dimension_unit); ?>
 			</th>
 			<th><?php echo TEXT_VALUE; 
-				echo html_pull_down_menu('insurance_currency', $currency_array, $sInfo->insurance_currency); ?></th>
+				echo html_pull_down_menu('insurance_currency', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $sInfo->insurance_currency); ?></th>
           </tr>
 		 </thead>
 		 <tbody id="item_table" class="ui-widget-content">

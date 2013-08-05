@@ -112,7 +112,7 @@ class HTML {
   	$this->output .= '<table width="95%" align="center">' . chr(10);
 	$this->AddHeading();
 	if (!is_array($Data)) {
-	  $this->output .= '<tr><td>' . TEXT_NO_DATA . '</td></tr>' . chr(10);
+	  $this->output .= '<tr><td>' . PHREEFORM_NO_DATA . '</td></tr>' . chr(10);
   	  $this->output .= '</table>' . chr(10);
   	  $this->output .= '</body>'  . chr(10);
   	  $this->output .= '</html>'  . chr(10);

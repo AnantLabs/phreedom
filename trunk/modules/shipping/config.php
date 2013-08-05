@@ -25,7 +25,7 @@
 // 3.5 => 2012-10-01 - bug fixes
 // 3.6 => 2013-06-30 - bug fixes
 // Module software version information
-define('MODULE_SHIPPING_VERSION', '3.6');
+define('MODULE_SHIPPING_VERSION', 3.6);
 // Menu Sort Positions
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_SHIPPING_MANAGER', 13);
@@ -38,8 +38,10 @@ if (defined('MODULE_SHIPPING_STATUS')) {
     'text'        => BOX_SHIPPING_MANAGER, 
     'heading'     => MENU_HEADING_TOOLS, 
     'rank'        => 5, 
-    'security_id' => SECURITY_ID_SHIPPING_MANAGER, 
+    'security_id' => SECURITY_ID_SHIPPING_MANAGER,
+    'hidden'      => false, 
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=shipping&amp;page=ship_mgr', 'SSL'),
+    'params'      => '',
   );
 }
 

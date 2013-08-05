@@ -39,7 +39,7 @@ while(!$cp_boxes->EOF) {
 	  echo '      <div id="col_' . $column . '" style="position:relative;">' . chr(10);
 	}
   }
-  $dashboard = $cp_boxes->fields['dashboard_id'];
+  $dashboard 	= $cp_boxes->fields['dashboard_id'];
   $module_id    = $cp_boxes->fields['module_id'];
   $column_id    = $cp_boxes->fields['column_id'];
   $row_id       = $cp_boxes->fields['row_id'];

@@ -28,6 +28,8 @@ class mini_financial extends ctl_panel {
 
 	function Output($params) {
 		global $db;
+		$contents = '';
+		$control  = '';
 		// Build control box form data
 		$control  = '<div class="row">';
 		$control .= '  <div style="white-space:nowrap">';
@@ -160,6 +162,7 @@ class mini_financial extends ctl_panel {
 
 	function add_income_stmt_data($type, $first_period, $period, $negate = false) {
 		global $db;
+		$cur_temp = '';
 		$account_array = array();
 		$sql = "select c.id, c.description, h.debit_amount - h.credit_amount as balance   
 		  from " . TABLE_CHART_OF_ACCOUNTS . " c inner join " . TABLE_CHART_OF_ACCOUNTS_HISTORY . " h on c.id = h.account_id

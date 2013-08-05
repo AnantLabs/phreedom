@@ -25,14 +25,15 @@ require(DIR_FS_WORKING . 'functions/phreeform.php');
 /**************   page specific initialization  *************************/
 $error       = false;
 $processed   = false;
-$search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
 
 $group  = isset($_GET['group'])   ? $_GET['group']                     : false;
 $rID    = isset($_POST['rowSeq']) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['docID']);
-$list   = isset($_GET['list'])    ? $_GET['list']                      : $_POST['list'];
+$list   = isset($_REQUEST['list'])    ? $_REQUEST['list']                      : $_POST['list'];
 $tab    = $_GET['tab'];
 $groups = build_groups();
 // load the sort fields
@@ -111,10 +112,10 @@ switch ($action) {
 	print $contents;
 	exit();  
     break;
-  case 'go_first':    $_GET['list'] = 1;     $action = 'search'; break;
-  case 'go_previous': $_GET['list']--;       $action = 'search'; break;
-  case 'go_next':     $_GET['list']++;       $action = 'search'; break;
-  case 'go_last':     $_GET['list'] = 99999; $action = 'search'; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     $action = 'search'; break;
+  case 'go_previous': $_REQUEST['list']--;       $action = 'search'; break;
+  case 'go_next':     $_REQUEST['list']++;       $action = 'search'; break;
+  case 'go_last':     $_REQUEST['list'] = 99999; $action = 'search'; break;
   case 'search':
   case 'search_reset':
   case 'go_page':                            $action = 'search'; break;
@@ -157,10 +158,11 @@ switch ($action) { // figure which detail page to load
 	  $search = '';
 	}
 	$field_list = array('id', 'doc_title', 'doc_ext');
-	$query_raw = "select " . implode(', ', $field_list)  . " from " . TABLE_PHREEFORM . $search;
-	$query_split = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-	$query_result = $db->Execute($query_raw);
-	$div_template = DIR_FS_WORKING . 'pages/main/' . ($id ? 'tab_report.php' : 'tab_folder.php');
+	$query_raw = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list)  . " from " . TABLE_PHREEFORM . $search;
+	$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+    // the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+    $query_split  = new splitPageResults($_REQUEST['list'], '');
+    $div_template = DIR_FS_WORKING . 'pages/main/' . ($id ? 'tab_report.php' : 'tab_folder.php');
 	break;
   case 'home':
   default:

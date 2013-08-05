@@ -40,13 +40,13 @@ class payment {
 	$this->key[] = array('key' => 'MODULE_PAYMENT_'.strtoupper($this->code).'_SORT_ORDER', 	   'default' => $this->sort_order,      'text' => SORT_ORDER_DESC);
 	$this->key[] = array('key' => 'MODULE_PAYMENT_'.strtoupper($this->code).'_POS_GL_ACCT', 	   'default' => $this->pos_gl_acct,     'text' => POS_GL_ACCT_DESC);
 	$this->key[] = array('key' => 'MODULE_PAYMENT_'.strtoupper($this->code).'_SHOW_IN_POS', 	   'default' => $this->show_in_pos,     'text' => SHOW_IN_POS_DESC);
-	$this->field_0 = $_POST[$this->code.'_field_0'];//$this->cc_card_owner_last
-	$this->field_1 = $_POST[$this->code.'_field_1'];//$this->cc_card_number
-	$this->field_2 = $_POST[$this->code.'_field_2'];//$this->cc_expiry_month
-	$this->field_3 = $_POST[$this->code.'_field_3'];//$this->cc_expiry_year
-	$this->field_4 = $_POST[$this->code.'_field_4'];//$this->cc_cvv2
-	$this->field_5 = $_POST[$this->code.'_field_5'];//$this->cc_card_owner_first
-	$this->field_6 = $_POST[$this->code.'_field_6'];//$this->alternate 2
+	$this->field_0 = isset($_POST[$this->code.'_field_0']) ? $_POST[$this->code.'_field_0'] : '';//$this->cc_card_owner_last
+	$this->field_1 = isset($_POST[$this->code.'_field_1']) ? $_POST[$this->code.'_field_1'] : '';//$this->cc_card_number
+	$this->field_2 = isset($_POST[$this->code.'_field_2']) ? $_POST[$this->code.'_field_2'] : '';//$this->cc_expiry_month
+	$this->field_3 = isset($_POST[$this->code.'_field_3']) ? $_POST[$this->code.'_field_3'] : '';//$this->cc_expiry_year
+	$this->field_4 = isset($_POST[$this->code.'_field_4']) ? $_POST[$this->code.'_field_4'] : '';//$this->cc_cvv2
+	$this->field_5 = isset($_POST[$this->code.'_field_5']) ? $_POST[$this->code.'_field_5'] : '';//$this->cc_card_owner_first
+	$this->field_6 = isset($_POST[$this->code.'_field_6']) ? $_POST[$this->code.'_field_6'] : '';//$this->alternate 2
 	$card_number = trim($this->field_1);
 	$card_number = substr($card_number, 0, 4) . '********' . substr($card_number, -4);
 	$this->payment_fields = implode(':', array($this->field_0, $card_number, $this->field_2, $this->field_3, $this->field_4, $this->field_5, $this->field_6));

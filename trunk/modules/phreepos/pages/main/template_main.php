@@ -217,7 +217,7 @@ echo $toolbar->build_toolbar();
 <?php // display the hidden fields that are not used in this rendition of the form
 echo $hidden_fields;
 ?>
-<applet name="jZebra" code="jzebra.RawPrintApplet.class" archive="<?php echo DIR_WS_ADMIN . 'modules/phreedom/includes/jzebra/jzebra.jar'; ?>" width="16" height="16">
+<applet name="jZebra" code="jzebra.PrintApplet.class" archive="<?php echo DIR_WS_ADMIN . 'modules/phreedom/includes/jzebra/jzebra.jar'; ?>" width="16" height="16">
     
 </applet>
 <div id="popupPayment">

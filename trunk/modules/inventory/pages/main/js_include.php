@@ -38,11 +38,11 @@ var filter_contains		= '<?php echo FILTER_CONTAINS;?>';
 var text_properties     = '<?php echo TEXT_PROPERTIES;?>';
 
 <?php echo $js_tax_rates;?>
-<?php echo $FirstValue;?>;
-<?php echo $FirstId; ?>;
-<?php echo $SecondField; ?>;
-<?php echo $SecondFieldValue; ?>;
-<?php echo $SecondFieldId; ?>;
+<?php if(isset($FirstValue)) 		echo $FirstValue;?>;
+<?php if(isset($FirstId)) 			echo $FirstId; ?>;
+<?php if(isset($SecondField)) 		echo $SecondField; ?>;
+<?php if(isset($SecondFieldValue))	echo $SecondFieldValue; ?>;
+<?php if(isset($SecondFieldId)) 	echo $SecondFieldId; ?>;
 // required function called with every page load
 function init() {
 	$(function() { $('#detailtabs').tabs(); });
@@ -53,7 +53,6 @@ function init() {
   		echo "  addVendorRow();";
   	}
   	?>
-  	
 }
 
 function check_form() {
@@ -168,8 +167,7 @@ function what_to_update(){
     }
 }
 
-function update_full_price_incl_tax(margin, inclTax, fullprice){
-	
+function update_full_price_incl_tax(margin, inclTax, fullprice) {
 //calculate margin
 	if(margin){
 		var highest = 0;
@@ -229,89 +227,8 @@ function InventoryList(rowCnt) {
 	if(rowCnt == '') return;
   	window.open("index.php?module=inventory&page=popup_inv&rowID="+rowCnt+"&search_text="+document.getElementById('sku_'+rowCnt).value,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
 }
-
-function loadSkuDetails(iID, rID) {
-    $.ajax({
-      type: "GET",
-	  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&iID='+iID+'&rID='+rID,
-      dataType: ($.browser.msie) ? "text" : "xml",
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-      },
-	  success: processSkuDetails
-    });
-}
-
-function processSkuDetails(sXml) { // call back function
-	var text = '';
-	var xml = parseXml(sXml);
-	if (!xml) return;
-	var rowID = $(xml).find("rID").text();
-	var sku   = $(xml).find("sku").text(); // only the first find, avoids bom add-ons
-	if (!sku || $(xml).find("inventory_type").text() == 'ms' || $(xml).find("inventory_type").text() == 'mb') {
-		InventoryList(rowID);
-		return;
-	}
-	document.getElementById('sku_'+rowID).value              = sku;
-	document.getElementById('sku_'+rowID).style.color        = '';
-	document.getElementById('desc_'+rowID).value             = $(xml).find("description_short").text();
-	if(document.getElementById('qty_'+rowID).value == 0)       document.getElementById('qty_'+rowID).value = 1;
-	document.getElementById('item_cost_'+rowID).value        = formatCurrency($(xml).find("item_cost").text());
-	document.getElementById('sales_price_'+rowID).value      = formatCurrency($(xml).find("sales_price").text());
-	bomTotalValues();	 
-}
-
-function addBOMRow() {
-	var cell = Array(6);
-	var newRow = document.getElementById("bom_table_body").insertRow(-1);
-	var newCell;
-	rowCnt = newRow.rowIndex;
-	// NOTE: any change here also need to be made below for reload if action fails
-	cell[0] = '<td align="center">';
-	cell[0] += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\''.TEXT_DELETE_ENTRY.'\')) $(this).parent().parent().remove();bomTotalValues();"')); ?>';
-	cell[1] = '<td align="center">';
-	// Hidden fields
-	cell[1] += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="">';
-	// End hidden fields
-	cell[1] += '<input type="text" name="assy_sku[]" id="sku_'+rowCnt+'" value="" size="<?php echo (MAX_INVENTORY_SKU_LENGTH + 1); ?>" onchange="bom_guess('+rowCnt+')" maxlength="<?php echo MAX_INVENTORY_SKU_LENGTH; ?>">&nbsp;';
-	cell[1] += buildIcon(icon_path+'16x16/actions/system-search.png', text_sku, 'align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"') + '&nbsp;<\/td>';
-	cell[1] += buildIcon(icon_path+'16x16/actions/document-properties.png', text_properties, 'id="sku_prop_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryProp('+rowCnt+')"');
-	cell[2] = '<td><input type="text" name="assy_desc[]" id="desc_'+rowCnt+'" value="" size="64" maxlength="64"><\/td>';
-	cell[3] = '<td><input type="text" name="assy_qty[]" id="qty_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
-	cell[4] = '<td><input type="text" name="assy_item_cost[]" id="item_cost_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
-	cell[5] = '<td><input type="text" name="assy_sales_price[]" id="sales_price_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
-
-	for (var i=0; i<cell.length; i++) {
-		newCell = newRow.insertCell(-1);
-		newCell.innerHTML = cell[i];
-	}
-
-	return rowCnt;
-}
-
-function InventoryProp(rID) {
-	var sku = document.getElementById('sku_'+rID).value;
-	if (sku != text_search && sku != '') {
-	    $.ajax({
-	    	type: "GET",
-		  	url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuValid&strict=1&sku='+sku,
-	      	dataType: ($.browser.msie) ? "text" : "xml",
-	      	error: function(XMLHttpRequest, textStatus, errorThrown) {
-	        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
-	      		},
-		  	success: processSkuProp
-	    });
-	}
-}
-
-function processSkuProp(sXml) {
-  var xml = parseXml(sXml);
-  if (!xml) return;
-  if ($(xml).find("id").first().text() != 0) {
-	var id = $(xml).find("id").first().text();
-	window.open("index.php?module=inventory&page=main&action=properties&cID="+id,"inventory","width=800px,height=600px,resizable=1,scrollbars=1,top=50,left=50");
-  }
-}
+<?php if(isset($cInfo->edit_ms_list) && $cInfo->edit_ms_list == true) {?> 
+// ******* BOF - MASTER STOCK functions *********/
 
 function masterStockTitle(id) {
   if(document.all) { // IE browsers
@@ -363,9 +280,6 @@ function masterStockBuildSkus() {
   var newRow, newCell, newValue0, newValue1, newValue2, attrib0, attrib1;
   var ms_attr_0 = '';
   var ms_attr_1 = '';
- /* while (document.getElementById('sku_list_body').rows.length > 0) {
-	document.getElementById('sku_list_body').deleteRow(0);
-  }*/
   var sku = document.getElementById('sku').value;
   newValue0 = '';
   newValue1 = '';
@@ -451,10 +365,10 @@ function insertTableRow(newValue0, newValue1, newValue2) {
 	   		newCell.style.textAlign= 'center';
 	   		newCell = newRow.insertCell(-1);
 	   		newCell.innerText = 0;
-	   		newCell.style.textAlign= 'center';
+	   		newCell.style.textAlign= 'right';
 	   		newCell = newRow.insertCell(-1);
 	   		newCell.innerText = 0;
-	   		newCell.style.textAlign= 'center';
+	   		newCell.style.textAlign= 'right';
 	   	} else { //firefox
 	   	    newCell = newRow.insertCell(-1);
 	   	 	newCell.style.paddingBottom 	='1px';
@@ -492,14 +406,103 @@ function insertTableRow(newValue0, newValue1, newValue2) {
 	   		newCell.style.textAlign= 'center';
 	   		newCell = newRow.insertCell(-1);
 	   		newCell.textContent = 0;
-	   		newCell.style.textAlign= 'center';
+	   		newCell.style.textAlign= 'right';
 	   		newCell = newRow.insertCell(-1);
 	   		newCell.textContent = 0;
-	   		newCell.style.textAlign= 'center';
+	   		newCell.style.textAlign= 'right';
 		}
 	}
   }
+//******* BOF - MASTER STOCK functions *********/
+<?php }?>
+<?php if (isset($cInfo->bom)){ ?>
+// ******* BOF - BOM functions *********/
 
+function addBOMRow() {
+	var cell = Array(6);
+	var newRow = document.getElementById("bom_table_body").insertRow(-1);
+	var newCell;
+	rowCnt = newRow.rowIndex;
+	// NOTE: any change here also need to be made below for reload if action fails
+	cell[0] = '<td align="center">';
+	cell[0] += '<?php echo str_replace("'", "\'", html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\''.TEXT_DELETE_ENTRY.'\')) $(this).parent().parent().remove();bomTotalValues();"')); ?>';
+	cell[1] = '<td align="center">';
+	// Hidden fields
+	cell[1] += '<input type="hidden" name="id_'+rowCnt+'" id="id_'+rowCnt+'" value="">';
+	// End hidden fields
+	cell[1] += '<input type="text" name="assy_sku[]" id="sku_'+rowCnt+'" value="" size="<?php echo (MAX_INVENTORY_SKU_LENGTH + 1); ?>" onchange="bom_guess('+rowCnt+')" maxlength="<?php echo MAX_INVENTORY_SKU_LENGTH; ?>">&nbsp;';
+	cell[1] += buildIcon(icon_path+'16x16/actions/system-search.png', text_sku, 'align="top" style="cursor:pointer" onclick="InventoryList('+rowCnt+')"') + '&nbsp;<\/td>';
+	cell[1] += buildIcon(icon_path+'16x16/actions/document-properties.png', text_properties, 'id="sku_prop_'+rowCnt+'" align="top" style="cursor:pointer" onclick="InventoryProp('+rowCnt+')"');
+	cell[2] = '<td><input type="text" name="assy_desc[]" id="desc_'+rowCnt+'" value="" size="64" maxlength="64"><\/td>';
+	cell[3] = '<td><input type="text" name="assy_qty[]" id="qty_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
+	cell[4] = '<td><input type="text" name="assy_item_cost[]" id="item_cost_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
+	cell[5] = '<td><input type="text" name="assy_sales_price[]" id="sales_price_'+rowCnt+'" value="0" size="6" maxlength="5"><\/td>';
+
+	for (var i=0; i<cell.length; i++) {
+		newCell = newRow.insertCell(-1);
+		newCell.innerHTML = cell[i];
+	}
+
+	return rowCnt;
+}
+// ******* BOF - AJAX BOM load sku pair *********/
+
+function loadSkuDetails(iID, rID) {
+    $.ajax({
+      type: "GET",
+	  url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuDetails&iID='+iID+'&rID='+rID,
+      dataType: ($.browser.msie) ? "text" : "xml",
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+      },
+	  success: processSkuDetails
+    });
+}
+
+function processSkuDetails(sXml) { // call back function
+	var text = '';
+	var xml = parseXml(sXml);
+	if (!xml) return;
+	var rowID = $(xml).find("rID").text();
+	var sku   = $(xml).find("sku").text(); // only the first find, avoids bom add-ons
+	if (!sku || $(xml).find("inventory_type").text() == 'ms' || $(xml).find("inventory_type").text() == 'mb') {
+		InventoryList(rowID);
+		return;
+	}
+	document.getElementById('sku_'+rowID).value              = sku;
+	document.getElementById('sku_'+rowID).style.color        = '';
+	document.getElementById('desc_'+rowID).value             = $(xml).find("description_short").text();
+	if(document.getElementById('qty_'+rowID).value == 0)       document.getElementById('qty_'+rowID).value = 1;
+	document.getElementById('item_cost_'+rowID).value        = formatCurrency($(xml).find("item_cost").text());
+	document.getElementById('sales_price_'+rowID).value      = formatCurrency($(xml).find("sales_price").text());
+	bomTotalValues();	 
+}
+// ******* EOF - AJAX BOM load sku pair *********/
+// ******* BOF - AJAX BOM item Properties pair *********/
+function InventoryProp(rID) {
+	var sku = document.getElementById('sku_'+rID).value;
+	if (sku != text_search && sku != '') {
+	    $.ajax({
+	    	type: "GET",
+		  	url: 'index.php?module=inventory&page=ajax&op=inv_details&fID=skuValid&strict=1&sku='+sku,
+	      	dataType: ($.browser.msie) ? "text" : "xml",
+	      	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	        alert ("Ajax Error: " + XMLHttpRequest.responseText + "\nTextStatus: " + textStatus + "\nErrorThrown: " + errorThrown);
+	      		},
+		  	success: processSkuProp
+	    });
+	}
+}
+
+function processSkuProp(sXml) {
+  var xml = parseXml(sXml);
+  if (!xml) return;
+  if ($(xml).find("id").first().text() != 0) {
+	var id = $(xml).find("id").first().text();
+	window.open("index.php?module=inventory&page=main&action=properties&cID="+id,"inventory","width=800px,height=600px,resizable=1,scrollbars=1,top=50,left=50");
+  }
+}
+// ******* EOF - AJAX BOM item Properties pair *********/
 // ******* BOF - AJAX BOM Cost function pair *********/
 function ajaxAssyCost() {
   var id = document.getElementById('rowSeq').value;
@@ -556,8 +559,9 @@ function bomTotalValues(){
 	document.getElementById('total_item_cost').value   = formatCurrency( itemCost );
 	document.getElementById('total_sales_price').value = formatCurrency( salesPrice );
 }
-
-// ******* BOF - AJAX BOM Where Used pair *********/
+// ******* EOF - BOM functions *********/
+<?php }?>
+// ******* BOF - AJAX Where Used pair *********/
 function ajaxWhereUsed() {
   var id = document.getElementById('rowSeq').value;
   if (id) {
@@ -584,6 +588,7 @@ function showWhereUsed(sXml) {
 	alert(text);
   }
 }
+// ******* EOF - AJAX Where Used pair *********/
 																							
 function addVendorRow(){
 	var newCell = '';
@@ -662,9 +667,8 @@ $(document).ready(function(){
 });
 // ******* EOF - AJAX BOM Where Used pair *********/
 
-//*********** filter functions *******************// 
-
-
+<?php if ($include_template == 'template_main.php'){?>
+// ******* BOF - filter functions *****************/ 
  
 function updateFilter(rowCnt, start){
 	var text 	 = document.getElementById('filter_field'+ rowCnt ).value;
@@ -747,19 +751,22 @@ function removeFilterRow(rowCnt) {
 	$('#'+rowCnt).remove();
 }
 
-function TableStartValues( rowCnt, valueFilterField, valueCriteriaField, valueValueField){
+function TableStartValues( valueFilterField, valueCriteriaField, valueValueField){
+	addFilterRow();
+	rowCnt = document.getElementById('filter_table_body').rows.length;
 	document.getElementById('filter_field'+ rowCnt ).value    = valueFilterField ;
 	updateFilter(rowCnt, true);
 	document.getElementById('filter_criteria'+ rowCnt ).value = valueCriteriaField;
 	document.getElementById('filter_value'+ rowCnt ).value = valueValueField;
 }
 
-<?php if ($include_template == 'template_main.php'){?>
 $(document).keydown(function(e) {
     if(e.keyCode == 13) {
     	submitToDo('filter'); 
     }
  });
+// *********** EOF - filter functions *****************/
 <?php }?>
+
 // -->
 </script>

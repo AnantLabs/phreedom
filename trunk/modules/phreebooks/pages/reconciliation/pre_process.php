@@ -25,7 +25,7 @@ require_once(DIR_FS_WORKING . 'classes/banking.php');
 
 /**************   page specific initialization  *************************/
 // retrieve the current status of this periods reconciliation
-$period = $_GET['search_period'] ? $_GET['search_period'] : CURRENT_ACCOUNTING_PERIOD;
+$period = isset($_REQUEST['search_period']) ? $_REQUEST['search_period'] : CURRENT_ACCOUNTING_PERIOD;
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : ($_GET['sf'] ? $_GET['sf'] : TEXT_REFERENCE);
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : ($_GET['so'] ? $_GET['so'] : 'asc');
 if ($period == 'all') {

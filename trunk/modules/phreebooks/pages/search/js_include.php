@@ -32,6 +32,10 @@ function init() {
 function check_form() {
   return true;
 }
+
+$(document).keydown(function(event){
+	if (event.keyCode == 13) submitToDo('search');
+});
 // Insert javscript file references here.
 
 

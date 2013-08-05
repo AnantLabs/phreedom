@@ -22,10 +22,11 @@ $security_level = validate_user(SECURITY_ID_PRICE_SHEET_MANAGER);
 require_once(DIR_FS_WORKING . 'defaults.php');
 /**************   page specific initialization  *************************/
 $type        = isset($_GET['type'])  ? $_GET['type']   : 'c';
-$search_text = $_POST['search_text'] ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action      = isset($_GET['action'])? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
 // load the sort fields
 $_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
 $_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
@@ -151,10 +152,10 @@ switch ($action) {
 	$default_levels = $result->fields['default_levels'];
 	break;
 
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -214,10 +215,11 @@ switch ($action) {
 	$field_list = array('id', 'inactive', 'sheet_name', 'revision', 'effective_date', 'expiration_date', 'default_sheet');
 	// hook to add new fields to the query return results
 	if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-	$query_raw    = "select " . implode(', ', $field_list)  . " from " . TABLE_PRICE_SHEETS . " 
+	$query_raw    = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list)  . " from " . TABLE_PRICE_SHEETS . " 
 	  where type = '" . $type . "'" . $search . " order by $disp_order";
-	$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-	$query_result = $db->Execute($query_raw);
+	$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+    // the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+    $query_split  = new splitPageResults($_REQUEST['list'], '');
 	$include_header   = true;
 	$include_footer   = true;
 	$include_tabs     = false;

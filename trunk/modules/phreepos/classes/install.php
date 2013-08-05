@@ -20,12 +20,12 @@ class phreepos_admin {
   function phreepos_admin() {
     $this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'contacts'  => '3.7.1',
-	  'inventory' => '3.6',
-	  'phreebooks'=> '3.6',
-	  'phreedom'  => '3.6',
-	  'payment'   => '3.6',
-	  'phreeform' => '3.6',
+	  'contacts'  => 3.71,
+	  'inventory' => 3.6,
+	  'phreebooks'=> 3.6,
+	  'phreedom'  => 3.6,
+	  'payment'   => 3.6,
+	  'phreeform' => 3.6,
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -58,6 +58,7 @@ class phreepos_admin {
   			printer_open_drawer     varchar(255)  NOT NULL default '',
   			balance					double 				   default '0',
   			max_discount        	varchar(64)   NOT NULL default '',
+  			tax_id 					INT(11) 			   default '-1',
   			PRIMARY KEY (till_id)
   		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;",
   		TABLE_PHREEPOS_OTHER_TRANSACTIONS => "CREATE TABLE " .TABLE_PHREEPOS_OTHER_TRANSACTIONS . " (
@@ -86,11 +87,11 @@ class phreepos_admin {
   function update($module) {
     global $db, $messageStack;
 	$error = false;
-	if (MODULE_PHREEPOS_STATUS < '3.2') {
+	if (MODULE_PHREEPOS_STATUS < 3.2) {
 	  if(!defined('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE')) write_configure('PHREEPOS_RECEIPT_PRINTER_STARTING_LINE', '');
 	  if(!defined('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE'))  write_configure('PHREEPOS_RECEIPT_PRINTER_CLOSING_LINE', '');
 	}
-	if (MODULE_PHREEPOS_STATUS < '3.3') {
+	if (MODULE_PHREEPOS_STATUS < 3.3) {
 	  if(!defined('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER'))   write_configure('PHREEPOS_RECEIPT_PRINTER_OPEN_DRAWER', '');
 	  if(!defined('PHREEPOS_DISPLAY_WITH_TAX'))  			 write_configure('PHREEPOS_DISPLAY_WITH_TAX',		     '1');
       if(!defined('PHREEPOS_DISCOUNT_OF'))   				 write_configure('PHREEPOS_DISCOUNT_OF',                 '0');
@@ -122,6 +123,7 @@ class phreepos_admin {
 	  if ($table == TABLE_PHREEPOS_OTHER_TRANSACTIONS) admin_install_tables(array($table => $sql));
 		
 	}
+	if (!db_field_exists(TABLE_PHREEPOS_TILLS, 'tax_id')) $db->Execute("ALTER TABLE " . TABLE_PHREEPOS_TILLS . " ADD tax_id INT(11) default '-1' AFTER max_discount");
 	if (!$error) {
 	  write_configure('MODULE_' . strtoupper($module) . '_STATUS', constant('MODULE_' . strtoupper($module) . '_VERSION'));
    	  $messageStack->add(sprintf(GEN_MODULE_UPDATE_SUCCESS, $module, constant('MODULE_' . strtoupper($module) . '_VERSION')), 'success');

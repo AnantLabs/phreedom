@@ -39,7 +39,7 @@ class journal_21 extends journal {
         $result = $db->Execute("select next_check_num from " . TABLE_CURRENT_STATUS);
         $this->purchase_invoice_id = $result->fields['next_check_num'];     
         $this->gl_acct_id          = $_SESSION['admin_prefs']['def_cash_acct'] ? $_SESSION['admin_prefs']['def_cash_acct'] : AP_PURCHASE_INVOICE_ACCOUNT;
-		parent::__construct($id = '');    
+		parent::__construct($id);    
 	  }
 
 	function post_ordr($action) {
@@ -176,11 +176,7 @@ class journal_21 extends journal {
 			    if (ENABLE_ORDER_DISCOUNT && $tax_discount == '0') {
 				  $line_total = $line_total * (1 - $this->disc_percent);
 			    }
-			    if (ROUND_TAX_BY_AUTH) {
-				  $auth_array[$auth] += round((($tax_auths[$auth]['tax_rate'] / 100) * $line_total), $currencies->currencies[DEFAULT_CURRENCY]['decimal_places']);
-			    } else {
-				  $auth_array[$auth] += ($tax_auths[$auth]['tax_rate'] / 100) * $line_total;
-			    }
+			    $auth_array[$auth] += ($tax_auths[$auth]['tax_rate'] / 100) * $line_total;
 			  }
 		    }
 		  }
@@ -189,15 +185,20 @@ class journal_21 extends journal {
 	  // calculate each tax total by authority and put into journal row array
 	  foreach ($auth_array as $auth => $auth_tax_collected) {
 		if ($auth_tax_collected == '' && $tax_auths[$auth]['account_id'] == '') continue;
+		if( ROUND_TAX_BY_AUTH == true ){
+			$amount = number_format($auth_tax_collected, $currencies->currencies[DEFAULT_CURRENCY]['decimal_places'], '.', '');
+		}else {
+			$amount = $auth_tax_collected;
+		} 
 	    $this->journal_rows[] = array( // record for specific tax authority
 		  'qty'                     => '1',
 		  'gl_type'                 => 'tax',		// code for tax entry
-		  'debit_amount' 			=> $auth_tax_collected,
+		  'debit_amount' 			=> $amount,
 		  'description'             => $tax_auths[$auth]['description_short'],
 		  'gl_account'              => $tax_auths[$auth]['account_id'],
 		  'post_date'               => $this->post_date,
 	    );
-	    $total += $auth_tax_collected;
+	    $total += $amount;
 	  }
 	  return $total;
   }

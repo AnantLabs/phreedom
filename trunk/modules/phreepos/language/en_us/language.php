@@ -27,7 +27,6 @@ define('TEXT_ADD_UPDATE','Add/Update');
 define('TEXT_SUBTOTAL','Subtotal');
 define('TEXT_AMOUNT_PAID','Amount Paid');
 define('TEXT_BALANCE_DUE','Balance Due');
-define('TEXT_PAYMENT','Payment');
 define('TEXT_RETURN','Process Return');
 define('TEXT_DISCOUNT_PERCENT','Discount Perc.');
 define('TEXT_DISCOUNT_AMOUNT','Discount Amt.');

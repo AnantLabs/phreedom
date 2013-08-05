@@ -38,6 +38,9 @@ class inventory {
 	public $not_used_fields			= array();
 	public $attachments				= array();
 	public $assy_cost				= 0;
+	public $remove_image			= false;
+	public $purchases_history		= array();
+	public $sales_history			= array();
 	
 	public function __construct(){
 		global $db;
@@ -168,6 +171,8 @@ class inventory {
 		    'account_inventory_wage'	=> $this->account_inventory_wage,
 			'account_cost_of_sales'  	=> $this->account_cost_of_sales,
 			'serialize'					=> $this->serialize,
+			'creation_date'				=> date('Y-m-d H:i:s'),
+			'last_update'				=> date('Y-m-d H:i:s'),
 			);
 		db_perform(TABLE_INVENTORY, $sql_data_array, 'insert');
 		$this->get_item_by_id(db_insert_id());
@@ -324,7 +329,7 @@ class inventory {
 	
 	// this is the general save function.
 	function save() {
-		global $db, $currencies, $fields;
+		global $db, $currencies, $fields, $messageStack;
 	    $sql_data_array 						= $fields->what_to_save();
 	    foreach(array('quantity_on_hand', 'quantity_on_order', 'quantity_on_sales_order', 'quantity_on_allocation' ) as $key){
 	    	unset($sql_data_array[$key]);
@@ -358,7 +363,12 @@ class inventory {
 				$messageStack->add(INV_IMAGE_FILE_TYPE_ERROR, 'error');
 				return false;
 	  		} else { // passed all test, write file
-				if (!copy($temp_file_name, $file_path . '/' . $file_name)) {
+	  			$result = $db->Execute("select * from " . TABLE_INVENTORY . " where image_with_path = '" . ($this->inventory_path ? ($this->inventory_path . '/') : '') . $file_name ."'");
+	  			if ( $result->RecordCount() != 0) {
+	  				$messageStack->add(INV_IMAGE_DUPLICATE_NAME, 'error');
+	  				return false;
+	  			}
+	  			if (!copy($temp_file_name, $file_path . '/' . $file_name)) {
 		  			$messageStack->add(INV_IMAGE_FILE_WRITE_ERROR, 'error');
 		  			return false;
 				} else {
@@ -592,7 +602,7 @@ class inventory {
 	  		$result->MoveNext();
 		}
 
-		// calculate average usage
+		// calculate average usage 
 		$cnt = 0;
 		foreach ($this->sales_history as $key => $value) {
 	  		if ($cnt == 0) { 

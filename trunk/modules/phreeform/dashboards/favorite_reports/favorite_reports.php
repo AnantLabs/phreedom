@@ -30,6 +30,8 @@ class favorite_reports extends ctl_panel {
 
 	function Output($params) {
 		global $db;
+		$contents = '';
+		$control  = '';
 		// load the report list
 		$result = $db->Execute("select id, security, doc_title from " . TABLE_PHREEFORM . " 
 		  where doc_ext in ('rpt','frm') order by doc_title");

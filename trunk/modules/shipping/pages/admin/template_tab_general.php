@@ -56,7 +56,7 @@
 	  </tr>
 	  <tr>
 	    <td colspan="3"><?php echo CD_10_02_DESC; ?></td>
-	    <td><?php echo html_pull_down_menu('shipping_default_currency', gen_get_currency_array(), $_POST['shipping_default_currency'] ? $_POST['shipping_default_currency'] : SHIPPING_DEFAULT_CURRENCY, ''); ?></td>
+	    <td><?php echo html_pull_down_menu('shipping_default_currency', gen_get_pull_down(TABLE_CURRENCIES, false, false, 'code', 'title'), $_POST['shipping_default_currency'] ? $_POST['shipping_default_currency'] : SHIPPING_DEFAULT_CURRENCY, ''); ?></td>
 	  </tr>
 	  <tr>
 	    <td colspan="3"><?php echo CD_10_03_DESC; ?></td>

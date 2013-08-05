@@ -225,7 +225,6 @@ switch ($action) {
 }
 
 /*****************   prepare to display templates  *************************/
-$currency_array = gen_get_currency_array();
 // translate shipping terms in the carriers language, style
 $shipping_methods = array();
 foreach ($shipping_defaults['service_levels'] as $key => $value) {

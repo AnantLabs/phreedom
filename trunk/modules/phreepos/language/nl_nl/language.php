@@ -15,7 +15,6 @@ define('TEXT_ADD_UPDATE','Toevoegen/Updaten');
 define('TEXT_SUBTOTAL','Subtotaal');
 define('TEXT_AMOUNT_PAID','Bedrag betaald');
 define('TEXT_BALANCE_DUE','Huidig Openstaand Saldo');
-define('TEXT_PAYMENT','Betaling');
 define('TEXT_RETURN','Verwerk Teruggave');
 define('TEXT_DISCOUNT_PERCENT','Kortings Perc.');
 define('TEXT_DISCOUNT_AMOUNT','Kortings Bedr.');

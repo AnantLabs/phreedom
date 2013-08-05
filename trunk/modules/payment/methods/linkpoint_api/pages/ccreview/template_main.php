@@ -45,8 +45,8 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
 // Build the page
 ?>
 <h1><?php echo BOX_BANKING_LINK_POINT_CC_REVIEW; ?></h1>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], 'Displaying <b>%d</b> to <b>%d</b> (of <b>%d</b>) record(s)'); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 <table>
   <tr valign="top"><th><?php echo $list_header; ?></th></tr>
 <?php 
@@ -97,6 +97,6 @@ echo $toolbar->build_toolbar($add_search = true, $add_periods = true);
     }
 ?>
 </table>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], 'Displaying <b>%d</b> to <b>%d</b> (of <b>%d</b>) record(s)'); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_ITEMS); ?></div>
 

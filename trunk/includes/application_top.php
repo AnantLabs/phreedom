@@ -42,7 +42,7 @@ define('FILENAME_DEFAULT', 'index');
 // set the type of request (secure or not)
 $request_type = (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1' || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_BY']),'SSL') || strstr(strtoupper($_SERVER['HTTP_X_FORWARDED_HOST']),'SSL')) ? 'SSL' : 'NONSSL';
 // define the inventory types that are tracked in cost of goods sold
-define('COG_ITEM_TYPES','si,sr,ms,mi,as,sa');
+define('COG_ITEM_TYPES','si,sr,ms,mi,ma,sa');
 @ini_set('session.gc_maxlifetime', (SESSION_TIMEOUT_ADMIN < 900 ? (SESSION_TIMEOUT_ADMIN + 900) : SESSION_TIMEOUT_ADMIN));
 $_REQUEST = array_merge($_GET, $_POST);
 session_start();
@@ -62,6 +62,7 @@ else { require_once(DIR_FS_MODULES . 'phreedom/language/en_us/language.php'); }
 require_once(DIR_FS_MODULES  . 'phreedom/defaults.php');
 require_once(DIR_FS_INCLUDES . 'common_functions.php');
 require_once(DIR_FS_INCLUDES . 'common_classes.php');
+set_error_handler("PhreebooksErrorHandler");
 // pull in the custom language over-rides for this module/page
 $custom_path = DIR_FS_MODULES . $module . '/custom/pages/' . $page . '/extra_defines.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -78,15 +79,15 @@ $toolbar      = new toolbar;
 $db_company = (isset($_SESSION['company'])) ? $_SESSION['company'] : $_SESSION['companies'][$_POST['company']];
 if ($db_company && file_exists(DIR_FS_MY_FILES . $db_company . '/config.php')) {
   define('DB_DATABASE', $db_company);
-  require(DIR_FS_MY_FILES . $db_company . '/config.php');
+  require_once(DIR_FS_MY_FILES . $db_company . '/config.php');
   define('DB_SERVER_HOST',DB_SERVER); // for old PhreeBooks installs
   // Load queryFactory db classes
-  require(DIR_FS_INCLUDES . 'db/' . DB_TYPE . '/query_factory.php');
+  require_once(DIR_FS_INCLUDES . 'db/' . DB_TYPE . '/query_factory.php');
   $db = new queryFactory();
   $db->connect(DB_SERVER_HOST, DB_SERVER_USERNAME, DB_SERVER_PASSWORD, DB_DATABASE);
   // set application wide parameters for phreebooks module
   $result = $db->Execute_return_error("select configuration_key, configuration_value from " . DB_PREFIX . "configuration");
-  if ($db->error_number) die(LOAD_CONFIG_ERROR);
+  if ($db->error_number != '' || $result->RecordCount() == 0) trigger_error(LOAD_CONFIG_ERROR, E_USER_ERROR);
   while (!$result->EOF) {
 	define($result->fields['configuration_key'], $result->fields['configuration_value']);
 	$result->MoveNext();

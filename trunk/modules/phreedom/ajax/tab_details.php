@@ -31,7 +31,7 @@ $rID     = $_GET['rID'];
 $xml     = NULL;
 
 if (!$page || !subject) die('no subject or module');
-if (!$_GET['list']) $_GET['list'] = 1;
+if (!$_REQUEST['list']) $_REQUEST['list'] = 1;
 if (!$action) $action = 'go_first';
 
 require_once(DIR_FS_MODULES . $page . '/classes/' . $subject . '.php');
@@ -41,10 +41,10 @@ $my_class->message = false;
 switch ($action) {
   case 'delete':      if ($rID) $my_class->btn_delete($rID); break;
   case 'update':      $my_class->btn_update($rID); break;
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'go_page':                            break;
 }
 

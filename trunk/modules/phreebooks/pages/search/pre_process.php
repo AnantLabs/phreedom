@@ -40,6 +40,7 @@ for ($i = 1; $i < 30; $i++) {
 	$journal_choices[$i] = sprintf(TEXT_JID_ENTRY, constant('GEN_ADM_TOOLS_J' . $j_constant));
   }
 }
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
 $_REQUEST['amount_id_from']  = $currencies->clean_value($_REQUEST['amount_id_from']);
 $_REQUEST['amount_id_to']    = $currencies->clean_value($_REQUEST['amount_id_to']);
 // set some defaults
@@ -55,10 +56,10 @@ $custom_path = DIR_FS_WORKING . 'custom/pages/search/extra_actions.php';
 if (file_exists($custom_path)) { include($custom_path); }
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'reset':
 	$_REQUEST['date_id']         = 'l';
 	$_REQUEST['date_from']       = gen_locale_date(CURRENT_ACCOUNTING_PERIOD_START);
@@ -160,14 +161,14 @@ $temp = gen_build_sql_date($date_prefs['params'], $date_prefs['fieldname']);
 if ($temp['sql']) $criteria[] = '(' . $temp['sql'] . ')';
 
 $crit = ($criteria) ? (" where " . implode(' and ', $criteria)) : '';
-$query_raw = "select distinct m.id, m.journal_id, m.post_date, m.description, m.total_amount, 
+$query_raw = "select SQL_CALC_FOUND_ROWS distinct m.id, m.journal_id, m.post_date, m.description, m.total_amount, 
 	m.purchase_invoice_id, m.bill_primary_name, m.bill_acct_id   
 	from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i 
 	on m.id = i.ref_id " . $crit . " order by $disp_order";
 
-$query_result = $db->Execute($query_raw);
-$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result = $db->Execute($query_raw);
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 
 $include_header   = true;
 $include_footer   = true;

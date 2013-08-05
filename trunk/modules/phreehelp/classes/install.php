@@ -21,7 +21,7 @@ class phreehelp_admin {
   function __construct() {
 	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'phreedom' => '3.6',
+	  'phreedom' => 3.6,
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -57,7 +57,7 @@ class phreehelp_admin {
   function update($module) {
     global $db, $messageStack;
     $error = false;
-	if (MODULE_PHREEHELP_STATUS < '3.0') {
+	if (MODULE_PHREEHELP_STATUS < 3.0) {
 	  foreach ($this->tables as $table => $create_table_sql) {
 		if (!db_table_exists($table)) if (!$db->Execute($create_table_sql)) $error = true;
 	  }

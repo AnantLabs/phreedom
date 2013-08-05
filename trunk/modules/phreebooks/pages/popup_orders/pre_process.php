@@ -53,11 +53,10 @@ switch (JOURNAL_ID) {
 	default:
 		die('No valid journal id found (filename: modules/phreebooks/popup.php), Journal ID needs to be passed to this script to identify the correct procedure.');
 }
-
-$acct_period   = ($_GET['search_period']) ? $_GET['search_period'] : $_POST['search_period'];
-if (!$acct_period) $acct_period = CURRENT_ACCOUNTING_PERIOD;
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1;
+$acct_period = isset($_REQUEST['search_period']) ? $_REQUEST['search_period'] : CURRENT_ACCOUNTING_PERIOD;
 $period_filter = ($acct_period == 'all') ? '' : (' and period = ' . $acct_period);
-$search_text   = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
+$search_text = db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action        = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
@@ -70,10 +69,10 @@ if (file_exists($custom_path)) { include($custom_path); }
 
 /***************   Act on the action request   *************************/
 switch ($action) {
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -124,12 +123,11 @@ $field_list = array('id', 'journal_id', 'post_date', 'purchase_invoice_id', 'pur
 // hook to add new fields to the query return results
 if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
 
-$query_raw = "select " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 
+$query_raw = "select SQL_CALC_FOUND_ROWS " . implode(', ', $field_list) . " from " . TABLE_JOURNAL_MAIN . " 
   where journal_id = " . JOURNAL_ID . $period_filter . $search . " order by $disp_order";
-
-$query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-$query_result = $db->Execute($query_raw);
-
+$query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+// the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+$query_split  = new splitPageResults($_REQUEST['list'], '');
 $include_header   = false;
 $include_footer   = false;
 $include_tabs     = false;

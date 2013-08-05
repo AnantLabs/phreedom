@@ -221,20 +221,20 @@ switch ($action) {
   	$single_company  = sizeof($companies)==1 ? true : false;
   	$languages       = load_language_dropdown();
 	$single_language = sizeof($languages)==1 ? true : false;
-	if ($_POST['company']) { // find default company
+	if (isset($_POST['company'])) { // find default company
 	  $company_index = $_POST['company'];
 	} else {
 	  $default_company = defined('DEFAULT_COMPANY') ? DEFAULT_COMPANY : '';
-	  if ($_COOKIE['pb_company']) $default_company = $_COOKIE['pb_company'];
+	  if (isset($_COOKIE['pb_company'])) $default_company = $_COOKIE['pb_company'];
 	  foreach ($_SESSION['companies'] as $key => $value) {
 		if ($value == $default_company) $company_index = $key;
 	  }
 	}
-	if ($_POST['language']) { // find default language
+	if (isset($_POST['language'])) { // find default language
 	  $language_index = $_POST['language'];
 	} else {
 	  $default_language = defined('DEFAULT_LANGUAGE') ? DEFAULT_LANGUAGE : 'en_us';
-	  if ($_COOKIE['pb_language']) $default_language = $_COOKIE['pb_language'];
+	  if (isset($_COOKIE['pb_language'])) $default_language = $_COOKIE['pb_language'];
 	  foreach ($languages as $value) {
 		if ($value['id'] == $default_language) $language_index = $value['id'];
 	  }

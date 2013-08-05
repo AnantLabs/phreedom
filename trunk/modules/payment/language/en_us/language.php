@@ -33,5 +33,7 @@ define('MODULE_PAYMENT_CC_TEXT_JS_CC_CVV', '* The 3 or 4 digit CVV number must b
 define('MODULE_PAYMENT_CC_TEXT_DECLINED_MESSAGE', 'The credit card transaction did not process correctly. If no reason is given, the card was declined by the bank.');
 define('MODULE_PAYMENT_CC_NO_DUPS','The credit card was not processed because it has already been processed. To recharge a credit card, the credit card must be valid and not contain any * characters.');
 define('MODULE_PAYMENT_CC_TEXT_ERROR', 'Credit Card Error!');
-
+define('OPEN_POS_DRAWER_DESC','Allow the pos drawer to open when payment is selected.');
+define('POS_GL_ACCT_DESC','POS gl account payment type');
+define('SHOW_IN_POS_DESC','Show this payment in PhreePOS');
 ?>

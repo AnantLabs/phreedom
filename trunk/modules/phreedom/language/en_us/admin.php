@@ -26,7 +26,6 @@ define('TEXT_EXTRA_TABS', 'Custom Tabs');
 define('TEXT_EXTRA_FIELDS', 'Custom Fields');
 define('TEXT_LOCAL','Local');
 define('TEXT_DEBUG','Debug and Troubleshooting');
-define('TEXT_DOWNLOAD','Download');
 define('TEXT_LEGEND','Legend');
 define('TEXT_TAB_NAME','Tab Title');
 define('TEXT_TABS','Tabs');
@@ -199,7 +198,6 @@ define('SETUP_LOG_CURRENCY','Currencies - ');
 // Encryption defines
 define('GEN_ADM_TOOLS_BTN_SAVE','Save Changes');
 define('GEN_ADM_TOOLS_SET_ENCRYPTION_KEY','Enter Encryption Key');
-define('BOX_HEADING_ENCRYPTION','Data Encryption Services');
 define('GEN_ENCRYPTION_GEN_INFO','Encryption services depend on a key used to encrypt data in the database. DO NOT LOSE THE KEY, otherwise data can not be decrypted!');
 define('GEN_ENCRYPTION_COMP_TYPE','Enter the Encryption key used to store secure data.');
 define('GEN_ENCRYPTION_KEY','Encryption key ');

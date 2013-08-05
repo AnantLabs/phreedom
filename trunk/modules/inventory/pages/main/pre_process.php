@@ -29,9 +29,8 @@ $processed   = false;
 $criteria    = array();
 $fields		 = new inventory_fields();
 $type        = isset($_GET['inventory_type']) ? $_GET['inventory_type'] : 'si'; // default to stock item
-$search_text = ($_POST['search_text']) ? db_input($_POST['search_text']) : db_input($_GET['search_text']);
-if ($search_text == TEXT_SEARCH) $search_text = '';
-if (isset($_POST['search_text'])) $_GET['search_text'] = $_POST['search_text']; // save the value for get redirects 
+$search_text = db_input($_REQUEST['search_text']);
+if ($search_text == TEXT_SEARCH) $search_text = ''; 
 $action      = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
 if (!$action && $search_text <> '') $action = 'search'; // if enter key pressed and search not blank
 $first_entry = isset($_GET['add']) ? true : false;
@@ -43,6 +42,7 @@ $f0 = $_GET['f0'] = isset($_POST['todo']) ? (isset($_POST['f0']) ? '1' : '0') : 
 $f1 = $_GET['f1'] = isset($_POST['f1']) ? $_POST['f1'] : $_GET['f1']; // inventory_type dropdown
 $id = isset($_POST['rowSeq']) ? db_prepare_input($_POST['rowSeq']) : db_prepare_input($_GET['cID']);
 $type = db_prepare_input($_POST['inventory_type']);
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
 // getting the right inventory type.
 if (is_null($type)){
 	$result = $db->Execute("SELECT inventory_type FROM ".TABLE_INVENTORY." WHERE id='$id'");
@@ -119,10 +119,10 @@ switch ($action) {
 		      die;
 		   }
   	    }
-  case 'go_first':    $_GET['list'] = 1;     break;
-  case 'go_previous': $_GET['list']--;       break;
-  case 'go_next':     $_GET['list']++;       break;
-  case 'go_last':     $_GET['list'] = 99999; break;
+  case 'go_first':    $_REQUEST['list'] = 1;     break;
+  case 'go_previous': $_REQUEST['list']--;       break;
+  case 'go_next':     $_REQUEST['list']++;       break;
+  case 'go_last':     $_REQUEST['list'] = 99999; break;
   case 'search':
   case 'search_reset':
   case 'go_page':
@@ -237,9 +237,10 @@ switch ($action) {
 			'quantity_on_hand', 'quantity_on_order', 'quantity_on_sales_order', 'quantity_on_allocation');
 	// hook to add new fields to the query return results
 	if (is_array($extra_query_list_fields) > 0) $field_list = array_merge($field_list, $extra_query_list_fields);
-    $query_raw    = "select DISTINCT " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY ." a LEFT JOIN " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku ". $search . " order by " . $disp_order;
-    $query_split  = new splitPageResults($_GET['list'], MAX_DISPLAY_SEARCH_RESULTS, $query_raw, $query_numrows);
-    $query_result = $db->Execute($query_raw);
+    $query_raw    = "SELECT SQL_CALC_FOUND_ROWS DISTINCT " . implode(', ', $field_list)  . " from " . TABLE_INVENTORY ." a LEFT JOIN " . TABLE_INVENTORY_PURCHASE . " p on a.sku = p.sku ". $search . " order by $disp_order ";
+    $query_result = $db->Execute($query_raw, (MAX_DISPLAY_SEARCH_RESULTS * ($_REQUEST['list'] - 1)).", ".  MAX_DISPLAY_SEARCH_RESULTS);
+    // the splitPageResults should be run directly after the query that contains SQL_CALC_FOUND_ROWS
+    $query_split  = new splitPageResults($_REQUEST['list'], '');
     //building array's for filter dropdown selection
 	$i=0;
 	$result = $db->Execute("SELECT * FROM " . TABLE_EXTRA_FIELDS ." WHERE module_id = 'inventory' AND use_in_inventory_filter = '1' ORDER BY description ASC");

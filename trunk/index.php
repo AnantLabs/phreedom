@@ -17,8 +17,8 @@
 // +-----------------------------------------------------------------+
 // Path: /index.php
 //
-ini_set('display_errors', '1');
-error_reporting(E_ALL & ~E_NOTICE);
+ini_set('display_errors', '0');
+error_reporting(E_ALL ^ E_NOTICE);
 if ($_POST['module'])    $module = $_POST['module'];
 elseif ($_GET['module']) $module = $_GET['module'];
 else                     $module = 'phreedom';
@@ -27,10 +27,14 @@ elseif ($_GET['page'])   $page = $_GET['page'];
 else                     $page = 'main';
 require_once('includes/application_top.php');
 if (!$user_validated) {
-  $_SESSION['pb_cat']    = $_GET['module'];
-  $_SESSION['pb_module'] = $_GET['page'];
-  $_SESSION['pb_jID']    = $_GET['jID'];
-  $_SESSION['pb_type']   = $_GET['type'];
+  if ($page == 'ajax'){
+	echo createXmlHeader() . xmlEntry('error', SORRY_YOU_ARE_LOGGED_OUT) . createXmlFooter();
+	die;
+  }
+  $_SESSION['pb_cat']    = isset($_GET['module']) 	? $_GET['module']	: '';
+  $_SESSION['pb_module'] = isset($_GET['page']) 	? $_GET['page']		: '';
+  $_SESSION['pb_jID']    = isset($_GET['jID']) 		? $_GET['jID'] 		: '';
+  $_SESSION['pb_type']   = isset($_GET['type'])		? $_GET['type']		: '';
   $module = 'phreedom';
   $page   = 'main';
   if ($_GET['action'] <> 'validate') $_GET['action'] = 'login';

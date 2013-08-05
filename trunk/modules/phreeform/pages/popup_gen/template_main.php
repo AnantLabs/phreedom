@@ -108,7 +108,7 @@ echo $toolbar->build_toolbar();
 	  } ?>
 	</div>
 <?php } elseif (!$rID) { 
-    echo TEXT_NO_DOCUMENTS;
+    echo PHREEFORM_NO_DOCUMENTS;
 	  } else {
     echo html_hidden_field('rID', $rID) . chr(10);
 ?>

@@ -36,8 +36,8 @@ echo $toolbar->build_toolbar($add_search = true);
 // Build the page
 ?>
 <h1><?php echo PAGE_TITLE; ?></h1>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
 <table class="ui-widget" style="border-collapse:collapse;width:100%;">
  <thead class="ui-widget-header">
   <tr><?php echo $list_header; ?></tr>
@@ -62,7 +62,7 @@ echo $toolbar->build_toolbar($add_search = true);
 <?php 
 	if (function_exists('add_extra_action_bar_buttons')) echo add_extra_action_bar_buttons($query_result->fields);
 	if ($query_result->fields['revision'] == $rev_levels[$query_result->fields['sheet_name']]) {
-		if ($security_level > 1) echo html_button_field('revise_' . $query_result->fields['id'], TEXT_REVISE, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action', 'list', 'psID')) . 'list=' . $_GET['list'] . '&amp;action=revise&amp;psID=' . $query_result->fields['id']) . '\'"', 'SSL');
+		if ($security_level > 1) echo html_button_field('revise_' . $query_result->fields['id'], TEXT_REVISE, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action', 'list', 'psID')) . 'list=' . $_REQUEST['list'] . '&amp;action=revise&amp;psID=' . $query_result->fields['id']) . '\'"', 'SSL');
 	}
 	if ($security_level > 1) echo html_icon('actions/edit-find-replace.png', TEXT_EDIT, 'small', 'onclick="submitSeq(' . $query_result->fields['id'] . ', \'edit\')"') . chr(10);
 	if ($security_level > 3) echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . PRICE_SHEET_MSG_DELETE . '\')) deleteItem(' . $query_result->fields['id'] . ')"') . chr(10);
@@ -76,7 +76,7 @@ echo $toolbar->build_toolbar($add_search = true);
 ?>
 </tbody>
 </table>
-<div style="float:right"><?php echo $query_split->display_links($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, MAX_DISPLAY_PAGE_LINKS, $_GET['list']); ?></div>
-<div><?php echo $query_split->display_count($query_numrows, MAX_DISPLAY_SEARCH_RESULTS, $_GET['list'], TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
+<div style="float:right"><?php echo $query_split->display_links(); ?></div>
+<div><?php echo $query_split->display_count(TEXT_DISPLAY_NUMBER . TEXT_PRICE_SHEETS); ?></div>
 <?php echo html_button_field('prices', TEXT_BULK_EDIT, 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=bulk_prices', 'SSL') . '\'"'); ?>
 </form>

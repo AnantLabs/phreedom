@@ -38,7 +38,7 @@ if (is_array($pb_headings)) {
       $hide_menu   = true;
       foreach ($menu as $item)  {
 	    if (isset($item['heading']) && !$item['hidden']) {
-	      if ($item['heading'] == $box['text'] && $_SESSION['admin_security'][$item['security_id']] > 0) {
+	      if ($item['heading'] == $box['text'] && isset($_SESSION['admin_security'][$item['security_id']]) && $_SESSION['admin_security'][$item['security_id']] > 0) {
 		    $sorted_menu['text'][]    = $item['text'];
 		    $sorted_menu['heading'][] = $item['heading'];
 		    $sorted_menu['rank'][]    = $item['rank'];

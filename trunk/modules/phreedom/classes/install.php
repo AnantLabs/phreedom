@@ -237,23 +237,23 @@ class phreedom_admin {
 	$db_version = defined('MODULE_PHREEDOM_STATUS') ? MODULE_PHREEDOM_STATUS : false;
 	foreach ($this->keys as $key => $value) if (!defined($key)) write_configure($key, $value);
 	if ($db_version < MODULE_PHREEDOM_STATUS) {
- 	  $db_version = $this->release_update($module, '3.0', DIR_FS_MODULES . 'phreedom/updates/PBtoR30.php');
+ 	  $db_version = $this->release_update($module, 3.0, DIR_FS_MODULES . 'phreedom/updates/PBtoR30.php');
 	  if (!$db_version) return true;
 	}
-  	if (MODULE_PHREEDOM_STATUS < '3.1') {
+  	if (MODULE_PHREEDOM_STATUS < 3.1) {
   	  foreach ($this->tables as $table => $create_table_sql) {
 	    if (!db_table_exists($table)) if (!$db->Execute($create_table_sql)) $error = true;
 	  }
 	  write_configure(PHREEHELP_FORCE_RELOAD, '1');
 	}
-    if (MODULE_PHREEDOM_STATUS < '3.2') {
+    if (MODULE_PHREEDOM_STATUS < 3.2) {
 	  if (!db_field_exists(TABLE_USERS, 'is_role')) $db->Execute("ALTER TABLE ".TABLE_USERS." ADD is_role ENUM('0','1') NOT NULL DEFAULT '0' AFTER admin_id");
 	}
-    if (MODULE_PHREEDOM_STATUS < '3.4') {
+    if (MODULE_PHREEDOM_STATUS < 3.4) {
 	  if (!db_field_exists(TABLE_DATA_SECURITY, 'exp_date')) $db->Execute("ALTER TABLE ".TABLE_DATA_SECURITY." ADD exp_date DATE NOT NULL DEFAULT '2049-12-31' AFTER enc_value");
 	  if (!db_field_exists(TABLE_AUDIT_LOG, 'ip_address'))   $db->Execute("ALTER TABLE ".TABLE_AUDIT_LOG    ." ADD ip_address VARCHAR(15) NOT NULL AFTER user_id");
     }
-  	if (MODULE_PHREEDOM_STATUS < '3.5') {
+  	if (MODULE_PHREEDOM_STATUS < 3.5) {
 	  if (!db_field_exists(TABLE_EXTRA_FIELDS, 'group_by'))  $db->Execute("ALTER TABLE ".TABLE_EXTRA_FIELDS." ADD group_by varchar(64) NOT NULL default ''");
 	  if (!db_field_exists(TABLE_EXTRA_FIELDS, 'sort_order'))$db->Execute("ALTER TABLE ".TABLE_EXTRA_FIELDS." ADD sort_order varchar(64) NOT NULL default ''");
 	  if (!db_field_exists(TABLE_AUDIT_LOG, 'stats'))        $db->Execute("ALTER TABLE ".TABLE_AUDIT_LOG." ADD `stats` VARCHAR(32) NOT NULL AFTER `ip_address`");

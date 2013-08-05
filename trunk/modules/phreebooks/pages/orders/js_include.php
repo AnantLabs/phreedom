@@ -59,7 +59,6 @@ var item_col_1_enable    = '<?php echo ($item_col_1_enable) ? '1' : '0'; ?>';
 var item_col_2_enable    = '<?php echo ($item_col_2_enable) ? '1' : '0'; ?>';
 var ship_search_HTML     = '<?php echo GEN_CUSTOMER_ID . " " . html_input_field("ship_search", $order->ship_short_name) . "&nbsp;" . html_icon("status/folder-open.png", TEXT_SEARCH, "small", 'align="top" style="cursor:pointer" title="' . TEXT_SEARCH . '" onclick="DropShipList(this)"'); ?>';
 var delete_icon_HTML     = '<?php echo substr(html_icon("emblems/emblem-unreadable.png", TEXT_DELETE, "small", "onclick=\"if (confirm(\'" . TEXT_ROW_DELETE_ALERT . "\')) removeInvRow("), 0, -2); ?>';
-var payments_installed   = <?php echo count($payment_modules) ? 'true' : 'false'; ?>;
 var serial_num_prompt    = '<?php echo ORD_JS_SERIAL_NUM_PROMPT; ?>';
 var no_stock_a           = '<?php echo ORD_JS_NO_STOCK_A; ?>';
 var no_stock_b           = '<?php echo ORD_JS_NO_STOCK_B; ?>';

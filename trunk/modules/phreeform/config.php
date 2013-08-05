@@ -26,7 +26,7 @@
 // 3.5 => 2012-10-01 - bug fixes
 // 3.6 => 2013-06-30 - bug fixes
 // Module software version information
-define('MODULE_PHREEFORM_VERSION',  '3.6');
+define('MODULE_PHREEFORM_VERSION',  3.6);
 // Menu Sort Positions
 // Menu Security id's (refer to master doc to avoid security setting overlap)
 define('SECURITY_ID_PHREEFORM', 3); // same as SECURITY_ID_REPORTS
@@ -40,30 +40,38 @@ if (defined('MODULE_PHREEFORM_STATUS')) {
     'text'        => TEXT_REPORTS, 
     'heading'     => MENU_HEADING_TOOLS, 
     'rank'        => 25, 
-    'security_id' => SECURITY_ID_PHREEFORM, 
+    'security_id' => SECURITY_ID_PHREEFORM,
+    'hidden'      => false, 
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main', 'SSL'),
+    'params'      => '',
   );
   if (defined('MODULE_CONTACTS_STATUS')) { // add reports menus
 	$menu[] = array(
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_CUSTOMERS, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=cust', 'SSL'),
+	  'params'      => '',
 	);
 	$menu[] = array(
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_EMPLOYEES, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=hr', 'SSL'),
+	  'params'      => '',
 	);
 	$menu[] = array(
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_VENDORS, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=vend', 'SSL'),
+	  'params'      => '',
 	);
   }
   if (defined('MODULE_INVENTORY_STATUS')) {
@@ -71,8 +79,10 @@ if (defined('MODULE_PHREEFORM_STATUS')) {
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_INVENTORY, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=inv', 'SSL'),
+	  'params'      => '',
 	);
   }
   if (defined('MODULE_PHREEBOOKS_STATUS')) {
@@ -80,15 +90,19 @@ if (defined('MODULE_PHREEFORM_STATUS')) {
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_BANKING, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=bnk', 'SSL'),
+	  'params'      => '',
 	);
 	$menu[] = array(
 	  'text'        => TEXT_REPORTS, 
 	  'heading'     => MENU_HEADING_GL, 
 	  'rank'        => 99, 
-	  'security_id' => SECURITY_ID_PHREEFORM, 
+	  'security_id' => SECURITY_ID_PHREEFORM,
+	  'hidden'      => false, 
 	  'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreeform&amp;page=main&amp;tab=gl', 'SSL'),
+	  'params'      => '',
 	);
   }
 }

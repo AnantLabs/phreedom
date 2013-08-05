@@ -20,9 +20,9 @@ class inventory_admin {
   function __construct() {
     $this->notes = array();
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
-	  'contacts'   => '3.7.1',
-	  'phreedom'   => '3.6',
-	  'phreebooks' => '3.6',
+	  'contacts'   => 3.71,
+	  'phreedom'   => 3.6,
+	  'phreebooks' => 3.6,
 	);
 	// Load configuration constants for this module, must match entries in admin tabs
     $this->keys = array(
@@ -277,39 +277,43 @@ class inventory_admin {
   function update($module) {
     global $db, $messageStack, $currencies;
 	$error = false;
-    if (MODULE_INVENTORY_STATUS < '3.1') {
+    if (MODULE_INVENTORY_STATUS < 3.1) {
 	  $tab_map = array('0' => '0');
-	  $result = $db->Execute("select * from " . DB_PREFIX . 'inventory_categories');
-	  while (!$result->EOF) {
-	    $updateDB = $db->Execute("insert into " . TABLE_EXTRA_TABS . " set 
-		  module_id = 'inventory',
-		  tab_name = '"    . $result->fields['category_name']        . "',
-		  description = '" . $result->fields['category_description'] . "',
-		  sort_order = '"  . $result->fields['sort_order']           . "'");
-	    $tab_map[$result->fields['category_id']] = db_insert_id();
-	    $result->MoveNext();
+	  if(db_table_exists(DB_PREFIX . 'inventory_categories')){
+		  $result = $db->Execute("select * from " . DB_PREFIX . 'inventory_categories');
+		  while (!$result->EOF) {
+		    $updateDB = $db->Execute("insert into " . TABLE_EXTRA_TABS . " set 
+			  module_id = 'inventory',
+			  tab_name = '"    . $result->fields['category_name']        . "',
+			  description = '" . $result->fields['category_description'] . "',
+			  sort_order = '"  . $result->fields['sort_order']           . "'");
+		    $tab_map[$result->fields['category_id']] = db_insert_id();
+		    $result->MoveNext();
+		  }
+		  $db->Execute("DROP TABLE " . DB_PREFIX . "inventory_categories");
 	  }
-	  $result = $db->Execute("select * from " . DB_PREFIX . 'inventory_fields');
-	  while (!$result->EOF) {
-	    $updateDB = $db->Execute("insert into " . TABLE_EXTRA_FIELDS . " set 
-		  module_id = 'inventory',
-		  tab_id = '"      . $tab_map[$result->fields['category_id']] . "',
-		  entry_type = '"  . $result->fields['entry_type']  . "',
-		  field_name = '"  . $result->fields['field_name']  . "',
-		  description = '" . $result->fields['description'] . "',
-		  params = '"      . $result->fields['params']      . "'");
-	    $result->MoveNext();
+	  if(db_table_exists(DB_PREFIX . 'inventory_categories')){
+		  $result = $db->Execute("select * from " . DB_PREFIX . 'inventory_fields');
+		  while (!$result->EOF) {
+		    $updateDB = $db->Execute("insert into " . TABLE_EXTRA_FIELDS . " set 
+			  module_id = 'inventory',
+			  tab_id = '"      . $tab_map[$result->fields['category_id']] . "',
+			  entry_type = '"  . $result->fields['entry_type']  . "',
+			  field_name = '"  . $result->fields['field_name']  . "',
+			  description = '" . $result->fields['description'] . "',
+			  params = '"      . $result->fields['params']      . "'");
+		    $result->MoveNext();
+		  }
+		  $db->Execute("DROP TABLE " . DB_PREFIX . "inventory_fields");
 	  }
-	  $db->Execute("DROP TABLE " . DB_PREFIX . "inventory_categories");
-	  $db->Execute("DROP TABLE " . DB_PREFIX . "inventory_fields");
 	  xtra_field_sync_list('inventory', TABLE_INVENTORY);
 	}
-    if (MODULE_INVENTORY_STATUS < '3.2') {
+    if (MODULE_INVENTORY_STATUS < 3.2) {
 	  if (!db_field_exists(TABLE_PRICE_SHEETS, 'type')) $db->Execute("ALTER TABLE " . TABLE_PRICE_SHEETS . " ADD type char(1) NOT NULL default 'c' AFTER sheet_name");
 	  if (!db_field_exists(TABLE_INVENTORY, 'price_sheet_v')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD price_sheet_v varchar(32) default NULL AFTER price_sheet");
 	  xtra_field_sync_list('inventory', TABLE_INVENTORY);
 	}
-	if (MODULE_INVENTORY_STATUS < '3.7') {
+	if (MODULE_INVENTORY_STATUS < 3.6) {
 		$db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD INDEX ( `sku` )"); 
 		if (!db_field_exists(TABLE_INVENTORY, 'attachments')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD attachments text AFTER last_journal_date");
 		if (!db_field_exists(TABLE_INVENTORY, 'full_price_with_tax')) $db->Execute("ALTER TABLE " . TABLE_INVENTORY . " ADD full_price_with_tax FLOAT NOT NULL DEFAULT '0' AFTER full_price");

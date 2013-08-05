@@ -30,15 +30,17 @@
 // Section 1. Class toolbar
 /**************************************************************************************************************/
 class toolbar {
+	public $id            = 0;
+	public $search_text   = '';
+	public $search_period = CURRENT_ACCOUNTING_PERIOD;
+	public $period_strict = true; // if set to true, the 'All' option is included
+	public $search_prefix = '';
+    public $icon_size     = 'large';	// default icon size (choice are small, medium, large)
+  	public $icon_list     = array();
+  	
   function __construct($id = '0') {
     // set up the default toolbar
 	$this->id            = $id;
-	$this->search_text   = '';
-	$this->search_period = CURRENT_ACCOUNTING_PERIOD;
-	$this->period_strict = true; // if set to true, the 'All' option is included
-	$this->search_prefix = '';
-    $this->icon_size     = 'large';	// default icon size (choice are small, medium, large)
-  	$this->icon_list     = array();
 	$this->icon_list['cancel'] = array('show' => true, 'icon' => 'actions/edit-undo.png',        'params' => '', 'text' => TEXT_CANCEL, 'order' => 1);
 	$this->icon_list['open']   = array('show' => true, 'icon' => 'actions/document-open.png',    'params' => '', 'text' => TEXT_OPEN,   'order' => 2);
 	$this->icon_list['save']   = array('show' => true, 'icon' => 'devices/media-floppy.png',     'params' => '', 'text' => TEXT_SAVE,   'order' => 3);
@@ -132,112 +134,105 @@ class toolbar {
 /**************************************************************************************************************/
 // Section 2. Class splitPageResults
 /**************************************************************************************************************/
-  class splitPageResults {
-    function __construct(&$current_page_number, $max_rows_per_page, &$sql_query, &$query_num_rows) {
-      global $db;
-      $this->page_prefix         = '';
-	  $this->jump_page_displayed = false;
-      if (empty($current_page_number)) $current_page_number = 1;
-      $pos_to       = strlen($sql_query);
-      $pos_from     = strpos($sql_query, ' from', 0);
-      $pos_group_by = strpos($sql_query, 'group by', $pos_from);
-      if (($pos_group_by < $pos_to) && ($pos_group_by != false)) $pos_to = $pos_group_by;
-      $pos_having   = strpos($sql_query, ' having', $pos_from);
-      if (($pos_having < $pos_to) && ($pos_having != false)) $pos_to = $pos_having;
-      $pos_order_by = strpos($sql_query, 'order by', $pos_from);
-      if (($pos_order_by < $pos_to) && ($pos_order_by != false)) $pos_to = $pos_order_by;
-      $count          = $db->Execute($sql_query);
-      $query_num_rows = $count->RecordCount();
-      $num_pages      = ceil($query_num_rows / $max_rows_per_page);
-      if ($current_page_number > $num_pages) $current_page_number = $num_pages;
-      $offset = ($max_rows_per_page * ($current_page_number - 1));
-      if ($offset < 0) $offset = 0;
-      $sql_query .= " limit " . $offset . ", " . $max_rows_per_page;
+class splitPageResults {
+  	public	$current_page_number	= 1;
+	public	$jump_page_displayed 	= false;
+	public	$max_rows_per_page 		= MAX_DISPLAY_SEARCH_RESULTS;
+	public	$page_prefix         	= '';
+	public	$page_start				= 0;
+	public	$total_num_rows			= 0;
+	public  $total_num_pages		= 1;
+  	
+	function __construct($current_page_number, $query_num_rows) {
+    	global $db, $messageStack;
+    	if($query_num_rows == '') {
+    		$temp = $db->Execute('SELECT FOUND_ROWS() AS found_rows;');
+    		$query_num_rows = $temp->fields['found_rows'];
+    	}
+    	$this->total_num_rows		= $query_num_rows;
+      	$this->current_page_number 	= $current_page_number;
+		$this->total_num_pages		= ceil($this->total_num_rows / $this->max_rows_per_page);
+		if ($this->total_num_pages == 0) $this->total_num_pages = 1;
+      	if ($this->total_num_pages < $this->current_page_number) $this->current_page_number = $this->total_num_pages;
     }
-
-    function display_links($query_numrows, $max_rows_per_page, $max_page_links, $current_page_number, $parameters = '', $page_name = 'list') {
-	  // calculate number of pages needing links
-      $num_pages = ceil($query_numrows / $max_rows_per_page);
-	  if ($num_pages == 0) $num_pages++;
-	  $this->num_pages = $num_pages; // save it for retrieval by the templates
-      $pages_array = array();
-      for ($i = 1; $i <= $num_pages; $i++) $pages_array[] = array('id' => $i, 'text' => $i);
-      if ($num_pages > 1) {
-        $display_links = '';
-        if ($current_page_number > 1) {
-		  $display_links .= html_icon('actions/media-skip-backward.png', TEXT_GO_FIRST, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_first', 'SSL') . '\'" style="cursor:pointer;"');
-		  $display_links .= html_icon('phreebooks/media-playback-previous.png', TEXT_GO_PREVIOUS, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_previous', 'SSL') . '\'" style="cursor:pointer;"');
-        } else {
-		  $display_links .= html_icon('actions/media-skip-backward.png', '', 'small', '');
-		  $display_links .= html_icon('phreebooks/media-playback-previous.png', '', 'small', '');
-        }
-        if (!$this->jump_page_displayed) { // only diplay pull down once (the rest are not read by browser)
-		  $display_links .= sprintf(TEXT_RESULT_PAGE, html_pull_down_menu($page_name, $pages_array, $current_page_number, 'onchange="jumpToPage(\'' . gen_get_all_get_params(array('list', 'action')) . 'action=go_page\')"'), $num_pages);
-		  $this->jump_page_displayed = true;
+    
+    function display_links($page_name = 'list') {
+	    $pages_array = array();
+	    for ($i = 1; $i <= $this->total_num_pages; $i++) $pages_array[] = array('id' => $i, 'text' => $i);
+	    if ($this->total_num_pages > 1) {
+	        $display_links = '';
+	        if ($this->current_page_number > 1) {
+			  	$display_links .= html_icon('actions/media-skip-backward.png', TEXT_GO_FIRST, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_first', 'SSL') . '\'" style="cursor:pointer;"');
+			  	$display_links .= html_icon('phreebooks/media-playback-previous.png', TEXT_GO_PREVIOUS, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_previous', 'SSL') . '\'" style="cursor:pointer;"');
+	        } else {
+			  	$display_links .= html_icon('actions/media-skip-backward.png', '', 'small', '');
+			  	$display_links .= html_icon('phreebooks/media-playback-previous.png', '', 'small', '');
+	        }
+	        if (!$this->jump_page_displayed) { // only diplay pull down once (the rest are not read by browser)
+			  	$display_links .= sprintf(TEXT_RESULT_PAGE, html_pull_down_menu($page_name, $pages_array, $this->current_page_number, 'onchange="jumpToPage(\'' . gen_get_all_get_params(array('list', 'action')) . 'action=go_page\')"'), $this->total_num_pages);
+			  	$this->jump_page_displayed = true;
+			} else {
+				$display_links .= sprintf(TEXT_RESULT_PAGE, $this->current_page_number, $this->total_num_pages);
+			}
+	        if (($this->current_page_number < $this->total_num_pages) && ($this->total_num_pages != 1)) {
+				$display_links .= html_icon('actions/media-playback-start.png', TEXT_GO_NEXT, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_next', 'SSL') . '\'" style="cursor:pointer;"');
+				$display_links .= html_icon('actions/media-skip-forward.png', TEXT_GO_LAST, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_last', 'SSL') . '\'" style="cursor:pointer;"');
+	        } else {
+				$display_links .= html_icon('actions/media-playback-start.png', '', 'small', '');
+				$display_links .= html_icon('actions/media-skip-forward.png', '', 'small', '');
+	        }
+	    } else {
+	        $display_links = sprintf(TEXT_RESULT_PAGE, $this->total_num_pages, $this->total_num_pages);
+	    }
+	    return $display_links;
+    }
+    
+    function display_ajax($page_name = 'list', $id = '') {
+      	$display_links   = '';
+      	$pages_array     = array();
+      	for ($i = 1; $i <= $this->total_num_pages; $i++) $pages_array[] = array('id' => $i, 'text' => $i);
+      	if ($this->total_num_pages > 1) {
+        	if ($this->current_page_number > 1) {
+		  		$display_links .= html_icon('actions/media-skip-backward.png', TEXT_GO_FIRST, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_first\')" style="cursor:pointer;"');
+		  		$display_links .= html_icon('phreebooks/media-playback-previous.png', TEXT_GO_PREVIOUS, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_previous\')" style="cursor:pointer;"');
+        	} else {
+		  		$display_links .= html_icon('actions/media-skip-backward.png', '', 'small', '');
+				$display_links .= html_icon('phreebooks/media-playback-previous.png', '', 'small', '');
+        	}
+        	if (!$this->jump_page_displayed) { // only diplay pull down once (the rest are not read by browser)
+		  		$display_links .= sprintf(TEXT_RESULT_PAGE, html_pull_down_menu($page_name, $pages_array, $this->current_page_number, 'onchange="tabPage(\'' . $id . '\', \'go_page\')"'), $this->total_num_pages);
+		  		$this->jump_page_displayed = true;
+			} else {
+		  		$display_links .= sprintf(TEXT_RESULT_PAGE, $this->current_page_number, $this->total_num_pages);
+			}
+        	if (($this->current_page_number < $this->total_num_pages) && ($this->total_num_pages != 1)) {
+		  		$display_links .= html_icon('actions/media-playback-start.png', TEXT_GO_NEXT, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_next\')" style="cursor:pointer;"');
+		  		$display_links .= html_icon('actions/media-skip-forward.png', TEXT_GO_LAST, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_last\')" style="cursor:pointer;"');
+        	} else {
+		  	$display_links .= html_icon('actions/media-playback-start.png', '', 'small', '');
+		  	$display_links .= html_icon('actions/media-skip-forward.png', '', 'small', '');
+        	}
 		} else {
-		  $display_links .= sprintf(TEXT_RESULT_PAGE, $current_page_number, $num_pages);
-		}
-        if (($current_page_number < $num_pages) && ($num_pages != 1)) {
-		  $display_links .= html_icon('actions/media-playback-start.png', TEXT_GO_NEXT, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_next', 'SSL') . '\'" style="cursor:pointer;"');
-		  $display_links .= html_icon('actions/media-skip-forward.png', TEXT_GO_LAST, 'small', 'onclick="location.href = \'' . html_href_link(FILENAME_DEFAULT, gen_get_all_get_params(array('action')) . 'action=go_last', 'SSL') . '\'" style="cursor:pointer;"');
-        } else {
-		  $display_links .= html_icon('actions/media-playback-start.png', '', 'small', '');
-		  $display_links .= html_icon('actions/media-skip-forward.png', '', 'small', '');
-        }
-      } else {
-        $display_links = sprintf(TEXT_RESULT_PAGE, $num_pages, $num_pages);
-      }
-      return $display_links;
+        	$display_links .= sprintf(TEXT_RESULT_PAGE, $this->total_num_pages, $this->total_num_pages);
+			$display_links .= html_hidden_field($page_name, '1');
+      	}
+      	return $display_links;
     }
 
-    function display_ajax($query_numrows, $max_rows_per_page, $max_page_links, $current_page_number, $parameters = '', $page_name = 'list', $id = '') {
-	  // calculate number of pages needing links
-      $num_pages = ceil($query_numrows / $max_rows_per_page);
-	  if ($num_pages == 0) $num_pages++;
-	  $this->num_pages = $num_pages; // save it for retrieval by the templates
-      $display_links   = '';
-      $pages_array     = array();
-      for ($i = 1; $i <= $num_pages; $i++) $pages_array[] = array('id' => $i, 'text' => $i);
-      if ($num_pages > 1) {
-        if ($current_page_number > 1) {
-		  $display_links .= html_icon('actions/media-skip-backward.png', TEXT_GO_FIRST, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_first\')" style="cursor:pointer;"');
-		  $display_links .= html_icon('phreebooks/media-playback-previous.png', TEXT_GO_PREVIOUS, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_previous\')" style="cursor:pointer;"');
-        } else {
-		  $display_links .= html_icon('actions/media-skip-backward.png', '', 'small', '');
-		  $display_links .= html_icon('phreebooks/media-playback-previous.png', '', 'small', '');
-        }
-        if (!$this->jump_page_displayed) { // only diplay pull down once (the rest are not read by browser)
-		  $display_links .= sprintf(TEXT_RESULT_PAGE, html_pull_down_menu($page_name, $pages_array, $current_page_number, 'onchange="tabPage(\'' . $id . '\', \'go_page\')"'), $num_pages);
-		  $this->jump_page_displayed = true;
-		} else {
-		  $display_links .= sprintf(TEXT_RESULT_PAGE, $current_page_number, $num_pages);
-		}
-        if (($current_page_number < $num_pages) && ($num_pages != 1)) {
-		  $display_links .= html_icon('actions/media-playback-start.png', TEXT_GO_NEXT, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_next\')" style="cursor:pointer;"');
-		  $display_links .= html_icon('actions/media-skip-forward.png', TEXT_GO_LAST, 'small', 'onclick="tabPage(\'' . $id . '\', \'go_last\')" style="cursor:pointer;"');
-        } else {
-		  $display_links .= html_icon('actions/media-playback-start.png', '', 'small', '');
-		  $display_links .= html_icon('actions/media-skip-forward.png', '', 'small', '');
-        }
-      } else {
-        $display_links .= sprintf(TEXT_RESULT_PAGE, $num_pages, $num_pages);
-		$display_links .= html_hidden_field($page_name, '1');
-      }
-      return $display_links;
+    function display_count($text_output){
+    	if ($text_output == '' || !is_string($text_output)) $text_output = TEXT_DISPLAY_NUMBER . TEXT_ITEMS;
+      	$to_num = ($this->max_rows_per_page * $this->current_page_number);
+      	if ($to_num > $this->total_num_rows) $to_num = $this->total_num_rows;
+      	$from_num = ($this->max_rows_per_page * ($this->current_page_number - 1));
+      	if ($to_num == 0) {
+        	$from_num = 0;
+      	} else {
+        	$from_num++;
+      	}
+      	return sprintf($text_output, $from_num, $to_num, $this->total_num_rows);
     }
 
-    function display_count($query_numrows, $max_rows_per_page, $current_page_number, $text_output) {
-      $to_num = ($max_rows_per_page * $current_page_number);
-      if ($to_num > $query_numrows) $to_num = $query_numrows;
-      $from_num = ($max_rows_per_page * ($current_page_number - 1));
-      if ($to_num == 0) {
-        $from_num = 0;
-      } else {
-        $from_num++;
-      }
-      return sprintf($text_output, $from_num, $to_num, $query_numrows);
-    }
-  }
+}
 
 /**************************************************************************************************************/
 // Section 3. Class objectInfo
@@ -255,16 +250,17 @@ class objectInfo {
 // Section 4. Class messageStack
 /**************************************************************************************************************/
   class messageStack {
-    var $size = 0;
+    public $size 		= 0;
+    public $errors		= array();
+    public $debug_info 	= NULL;
+    
     function __construct() {
-      $this->errors     = array();
-	  $this->debug_info = NULL;
-	  if ($_SESSION['messageQueue']) {
+	  if (isset($_SESSION['messageQueue'])) {
 		$this->errors = $_SESSION['messageQueue'];
 		$this->size = sizeof($_SESSION['messageQueue']);
 		unset($_SESSION['messageQueue']);
       }
-      if ($_SESSION['messageToStack']) {
+      if (isset($_SESSION['messageToStack'])) {
         for ($i = 0, $n = sizeof($_SESSION['messageToStack']); $i < $n; $i++) {
           $this->add($_SESSION['messageToStack'][$i]['text'], $_SESSION['messageToStack'][$i]['type']);
         }
@@ -359,6 +355,7 @@ class ctl_panel {
 	public $security_id  		= '';
 	public $title		 		= '';
 	public $version      		= 1;
+	public $valid_user			= false;
 	
   	function __construct() {
   		if ($this->security_id <> '' ) $this->valid_user = ($_SESSION['admin_security'][$this->security_id] > 0)? true : false;
@@ -403,6 +400,7 @@ class ctl_panel {
   
   	function build_div($title, $contents, $controls) {
 	  	if(!$this->valid_user) return false;
+	  	$output = '';
 	  	if($this->version < 3.5 || ! $this->version ) $output .= 'update dashboard ' . $this->title . '<br/>';
 		$output .= '<!--// start: ' . $this->dashboard_id . ' //-->' . chr(10);
 		$output .= '<div id="' . $this->dashboard_id . '" style="position:relative;">' . chr(10);
@@ -507,10 +505,10 @@ class ctl_panel {
 // Section 6. Class currencies
 /**************************************************************************************************************/
 class currencies {
-  var $currencies;
+  public $currencies = array();
+  
   function __construct() {
     global $db, $messageStack;
-    $this->currencies = array();
     $currencies = $db->Execute("select * from " . TABLE_CURRENCIES);
     while (!$currencies->EOF) {
 	  $this->currencies[$currencies->fields['code']] = array(
@@ -600,21 +598,18 @@ class currencies {
 // Section 7. Class encryption
 /**************************************************************************************************************/
 class encryption {
-  var $scramble1;
-  var $scramble2;
-  var $errors;
-  var $adj;
-  var $mod;
+  private $scramble1	= '';
+  private $scramble2	= '';
+  public  $errors		= array();
+  private $adj			= 1.75;
+  private $mod			= 3;
 
   function __construct() {
-	$this->errors = array();
 	$this->scramble1 = '! #$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
 	$this->scramble2 = 'f^jAE]okIOzU[2&q1{3`h5w_794p@6s8?BgP>dFV=m D<TcS%Ze|r:lGK/uCy.Jx)HiQ!#$~(;Lt-R}Ma,NvW+Ynb*0X';
 	if (strlen($this->scramble1) <> strlen($this->scramble2)) {
 		trigger_error('** SCRAMBLE1 is not same length as SCRAMBLE2 **', E_USER_ERROR);
 	}
-	$this->adj = 1.75;
-	$this->mod = 3;
   }
 
   function encrypt_cc($params) {

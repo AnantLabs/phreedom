@@ -8,5 +8,8 @@ class lb extends inventory {//Labor
 	public $account_cost_of_sales	= INV_LABOR_DEFAULT_COS;
 	public $cost_method				= 'f';
 	public $posible_cost_methodes   = array('f');
-		
+
+	function update_inventory_status($sku, $field, $adjustment, $item_cost, $vendor_id, $desc){
+		return true;
+	}
 }

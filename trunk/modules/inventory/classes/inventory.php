@@ -57,6 +57,9 @@ class inventory {
 	
 	function get_item_by_id($id) {
 		global $db;
+		$this->purchases_history = null;
+		$this->sales_history	 = null;
+		$this->purchase_array	 = null;
 		$this->id = $id;
 		$result = $db->Execute("SELECT * FROM ".TABLE_INVENTORY." WHERE id = $id");
 		if ($result->RecordCount() != 0) foreach ($result->fields as $key => $value) {
@@ -73,6 +76,9 @@ class inventory {
 	
 	function get_item_by_sku($sku){
 		global $db;
+		$this->purchases_history = null;
+		$this->sales_history	 = null;
+		$this->purchase_array	 = null;
 		$this->sku = $sku;
 		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku = '" . $sku  . "'");
 		if($result->RecordCount()!=0) foreach ($result->fields as $key => $value) {
@@ -196,7 +202,7 @@ class inventory {
 		else return false;
 		$this->old_id					= $this->id;
 		$this->old_sku					= $this->sku;
-		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku = " . $this->old_sku);
+		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku = '" . $this->old_sku. "'");
 		//if ($result->RecordCount() == 0) return false;
 		$sql_data_array = array();
 		$not_usable_keys = array('id','sku','last_journal_date','upc_code','image_with_path','quantity_on_hand','quantity_on_order','quantity_on_sales_order','creation_date','last_update');
@@ -224,7 +230,7 @@ class inventory {
 	  		db_perform(TABLE_INVENTORY_SPECIAL_PRICES, $output_array, 'insert');
 	  		$result->MoveNext();
 		}
-		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = " . $this->old_sku);
+		$result = $db->Execute("select * from " . TABLE_INVENTORY_PURCHASE . " where sku = '" . $this->old_sku . "'");
 		while(!$result->EOF) {
 			$sql_data_array = array (
 				'sku'						=> $this->sku,
@@ -260,7 +266,7 @@ class inventory {
 		}
 		if(isset($id))$this->get_item_by_id($id); 
 		$sku_list = array($this->sku);
-		if ($this->inventory_type == 'ms') { // build list of sku's to rename (without changing contents)
+		if (isset($this->edit_ms_list) && $this->edit_ms_list == true) { // build list of sku's to rename (without changing contents)
 	  		$result = $db->Execute("select sku from " . TABLE_INVENTORY . " where sku like '" . $this->sku . "-%'");
 	  		while(!$result->EOF) {
 				$sku_list[] = $result->fields['sku'];
@@ -618,6 +624,68 @@ class inventory {
 		$this->history['averages']['12month'] = round($this->history['averages']['12month'] / 12, 2);
 		$this->history['averages']['6month']  = round($this->history['averages']['6month']  /  6, 2);
 		$this->history['averages']['3month']  = round($this->history['averages']['3month']  /  3, 2);
+	}
+
+/*******************************************************************************************************************/
+// START Journal Functions
+/*******************************************************************************************************************/	
+	
+	
+	function inventory_auto_add($sku, $desc, $item_cost, $full_price, $vendor_id){
+		$sql_data_array = array(
+	  		'sku'						=> $sku,
+	  		'inventory_type'			=> $this->inventory_type,
+			'description_short'      	=> $desc, 
+		  	'description_purchase'   	=> $desc, 
+		  	'description_sales'      	=> $desc, 
+			'vendor_id' 				=> $vendor_id,
+	  		'cost_method'				=> $this->cost_method,
+	  		'creation_date'				=> $this->creation_date,
+	  		'last_update'				=> $this->last_update,
+	  		'item_taxable'				=> $this->item_taxable,
+	  		'purch_taxable'				=> $this->purch_taxable,
+			'account_sales_income'   	=> $this->account_sales_income,
+		    'account_inventory_wage'	=> $this->account_inventory_wage,
+			'account_cost_of_sales'  	=> $this->account_cost_of_sales,
+			'serialize'					=> $this->serialize,
+			'item_cost'              	=> $item_cost,
+			'full_price'             	=> $full_price,
+			'creation_date'				=> date('Y-m-d H:i:s'),
+			'last_update'				=> date('Y-m-d H:i:s'),
+		);
+		db_perform(TABLE_INVENTORY, $sql_data_array, 'insert');
+		$this->get_item_by_id(db_insert_id());
+		$sql_data_array = array (
+			'sku'						=> $sku,
+			'vendor_id' 				=> $vendor_id,
+			'description_purchase'		=> $desc,
+			'item_cost'	 				=> $item_cost,
+			'purch_package_quantity'	=> 1,
+			'purch_taxable'	 			=> $this->purch_taxable,
+		); 
+		db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'insert');
+		return true;
+	}
+	
+	function update_inventory_status($sku, $field, $adjustment, $item_cost, $vendor_id, $desc){
+		$sql = "update " . TABLE_INVENTORY_PURCHASE . " set item_cost = '$item_cost'";
+	  	$sql .= " where sku = '$sku' and vendor_id = '$vendor_id'";
+	  	$result = $db->Execute($sql);
+		if($result->RecordCount() == 0) {
+			$sql_data_array = array (
+			  'sku'						=> $sku,
+			  'vendor_id' 				=> $vendor_id,
+			  'description_purchase'	=> $desc,
+			  'item_cost'	 			=> $item_cost,
+			  'purch_package_quantity'	=> 1,
+			  'purch_taxable'	 		=> $this->purch_taxable,
+			); 
+			db_perform(TABLE_INVENTORY_PURCHASE, $sql_data_array, 'insert');
+		}
+	  	$sql = "update " . TABLE_INVENTORY . " set $field = $field + $adjustment, ";
+	  	$sql .= "last_journal_date = now() where sku = '$sku'";
+	  	$result = $db->Execute($sql);
+		return true;
 	}
 	
 	function __destruct(){

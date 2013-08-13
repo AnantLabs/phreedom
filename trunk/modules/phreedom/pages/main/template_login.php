@@ -37,7 +37,7 @@ if ($single_language) echo html_hidden_field('language', $languages[0]['id']) . 
 			  </tr>
               <tr>
                 <td width="35%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_NAME; ?></td>
-                <td width="65%"><?php echo html_input_field('admin_name', $_POST['admin_name']); ?></td>
+                <td width="65%"><?php echo html_input_field('admin_name', (isset($_POST['admin_name']) ? $_POST['admin_name'] : '')); ?></td>
               </tr>
               <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo TEXT_LOGIN_PASS; ?></td>

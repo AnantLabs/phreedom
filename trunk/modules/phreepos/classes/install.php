@@ -17,8 +17,14 @@
 //  Path: /modules/phreepos/classes/install.php
 //
 class phreepos_admin {
+	public $notes 			= array();// placeholder for any operational notes
+	public $prerequisites 	= array();// modules required and rev level for this module to work properly
+	public $keys			= array();// Load configuration constants for this module, must match entries in admin tabs
+	public $dirlist			= array();// add new directories to store images and data
+	public $tables			= array();// Load tables
+	
+	
   function phreepos_admin() {
-    $this->notes;
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
 	  'contacts'  => 3.71,
 	  'inventory' => 3.6,

@@ -367,7 +367,7 @@ if (defined('MODULE_PHREEBOOKS_STATUS')) {
     'heading'     => MENU_HEADING_GL,
     'rank'        => 70,
     'security_id' => SECURITY_ID_GEN_ADMIN_TOOLS, 
-    'hidden'      => $_SESSION['admin_security'][SECURITY_ID_GEN_ADMIN_TOOLS] > 3 ? false : true,
+    'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_GEN_ADMIN_TOOLS]) && $_SESSION['admin_security'][SECURITY_ID_GEN_ADMIN_TOOLS] > 3) ? false : true,
     'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreebooks&amp;page=admin_tools', 'SSL'),
     'params'      => '',
   );

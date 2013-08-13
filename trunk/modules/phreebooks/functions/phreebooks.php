@@ -239,6 +239,7 @@ function fetch_partially_paid($id) {
 	where i.so_po_item_ref_id = " . $id . " and m.journal_id in (18, 20) and i.gl_type in ('chk', 'pmt') 
 	group by m.journal_id";
   $result = $db->Execute($sql);
+  if($result->RecordCount() == 0) return 0;
   if ($result->fields['debit'] || $result->fields['credit']) {
     return $result->fields['debit'] + $result->fields['credit'];
   } else {
@@ -504,16 +505,12 @@ function load_cash_acct_balance($post_date, $gl_acct_id, $period) {
 		where bill_acct_id = " . $id . " and journal_id in (" . $inv_jid . ") and closed = '0'";
 	$open_inv = $db->Execute($sql);
 	while(!$open_inv->EOF) {
-	  $sql = "select m.post_date, sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
-	    from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-	    where m.id = " . $open_inv->fields['id'] . " and journal_id in (" . $inv_jid . ") and i.gl_type <> 'ttl' group by m.id";
-	  $result = $db->Execute($sql);
-	  $total_billed = $result->fields['credits'] - $result->fields['debits'];
-	  $post_date    = $result->fields['post_date'];
-	  $sql = "select sum(i.debit_amount) as debits, sum(i.credit_amount) as credits 
-	    from " . TABLE_JOURNAL_MAIN . " m inner join " . TABLE_JOURNAL_ITEM . " i on m.id = i.ref_id
-	    where i.so_po_item_ref_id = " . $open_inv->fields['id'] . " and m.journal_id = " . $pmt_jid . " and i.gl_type = 'pmt'";
-	  $result = $db->Execute($sql);
+	  $result = $db->Execute("select debit_amount, credit_amount from " . TABLE_JOURNAL_ITEM . " where gl_type = 'ttl' and ref_id = " . $open_inv->fields['id']);
+	  $result2 = $db->Execute("select journal_id, post_date from " . TABLE_JOURNAL_MAIN . " where id = " . $open_inv->fields['id']);
+	  $total_billed = $result->fields['debit_amount'] - $result->fields['credit_amount'];
+	  $post_date = $result2->fields['post_date'];
+	  $result = $db->Execute("select sum(debit_amount) as debits, sum(credit_amount) as credits 
+	    from " . TABLE_JOURNAL_ITEM . " where so_po_item_ref_id = '" . $open_inv->fields['id'] . "' and gl_type in ('pmt', 'chk')");
 	  $total_paid = $result->fields['credits'] - $result->fields['debits'];
 	  $balance = $total_billed - $total_paid;
 	  if ($type == 'v') $balance = -$balance;

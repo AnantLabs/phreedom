@@ -20,6 +20,7 @@ define('PAGE_EXECUTION_START_TIME', microtime(true));
 if (!get_cfg_var('safe_mode')) {
 	if (ini_get('max_execution_time') < 60) set_time_limit(60);
 }
+$currencies        = ''; 
 $force_reset_cache = false;
 // set php_self in the local scope
 if (!isset($PHP_SELF)) $PHP_SELF = $_SERVER['PHP_SELF'];
@@ -63,6 +64,7 @@ require_once(DIR_FS_MODULES  . 'phreedom/defaults.php');
 require_once(DIR_FS_INCLUDES . 'common_functions.php');
 require_once(DIR_FS_INCLUDES . 'common_classes.php');
 set_error_handler("PhreebooksErrorHandler");
+set_exception_handler('PhreebooksExceptionHandler');
 // pull in the custom language over-rides for this module/page
 $custom_path = DIR_FS_MODULES . $module . '/custom/pages/' . $page . '/extra_defines.php';
 if (file_exists($custom_path)) { include($custom_path); }
@@ -100,14 +102,11 @@ if ($db_company && file_exists(DIR_FS_MY_FILES . $db_company . '/config.php')) {
   $dirs = scandir(DIR_FS_MODULES);
   foreach ($dirs as $dir) { // first pull all module language files, loaded or not
     if ($dir == '.' || $dir == '..') continue;
-	if (is_dir(DIR_FS_MODULES . $dir)) gen_pull_language($dir, 'menu'); 
-  }
-  foreach ($dirs as $dir) {
-    if ($dir == '.' || $dir == '..') continue;
-    if (defined('MODULE_' . strtoupper($dir) . '_STATUS')) { // module is loaded
+	if (is_dir(DIR_FS_MODULES . $dir)) gen_pull_language($dir, 'menu');
+  	if (defined('MODULE_' . strtoupper($dir) . '_STATUS')) { // module is loaded
 	  $loaded_modules[] = $dir;
       require_once(DIR_FS_MODULES . $dir . '/config.php');
-    }
+    } 
   }
   // pull in the custom language over-rides for this module (to pre-define the standard language)
   $path = DIR_FS_MODULES . $module . '/custom/pages/' . $page . '/extra_menus.php';

@@ -356,6 +356,8 @@ class ctl_panel {
 	public $title		 		= '';
 	public $version      		= 1;
 	public $valid_user			= false;
+	public $size_params			= 0;
+	public $default_params 		= array();
 	
   	function __construct() {
   		if ($this->security_id <> '' ) $this->valid_user = ($_SESSION['admin_security'][$this->security_id] > 0)? true : false;
@@ -374,7 +376,7 @@ class ctl_panel {
   	function Install($column_id = 1, $row_id = 0) {
 		global $db;
 		if (!$row_id) $row_id 		= $this->get_next_row();
-		$this->params['num_rows']   = $this->default_num_rows;	// defaults to unlimited rows
+		//$this->params['num_rows']   = $this->default_num_rows;	// defaults to unlimited rows
 		$result = $db->Execute("insert into " . TABLE_USERS_PROFILES . " set 
 			user_id = "       . $_SESSION['admin_id'] . ", 
 			menu_id = '"      . $this->menu_id . "', 
@@ -382,7 +384,7 @@ class ctl_panel {
 		  	dashboard_id = '" . $this->dashboard_id . "', 
 		  	column_id = "     . $column_id . ", 
 		  	row_id = "        . $row_id . ", 
-		  	params = '"       . serialize($this->params) . "'");
+		  	params = '"       . serialize($this->default_params) . "'");
   	}
 
   	function Remove() {
@@ -498,7 +500,18 @@ class ctl_panel {
 		  where user_id = " . $_SESSION['admin_id'] . " and menu_id = '" . $this->menu_id . "' and column_id = " . $column_id);
 		return ($result->fields['max_row'] + 1);
 	}
-
+	
+	function Upgrade($params){
+		foreach ($this->default_params as $key => $value){
+			if(in_array($key, $params, false)){
+				$this->params[$key] =  $params[$key];
+			}else{
+				$this->params[$key] =  $value;
+			}
+		}
+		$this->Update();
+		return $this->params;
+	}
 }
 
 /**************************************************************************************************************/

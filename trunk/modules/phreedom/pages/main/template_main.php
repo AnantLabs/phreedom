@@ -52,7 +52,7 @@ while(!$cp_boxes->EOF) {
     $new_box->module_id    = $module_id;
     $new_box->column_id    = $cp_boxes->fields['column_id'];
     $new_box->row_id       = $cp_boxes->fields['row_id'];
-  echo $new_box->Output($params);
+    echo $new_box->Output($params);
   }
   $cp_boxes->MoveNext();
 }

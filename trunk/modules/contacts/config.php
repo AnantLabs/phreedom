@@ -69,7 +69,7 @@ $menu[] = array(
   'rank'        => 5, 
   'hide'        => true,
   'security_id' => SECURITY_ID_MAINTAIN_CUSTOMERS, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_CUSTOMERS] > 1 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_MAINTAIN_CUSTOMERS]) && $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_CUSTOMERS] > 1) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=c', 'SSL'),
   'params'	    => '',
 );
@@ -97,7 +97,7 @@ $menu[] = array(
   'rank'        => 5, 
   'hide'        => true,
   'security_id' => SECURITY_ID_MAINTAIN_VENDORS, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_VENDORS] > 1 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_MAINTAIN_VENDORS]) && $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_VENDORS] > 1) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=v', 'SSL'),
   'params'      => '',
 );
@@ -116,7 +116,7 @@ $menu[] = array(
   'rank'        => 5, 
   'hide'        => true,
   'security_id' => SECURITY_ID_MAINTAIN_EMPLOYEES, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_EMPLOYEES] > 1 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_MAINTAIN_EMPLOYEES]) && $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_EMPLOYEES] > 1) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=e', 'SSL'),
   'params'      => '',
 );
@@ -136,7 +136,7 @@ if (ENABLE_MULTI_BRANCH) { // don't show menu if multi-branch is disabled
 	'rank'        => 55, 
 	'hide'        => true,
 	'security_id' => SECURITY_ID_MAINTAIN_BRANCH, 
-    'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_BRANCH] > 1 ? false : true,
+    'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_MAINTAIN_BRANCH]) && $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_BRANCH] > 1) ? false : true,
 	'link'        => html_href_link(FILENAME_DEFAULT, 'module=contacts&amp;page=main&amp;action=new&amp;type=b', 'SSL'),
     'params'      => '',
   );

@@ -25,9 +25,14 @@ class so_status extends ctl_panel {
 	public $security_id  		= SECURITY_ID_SALES_ORDER;
 	public $title		 		= CP_SO_STATUS_TITLE;
 	public $version      		= 3.5;
+	public $size_params			= 3;
+	public $default_params 		= array('num_rows'=> 0, 'order'   => 'asc', 'limit'   => 1);
 
 	function Output($params) {
 		global $db, $currencies;
+		if(count($params) != $this->size_params){ //upgrading
+			$params = $this->Upgrade($params);
+		}
 		$contents = '';
 		$control  = '';
 		$list_length = array();
@@ -75,11 +80,13 @@ class so_status extends ctl_panel {
 	}
 
 	function Update() {
-		$this->params = array(
-		  'num_rows'=> db_prepare_input($_POST['so_status_field_0']),
-		  'order'   => db_prepare_input($_POST['so_status_field_1']),
-		  'limit'   => db_prepare_input($_POST['so_status_field_2']),
-		);
+		if(count($this->params) == 0){
+			$this->params = array(
+			  'num_rows'=> db_prepare_input($_POST['so_status_field_0']),
+			  'order'   => db_prepare_input($_POST['so_status_field_1']),
+			  'limit'   => db_prepare_input($_POST['so_status_field_2']),
+			);
+		}
 		parent::Update();
 	}
 }

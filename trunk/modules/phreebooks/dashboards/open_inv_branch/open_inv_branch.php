@@ -24,9 +24,14 @@ class open_inv_branch extends ctl_panel {
 	public $security_id  		= SECURITY_ID_SALES_INVOICE;
 	public $title		 		= CP_OPEN_INV_BRANCH_TITLE;
 	public $version      		= 3.5;
+	public $size_params			= 1;
+	public $default_params 		= array('num_rows'=> 0);
 	
 	function Output($params) {
 		global $db, $currencies;
+		if(count($params) != $this->size_params){ //upgrading
+			$params = $this->Upgrade($params);
+		}
 		$list_length = array();
 		$contents = '';
 		$control  = '';
@@ -68,9 +73,10 @@ class open_inv_branch extends ctl_panel {
 	}
 
 	function Update() {
-		$this->params['num_rows'] = db_prepare_input($_POST['open_inv_branch_field_0']);
+		if(count($this->params) == 0){
+			$this->params['num_rows'] = db_prepare_input($_POST['open_inv_branch_field_0']);
+		}
 		parent::Update();
 	}
-
 }
 ?>

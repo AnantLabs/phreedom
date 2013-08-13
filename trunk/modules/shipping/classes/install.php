@@ -18,8 +18,13 @@
 //
 
 class shipping_admin {
+	public $notes 			= array();// placeholder for any operational notes
+	public $prerequisites 	= array();// modules required and rev level for this module to work properly
+	public $keys			= array();// Load configuration constants for this module, must match entries in admin tabs
+	public $dirlist			= array();// add new directories to store images and data
+	public $tables			= array();// Load tables
+	
   function __construct() {
-	$this->notes = array(); // placeholder for any operational notes
 	$this->prerequisites = array( // modules required and rev level for this module to work properly
 	  'phreedom'   => 3.6,
 	  'phreebooks' => 3.6,

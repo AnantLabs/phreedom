@@ -83,7 +83,7 @@ switch ($action) {
 	  }
 	  // now check with inventory history
 	  $sql = "select sum(remaining) as remaining from " . TABLE_INVENTORY_HISTORY . " 
-		where sku = '" . $result->fields['sku'] . "' and remaining > 0";
+		where sku = '" . $result->fields['sku'] . "'";
 	    $inv_hist = $db->Execute($sql);
 		$cog_qty  = round($inv_hist->fields['remaining'], $currencies->currencies[DEFAULT_CURRENCY]['decimal_precise']);
 		$cog_owed = $owed[$result->fields['sku']] ? $owed[$result->fields['sku']] : 0;

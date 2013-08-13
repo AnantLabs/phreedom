@@ -40,8 +40,8 @@ class journal_21 extends journal {
         $this->purchase_invoice_id = $result->fields['next_check_num'];     
         $this->gl_acct_id          = $_SESSION['admin_prefs']['def_cash_acct'] ? $_SESSION['admin_prefs']['def_cash_acct'] : AP_PURCHASE_INVOICE_ACCOUNT;
 		parent::__construct($id);    
-	  }
-
+	}
+ 	
 	function post_ordr($action) {
 		global $db, $messageStack;
 		$debit_total  = 0;

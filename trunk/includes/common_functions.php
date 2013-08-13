@@ -1900,7 +1900,7 @@ function csv_string_to_array($str = '') {
 // Section 9. Error Handling Functions
 /**************************************************************************************************************/
 
-function PhreebooksErrorHandler($errno, $errstr, $errfile, $errline) {
+function PhreebooksErrorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
 	global $messageStack;
     if (!(error_reporting() & $errno)) {
         // This error code is not included in error_reporting
@@ -2016,4 +2016,15 @@ function PhreebooksErrorHandler($errno, $errstr, $errfile, $errline) {
     return true;
 }
 
+function PhreebooksExceptionHandler($exception) {
+	global $messageStack;
+	if ($_POST['page'] == 'ajax' || $_GET['page'] == 'ajax'){
+    	echo createXmlHeader() . xmlEntry('error', "Exception: " , $exception->getMessage()) . createXmlFooter();
+        die();
+    }
+    $messageStack->add($exception->getMessage(), 'error');
+  	$text  = date('Y-m-d H:i:s') . " User: " . $_SESSION['admin_id'] . " Company: " . $_SESSION['company'] ;
+    $text .= " EXCEPTION: '" . $exception->getMessage() . "' line " . $exception->getLine() . " in file " . $exception->getFile();
+    if(DEBUG) error_log($text . PHP_EOL, 3, DIR_FS_MY_FILES."/errors.log");
+}
 ?>

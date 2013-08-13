@@ -91,7 +91,7 @@ $menu[] = array(
   'heading'     => MENU_HEADING_COMPANY,
   'rank'        => 10,
   'security_id' => SECURITY_ID_CONFIGURATION, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 0 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_CONFIGURATION]) && $_SESSION['admin_security'][SECURITY_ID_CONFIGURATION] > 0) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=admin', 'SSL'),
   'params'      => '',
 );
@@ -127,7 +127,7 @@ $menu[] = array(
   'heading'     => MENU_HEADING_TOOLS,
   'rank'        => 95,
   'security_id' => SECURITY_ID_BACKUP, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_BACKUP] > 3 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_BACKUP]) && $_SESSION['admin_security'][SECURITY_ID_BACKUP] > 3) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=phreedom&amp;page=backup', 'SSL'),
   'params'      => '',
 );

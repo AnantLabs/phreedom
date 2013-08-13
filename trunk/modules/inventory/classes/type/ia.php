@@ -16,7 +16,6 @@ class ia extends inventory { //Master Build Sub Item. child of mb (master assemb
 	public $attr_name_0				= '';
 	public $attr_name_1				= '';
 	public $child_array 			= array();
-	public $edit_ms_list			= false;
 	public $bom		 				= array();
 	public $allow_edit_bom			= true;  
 	public $posible_transactions	= array('sell');
@@ -96,7 +95,7 @@ class ia extends inventory { //Master Build Sub Item. child of mb (master assemb
 			  $temp_ms1[$code] = $desc;
 			}
 		}
-		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku like '" . $this->master . "-%' and inventory_type = 'mi' and sku<>'".$this->sku."'");
+		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku like '" . $this->master . "-%' and inventory_type = 'ia' and sku<>'".$this->sku."'");
 		$i = 0;
 		while(!$result->EOF){
 			$temp = explode('-',$result->fields['sku']); 

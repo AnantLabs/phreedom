@@ -33,6 +33,8 @@ switch (JOURNAL_ID) {
 $security_level = validate_user($security_token);
 /**************  include page specific files    *********************/
 gen_pull_language('contacts');
+gen_pull_language('inventory');
+gen_pull_language('shipping');
 require_once(DIR_FS_WORKING . 'defaults.php');
 require_once(DIR_FS_MODULES . 'inventory/defaults.php');
 require_once(DIR_FS_WORKING . 'functions/phreebooks.php');

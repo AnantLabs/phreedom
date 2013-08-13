@@ -72,7 +72,6 @@ function loadSkuDetails(iID, rowCnt, strict) {
 }
 
 function processSkuStock(sXml) {
-  var stock;
   var xml = parseXml(sXml);
   if (!xml) return;
   if (!$(xml).find("rID").text()) return; // no results

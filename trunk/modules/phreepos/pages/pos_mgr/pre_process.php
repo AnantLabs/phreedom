@@ -20,15 +20,21 @@ $security_level = validate_user(SECURITY_ID_POS_MGR);
 define('JOURNAL_ID','19');
 /**************  include page specific files    *********************/
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
-require_once(DIR_FS_WORKING . 'classes/phreepos.php');
+if (file_exists(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php')) { 
+	require_once(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php') ; 
+}else{
+    require_once(DIR_FS_MODULES . 'phreepos/classes/journal/journal_'.JOURNAL_ID.'.php'); // is needed here for the defining of the class and retriving the security_token
+}
+$class = 'journal_'.JOURNAL_ID;
 /**************   page specific initialization  *************************/
 define('POPUP_FORM_TYPE','pos:rcpt');
-$error          = false;
-$_GET['sf'] = $_POST['sort_field'] ? $_POST['sort_field'] : $_GET['sf'];
-$_GET['so'] = $_POST['sort_order'] ? $_POST['sort_order'] : $_GET['so'];
+$error      = false;
+$_GET['sf'] = isset($_POST['sort_field']) ? $_POST['sort_field'] : $_GET['sf'];
+$_GET['so'] = isset($_POST['sort_order']) ? $_POST['sort_order'] : $_GET['so'];
+if(!isset($_REQUEST['list'])) $_REQUEST['list'] = 1; 
 /***************   hook for custom actions  ***************************/
-$date           = ($_POST['search_date'])    ? gen_db_date($_POST['search_date']) 	: false;
-$acct_period 	= $_GET['search_period']     ? $_GET['search_period']         		: false;
+$date           = isset($_POST['search_date'])    ? gen_db_date($_POST['search_date']) 	: false;
+$acct_period 	= isset($_GET['search_period'])   ? $_GET['search_period']         		: false;
 $search_text 	= db_input($_REQUEST['search_text']);
 if ($search_text == TEXT_SEARCH) $search_text = '';
 $action         = isset($_GET['action']) ? $_GET['action'] : $_POST['todo'];
@@ -41,7 +47,7 @@ switch ($action) {
   case 'delete':
     $id = db_prepare_input($_POST['rowSeq']);
 	if ($id) {
-	  $delOrd = new phreepos($id);
+	  $delOrd = new $class($id);
 	  if ($_SESSION['admin_prefs']['restrict_period'] && $delOrd->period <> CURRENT_ACCOUNTING_PERIOD) {
 	    $error = $messageStack->add(ORD_ERROR_DEL_NOT_CUR_PERIOD, 'error');
 	    break;

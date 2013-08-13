@@ -57,7 +57,7 @@ $menu[] = array(
   'rank'        => 1, 
   'hide'        => true,
   'security_id' => SECURITY_ID_MAINTAIN_INVENTORY, 
-  'hidden'      => $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_INVENTORY] > 1 ? false : true,
+  'hidden'      => (isset($_SESSION['admin_security'][SECURITY_ID_MAINTAIN_INVENTORY]) && $_SESSION['admin_security'][SECURITY_ID_MAINTAIN_INVENTORY] > 1) ? false : true,
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=main&amp;action=new', 'SSL'),
   'params'      => '',
 );
@@ -88,7 +88,7 @@ $menu[] = array(
   'link'        => html_href_link(FILENAME_DEFAULT, 'module=inventory&amp;page=assemblies', 'SSL'),
   'params'      => '',
 );
-if (ENABLE_MULTI_BRANCH) $menu[] = array(
+if (defined(ENABLE_MULTI_BRANCH) && ENABLE_MULTI_BRANCH == true) $menu[] = array(
   'text'        => BOX_INV_TRANSFER, 
   'heading'     => MENU_HEADING_INVENTORY, 
   'rank'        => 80, 

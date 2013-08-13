@@ -10,4 +10,7 @@ class ai extends inventory {//Activity Item
 	public $cost_method				= 'f';
 	public $posible_cost_methodes   = array();
 	
+	function update_inventory_status($sku, $field, $adjustment, $item_cost, $vendor_id, $desc){
+		return true;
+	}
 }

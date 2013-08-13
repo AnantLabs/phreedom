@@ -34,7 +34,7 @@ $cID    = db_prepare_input($_GET['cID']); // specifies the contact ID
 $jID    = db_prepare_input($_GET['jID']); // specifies the journal ID
 $rID    = db_prepare_input($_GET['rID']); // specifies the row to update
 $qty    = db_prepare_input($_GET['qty']); // specifes the quantity (for pricing)
-$strict = $_GET['strict'] ? true : false; // specifes strict match of sku value
+$strict = isset($_GET['strict']) ? true : false; // specifes strict match of sku value
 // some error checking
 if (!$sku && !$UPC && !$iID) {
 	echo createXmlHeader() . xmlEntry('error', AJAX_INV_NO_INFO) . createXmlFooter();
@@ -91,6 +91,9 @@ if($vendor) {
 	$purchase  = $db->Execute("select MIN(item_cost) as cheapest from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."'" );
 	if( $jID == 4 && $inventory_array['price_sheet_v'] == '' && $inventory_array['item_cost'] >= $purchase->fields['cheapest'] &&
 	  abs($inventory_array['item_cost'] - $purchase->fields['cheapest']) > 0.00001 ) $stock_note[] = sprintf(INV_CHEAPER_ELSEWHERE, $inventory_array['sku']);
+}else{
+	$purchase  = $db->Execute("select vendor_id, description_purchase, purch_package_quantity, purch_taxable, MAX(item_cost) as item_cost, price_sheet_v from " . TABLE_INVENTORY_PURCHASE . " where sku = '" .$inventory_array['sku']."'" );
+	if($purchase->RecordCount() == 1 )foreach ($purchase->fields as $key => $value) $inventory_array[$key] = $value;
 }
 if($inventory_array['purch_package_quantity'] == 0) $inventory_array['purch_package_quantity'] = 1;
 if (!$qty){

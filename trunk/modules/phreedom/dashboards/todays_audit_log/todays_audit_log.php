@@ -28,9 +28,15 @@ class todays_audit_log extends ctl_panel {
 	public $security_id  		= SECURITY_ID_CONFIGURATION;
 	public $title		 		= CP_TODAYS_AUDIT_LOG_TITLE;
 	public $version      		= 3.5;
+	public $size_params			= 1;
+	public $default_params 		= array('num_rows'=> 0);
+	
  
 	function Output($params) {
 		global $db, $currencies;
+		if(count($params) != $this->size_params){ //upgrading
+			$params = $this->Upgrade($params);
+		}
 		$list_length = array();
 		$contents = '';
 		$control  = '';
@@ -64,8 +70,9 @@ class todays_audit_log extends ctl_panel {
 	}
  
  	function Update() {
-		global $db;
-        $this->params['num_rows'] = db_prepare_input($_POST['todays_audit_log_num_rows']);
+ 		if(count($this->params) == 0){
+        	$this->params['num_rows'] = db_prepare_input($_POST['todays_audit_log_num_rows']);
+ 		}
 		parent::Update();
  	}
   

@@ -25,9 +25,15 @@ class po_status extends ctl_panel {
 	public $security_id  		= SECURITY_ID_PURCHASE_ORDER;
 	public $title		 		= CP_PO_STATUS_TITLE;
 	public $version      		= 3.5;
+	public $size_params			= 3;
+	public $default_params 		= array('num_rows'=> 0, 'order'   => 'asc', 'limit'   => 1);
+	
 
 	function Output($params) {
 		global $db, $currencies;
+		if(count($params) != $this->size_params){ //upgrading
+			$params = $this->Upgrade($params);
+		}
 		$list_length = array();
 		$contents = '';
 		$control  = '';
@@ -49,11 +55,14 @@ class po_status extends ctl_panel {
 		$control .= html_submit_field('sub_po_status', TEXT_SAVE);
 		$control .= '  </div>';
 		$control .= '</div>';
+		if(count($params) != $this->size_params){
+			$this->update();
+		}
 		// Build content box
 		$sql = "select id, post_date, purchase_invoice_id, bill_primary_name, total_amount, currencies_code, currencies_value 
 		  from " . TABLE_JOURNAL_MAIN . " where journal_id = 4 and closed = '0'";
-		if ($params['limit']=='1')    $sql .= " and post_date <= '".date('Y-m-d')."'";
-		if ($params['order']=='desc') $sql .= " order by post_date desc";
+		if ($params['limit'] == '1')    $sql .= " and post_date <= '".date('Y-m-d')."'";
+		if ($params['order'] == 'desc') $sql .= " order by post_date desc";
 		if ($params['num_rows'])      $sql .= " limit " . $params['num_rows'];
 		$result = $db->Execute($sql);
 		if ($result->RecordCount() < 1) {
@@ -78,11 +87,13 @@ class po_status extends ctl_panel {
 	}
 
 	function Update() {
-		$this->params = array(
-		  'num_rows'=> db_prepare_input($_POST['po_status_field_0']),
-		  'order'   => db_prepare_input($_POST['po_status_field_1']),
-		  'limit'   => db_prepare_input($_POST['po_status_field_2']),
-		);
+		if(count($this->params) == 0){
+			$this->params = array(
+			  'num_rows'=> db_prepare_input($_POST['po_status_field_0']),
+			  'order'   => db_prepare_input($_POST['po_status_field_1']),
+			  'limit'   => db_prepare_input($_POST['po_status_field_2']),
+			);
+		}
 		parent::Update();
 	}
 }

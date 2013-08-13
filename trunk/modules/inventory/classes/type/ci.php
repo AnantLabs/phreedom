@@ -8,4 +8,8 @@ class ci extends inventory {//Charge Item
 	public $account_cost_of_sales	= null;	
 	public $cost_method				= 'f';
 	public $posible_cost_methodes   = array('f');
+	
+	function update_inventory_status($sku, $field, $adjustment, $item_cost, $vendor_id, $desc){
+		return true;
+	}
 }

@@ -8,5 +8,8 @@ class sv extends inventory {//Service
 	public $cost_method				= 'f';
 	public $posible_cost_methodes   = array('f');
 	public $not_used_fields			= array('image_with_path', 'cost_method', 'item_weight', 'quantity_on_hand', 'quantity_on_order', 'quantity_on_sales_order', 'quantity_on_allocation', 'minimum_stock_level', 'reorder_quantity', 'upc_code', 'serialize');
-		   
+
+	function update_inventory_status($sku, $field, $adjustment, $item_cost, $vendor_id, $desc){
+		return true;
+	}
 }

@@ -82,7 +82,7 @@ if (SESSION_AUTO_REFRESH == '1') echo '  <script type="text/javascript">addLoadE
   <!-- Menu -->
   <?php if ($include_header) { require_once(DIR_FS_ADMIN . DIR_WS_THEMES . '/menu.php'); } else echo "<div>\n"?>
   <!-- Template -->
-  <?php if (is_file($template_path)) { require($template_path); } else die('No template file: ' . $template_path); ?>
+  <?php if (is_file($template_path)) { require($template_path); } else trigger_error('No template file: ' . $template_path, E_USER_ERROR); ?>
   </div>
   <!-- Footer -->
   <?php if ($include_footer) { // Hook for custom logo

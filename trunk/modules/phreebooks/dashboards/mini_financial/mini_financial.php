@@ -25,9 +25,14 @@ class mini_financial extends ctl_panel {
 	public $security_id  		= SECURITY_ID_JOURNAL_ENTRY;
 	public $title		 		= CP_MINI_FINANCIAL_TITLE;
 	public $version      		= 3.5;
+	public $size_params			= 0;
+	public $default_params 		= array();
 
 	function Output($params) {
 		global $db;
+		if(count($params) != $this->size_params){ //upgrading
+			$params = $this->Upgrade($params);
+		}
 		$contents = '';
 		$control  = '';
 		// Build control box form data
@@ -195,6 +200,5 @@ class mini_financial extends ctl_panel {
 		$this->total_3 = $ytd_total_1;
 		return $account_array;
 	}
-
 }
 ?>

@@ -239,7 +239,7 @@ switch ($action) {
 		if ($value['id'] == $default_language) $language_index = $value['id'];
 	  }
 	}
-	$include_template = $_GET['req']=='pw_lost_req' ? 'template_pw_lost.php' : 'template_login.php';
+	$include_template = $action == 'pw_lost_req' ? 'template_pw_lost.php' : 'template_login.php';
   	$include_header   = false;
 	$include_footer   = false;
 	define('PAGE_TITLE', TITLE);

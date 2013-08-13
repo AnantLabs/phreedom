@@ -45,17 +45,21 @@ gen_pull_language('contacts');
 require_once(DIR_FS_MODULES . 'phreebooks/functions/phreebooks.php');
 require_once(DIR_FS_MODULES . 'phreebooks/classes/gen_ledger.php');
 require_once(DIR_FS_MODULES . 'phreebooks/classes/orders.php');
-require_once(DIR_FS_WORKING . 'classes/phreepos.php');
-
+if (file_exists(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php')) { 
+	require_once(DIR_FS_MODULES . 'phreepos/custom/classes/journal/journal_'.JOURNAL_ID.'.php') ; 
+}else{
+    require_once(DIR_FS_MODULES . 'phreepos/classes/journal/journal_'.JOURNAL_ID.'.php'); // is needed here for the defining of the class and retriving the security_token
+}
+$class = 'journal_'.JOURNAL_ID;
 /**************   page specific initialization  *************************/
 $error             = false;
 $post_success      = false;
 $default_dep_acct  = JOURNAL_ID == 19 ? AR_DEF_DEPOSIT_ACCT : AP_DEF_DEPOSIT_ACCT;
-$order             = new phreepos();
-$action            = isset($_GET['action'])        ? $_GET['action']                                 : $_POST['todo'];
-$gl_acct_id        = $_POST['gl_acct_id']          ? db_prepare_input($_POST['gl_acct_id'])          : $order->gl_acct_id;
-$next_inv_ref      = $_POST['purchase_invoice_id'] ? db_prepare_input($_POST['purchase_invoice_id']) : $order->purchase_invoice_id;
-$post_date         = $_POST['post_date']           ? gen_db_date($_POST['post_date'])                : date('Y-m-d');
+$order             = new $class();
+$action            = isset($_GET['action'])        		  ? $_GET['action']                                 : $_POST['todo'];
+$gl_acct_id        = isset($_POST['gl_acct_id'])          ? db_prepare_input($_POST['gl_acct_id'])          : $order->gl_acct_id;
+$next_inv_ref      = isset($_POST['purchase_invoice_id']) ? db_prepare_input($_POST['purchase_invoice_id']) : $order->purchase_invoice_id;
+$post_date         = isset($_POST['post_date'])           ? gen_db_date($_POST['post_date'])                : date('Y-m-d');
 $period            = gen_calculate_period($post_date);
 if (!$period) { // bad post_date was submitted
   $action    = '';

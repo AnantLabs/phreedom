@@ -22,13 +22,34 @@ class ms extends inventory {//Master Stock Item parent of mi
 	}
 	
 	function get_item_by_id($id){
+		$this->child_array = null;
 		parent::get_item_by_id($id);
 		$this->get_ms_list();
 	}
 	
 	function get_item_by_sku($sku){
+		$this->child_array = null;
 		parent::get_item_by_sku($sku);
 		$this->get_ms_list();
+	}
+	
+	//this is to copy a product
+	function copy($id, $newSku) {
+		global $db;
+		if(parent::copy($id, $newSku)){
+			$result = $db->Execute("select * from " . TABLE_INVENTORY_MS_LIST . " where sku = '" . $this->old_sku . "'");
+			$data_array = array(
+				'sku'         => $this->sku,
+				'attr_0'      => $result->fields['ms_attr_0'],
+				'attr_name_0' => $result->fields['attr_name_0'],
+				'attr_1'      => $result->fields['ms_attr_1'],
+				'attr_name_1' => $result->fields['attr_name_1']);
+			db_perform(TABLE_INVENTORY_MS_LIST, $data_array, 'insert');
+			$this->get_ms_list();
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	function get_ms_list(){

@@ -59,7 +59,7 @@ define('TEXT_TRANSACTION_TYPE','Transactie Type');
 define('TEXT_TRANSACTION_DATE','Transactie Datum');
 define('TEXT_TOTAL','Totaal');
 define('TEXT_TIME','Tijd');
-define('TEXT_TITLE','Phreebooks ERP');
+define('TEXT_TITLE','Titel');
 define('TEXT_TO','Aan');
 define('TEXT_TOGGLE','Wissel Status');
 define('TEXT_TOOLS','Gereedschappen');

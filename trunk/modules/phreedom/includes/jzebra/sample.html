@@ -656,12 +656,13 @@
       <!-- Optional, searches for printer with "zebra" in the name on load -->
       <!-- Note:  It is recommended to use applet.findPrinter() instead for ajax heavy applications -->
       <param name="printer" value="zebra">
-      <!-- Optional, these "cache_" params enable faster loading "caching" of the applet -->
-      <param name="cache_option" value="plugin">
+      <!-- ALL OF THE CACHE OPTIONS HAVE BEEN REMOVED DUE TO A BUG WITH JAVA 7 UPDATE 25 -->
+	  <!-- Optional, these "cache_" params enable faster loading "caching" of the applet -->
+      <!-- <param name="cache_option" value="plugin"> -->
       <!-- Change "cache_archive" to point to relative URL of jzebra.jar -->
-      <param name="cache_archive" value="./jzebra.jar">
+      <!-- <param name="cache_archive" value="./jzebra.jar"> -->
       <!-- Change "cache_version" to reflect current jZebra version -->
-      <param name="cache_version" value="1.4.8.0">
+      <!-- <param name="cache_version" value="1.4.9.1"> -->
    </applet><br />
    
    </td><td valign="top"><h2>Raw Printers Only</h2>
@@ -671,9 +672,10 @@
    <input type=button onClick="printPages()" value="Print Spooling Every 3" /><br />
    <input type=button onClick="printXML()" value="Print XML" /><br />
    <input type=button onClick="printHex()" value="Print Hex" /><br />
-   Print File: 
-      <input type=button onClick="printFile('zpl_sample.txt')" value="ZPL" />
-      <input type=button onClick="printFile('fgl_sample.txt')" value="FGL" /><br />                                                       
+   Print File:<br />
+      <input type=button onClick="printFile('zpl_sample.txt')" value="ZPL" />&nbsp;
+	  <input type=button onClick="printFile('fgl_sample.txt')" value="FGL" />&nbsp;
+	  <input type=button onClick="printFile('fgl_sample.txt')" value="EPL" /><br />                                                       
    <input type=button onClick="printZPLImage()" value="Print ZPL Image" /><br />
    <input type=button onClick="printToFile()" value="Print To File" /><br />
    <input type=button onClick="useAlternatePrinting()" value="Use Alternate Printing" /><br />

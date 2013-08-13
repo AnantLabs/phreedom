@@ -26,17 +26,49 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 	}
 	
 	function get_item_by_id($id){
+		$this->child_array  = null;
+		$this->bom 			= null;
 		parent::get_item_by_id($id);
 		$this->get_ms_list();
 		$this->get_bom_list();
 	}
 	
 	function get_item_by_sku($sku){
+		$this->child_array  = null;
+		$this->bom 			= null;
 		parent::get_item_by_sku($sku);
 		$this->get_ms_list();
 		$this->get_bom_list();
 	}
-
+	
+	//this is to copy a product
+	function copy($id, $newSku) {
+		global $db;
+		if(parent::copy($id, $newSku)){
+			$result = $db->Execute("select * from " . TABLE_INVENTORY_MS_LIST . " where sku = '" . $this->old_sku . "'");
+			$data_array = array(
+				'sku'         => $this->sku,
+				'attr_0'      => $result->fields['ms_attr_0'],
+				'attr_name_0' => $result->fields['attr_name_0'],
+				'attr_1'      => $result->fields['ms_attr_1'],
+				'attr_name_1' => $result->fields['attr_name_1']);
+			db_perform(TABLE_INVENTORY_MS_LIST, $data_array, 'insert');
+			$result = $db->Execute("select * from " . TABLE_INVENTORY_MS_LIST . " where sku = '" . $this->old_sku . "'");
+			$bom_list = array(
+			  	'ref_id'      => $this->id,
+			  	'sku'         => $result->fields['sku'],
+				'description' => $result->fields['description'],
+				'qty'         => $result->fields['qty'],
+			);
+			db_perform(TABLE_INVENTORY_ASSY_LIST, $bom_list, 'insert');
+			$this->get_ms_list();
+			$this->get_bom_list();
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	function get_bom_list(){
 		global $db;
 		$this->assy_cost = 0; 
@@ -86,7 +118,7 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 			}
 			ksort($this->attr_array1);
 		}
-		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku like '" . $this->sku . "-%' and inventory_type = 'mi' order by sku asc");
+		$result = $db->Execute("select * from " . TABLE_INVENTORY . " where sku like '" . $this->sku . "-%' and inventory_type = 'ia' order by sku asc");
 		$i = 0;
 		while(!$result->EOF){
 			$temp = explode('-',$result->fields['sku']); 
@@ -159,7 +191,7 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 	}
 	
 	function save(){
-		global $db, $messageStack, $security_level;
+		global $db, $messageStack, $security_level, $currencies;
 		$bom_list = array();
 		for($x=0; $x < count($_POST['assy_sku']); $x++) {
 			$bom_list[$x] = array(
@@ -188,7 +220,7 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 		if($error) return false;
 	  	if ($this->allow_edit_bom == true) { // only update if no posting has been performed
 	  		$result = $db->Execute("delete from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = " . $this->id);
-			while ($list_array = array_shift($bom_list)) {
+			foreach($bom_list as $list_array) {
 				unset($list_array['item_cost']);
 				unset($list_array['full_price']);
 				db_perform(TABLE_INVENTORY_ASSY_LIST, $list_array, 'insert');
@@ -254,7 +286,7 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 				);
 				db_perform(TABLE_INVENTORY_PURCHASE, $purchase_data_array, 'insert');
 			}
-			while ($list_array = array_shift($bom_list)) {
+			foreach($bom_list as $list_array) {
 				$list_array['ref_id'] = $new_id; 
 				unset($list_array['item_cost']);
 				unset($list_array['full_price']);
@@ -306,7 +338,7 @@ class mb extends inventory {//Master Build (combination of Master Stock Item and
 			$this->allow_edit_bom = (($result->fields['last_journal_date'] == '0000-00-00 00:00:00' || $result->fields['last_journal_date'] == '') && ($result->fields['quantity_on_hand'] == 0|| $result->fields['quantity_on_hand'] == '')) ? true : false;
 		  	if ($this->allow_edit_bom == true) { // only update if no posting has been performed
 		  		$temp = $db->Execute("delete from " . TABLE_INVENTORY_ASSY_LIST . " where ref_id = " . $result->fields['id']);
-				while ($list_array = array_shift($bom_list)) {
+		  		foreach($bom_list as $list_array) {
 					$list_array['ref_id'] = $result->fields['id']; 
 					unset($list_array['item_cost']);
 					unset($list_array['full_price']);

@@ -227,7 +227,6 @@ function InventoryList(rowCnt) {
 	if(rowCnt == '') return;
   	window.open("index.php?module=inventory&page=popup_inv&rowID="+rowCnt+"&search_text="+document.getElementById('sku_'+rowCnt).value,"inventory","width=700,height=550,resizable=1,scrollbars=1,top=150,left=200");
 }
-<?php if(isset($cInfo->edit_ms_list) && $cInfo->edit_ms_list == true) {?> 
 // ******* BOF - MASTER STOCK functions *********/
 
 function masterStockTitle(id) {
@@ -414,8 +413,7 @@ function insertTableRow(newValue0, newValue1, newValue2) {
 	}
   }
 //******* BOF - MASTER STOCK functions *********/
-<?php }?>
-<?php if (isset($cInfo->bom)){ ?>
+
 // ******* BOF - BOM functions *********/
 
 function addBOMRow() {
@@ -560,7 +558,7 @@ function bomTotalValues(){
 	document.getElementById('total_sales_price').value = formatCurrency( salesPrice );
 }
 // ******* EOF - BOM functions *********/
-<?php }?>
+
 // ******* BOF - AJAX Where Used pair *********/
 function ajaxWhereUsed() {
   var id = document.getElementById('rowSeq').value;
@@ -666,8 +664,6 @@ $(document).ready(function(){
 	});
 });
 // ******* EOF - AJAX BOM Where Used pair *********/
-
-<?php if ($include_template == 'template_main.php'){?>
 // ******* BOF - filter functions *****************/ 
  
 function updateFilter(rowCnt, start){
@@ -766,7 +762,7 @@ $(document).keydown(function(e) {
     }
  });
 // *********** EOF - filter functions *****************/
-<?php }?>
+
 
 // -->
 </script>

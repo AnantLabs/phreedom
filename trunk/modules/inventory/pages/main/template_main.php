@@ -101,7 +101,7 @@ echo $toolbar->build_toolbar($add_search = false);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('apps/accessories-text-editor.png', TEXT_RENAME, 'small', 'onclick="renameItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 3 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('emblems/emblem-unreadable.png', TEXT_DELETE, 'small', 'onclick="if (confirm(\'' . INV_MSG_DELETE_INV_ITEM . '\')) deleteItem(' . $query_result->fields['id'] . ')"') . chr(10);
 	  if ($security_level > 1 && $query_result->fields['inventory_type'] <> 'mi') echo html_icon('actions/edit-copy.png', TEXT_COPY_TO, 'small', 'onclick="copyItem(' . $query_result->fields['id'] . ')"') . chr(10);
-	  if ($security_level > 2) echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_SALES_PRICE_SHEETS, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', "", ' . $query_result->fields['full_price'] . ', \'c\')"') . chr(10);
+	  if ($security_level > 2) echo html_icon('mimetypes/x-office-spreadsheet.png', TEXT_SALES_PRICE_SHEETS, 'small', 'onclick="priceMgr(' . $query_result->fields['id'] . ', \'\', ' . $query_result->fields['full_price'] . ', \'c\')"') . chr(10);
 	  ?>
 	</td>
   </tr> 
